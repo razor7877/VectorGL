@@ -62,8 +62,8 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	Shader shaderProgram = Shader("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
-	Shader shader2 = Shader("src/shaders/vertex2.glsl", "src/shaders/fragment2.glsl");
+	Shader shaderProgram = Shader("src/shaders/shader1.vert", "src/shaders/shader1.frag");
+	Shader shader2 = Shader("src/shaders/shader2.vert", "src/shaders/shader2.frag");
 
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
