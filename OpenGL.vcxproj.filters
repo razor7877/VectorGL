@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Fichiers sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Fichiers de ressources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Fichiers sources\src">
+      <UniqueIdentifier>{e84952f5-602b-4699-a544-7143af8181a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\src\headers">
+      <UniqueIdentifier>{a378c787-d074-4a76-b719-664f5bb08df7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\src\shaders">
+      <UniqueIdentifier>{2e134c2e-d448-4584-b383-4aa0013c351d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\libs">
+      <UniqueIdentifier>{28749ce0-6a18-467e-9aa8-17674355a2d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\imgui">
+      <UniqueIdentifier>{e66ebf73-dbe6-496b-9552-49825aa5a419}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\texture.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb_image.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameObject.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="libs\glad.c">
+      <Filter>Fichiers sources\libs</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_draw.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_tables.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_widgets.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_demo.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_impl_glfw.cpp">
+      <Filter>Fichiers sources\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\interface.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\headers\camera.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\gameObject.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\main.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\shader.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\texture.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\interface.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\input.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\fragment2.glsl">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\vertex.glsl">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\vertex2.glsl">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\fragment.glsl">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
