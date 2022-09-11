@@ -54,6 +54,15 @@ void ImGuiDrawWindows(Camera &camera, Shader shaderProgram, float &mixval)
 	ImGui::InputFloat("Speed", &camera.movementSpeed);
 	ImGui::InputFloat("Sensitivity", &camera.mouseSensitivity);
 
+	ImGui::NewLine();
+	if (ImGui::Button("Reset"))
+	{
+		camera.zoom = ZOOM;
+		camera.position = glm::vec3(0.0f, 0.0f, 0.0f);
+		camera.movementSpeed = SPEED;
+		camera.mouseSensitivity = SENSITIVITY;
+	}
+
 	ImGui::End();
 
 	ImGui::Render();
