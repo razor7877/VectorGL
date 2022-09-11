@@ -13,7 +13,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
-#include <assimp/ObjMaterial.h>
 
 #include "headers/main.hpp"
 #include "headers/shader.hpp"
@@ -248,6 +247,9 @@ int main()
 
 	phongShader.use();
 	phongShader.setMat4("projection", projection);
+	phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+	phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	phongShader.setVec3("lightPos", lightPos);
 
 	gameObject cube = gameObject(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
 	unsigned int normalBuffer;
@@ -301,12 +303,10 @@ int main()
 		phongShader.use();
 		phongShader.setMat4("projection", projection);
 		phongShader.setMat4("view", view);
-		phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 		cube.drawObject();
 
-		ImGuiDrawWindows(camera, shaderProgram);
+		ImGuiDrawWindows(camera);
 
 		// Swap buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

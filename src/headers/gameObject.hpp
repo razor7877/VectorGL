@@ -20,7 +20,7 @@ public:
 	bool hasTexture;
 	Texture texture;
 
-	// Instantiate a game object, generates the VBO, VAO and attrib pointers
+	// Instantiates a game object, generates the VBO, VAO and attrib pointers
 	gameObject(float vertices[], unsigned int vertSize, unsigned int shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Used in render loop to draw vertices arrays to screen

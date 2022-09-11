@@ -6,6 +6,6 @@
 #include "headers/camera.hpp"
 
 void ImGuiInit(GLFWwindow* window);
-void ImGuiDrawWindows(Camera &camera, Shader shaderProgram);
+void ImGuiDrawWindows(Camera &camera);
 
 #endif

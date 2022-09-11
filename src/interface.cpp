@@ -2,7 +2,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "headers/shader.hpp"
 #include "headers/interface.hpp"
 #include "headers/camera.hpp"
 
@@ -19,7 +18,7 @@ void ImGuiInit(GLFWwindow* window)
 	ImGui::StyleColorsDark();
 }
 
-void ImGuiDrawWindows(Camera &camera, Shader shaderProgram)
+void ImGuiDrawWindows(Camera &camera)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
