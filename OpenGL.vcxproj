@@ -45,10 +45,14 @@
     <ClInclude Include="src\headers\texture.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\fragment.glsl" />
-    <None Include="src\shaders\fragment2.glsl" />
-    <None Include="src\shaders\vertex.glsl" />
-    <None Include="src\shaders\vertex2.glsl" />
+    <None Include="src\shaders\light.frag" />
+    <None Include="src\shaders\light.vert" />
+    <None Include="src\shaders\phong.frag" />
+    <None Include="src\shaders\phong.vert" />
+    <None Include="src\shaders\shader1.frag" />
+    <None Include="src\shaders\shader1.vert" />
+    <None Include="src\shaders\shader2.frag" />
+    <None Include="src\shaders\shader2.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -157,7 +161,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\razor7877\Desktop\OpenGL\OpenGL\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

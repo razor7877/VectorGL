@@ -19,19 +19,11 @@ void ImGuiInit(GLFWwindow* window)
 	ImGui::StyleColorsDark();
 }
 
-void ImGuiDrawWindows(Camera &camera, Shader shaderProgram, float &mixval)
+void ImGuiDrawWindows(Camera &camera, Shader shaderProgram)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-	// Shader texture mixing value
-	ImGui::Begin("Settings");
-
-	ImGui::SliderFloat("mixval", &mixval, 0.0f, 1.0f);
-	shaderProgram.setFloat("mixval", mixval);
-
-	ImGui::End();
 
 	ImGui::Begin("Camera");
 

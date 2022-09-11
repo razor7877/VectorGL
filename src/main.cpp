@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
+#include <assimp/ObjMaterial.h>
 
 #include "headers/main.hpp"
 #include "headers/shader.hpp"
@@ -29,6 +30,8 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main()
 {
@@ -64,7 +67,8 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	Shader shaderProgram = Shader("src/shaders/shader1.vert", "src/shaders/shader1.frag");
-	Shader shader2 = Shader("src/shaders/shader2.vert", "src/shaders/shader2.frag");
+	Shader lightShader = Shader("src/shaders/light.vert", "src/shaders/light.frag");
+	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
 
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,
@@ -110,6 +114,45 @@ int main()
 	-0.5f,  0.5f, -0.5f,  
 	};
 
+	float normals[] = {
+		0.0f,  0.0f, -1.0f,
+		0.0f,  0.0f, -1.0f,
+		0.0f,  0.0f, -1.0f,
+		0.0f,  0.0f, -1.0f,
+		0.0f,  0.0f, -1.0f,
+		0.0f,  0.0f, -1.0f,
+		0.0f,  0.0f, 1.0f,
+		0.0f,  0.0f, 1.0f,
+		0.0f,  0.0f, 1.0f,
+		0.0f,  0.0f, 1.0f,
+		0.0f,  0.0f, 1.0f,
+		0.0f,  0.0f, 1.0f,
+		-1.0f,  0.0f,  0.0f,
+		-1.0f,  0.0f,  0.0f,
+		-1.0f,  0.0f,  0.0f,
+		-1.0f,  0.0f,  0.0f,
+		-1.0f,  0.0f,  0.0f,
+		-1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		1.0f,  0.0f,  0.0f,
+		0.0f, -1.0f,  0.0f,
+		0.0f, -1.0f,  0.0f,
+		0.0f, -1.0f,  0.0f,
+		0.0f, -1.0f,  0.0f,
+		0.0f, -1.0f,  0.0f,
+		0.0f, -1.0f,  0.0f,
+		0.0f,  1.0f,  0.0f,
+		0.0f,  1.0f,  0.0f,
+		0.0f,  1.0f,  0.0f,
+		0.0f,  1.0f,  0.0f,
+		0.0f,  1.0f,  0.0f,
+		0.0f,  1.0f,  0.0f
+	};
+
 	float tcoords[] = {
 		0.0f, 0.0f,
 		1.0f, 0.0f,
@@ -149,24 +192,6 @@ int main()
 		0.0f, 1.0f
 	};
 
-	float v2[] = {
-		 0.5f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f
-	};
-
-	float texCoords[] = {
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f
-	};
-
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
 		glm::vec3(2.0f,  5.0f, -15.0f),
@@ -184,7 +209,6 @@ int main()
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 
 	Texture crate = Texture("img/container.jpg", GL_RGB, false);
-	Texture face = Texture("img/awesomeface.png", GL_RGBA, true);
 
 	shaderProgram.use();
 	// Set shader uniforms with MVP matrices
@@ -192,7 +216,6 @@ int main()
 	shaderProgram.setMat4("projection", projection);
 	// Set texture samplers
 	shaderProgram.setInt("texture1", 0);
-	shaderProgram.setInt("texture2", 1);
 	
 	gameObject cube0 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[0]);
 	gameObject cube1 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[1]);
@@ -214,23 +237,26 @@ int main()
 		containers[i].addTexture(crate, tcoords, sizeof(tcoords));
 	}
 
-	shader2.use();
-	shader2.setMat4("projection", projection);
-	shader2.setInt("texture1", 0);
-
-	gameObject square1 = gameObject(v2, sizeof(v2), shader2.ID, glm::vec3(0.0f, 0.0f, 2.0f));
-	gameObject square2 = gameObject(v2, sizeof(v2), shader2.ID, glm::vec3(0.0f, 0.0f, -2.0f));
-	gameObject square3 = gameObject(v2, sizeof(v2), shader2.ID, glm::vec3(3.0f, 3.0f, 2.0f));
-
-	square1.addTexture(crate, texCoords, sizeof(texCoords));
-
-	gameObject objects[] = {
-		square1, square2, square3
-	};
-
 	float currentFrame;
-	float mixval = 0.5f;
 	float fov = camera.zoom;
+
+	lightShader.use();
+	lightShader.setMat4("projection", projection);
+
+	gameObject light = gameObject(vertices, sizeof(vertices), lightShader.ID, lightPos);
+	light.scaleModel(0.25f, 0.25f, 0.25f);
+
+	phongShader.use();
+	phongShader.setMat4("projection", projection);
+
+	gameObject cube = gameObject(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
+	unsigned int normalBuffer;
+	glGenBuffers(1, &normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window);
@@ -247,32 +273,17 @@ int main()
 		processInput(window, deltaTime);
 
 		// Clears the buffers and last frame before rendering the next one
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Updates matrixes to update camera movement
 		projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 		view = camera.getViewMatrix();
 
-		// Updates 2nd shader uniforms
-		shader2.use();
-		shader2.setMat4("projection", projection);
-		shader2.setMat4("view", view);
-
-		objects[0].rotateModel(0.1f, glm::vec3(1.0f, 1.0f, 2.0f));
-
-		for (int i = 0; i < sizeof(objects) / sizeof(gameObject); i++)
-		{
-			objects[i].drawObject();
-		}
-
 		// Updates 1st shader uniforms
 		shaderProgram.use();
 		shaderProgram.setMat4("projection", projection);
 		shaderProgram.setMat4("view", view);
-
-		glActiveTexture(GL_TEXTURE1);
-		face.bindTexture();
 
 		for (int i = 0; i < sizeof(containers) / sizeof(gameObject); i++)
 		{
@@ -280,7 +291,22 @@ int main()
 			containers[i].drawObject();
 		}
 
-		ImGuiDrawWindows(camera, shaderProgram, mixval);
+		// Updates light shader uniforms
+		lightShader.use();
+		lightShader.setMat4("projection", projection);
+		lightShader.setMat4("view", view);
+
+		light.drawObject();
+
+		phongShader.use();
+		phongShader.setMat4("projection", projection);
+		phongShader.setMat4("view", view);
+		phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+		cube.drawObject();
+
+		ImGuiDrawWindows(camera, shaderProgram);
 
 		// Swap buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

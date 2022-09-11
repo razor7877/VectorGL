@@ -96,16 +96,28 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\fragment2.glsl">
+    <None Include="src\shaders\shader1.vert">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
-    <None Include="src\shaders\vertex.glsl">
+    <None Include="src\shaders\shader2.frag">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
-    <None Include="src\shaders\vertex2.glsl">
+    <None Include="src\shaders\shader2.vert">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
-    <None Include="src\shaders\fragment.glsl">
+    <None Include="src\shaders\shader1.frag">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light.frag">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light.vert">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\phong.frag">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\phong.vert">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
   </ItemGroup>
