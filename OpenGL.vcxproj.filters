@@ -71,6 +71,9 @@
     <ClCompile Include="src\input.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\cubemap.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp">
@@ -92,6 +95,9 @@
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\input.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\cubemap.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
   </ItemGroup>

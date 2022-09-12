@@ -22,8 +22,11 @@
 #include "headers/interface.hpp"
 #include "headers/input.hpp"
 
-const int windowWidth = 1200;
-const int windowHeight = 900;
+const int WINDOW_WIDTH = 1200;
+const int WINDOW_HEIGHT = 900;
+
+int windowWidth = WINDOW_WIDTH;
+int windowHeight = WINDOW_HEIGHT;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -32,6 +35,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+// Uniform buffer object (global uniforms)
 unsigned int UBO;
 
 void initUniformBuffer()
@@ -61,7 +65,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Graphics Programming", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL 3D Engine", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -294,6 +298,10 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	float currentFrame;
+
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window);

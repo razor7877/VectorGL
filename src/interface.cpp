@@ -35,6 +35,7 @@ void ImGuiDrawWindows(Camera &camera)
 
 	CameraMenu(camera);
 	PerformanceMenu();
+	KeysMenu();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -95,9 +96,21 @@ void PerformanceMenu()
 		timeToFrame = frameTimeSum / 100;
 	}
 
-	ImGui::Text("Framerate:");
-	ImGui::SameLine();
-	ImGui::Text(std::to_string((int)(1 / timeToFrame)).c_str());
+	ImGui::Text("Framerate: %i", (int)(1 / timeToFrame));
+
+	ImGui::End();
+}
+
+void KeysMenu()
+{
+	ImGui::Begin("Controls");
+
+	ImGui::Text("Look around : Mouse");
+	ImGui::Text("Movement : WASD");
+	ImGui::Text("Toggle cursor : Left control");
+	ImGui::Text("Change FOV : Scroll wheel");
+	ImGui::Text("Toggle fullscreen : F11");
+	ImGui::Text("Quit : Esc");
 
 	ImGui::End();
 }

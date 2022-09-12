@@ -1,12 +1,22 @@
 #include "headers/main.hpp"
 #include "headers/input.hpp"
 #include "headers/camera.hpp"
+#include <iostream>
 
 float lastX = windowWidth / 2;
 float lastY = windowHeight / 2;
 
 bool showCursor = false;
 bool firstMouse = true;
+bool toggleFullscreen = false;
+
+// When toggling fullscreen on, save the resolution of window
+// If fullscreen is then toggled off, set window size to these values
+int lastWidth = WINDOW_WIDTH;
+int lastHeight = WINDOW_HEIGHT;
+// Used to save the last coordinates of the windowed mode window
+int lastXPos = 50;
+int lastYPos = 50;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -38,6 +48,13 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	// Quit program
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, true);
+	}
+
+	// Toggle to show/hide mouse cursor
 	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
 	{
 		showCursor = !showCursor;
@@ -51,16 +68,47 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 	}
+
+	// Toggle to go in or out of fullscreen mode
+	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		toggleFullscreen = !toggleFullscreen;
+		if (toggleFullscreen)
+		{
+			// Saves windowed mode resolution
+			lastWidth = windowWidth;
+			lastHeight = windowHeight;
+			// Saves windowed mode coordinates
+			glfwGetWindowPos(window, &lastXPos, &lastYPos);
+
+			// Sets window to fullscreen mode and updates viewport
+			glfwSetWindowMonitor(window, monitor, 50, 50, mode->width, mode->height, mode->refreshRate);
+			glViewport(0, 0, mode->width, mode->height);
+
+			// Sets window resolution values to monitor resolution
+			windowWidth = mode->width;
+			windowHeight = mode->height;
+		}
+		else
+		{
+			// Sets window to windowed mode and updates viewport
+			glfwSetWindowMonitor(window, nullptr, lastXPos, lastYPos, lastWidth, lastHeight, mode->refreshRate);
+			glViewport(0, 0, lastWidth, lastHeight);
+
+			std::cout << lastXPos << " " << lastYPos << std::endl;
+
+			// Sets window resolution values to last saved windowed values
+			windowWidth = lastWidth;
+			windowHeight = lastHeight;
+		}
+	}
 }
 
 void processInput(GLFWwindow* window, float &deltaTime)
 {
-	// Quit program
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(window, true);
-	}
-
 	// If cursor is shown, don't handle movement
 	if (showCursor)
 	{

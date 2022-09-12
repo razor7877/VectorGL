@@ -27,6 +27,7 @@
     <ClCompile Include="includes\imgui\imgui_tables.cpp" />
     <ClCompile Include="includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="libs\glad.c" />
+    <ClCompile Include="src\cubemap.cpp" />
     <ClCompile Include="src\gameObject.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\interface.cpp" />
@@ -37,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp" />
+    <ClInclude Include="src\headers\cubemap.hpp" />
     <ClInclude Include="src\headers\gameObject.hpp" />
     <ClInclude Include="src\headers\input.hpp" />
     <ClInclude Include="src\headers\interface.hpp" />

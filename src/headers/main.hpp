@@ -5,8 +5,8 @@
 
 #include "headers/camera.hpp"
 
-extern const int windowWidth;
-extern const int windowHeight;
+extern int windowWidth;
+extern int windowHeight;
 
 extern Camera camera;
 
