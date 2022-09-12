@@ -27,7 +27,7 @@ void ImGuiInit(GLFWwindow* window)
 	ImGui::StyleColorsDark();
 }
 
-void ImGuiDrawWindows(Camera &camera)
+void ImGuiDrawWindows(Camera &camera, float &strength, glm::vec3 &position)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -36,6 +36,8 @@ void ImGuiDrawWindows(Camera &camera)
 	CameraMenu(camera);
 	PerformanceMenu();
 	KeysMenu();
+	ShaderSettings(strength);
+	LightSettings(position);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -111,6 +113,29 @@ void KeysMenu()
 	ImGui::Text("Change FOV : Scroll wheel");
 	ImGui::Text("Toggle fullscreen : F11");
 	ImGui::Text("Quit : Esc");
+
+	ImGui::End();
+}
+
+void ShaderSettings(float &strength)
+{
+	ImGui::Begin("Shader settings");
+	ImGui::PushItemWidth(100.0f);
+	ImGui::SliderFloat("Specular strength", &strength, 0.0f, 1.0f);
+	ImGui::End();
+}
+
+void LightSettings(glm::vec3& position)
+{
+	ImGui::Begin("Light settings");
+
+	ImGui::Text("Position :");
+	ImGui::PushItemWidth(50.0f);
+	ImGui::InputFloat("X", &position[0]);
+	ImGui::SameLine();
+	ImGui::InputFloat("Y", &position[1]);
+	ImGui::SameLine();
+	ImGui::InputFloat("Z", &position[2]);
 
 	ImGui::End();
 }

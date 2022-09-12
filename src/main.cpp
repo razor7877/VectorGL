@@ -23,8 +23,8 @@
 #include "headers/input.hpp"
 #include "headers/cubemap.hpp"
 
-const int WINDOW_WIDTH = 1200;
-const int WINDOW_HEIGHT = 900;
+const int WINDOW_WIDTH = 1920;
+const int WINDOW_HEIGHT = 1080;
 
 int windowWidth = WINDOW_WIDTH;
 int windowHeight = WINDOW_HEIGHT;
@@ -34,7 +34,7 @@ float lastFrame = 0.0f;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(1.0f, 1.4f, 4.0f);
 
 // Uniform buffer object (global uniforms)
 unsigned int UBO;
@@ -92,6 +92,9 @@ int main()
 	// Enables depth buffering
 	glEnable(GL_DEPTH_TEST);
 
+	// Enables face culling for improving performance
+	glEnable(GL_CULL_FACE);
+
 	Shader shaderProgram = Shader("src/shaders/shader1.vert", "src/shaders/shader1.frag");
 	Shader lightShader = Shader("src/shaders/light.vert", "src/shaders/light.frag");
 	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
@@ -142,47 +145,42 @@ int main()
 	};
 
 	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,  
-	 0.5f,  0.5f, -0.5f,  
-	-0.5f,  0.5f, -0.5f,  
-	-0.5f, -0.5f, -0.5f,  
-
-	-0.5f, -0.5f,  0.5f,  
-	 0.5f, -0.5f,  0.5f,  
-	 0.5f,  0.5f,  0.5f,  
-	 0.5f,  0.5f,  0.5f,  
-	-0.5f,  0.5f,  0.5f,  
-	-0.5f, -0.5f,  0.5f,  
-
-	-0.5f,  0.5f,  0.5f,  
-	-0.5f,  0.5f, -0.5f,  
-	-0.5f, -0.5f, -0.5f,  
-	-0.5f, -0.5f, -0.5f,  
-	-0.5f, -0.5f,  0.5f,  
-	-0.5f,  0.5f,  0.5f,  
-
-	 0.5f,  0.5f,  0.5f,  
-	 0.5f,  0.5f, -0.5f,  
-	 0.5f, -0.5f, -0.5f,  
-	 0.5f, -0.5f, -0.5f,  
-	 0.5f, -0.5f,  0.5f, 
-	 0.5f,  0.5f,  0.5f,  
-
-	-0.5f, -0.5f, -0.5f,  
-	 0.5f, -0.5f, -0.5f,  
-	 0.5f, -0.5f,  0.5f,  
-	 0.5f, -0.5f,  0.5f,  
-	-0.5f, -0.5f,  0.5f,  
-	-0.5f, -0.5f, -0.5f,  
-
-	-0.5f,  0.5f, -0.5f,  
-	 0.5f,  0.5f, -0.5f,  
-	 0.5f,  0.5f,  0.5f,  
-	 0.5f,  0.5f,  0.5f,  
-	-0.5f,  0.5f,  0.5f,  
-	-0.5f,  0.5f, -0.5f,  
+		-0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f,  0.5f,
+		 0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f,  0.5f,
 	};
 
 	float normals[] = {
@@ -224,6 +222,38 @@ int main()
 		0.0f,  1.0f,  0.0f
 	};
 
+	float trivertices[] = {
+		// first triangle
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f,  0.5f, 0.0f,  // top left 
+		// second triangle
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f   // top left
+	};
+	
+	/*
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(newVertices), &newVertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	*/
+
 	float tcoords[] = {
 		0.0f, 0.0f,
 		1.0f, 0.0f,
@@ -263,24 +293,12 @@ int main()
 		0.0f, 1.0f
 	};
 
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 
 	Texture crate = Texture("img/container.jpg", false);
 
+	// Sets up global uniforms for each shader used
 	initUniformBuffer();
 
 	unsigned int UBIshaderProgram = glGetUniformBlockIndex(shaderProgram.ID, "Matrices");
@@ -301,7 +319,14 @@ int main()
 	// Set texture samplers
 	shaderProgram.setInt("texture1", 0);
 	
-	gameObject cube0 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[0]);
+	gameObject cube0 = gameObject(vertices, sizeof(vertices), shaderProgram.ID);
+	unsigned int normalBuffer;
+	glGenBuffers(1, &normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
 	cube0.addTexture(crate, tcoords, sizeof(tcoords));
 
 	glm::vec3 translations[1000];
@@ -336,15 +361,17 @@ int main()
 	phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	phongShader.setVec3("lightPos", lightPos);
+	phongShader.setVec3("viewPos", camera.position);
+	phongShader.setFloat("specularStrength", 0.0f);
 
 	gameObject cube = gameObject(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
-	unsigned int normalBuffer;
+	//unsigned int normalBuffer;
 	glGenBuffers(1, &normalBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 
 	float currentFrame;
 
@@ -367,6 +394,8 @@ int main()
 	// Initializes the ImGui UI system
 	ImGuiInit(window);
 
+	float strength = 0.0f;
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -388,6 +417,22 @@ int main()
 
 		updateUniformBuffer(view, projection);
 
+		/*
+		glUseProgram(shaderProgram.ID);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		*/
+
+		// Models for phong lighting
+		phongShader.use();
+		phongShader.setVec3("viewPos", camera.position);
+
+		cube.rotateModel(0.25f, glm::vec3(1.0f));
+
+		light.drawObject();
+		cube.drawObject();
+
+		// For drawing the 1000 cubes
 		glUseProgram(cube0.shaderProgramID);
 		glBindVertexArray(cube0.VAO);
 		if (cube0.hasTexture)
@@ -399,14 +444,21 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(cube0.shaderProgramID, "model"), 1, GL_FALSE, &cube0.modelMatrix[0][0]);
 		glDrawArraysInstanced(GL_TRIANGLES, 0, cube0.vertSize, 1000);
 
-		light.drawObject();
-		cube.drawObject();
-
+		// For drawing the skybox
 		skyboxCube.drawSkybox(cubemap);
 
-		ImGuiDrawWindows(camera);
+		// Draws the ImGui interface windows
+		ImGuiDrawWindows(camera, strength, lightPos);
 
-		// Swap buffers to screen to show the rendered frame
+		phongShader.use();
+		phongShader.setFloat("specularStrength", strength);
+		phongShader.setVec3("lightPos", lightPos);
+
+		light.modelMatrix = glm::mat4(1.0f);
+		light.translateModel(lightPos);
+		light.scaleModel(0.25f, 0.25f, 0.25f);
+
+		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
