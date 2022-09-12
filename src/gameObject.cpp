@@ -28,6 +28,8 @@ gameObject::gameObject(float vertices[], unsigned int vertSize, unsigned int sha
 
 void gameObject::drawObject()
 {
+	glUseProgram(shaderProgramID);
+
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 

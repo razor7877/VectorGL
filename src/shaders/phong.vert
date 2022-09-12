@@ -6,8 +6,12 @@ out vec3 FragPos;
 out vec3 Normal;
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+
+layout (std140) uniform Matrices
+{
+	mat4 view;
+	mat4 projection;
+};
 
 void main()
 {

@@ -32,6 +32,28 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
+unsigned int UBO;
+
+void initUniformBuffer()
+{
+	glGenBuffers(1, &UBO);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2);
+}
+
+void updateUniformBuffer(glm::mat4 view, glm::mat4 projection)
+{
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &view[0][0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &projection[0][0]);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 int main()
 {
 	glfwInit();
@@ -209,10 +231,20 @@ int main()
 
 	Texture crate = Texture("img/container.jpg", GL_RGB, false);
 
+	initUniformBuffer();
+
+	unsigned int UBIshaderProgram = glGetUniformBlockIndex(shaderProgram.ID, "Matrices");
+	glUniformBlockBinding(shaderProgram.ID, UBIshaderProgram, 0);
+
+	unsigned int UBIlightShader = glGetUniformBlockIndex(lightShader.ID, "Matrices");
+	glUniformBlockBinding(lightShader.ID, UBIlightShader, 0);
+
+	unsigned int UBIphongShader = glGetUniformBlockIndex(phongShader.ID, "Matrices");
+	glUniformBlockBinding(phongShader.ID, UBIphongShader, 0);
+
+	updateUniformBuffer(view, projection);
+
 	shaderProgram.use();
-	// Set shader uniforms with MVP matrices
-	shaderProgram.setMat4("view", view);
-	shaderProgram.setMat4("projection", projection);
 	// Set texture samplers
 	shaderProgram.setInt("texture1", 0);
 	
@@ -240,7 +272,6 @@ int main()
 	float fov = camera.zoom;
 
 	lightShader.use();
-	lightShader.setMat4("projection", projection);
 
 	gameObject light = gameObject(vertices, sizeof(vertices), lightShader.ID, lightPos);
 	light.scaleModel(0.25f, 0.25f, 0.25f);
@@ -282,10 +313,7 @@ int main()
 		projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 		view = camera.getViewMatrix();
 
-		// Updates 1st shader uniforms
-		shaderProgram.use();
-		shaderProgram.setMat4("projection", projection);
-		shaderProgram.setMat4("view", view);
+		updateUniformBuffer(view, projection);
 
 		for (int i = 0; i < sizeof(containers) / sizeof(gameObject); i++)
 		{
@@ -293,17 +321,7 @@ int main()
 			containers[i].drawObject();
 		}
 
-		// Updates light shader uniforms
-		lightShader.use();
-		lightShader.setMat4("projection", projection);
-		lightShader.setMat4("view", view);
-
 		light.drawObject();
-
-		phongShader.use();
-		phongShader.setMat4("projection", projection);
-		phongShader.setMat4("view", view);
-
 		cube.drawObject();
 
 		ImGuiDrawWindows(camera);
