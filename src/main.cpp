@@ -249,27 +249,30 @@ int main()
 	shaderProgram.setInt("texture1", 0);
 	
 	gameObject cube0 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[0]);
-	gameObject cube1 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[1]);
-	gameObject cube2 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[2]);
-	gameObject cube3 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[3]);
-	gameObject cube4 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[4]);
-	gameObject cube5 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[5]);
-	gameObject cube6 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[6]);
-	gameObject cube7 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[7]);
-	gameObject cube8 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[8]);
-	gameObject cube9 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[9]);
+	cube0.addTexture(crate, tcoords, sizeof(tcoords));
 
-	gameObject containers[] = {
-		cube0, cube1, cube2, cube3, cube4, cube5, cube6, cube7, cube8, cube9
-	};
-
-	for (int i = 0; i < sizeof(containers) / sizeof(gameObject); i++)
+	glm::vec3 translations[10000];
+	int index = 0;
+	float offset = 1.0f;
+	for (int z = -200; z < 200; z += 20)
 	{
-		containers[i].addTexture(crate, tcoords, sizeof(tcoords));
+		for (int y = -200; y < 200; y += 20)
+		{
+			for (int x = -200; x < 200; x += 20)
+			{
+				glm::vec3 translation;
+				translation.x = (float)x / 10.0f + offset;
+				translation.y = (float)y / 10.0f + offset;
+				translation.z = (float)z / 10.0f + offset;
+				translations[index++] = translation;
+			}
+		}
 	}
 
-	float currentFrame;
-	float fov = camera.zoom;
+	for (int i = 0; i < 10000; i++)
+	{
+		shaderProgram.setVec3(("offsets[" + std::to_string(i) + "]"), translations[i]);
+	}
 
 	lightShader.use();
 
@@ -277,7 +280,6 @@ int main()
 	light.scaleModel(0.25f, 0.25f, 0.25f);
 
 	phongShader.use();
-	phongShader.setMat4("projection", projection);
 	phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	phongShader.setVec3("lightPos", lightPos);
@@ -290,6 +292,8 @@ int main()
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	float currentFrame;
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window);
@@ -315,11 +319,16 @@ int main()
 
 		updateUniformBuffer(view, projection);
 
-		for (int i = 0; i < sizeof(containers) / sizeof(gameObject); i++)
+		glUseProgram(cube0.shaderProgramID);
+		glBindVertexArray(cube0.VAO);
+		if (cube0.hasTexture)
 		{
-			containers[i].rotateModel(10.0f * deltaTime * (1+i), 1.0f, 1.0f, 1.0f);
-			containers[i].drawObject();
+			glActiveTexture(GL_TEXTURE0);
+			cube0.texture.bindTexture();
 		}
+
+		glUniformMatrix4fv(glGetUniformLocation(cube0.shaderProgramID, "model"), 1, GL_FALSE, &cube0.modelMatrix[0][0]);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, cube0.vertSize, 10000);
 
 		light.drawObject();
 		cube.drawObject();

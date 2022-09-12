@@ -1,9 +1,18 @@
+#include <string>
+#include <cstring>
+#include <iostream>
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "headers/main.hpp"
 #include "headers/interface.hpp"
 #include "headers/camera.hpp"
+
+float lastFrames[100];
+int frameIndex{};
+float timeToFrame = 1;
 
 void ImGuiInit(GLFWwindow* window)
 {
@@ -24,6 +33,15 @@ void ImGuiDrawWindows(Camera &camera)
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+	CameraMenu(camera);
+	PerformanceMenu();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void CameraMenu(Camera& camera)
+{
 	ImGui::Begin("Camera");
 
 	// Camera FOV value
@@ -55,7 +73,31 @@ void ImGuiDrawWindows(Camera &camera)
 	}
 
 	ImGui::End();
+}
 
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+void PerformanceMenu()
+{
+	ImGui::Begin("Performance");
+
+	ImGui::Text("Frame render time: %.2f ms", timeToFrame * 1000);;
+
+	lastFrames[frameIndex] = deltaTime;
+	frameIndex++;
+	
+	if (frameIndex == 100)
+	{
+		frameIndex = 0;
+		float frameTimeSum{};
+		for (int i = 0; i < 100; i++)
+		{
+			frameTimeSum += lastFrames[i];
+		}
+		timeToFrame = frameTimeSum / 100;
+	}
+
+	ImGui::Text("Framerate:");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string((int)(1 / timeToFrame)).c_str());
+
+	ImGui::End();
 }

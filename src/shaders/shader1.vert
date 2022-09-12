@@ -5,6 +5,7 @@ layout (location = 1) in vec2 aTexCoord;
 out vec2 TexCoord;
 
 uniform mat4 model;
+uniform vec3 offsets[1000];
 
 layout (std140) uniform Matrices
 {
@@ -14,6 +15,7 @@ layout (std140) uniform Matrices
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(aPos, 1.0);
+	vec3 offset = offsets[gl_InstanceID];
+	gl_Position = projection * view * model * vec4(aPos + offset, 1.0);
 	TexCoord = aTexCoord;
 }

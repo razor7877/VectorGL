@@ -5,7 +5,12 @@
 
 #include "headers/camera.hpp"
 
+extern float deltaTime;
+
 void ImGuiInit(GLFWwindow* window);
 void ImGuiDrawWindows(Camera &camera);
+
+void CameraMenu(Camera& camera);
+void PerformanceMenu();
 
 #endif
