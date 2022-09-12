@@ -55,6 +55,8 @@
     <None Include="src\shaders\shader1.vert" />
     <None Include="src\shaders\shader2.frag" />
     <None Include="src\shaders\shader2.vert" />
+    <None Include="src\shaders\skybox.frag" />
+    <None Include="src\shaders\skybox.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -126,5 +126,11 @@
     <None Include="src\shaders\phong.vert">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
+    <None Include="src\shaders\skybox.frag">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\skybox.vert">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

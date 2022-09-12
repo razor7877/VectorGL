@@ -66,6 +66,19 @@ void gameObject::addTexture(Texture tex, float texCoords[], unsigned int texSize
 	glEnableVertexAttribArray(1);
 }
 
+void gameObject::drawSkybox(Cubemap cubemap)
+{
+	glUseProgram(shaderProgramID);
+
+	glDepthFunc(GL_LEQUAL);
+
+	glBindVertexArray(VAO);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.texID);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	glDepthFunc(GL_LESS);
+}
+
 void gameObject::rotateModel(float degrees, glm::vec3 rotationPoint)
 {
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), rotationPoint);

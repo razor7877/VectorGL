@@ -11,7 +11,7 @@ public:
 
 	Texture();
 
-	Texture(const char* filename, GLuint colorModel, bool stbiFlipOnLoad);
+	Texture(const char* filename, bool stbiFlipOnLoad);
 
 	void bindTexture();
 };

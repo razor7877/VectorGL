@@ -21,6 +21,7 @@
 #include "headers/camera.hpp"
 #include "headers/interface.hpp"
 #include "headers/input.hpp"
+#include "headers/cubemap.hpp"
 
 const int WINDOW_WIDTH = 1200;
 const int WINDOW_HEIGHT = 900;
@@ -94,6 +95,51 @@ int main()
 	Shader shaderProgram = Shader("src/shaders/shader1.vert", "src/shaders/shader1.frag");
 	Shader lightShader = Shader("src/shaders/light.vert", "src/shaders/light.frag");
 	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
+	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
+
+	float skyboxVertices[] = {       
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
 
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,
@@ -233,7 +279,7 @@ int main()
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 
-	Texture crate = Texture("img/container.jpg", GL_RGB, false);
+	Texture crate = Texture("img/container.jpg", false);
 
 	initUniformBuffer();
 
@@ -246,6 +292,9 @@ int main()
 	unsigned int UBIphongShader = glGetUniformBlockIndex(phongShader.ID, "Matrices");
 	glUniformBlockBinding(phongShader.ID, UBIphongShader, 0);
 
+	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader.ID, "Matrices");
+	glUniformBlockBinding(skyboxShader.ID, UBIskyboxShader, 0);
+
 	updateUniformBuffer(view, projection);
 
 	shaderProgram.use();
@@ -255,14 +304,14 @@ int main()
 	gameObject cube0 = gameObject(vertices, sizeof(vertices), shaderProgram.ID, cubePositions[0]);
 	cube0.addTexture(crate, tcoords, sizeof(tcoords));
 
-	glm::vec3 translations[10000];
+	glm::vec3 translations[1000];
 	int index = 0;
-	float offset = 1.0f;
-	for (int z = -200; z < 200; z += 20)
+	float offset = 15.0f;
+	for (int z = -100; z < 100; z += 20)
 	{
-		for (int y = -200; y < 200; y += 20)
+		for (int y = -100; y < 100; y += 20)
 		{
-			for (int x = -200; x < 200; x += 20)
+			for (int x = -100; x < 100; x += 20)
 			{
 				glm::vec3 translation;
 				translation.x = (float)x / 10.0f + offset;
@@ -273,7 +322,7 @@ int main()
 		}
 	}
 
-	for (int i = 0; i < 10000; i++)
+	for (int i = 0; i < 1000; i++)
 	{
 		shaderProgram.setVec3(("offsets[" + std::to_string(i) + "]"), translations[i]);
 	}
@@ -299,9 +348,21 @@ int main()
 
 	float currentFrame;
 
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	skyboxShader.use();
+
+	gameObject skyboxCube = gameObject(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID);
+
+	std::vector<std::string> faces
+	{
+		"img/right.png",
+		"img/left.png",
+		"img/top.png",
+		"img/bottom.png",
+		"img/front.png",
+		"img/back.png",
+	};
+
+	Cubemap cubemap = Cubemap(faces);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window);
@@ -336,10 +397,12 @@ int main()
 		}
 
 		glUniformMatrix4fv(glGetUniformLocation(cube0.shaderProgramID, "model"), 1, GL_FALSE, &cube0.modelMatrix[0][0]);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, cube0.vertSize, 10000);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, cube0.vertSize, 1000);
 
 		light.drawObject();
 		cube.drawObject();
+
+		skyboxCube.drawSkybox(cubemap);
 
 		ImGuiDrawWindows(camera);
 

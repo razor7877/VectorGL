@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "headers/texture.hpp"
+#include "headers/cubemap.hpp"
 
 // A helper class to easily produce and manage objects in the world
 class gameObject
@@ -27,6 +28,10 @@ public:
 	void drawObject();
 	// Generates buffers and enables correct draw calls to use given texture
 	void addTexture(Texture tex, float texCoords[], unsigned int texSize);
+
+	// Draws a skybox using the object itself and a given cubemap
+	// Expects the object to be a 36 vertices cube
+	void drawSkybox(Cubemap cubemap);
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
 	void rotateModel(float degrees, glm::vec3 rotationPoint);
