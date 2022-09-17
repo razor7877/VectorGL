@@ -77,9 +77,6 @@
     <ClCompile Include="src\renderer.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderObject.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\stb_image.cpp">
       <Filter>Fichiers sources\src\loaders</Filter>
     </ClCompile>
@@ -124,8 +121,10 @@
     <ClInclude Include="src\headers\renderer.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\headers\renderObject.hpp" />
     <ClInclude Include="src\headers\skybox.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\renderObject.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
   </ItemGroup>

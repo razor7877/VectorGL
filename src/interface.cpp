@@ -14,6 +14,9 @@ float lastFrames[100];
 int frameIndex{};
 float timeToFrame = 1;
 
+const char* items[] = { "Grass", "Night", "Sky" };
+static int item_current_idx = 2; // Selection data index
+
 void ImGuiInit(GLFWwindow* window)
 {
 	// Setup Dear ImgGui context
@@ -27,7 +30,7 @@ void ImGuiInit(GLFWwindow* window)
 	ImGui::StyleColorsDark();
 }
 
-void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
+void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Cubemap& cubemap)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -38,6 +41,7 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, g
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings(position);
+	SkyboxSettings(cubemap);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -164,6 +168,46 @@ void LightSettings(glm::vec3& position)
 	ImGui::InputFloat("Y", &position[1]);
 	ImGui::SameLine();
 	ImGui::InputFloat("Z", &position[2]);
+
+	ImGui::End();
+}
+
+void SkyboxSettings(Cubemap& cubemap)
+{
+	ImGui::Begin("Skybox settings");
+
+	const char* combo_preview_value = items[item_current_idx]; // Pass in the preview value visible before opening the combo
+	if (ImGui::BeginCombo("Skybox", combo_preview_value))
+	{
+		for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+		{
+			const bool is_selected = (item_current_idx == i);
+			if (ImGui::Selectable(items[i], is_selected))
+			{
+				item_current_idx = i;
+
+				switch (item_current_idx)
+				{
+					case 0:
+						cubemap = Cubemap("img/skybox/grass/");
+						break;
+
+					case 1:
+						cubemap = Cubemap("img/skybox/night/");
+						break;
+
+					case 2:
+						cubemap = Cubemap("img/skybox/sky/");
+						break;
+				}
+			}
+
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+		}
+		ImGui::EndCombo();
+	}
 
 	ImGui::End();
 }

@@ -1,7 +1,7 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;

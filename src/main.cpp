@@ -7,8 +7,6 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -319,29 +317,26 @@ int main()
 	cube.addNormals(normals, sizeof(normals));
 
 	int shaderID;
-	for (int n = 0; n < 10; n++)
+	Mesh instances[1000];
+	int i = 0;
+	for (int x = 0; x < 100; x++)
 	{
-		Mesh instances[1000];
-		int i = 0;
-		for (int x = 0; x < 100; x++)
+		for (int y = 0; y < 10; y++)
 		{
-			for (int y = 0; y < 10; y++)
-			{
-				shaderID = (y % 2) == 0 ? phongShader.ID : shader2.ID;
-				glUseProgram(shaderID);
-				Mesh mesh = Mesh(vertices, sizeof(vertices), shaderID, glm::vec3(x, y, 0.0f));
-				mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
-				mesh.addNormals(normals, sizeof(normals));
-				instances[i] = mesh;
+			shaderID = (y % 2) == 0 ? phongShader.ID : shader2.ID;
+			glUseProgram(shaderID);
+			Mesh mesh = Mesh(vertices, sizeof(vertices), shaderID, glm::vec3(x, y, x));
+			mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
+			mesh.addNormals(normals, sizeof(normals));
+			instances[i] = mesh;
 
-				i++;
-			}
+			i++;
 		}
+	}
 
-		for (int i = 0; i < 1000; i++)
-		{
-			defaultRenderer.objects.push_back(&instances[i]);
-		}
+	for (int i = 0; i < 1000; i++)
+	{
+		defaultRenderer.objects.push_back(&instances[i]);
 	}
 
 	Mesh light = Mesh(vertices, sizeof(vertices), phongShader.ID, lightPos);
@@ -402,7 +397,7 @@ int main()
 		defaultRenderer.render();
 
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess);
+		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, cubemap);
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
