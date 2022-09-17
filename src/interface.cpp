@@ -10,12 +10,18 @@
 #include "headers/interface.hpp"
 #include "headers/camera.hpp"
 
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+
+GLint total_mem_kb = 0;
+GLint cur_avail_mem_kb = 0;
+
 float lastFrames[100];
 int frameIndex{};
 float timeToFrame = 1;
 
 const char* items[] = { "Grass", "Night", "Sky" };
-static int item_current_idx = 2; // Selection data index
+static int item_current_idx = 1; // Selection data index
 
 void ImGuiInit(GLFWwindow* window)
 {
@@ -54,17 +60,9 @@ void CameraMenu(Camera& camera)
 	// Camera FOV value
 	ImGui::PushItemWidth(100.0f);
 	ImGui::SliderFloat("FOV", &camera.zoom, 1.0f, 90.0f);
-	ImGui::NewLine();
 
-	// Camera xyz position
-	ImGui::Text("Position");
-	ImGui::PushItemWidth(50.0f);
-	ImGui::InputFloat("X", &camera.position[0]);
-	ImGui::SameLine();
-	ImGui::InputFloat("Y", &camera.position[1]);
-	ImGui::SameLine();
-	ImGui::InputFloat("Z", &camera.position[2]);
-	ImGui::NewLine();
+	ImGui::PushItemWidth(150.0f);
+	ImGui::DragFloat3("Position", &camera.position[0]);
 
 	ImGui::PushItemWidth(100.0f);
 	ImGui::InputFloat("Speed", &camera.movementSpeed);
@@ -84,6 +82,9 @@ void CameraMenu(Camera& camera)
 
 void PerformanceMenu()
 {
+	glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb);
+	glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb);
+
 	ImGui::Begin("Performance");
 
 	ImGui::Text("Frame render time: %.2f ms", timeToFrame * 1000);;
@@ -103,6 +104,10 @@ void PerformanceMenu()
 	}
 
 	ImGui::Text("Framerate: %i", (int)(1 / timeToFrame));
+
+	ImGui::Text("Total VRAM (MB): %i", total_mem_kb / 1000);
+	ImGui::Text("Available VRAM (MB): %i", cur_avail_mem_kb / 1000);
+	ImGui::Text("Used VRAM (MB): %i", (total_mem_kb - cur_avail_mem_kb) / 1000);
 
 	ImGui::End();
 }
@@ -125,34 +130,11 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 {
 	ImGui::Begin("Shader settings");
 
-	ImGui::Text("Ambient");
-	ImGui::PushItemWidth(50.0f);
-	ImGui::SliderFloat("R", &ambient[0], 0.0f, 1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("G", &ambient[1], 0.0f, 1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("B", &ambient[2], 0.0f, 1.0f);
-	ImGui::NewLine();
+	ImGui::ColorEdit3("Ambient", &ambient[0]);
+	ImGui::ColorEdit3("Diffuse", &diffuse[0]);
+	ImGui::ColorEdit3("Specular", &specular[0]);
 
-	ImGui::Text("Diffuse");
-	ImGui::PushItemWidth(50.0f);
-	ImGui::SliderFloat("R", &diffuse[0], 0.0f, 1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("G", &diffuse[1], 0.0f, 1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("B", &diffuse[2], 0.0f, 1.0f);
-	ImGui::NewLine();
-
-	ImGui::Text("Specular");
-	ImGui::PushItemWidth(50.0f);
-	ImGui::SliderFloat("R", &specular[0], 0.0f, 1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("G", &specular[1], 0.0f, 1.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("B", &specular[2], 0.0f, 1.0f);
-	ImGui::NewLine();
-
-	ImGui::SliderFloat("Shininess", &shininess, 0.0f, 512.0f);
+	ImGui::DragFloat("Shininess", &shininess, 1.0f, 1.0f, 512.0f);
 
 	ImGui::End();
 }
@@ -161,13 +143,7 @@ void LightSettings(glm::vec3& position)
 {
 	ImGui::Begin("Light settings");
 
-	ImGui::Text("Position :");
-	ImGui::PushItemWidth(50.0f);
-	ImGui::InputFloat("X", &position[0]);
-	ImGui::SameLine();
-	ImGui::InputFloat("Y", &position[1]);
-	ImGui::SameLine();
-	ImGui::InputFloat("Z", &position[2]);
+	ImGui::DragFloat3("Position", &position[0]);
 
 	ImGui::End();
 }

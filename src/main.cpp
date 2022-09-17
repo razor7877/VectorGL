@@ -97,7 +97,6 @@ int main()
 
 	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
 	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
-	Shader shader2 = Shader("src/shaders/shader2.vert", "src/shaders/shader2.frag");
 
 	float skyboxVertices[] = {       
 		-1.0f,  1.0f, -1.0f,
@@ -274,7 +273,7 @@ int main()
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 
-	Texture crate = Texture("img/container.jpg", false);
+	Texture crate = Texture("img/container2.png", false);
 	Material boxTex = Material(crate);
 
 	// Sets up global uniforms for each shader used
@@ -285,9 +284,6 @@ int main()
 
 	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader.ID, "Matrices");
 	glUniformBlockBinding(skyboxShader.ID, UBIskyboxShader, 0);
-
-	unsigned int UBIshader2 = glGetUniformBlockIndex(shader2.ID, "Matrices");
-	glUniformBlockBinding(shader2.ID, UBIshader2, 0);
 
 	updateUniformBuffer(view, projection);
 
@@ -323,9 +319,7 @@ int main()
 	{
 		for (int y = 0; y < 10; y++)
 		{
-			shaderID = (y % 2) == 0 ? phongShader.ID : shader2.ID;
-			glUseProgram(shaderID);
-			Mesh mesh = Mesh(vertices, sizeof(vertices), shaderID, glm::vec3(x, y, x));
+			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f));
 			mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
 			mesh.addNormals(normals, sizeof(normals));
 			instances[i] = mesh;
@@ -343,7 +337,7 @@ int main()
 	light.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	light.scaleModel(0.25f, 0.25f, 0.25f);;
 
-	Cubemap cubemap = Cubemap("img/skybox/sky/");
+	Cubemap cubemap = Cubemap("img/skybox/night/");
 	Skybox skybox = Skybox(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID, cubemap);
 
 	defaultRenderer.objects.push_back(&light);

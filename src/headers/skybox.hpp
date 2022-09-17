@@ -13,7 +13,7 @@ public:
 
 	Skybox(float vertices[], unsigned int vertSize, GLuint shaderProgramID, Cubemap cubemap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
-	void renderObject::drawObject();
+	void renderObject::drawObject() override;
 };
 
 #endif

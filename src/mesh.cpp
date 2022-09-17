@@ -46,6 +46,11 @@ void Mesh::drawObject()
 	glDrawArrays(GL_TRIANGLES, 0, vertSize);
 }
 
+renderObjectType Mesh::getType()
+{
+	return renderObjectType::OBJECT_MESH;
+}
+
 void Mesh::addMaterial(Material mat, float texCoords[], unsigned int texSize)
 {
 	glUseProgram(shaderProgramID);
@@ -79,19 +84,6 @@ void Mesh::addNormals(float normals[], unsigned int normalSize)
 
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(2);
-}
-
-void Mesh::drawSkybox(Cubemap cubemap)
-{
-	glUseProgram(shaderProgramID);
-
-	glDepthFunc(GL_LEQUAL);
-
-	glBindVertexArray(VAO);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.texID);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	glDepthFunc(GL_LESS);
 }
 
 void Mesh::rotateModel(float degrees, glm::vec3 rotationPoint)

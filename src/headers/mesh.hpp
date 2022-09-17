@@ -9,7 +9,7 @@
 #include "renderObject.hpp"
 
 // A helper class to easily produce and manage objects in the world
-class Mesh : public renderObject
+class Mesh : public virtual renderObject
 {
 public:
 	GLuint VAO; // The object's VAO
@@ -30,14 +30,11 @@ public:
 	Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Used in render loop to draw vertices arrays to screen
-	void renderObject::drawObject();
+	void renderObject::drawObject() override;
+	renderObjectType renderObject::getType() override;
 	// Generates buffers and enables correct draw calls to use given texture
 	void addMaterial(Material mat, float texCoords[], unsigned int texSize);
 	void addNormals(float normals[], unsigned int normalSize);
-
-	// Draws a skybox using the object itself and a given cubemap
-	// Expects the object to be a 36 vertices cube
-	void drawSkybox(Cubemap cubemap);
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
 	void rotateModel(float degrees, glm::vec3 rotationPoint);
