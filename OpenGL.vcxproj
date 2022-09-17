@@ -54,6 +54,8 @@
     <ClInclude Include="src\headers\texture.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\shaders\grid.frag" />
+    <None Include="src\shaders\grid.vert" />
     <None Include="src\shaders\phong.frag" />
     <None Include="src\shaders\phong.vert" />
     <None Include="src\shaders\shader2.frag" />

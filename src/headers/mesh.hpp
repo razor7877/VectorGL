@@ -22,6 +22,7 @@ public:
 	Material material;
 	
 	unsigned int vertSize; // The size of the object's vertices array
+	unsigned int indicesSize;
 
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
 
@@ -35,6 +36,7 @@ public:
 	// Generates buffers and enables correct draw calls to use given texture
 	void addMaterial(Material mat, float texCoords[], unsigned int texSize);
 	void addNormals(float normals[], unsigned int normalSize);
+	void addIndices(int indices[], unsigned int indicesSize);
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
 	void rotateModel(float degrees, glm::vec3 rotationPoint);

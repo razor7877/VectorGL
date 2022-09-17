@@ -97,6 +97,7 @@ int main()
 
 	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
 	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
+	Shader gridShader = Shader("src/shaders/grid.vert", "src/shaders/grid.frag");
 
 	float skyboxVertices[] = {       
 		-1.0f,  1.0f, -1.0f,
@@ -312,7 +313,6 @@ int main()
 	cube.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	cube.addNormals(normals, sizeof(normals));
 
-	int shaderID;
 	Mesh instances[1000];
 	int i = 0;
 	for (int x = 0; x < 100; x++)
@@ -340,6 +340,22 @@ int main()
 	Cubemap cubemap = Cubemap("img/skybox/night/");
 	Skybox skybox = Skybox(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID, cubemap);
 
+	float rectV[] = {
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f   // top left 
+	};
+
+	int rectI[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+
+	Mesh rectangle = Mesh(rectV, sizeof(rectV), phongShader.ID, glm::vec3(-5.0f, 0.0f, 0.0f));
+	rectangle.addIndices(rectI, sizeof(rectI));
+
+	defaultRenderer.objects.push_back(&rectangle);
 	defaultRenderer.objects.push_back(&light);
 	defaultRenderer.objects.push_back(&cube);
 	defaultRenderer.objects.push_back(&skybox);
@@ -352,7 +368,9 @@ int main()
 
 	float strength = 0.0f;
 	float currentFrame;
-
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -389,6 +407,9 @@ int main()
 		light.scaleModel(0.25f, 0.25f, 0.25f);
 
 		defaultRenderer.render();
+
+		gridShader.use();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, cubemap);

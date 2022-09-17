@@ -147,5 +147,11 @@
     <None Include="src\shaders\shader2.vert">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
+    <None Include="src\shaders\grid.frag">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\grid.vert">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

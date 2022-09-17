@@ -120,6 +120,7 @@ void KeysMenu()
 	ImGui::Text("Movement : WASD");
 	ImGui::Text("Toggle cursor : Left control");
 	ImGui::Text("Change FOV : Scroll wheel");
+	ImGui::Text("Toggle wireframe : F10");
 	ImGui::Text("Toggle fullscreen : F11");
 	ImGui::Text("Quit : Esc");
 

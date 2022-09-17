@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
@@ -12,6 +14,7 @@ Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm:
 {
 	this->shaderProgramID = shaderProgramID;
 	this->vertSize = vertSize;
+	this->indicesSize = 0;
 
 	this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
 
@@ -42,8 +45,15 @@ void Mesh::drawObject()
 	// Send the object's model matrix to the shader
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &modelMatrix[0][0]);
 
-	// Draw the object's vertices as triangles
-	glDrawArrays(GL_TRIANGLES, 0, vertSize);
+	if (indicesSize == 0)
+	{
+		// Draw the object's vertices as triangles
+		glDrawArrays(GL_TRIANGLES, 0, vertSize);
+	}
+	else
+	{
+		glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+	}
 }
 
 renderObjectType Mesh::getType()
@@ -84,6 +94,20 @@ void Mesh::addNormals(float normals[], unsigned int normalSize)
 
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(2);
+}
+
+void Mesh::addIndices(int indices[], unsigned int indicesSize)
+{
+	this->indicesSize = indicesSize;
+
+	glUseProgram(shaderProgramID);
+
+	glBindVertexArray(VAO);
+
+	glGenBuffers(1, &indicesBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
 }
 
 void Mesh::rotateModel(float degrees, glm::vec3 rotationPoint)

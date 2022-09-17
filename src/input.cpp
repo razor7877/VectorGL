@@ -8,6 +8,7 @@ float lastX = windowWidth / 2;
 float lastY = windowHeight / 2;
 
 bool showCursor = false;
+bool wireframeMode = false;
 bool firstMouse = true;
 bool toggleFullscreen = false;
 
@@ -67,6 +68,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		else
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+	}
+
+	// Toggle to enable/disable wireframe drawing
+	if (key == GLFW_KEY_F10 && action == GLFW_PRESS)
+	{
+		wireframeMode = !wireframeMode;
+		if (wireframeMode)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		else
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
 
