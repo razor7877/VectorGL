@@ -89,6 +89,9 @@
     <ClCompile Include="src\input.cpp">
       <Filter>Fichiers sources\src\io</Filter>
     </ClCompile>
+    <ClCompile Include="src\skybox.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp">
@@ -122,6 +125,9 @@
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\renderObject.hpp" />
+    <ClInclude Include="src\headers\skybox.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\phong.frag">

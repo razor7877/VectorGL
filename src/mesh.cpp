@@ -8,7 +8,7 @@ Mesh::Mesh()
 
 }
 
-Mesh::Mesh(float vertices[], unsigned int vertSize, unsigned int shaderProgramID, glm::vec3 position)
+Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)
 {
 	this->shaderProgramID = shaderProgramID;
 	this->vertSize = vertSize;

@@ -10,8 +10,13 @@ class Cubemap
 {
 public:
 	unsigned int texID;
-	unsigned int shaderProgramID;
 
+	Cubemap();
+
+	// A constructor that builds a cubemap from a path that contains 6 PNG files named
+	// right left top bottom front back .png
+	Cubemap(std::string facesPath);
+	// A constructor that builds a cubemap directly from any 6 given images path
 	Cubemap(std::vector<std::string> faces);
 };
 

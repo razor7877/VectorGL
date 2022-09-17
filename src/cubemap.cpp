@@ -6,10 +6,27 @@
 
 #include "headers/cubemap.hpp"
 
+Cubemap::Cubemap()
+{
+
+}
+
+Cubemap::Cubemap(std::string facesPath)
+{
+	std::vector<std::string> faces = {
+		facesPath + "right.png",
+		facesPath + "left.png",
+		facesPath + "top.png",
+		facesPath + "bottom.png",
+		facesPath + "front.png",
+		facesPath + "back.png",
+	};
+
+	Cubemap::Cubemap(faces);
+}
+
 Cubemap::Cubemap(std::vector<std::string> faces)
 {
-	this->shaderProgramID = shaderProgramID;
-	
 	glGenTextures(1, &texID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
 

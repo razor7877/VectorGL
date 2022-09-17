@@ -17,6 +17,7 @@
 #include "headers/main.hpp"
 #include "headers/shader.hpp"
 #include "headers/Mesh.hpp"
+#include "headers/skybox.hpp"
 #include "headers/texture.hpp"
 #include "headers/camera.hpp"
 #include "headers/interface.hpp"
@@ -292,6 +293,12 @@ int main()
 
 	updateUniformBuffer(view, projection);
 
+	glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+	glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+	glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	float shininess = 32.0f;
+
+	// Sets up variables for the phong lighting shader
 	phongShader.use();
 	phongShader.setInt("texture1", 0);
 	phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
@@ -299,16 +306,12 @@ int main()
 	phongShader.setVec3("lightPos", lightPos);
 	phongShader.setVec3("viewPos", camera.position);
 
-	glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
-	glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
-	glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
-	float shininess = 32.0f;
-
 	phongShader.setVec3("material.ambient", boxTex.ambient);
 	phongShader.setVec3("material.diffuse", boxTex.diffuse);
 	phongShader.setVec3("material.specular", boxTex.specular);
 	phongShader.setFloat("material.shininess", boxTex.shininess);
 
+	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer();
 
 	Mesh cube = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
@@ -337,7 +340,7 @@ int main()
 
 		for (int i = 0; i < 1000; i++)
 		{
-			defaultRenderer.meshes.push_back(&instances[i]);
+			defaultRenderer.objects.push_back(&instances[i]);
 		}
 	}
 
@@ -345,26 +348,15 @@ int main()
 	light.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	light.scaleModel(0.25f, 0.25f, 0.25f);;
 
-	defaultRenderer.meshes.push_back(&light);
-	defaultRenderer.meshes.push_back(&cube);
+	Cubemap cubemap = Cubemap("img/skybox/sky/");
+	Skybox skybox = Skybox(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID, cubemap);
 
+	defaultRenderer.objects.push_back(&light);
+	defaultRenderer.objects.push_back(&cube);
+	defaultRenderer.objects.push_back(&skybox);
+
+	// After all needed objects have been added, initializes the renderer's data
 	defaultRenderer.init();
-
-	skyboxShader.use();
-
-	Mesh skyboxCube = Mesh(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID);
-
-	std::vector<std::string> faces
-	{
-		"img/skybox/night/right.png",
-		"img/skybox/night/left.png",
-		"img/skybox/night/top.png",
-		"img/skybox/night/bottom.png",
-		"img/skybox/night/front.png",
-		"img/skybox/night/back.png",
-	};
-
-	Cubemap cubemap = Cubemap(faces);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window);
@@ -408,9 +400,6 @@ int main()
 		light.scaleModel(0.25f, 0.25f, 0.25f);
 
 		defaultRenderer.render();
-
-		// For drawing the skybox
-		skyboxCube.drawSkybox(cubemap);
 
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess);

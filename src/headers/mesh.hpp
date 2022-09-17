@@ -6,12 +6,12 @@
 #include "headers/texture.hpp"
 #include "headers/cubemap.hpp"
 #include "material.hpp"
+#include "renderObject.hpp"
 
 // A helper class to easily produce and manage objects in the world
-class Mesh
+class Mesh : public renderObject
 {
 public:
-	GLuint shaderProgramID; // The ID of the shader used to draw the object
 	GLuint VAO; // The object's VAO
 
 	GLuint VBO; // The object's VBO
@@ -27,10 +27,10 @@ public:
 
 	Mesh();
 	// Instantiates a game object, generates the VBO, VAO and attrib pointers
-	Mesh(float vertices[], unsigned int vertSize, unsigned int shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
+	Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Used in render loop to draw vertices arrays to screen
-	void drawObject();
+	void renderObject::drawObject();
 	// Generates buffers and enables correct draw calls to use given texture
 	void addMaterial(Material mat, float texCoords[], unsigned int texSize);
 	void addNormals(float normals[], unsigned int normalSize);

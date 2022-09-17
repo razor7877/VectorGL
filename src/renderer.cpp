@@ -6,9 +6,9 @@ void Renderer::init()
 {
 	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
 	// shader ID using the shaderMap table
-	for (Mesh* mesh : meshes)
+	for (renderObject* object : objects)
 	{
-		shaderMap[mesh->shaderProgramID].push_back(mesh);
+		shaderMap[object->shaderProgramID].push_back(object);
 	}
 }
 
@@ -19,9 +19,9 @@ void Renderer::render()
 	for (auto& shaderMeshPair : shaderMap)
 	{
 		glUseProgram(shaderMeshPair.first);
-		for (Mesh* meshPtr : shaderMeshPair.second)
+		for (renderObject* objectPtr : shaderMeshPair.second)
 		{
-			meshPtr->drawObject();
+			objectPtr->drawObject();
 		}
 	}
 }

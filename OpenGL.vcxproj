@@ -36,6 +36,7 @@
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\renderObject.cpp" />
     <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\texture.cpp" />
   </ItemGroup>
@@ -50,6 +51,7 @@
     <ClInclude Include="src\headers\renderer.hpp" />
     <ClInclude Include="src\headers\renderObject.hpp" />
     <ClInclude Include="src\headers\shader.hpp" />
+    <ClInclude Include="src\headers\skybox.hpp" />
     <ClInclude Include="src\headers\texture.hpp" />
   </ItemGroup>
   <ItemGroup>

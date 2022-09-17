@@ -25,7 +25,7 @@ uniform Material material;
 vec3 phong()
 {
 	// Ambient lighting
-	float ambientStrength = 0.1;
+	float ambientStrength = 0.65;
 	vec3 ambient = ambientStrength * material.ambient;
 
 	vec3 norm = normalize(Normal);
