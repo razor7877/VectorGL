@@ -25,6 +25,7 @@ public:
 
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
 
+	Mesh();
 	// Instantiates a game object, generates the VBO, VAO and attrib pointers
 	Mesh(float vertices[], unsigned int vertSize, unsigned int shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 

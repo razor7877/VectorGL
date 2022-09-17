@@ -77,17 +77,17 @@
     <ClCompile Include="src\renderer.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\input.cpp">
-      <Filter>Fichiers sources\src\io</Filter>
-    </ClCompile>
-    <ClCompile Include="src\interface.cpp">
-      <Filter>Fichiers sources\src\io</Filter>
+    <ClCompile Include="src\renderObject.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="src\stb_image.cpp">
       <Filter>Fichiers sources\src\loaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderObject.cpp">
-      <Filter>Fichiers sources</Filter>
+    <ClCompile Include="src\interface.cpp">
+      <Filter>Fichiers sources\src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>Fichiers sources\src\io</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +134,12 @@
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
     <None Include="src\shaders\skybox.vert">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\shader2.frag">
+      <Filter>Fichiers sources\src\shaders</Filter>
+    </None>
+    <None Include="src\shaders\shader2.vert">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>
   </ItemGroup>

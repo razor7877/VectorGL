@@ -98,6 +98,7 @@ int main()
 
 	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
 	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
+	Shader shader2 = Shader("src/shaders/shader2.vert", "src/shaders/shader2.frag");
 
 	float skyboxVertices[] = {       
 		-1.0f,  1.0f, -1.0f,
@@ -286,6 +287,9 @@ int main()
 	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader.ID, "Matrices");
 	glUniformBlockBinding(skyboxShader.ID, UBIskyboxShader, 0);
 
+	unsigned int UBIshader2 = glGetUniformBlockIndex(shader2.ID, "Matrices");
+	glUniformBlockBinding(shader2.ID, UBIshader2, 0);
+
 	updateUniformBuffer(view, projection);
 
 	phongShader.use();
@@ -300,22 +304,51 @@ int main()
 	glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
 	float shininess = 32.0f;
 
-	phongShader.setVec3("material.ambient", ambient);
-	phongShader.setVec3("material.diffuse", diffuse);
-	phongShader.setVec3("material.specular", specular);
-	phongShader.setFloat("material.shininess", shininess);
+	phongShader.setVec3("material.ambient", boxTex.ambient);
+	phongShader.setVec3("material.diffuse", boxTex.diffuse);
+	phongShader.setVec3("material.specular", boxTex.specular);
+	phongShader.setFloat("material.shininess", boxTex.shininess);
+
+	Renderer defaultRenderer = Renderer();
 
 	Mesh cube = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
 	cube.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	cube.addNormals(normals, sizeof(normals));
 
-	Mesh cube2 = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(2.0f, 0.0f, 2.0f));
-	cube2.addMaterial(boxTex, tcoords, sizeof(tcoords));
-	cube2.addNormals(normals, sizeof(normals));
+	int shaderID;
+	for (int n = 0; n < 10; n++)
+	{
+		Mesh instances[1000];
+		int i = 0;
+		for (int x = 0; x < 100; x++)
+		{
+			for (int y = 0; y < 10; y++)
+			{
+				shaderID = (y % 2) == 0 ? phongShader.ID : shader2.ID;
+				glUseProgram(shaderID);
+				Mesh mesh = Mesh(vertices, sizeof(vertices), shaderID, glm::vec3(x, y, 0.0f));
+				mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
+				mesh.addNormals(normals, sizeof(normals));
+				instances[i] = mesh;
+
+				i++;
+			}
+		}
+
+		for (int i = 0; i < 1000; i++)
+		{
+			defaultRenderer.meshes.push_back(&instances[i]);
+		}
+	}
 
 	Mesh light = Mesh(vertices, sizeof(vertices), phongShader.ID, lightPos);
 	light.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	light.scaleModel(0.25f, 0.25f, 0.25f);;
+
+	defaultRenderer.meshes.push_back(&light);
+	defaultRenderer.meshes.push_back(&cube);
+
+	defaultRenderer.init();
 
 	skyboxShader.use();
 
@@ -323,12 +356,12 @@ int main()
 
 	std::vector<std::string> faces
 	{
-		"img/right.png",
-		"img/left.png",
-		"img/top.png",
-		"img/bottom.png",
-		"img/front.png",
-		"img/back.png",
+		"img/skybox/night/right.png",
+		"img/skybox/night/left.png",
+		"img/skybox/night/top.png",
+		"img/skybox/night/bottom.png",
+		"img/skybox/night/front.png",
+		"img/skybox/night/back.png",
 	};
 
 	Cubemap cubemap = Cubemap(faces);
@@ -338,11 +371,6 @@ int main()
 
 	float strength = 0.0f;
 	float currentFrame;
-
-	Renderer defaultRenderer = Renderer();
-	defaultRenderer.meshes.push_back(light);
-	defaultRenderer.meshes.push_back(cube);
-	defaultRenderer.meshes.push_back(cube2);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -369,15 +397,15 @@ int main()
 		phongShader.use();
 		phongShader.setVec3("viewPos", camera.position);
 		phongShader.setVec3("lightPos", lightPos);
-		phongShader.setVec3("material.ambient", ambient);
-		phongShader.setVec3("material.diffuse", diffuse);
-		phongShader.setVec3("material.specular", specular);
-		phongShader.setFloat("material.shininess", shininess);
+		phongShader.setVec3("material.ambient", boxTex.ambient);
+		phongShader.setVec3("material.diffuse", boxTex.diffuse);
+		phongShader.setVec3("material.specular", boxTex.specular);
+		phongShader.setFloat("material.shininess", boxTex.shininess);
 
 		// Update movement of the light emitting cube
-		defaultRenderer.meshes[0].modelMatrix = glm::mat4(1.0f);
-		defaultRenderer.meshes[0].translateModel(lightPos);
-		defaultRenderer.meshes[0].scaleModel(0.25f, 0.25f, 0.25f);
+		light.modelMatrix = glm::mat4(1.0f);
+		light.translateModel(lightPos);
+		light.scaleModel(0.25f, 0.25f, 0.25f);
 
 		defaultRenderer.render();
 
@@ -385,7 +413,7 @@ int main()
 		skyboxCube.drawSkybox(cubemap);
 
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, lightPos, ambient, diffuse, specular, shininess);
+		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess);
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

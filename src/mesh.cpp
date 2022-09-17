@@ -3,6 +3,11 @@
 
 #include "headers/Mesh.hpp"
 
+Mesh::Mesh()
+{
+
+}
+
 Mesh::Mesh(float vertices[], unsigned int vertSize, unsigned int shaderProgramID, glm::vec3 position)
 {
 	this->shaderProgramID = shaderProgramID;
@@ -24,8 +29,6 @@ Mesh::Mesh(float vertices[], unsigned int vertSize, unsigned int shaderProgramID
 
 void Mesh::drawObject()
 {
-	glUseProgram(shaderProgramID);
-
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
