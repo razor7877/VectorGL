@@ -24,12 +24,15 @@
     <Filter Include="Fichiers sources\imgui">
       <UniqueIdentifier>{e66ebf73-dbe6-496b-9552-49825aa5a419}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\src\io">
+      <UniqueIdentifier>{a8e43381-a2ca-4292-9c63-0df849c68729}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\src\loaders">
+      <UniqueIdentifier>{0806553c-e68b-4afd-8819-ed5de1ae5fd5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\texture.cpp">
-      <Filter>Fichiers sources\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\stb_image.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
     <ClCompile Include="src\shader.cpp">
@@ -38,7 +41,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\gameObject.cpp">
+    <ClCompile Include="src\mesh.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
     <ClCompile Include="libs\glad.c">
@@ -65,21 +68,33 @@
     <ClCompile Include="includes\imgui\imgui_impl_glfw.cpp">
       <Filter>Fichiers sources\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\interface.cpp">
+    <ClCompile Include="src\cubemap.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\material.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
     <ClCompile Include="src\input.cpp">
-      <Filter>Fichiers sources\src</Filter>
+      <Filter>Fichiers sources\src\io</Filter>
     </ClCompile>
-    <ClCompile Include="src\cubemap.cpp">
-      <Filter>Fichiers sources\src</Filter>
+    <ClCompile Include="src\interface.cpp">
+      <Filter>Fichiers sources\src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb_image.cpp">
+      <Filter>Fichiers sources\src\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderObject.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\headers\gameObject.hpp">
+    <ClInclude Include="src\headers\mesh.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\main.hpp">
@@ -100,26 +115,15 @@
     <ClInclude Include="src\headers\cubemap.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
+    <ClInclude Include="src\headers\material.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\renderer.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\renderObject.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\shader1.vert">
-      <Filter>Fichiers sources\src\shaders</Filter>
-    </None>
-    <None Include="src\shaders\shader2.frag">
-      <Filter>Fichiers sources\src\shaders</Filter>
-    </None>
-    <None Include="src\shaders\shader2.vert">
-      <Filter>Fichiers sources\src\shaders</Filter>
-    </None>
-    <None Include="src\shaders\shader1.frag">
-      <Filter>Fichiers sources\src\shaders</Filter>
-    </None>
-    <None Include="src\shaders\light.frag">
-      <Filter>Fichiers sources\src\shaders</Filter>
-    </None>
-    <None Include="src\shaders\light.vert">
-      <Filter>Fichiers sources\src\shaders</Filter>
-    </None>
     <None Include="src\shaders\phong.frag">
       <Filter>Fichiers sources\src\shaders</Filter>
     </None>

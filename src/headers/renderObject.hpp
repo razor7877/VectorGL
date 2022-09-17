@@ -1,0 +1,6 @@
+#ifndef RENDEROBJECT_HPP
+#define RENDEROBJECT_HPP
+
+
+
+#endif

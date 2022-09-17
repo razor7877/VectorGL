@@ -16,12 +16,13 @@
 
 #include "headers/main.hpp"
 #include "headers/shader.hpp"
-#include "headers/gameObject.hpp"
+#include "headers/Mesh.hpp"
 #include "headers/texture.hpp"
 #include "headers/camera.hpp"
 #include "headers/interface.hpp"
 #include "headers/input.hpp"
 #include "headers/cubemap.hpp"
+#include "headers/renderer.hpp"
 
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;
@@ -95,8 +96,6 @@ int main()
 	// Enables face culling for improving performance
 	glEnable(GL_CULL_FACE);
 
-	Shader shaderProgram = Shader("src/shaders/shader1.vert", "src/shaders/shader1.frag");
-	Shader lightShader = Shader("src/shaders/light.vert", "src/shaders/light.frag");
 	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
 	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
 
@@ -232,27 +231,6 @@ int main()
 		-0.5f, -0.5f, 0.0f,  // bottom left
 		-0.5f,  0.5f, 0.0f   // top left
 	};
-	
-	/*
-	unsigned int VBO, VAO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(newVertices), &newVertices[0], GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	*/
 
 	float tcoords[] = {
 		0.0f, 0.0f,
@@ -297,15 +275,10 @@ int main()
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 
 	Texture crate = Texture("img/container.jpg", false);
+	Material boxTex = Material(crate);
 
 	// Sets up global uniforms for each shader used
 	initUniformBuffer();
-
-	unsigned int UBIshaderProgram = glGetUniformBlockIndex(shaderProgram.ID, "Matrices");
-	glUniformBlockBinding(shaderProgram.ID, UBIshaderProgram, 0);
-
-	unsigned int UBIlightShader = glGetUniformBlockIndex(lightShader.ID, "Matrices");
-	glUniformBlockBinding(lightShader.ID, UBIlightShader, 0);
 
 	unsigned int UBIphongShader = glGetUniformBlockIndex(phongShader.ID, "Matrices");
 	glUniformBlockBinding(phongShader.ID, UBIphongShader, 0);
@@ -315,69 +288,38 @@ int main()
 
 	updateUniformBuffer(view, projection);
 
-	shaderProgram.use();
-	// Set texture samplers
-	shaderProgram.setInt("texture1", 0);
-	
-	gameObject cube0 = gameObject(vertices, sizeof(vertices), shaderProgram.ID);
-	unsigned int normalBuffer;
-	glGenBuffers(1, &normalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	cube0.addTexture(crate, tcoords, sizeof(tcoords));
-
-	glm::vec3 translations[1000];
-	int index = 0;
-	float offset = 15.0f;
-	for (int z = -100; z < 100; z += 20)
-	{
-		for (int y = -100; y < 100; y += 20)
-		{
-			for (int x = -100; x < 100; x += 20)
-			{
-				glm::vec3 translation;
-				translation.x = (float)x / 10.0f + offset;
-				translation.y = (float)y / 10.0f + offset;
-				translation.z = (float)z / 10.0f + offset;
-				translations[index++] = translation;
-			}
-		}
-	}
-
-	for (int i = 0; i < 1000; i++)
-	{
-		shaderProgram.setVec3(("offsets[" + std::to_string(i) + "]"), translations[i]);
-	}
-
-	lightShader.use();
-
-	gameObject light = gameObject(vertices, sizeof(vertices), lightShader.ID, lightPos);
-	light.scaleModel(0.25f, 0.25f, 0.25f);
-
 	phongShader.use();
+	phongShader.setInt("texture1", 0);
 	phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	phongShader.setVec3("lightPos", lightPos);
 	phongShader.setVec3("viewPos", camera.position);
-	phongShader.setFloat("specularStrength", 0.0f);
 
-	gameObject cube = gameObject(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
-	//unsigned int normalBuffer;
-	glGenBuffers(1, &normalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
+	glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+	glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+	glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	float shininess = 32.0f;
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
+	phongShader.setVec3("material.ambient", ambient);
+	phongShader.setVec3("material.diffuse", diffuse);
+	phongShader.setVec3("material.specular", specular);
+	phongShader.setFloat("material.shininess", shininess);
 
-	float currentFrame;
+	Mesh cube = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
+	cube.addMaterial(boxTex, tcoords, sizeof(tcoords));
+	cube.addNormals(normals, sizeof(normals));
+
+	Mesh cube2 = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(2.0f, 0.0f, 2.0f));
+	cube2.addMaterial(boxTex, tcoords, sizeof(tcoords));
+	cube2.addNormals(normals, sizeof(normals));
+
+	Mesh light = Mesh(vertices, sizeof(vertices), phongShader.ID, lightPos);
+	light.addMaterial(boxTex, tcoords, sizeof(tcoords));
+	light.scaleModel(0.25f, 0.25f, 0.25f);;
 
 	skyboxShader.use();
 
-	gameObject skyboxCube = gameObject(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID);
+	Mesh skyboxCube = Mesh(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID);
 
 	std::vector<std::string> faces
 	{
@@ -395,6 +337,12 @@ int main()
 	ImGuiInit(window);
 
 	float strength = 0.0f;
+	float currentFrame;
+
+	Renderer defaultRenderer = Renderer();
+	defaultRenderer.meshes.push_back(light);
+	defaultRenderer.meshes.push_back(cube);
+	defaultRenderer.meshes.push_back(cube2);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -417,46 +365,27 @@ int main()
 
 		updateUniformBuffer(view, projection);
 
-		/*
-		glUseProgram(shaderProgram.ID);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		*/
-
 		// Models for phong lighting
 		phongShader.use();
 		phongShader.setVec3("viewPos", camera.position);
+		phongShader.setVec3("lightPos", lightPos);
+		phongShader.setVec3("material.ambient", ambient);
+		phongShader.setVec3("material.diffuse", diffuse);
+		phongShader.setVec3("material.specular", specular);
+		phongShader.setFloat("material.shininess", shininess);
 
-		cube.rotateModel(0.25f, glm::vec3(1.0f));
+		// Update movement of the light emitting cube
+		defaultRenderer.meshes[0].modelMatrix = glm::mat4(1.0f);
+		defaultRenderer.meshes[0].translateModel(lightPos);
+		defaultRenderer.meshes[0].scaleModel(0.25f, 0.25f, 0.25f);
 
-		light.drawObject();
-		cube.drawObject();
-
-		// For drawing the 1000 cubes
-		glUseProgram(cube0.shaderProgramID);
-		glBindVertexArray(cube0.VAO);
-		if (cube0.hasTexture)
-		{
-			glActiveTexture(GL_TEXTURE0);
-			cube0.texture.bindTexture();
-		}
-
-		glUniformMatrix4fv(glGetUniformLocation(cube0.shaderProgramID, "model"), 1, GL_FALSE, &cube0.modelMatrix[0][0]);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, cube0.vertSize, 1000);
+		defaultRenderer.render();
 
 		// For drawing the skybox
 		skyboxCube.drawSkybox(cubemap);
 
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, strength, lightPos);
-
-		phongShader.use();
-		phongShader.setFloat("specularStrength", strength);
-		phongShader.setVec3("lightPos", lightPos);
-
-		light.modelMatrix = glm::mat4(1.0f);
-		light.translateModel(lightPos);
-		light.scaleModel(0.25f, 0.25f, 0.25f);
+		ImGuiDrawWindows(camera, lightPos, ambient, diffuse, specular, shininess);
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

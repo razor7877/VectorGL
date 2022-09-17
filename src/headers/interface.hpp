@@ -8,7 +8,7 @@
 extern float deltaTime;
 
 void ImGuiInit(GLFWwindow* window);
-void ImGuiDrawWindows(Camera &camera, float &strength, glm::vec3 &position);
+void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
 
 // See and change camera position, speed etc.
 void CameraMenu(Camera& camera);
@@ -17,7 +17,7 @@ void PerformanceMenu();
 // Shows the various controls
 void KeysMenu();
 // Enables modifications of some shader values
-void ShaderSettings(float& strength);
+void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
 void LightSettings(glm::vec3& position);
 
 #endif

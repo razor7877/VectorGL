@@ -28,10 +28,13 @@
     <ClCompile Include="includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="libs\glad.c" />
     <ClCompile Include="src\cubemap.cpp" />
-    <ClCompile Include="src\gameObject.cpp" />
+    <ClCompile Include="src\material.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\interface.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\renderer.cpp" />
+    <ClCompile Include="src\renderObject.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\texture.cpp" />
@@ -39,22 +42,19 @@
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp" />
     <ClInclude Include="src\headers\cubemap.hpp" />
-    <ClInclude Include="src\headers\gameObject.hpp" />
+    <ClInclude Include="src\headers\material.hpp" />
+    <ClInclude Include="src\headers\mesh.hpp" />
     <ClInclude Include="src\headers\input.hpp" />
     <ClInclude Include="src\headers\interface.hpp" />
     <ClInclude Include="src\headers\main.hpp" />
+    <ClInclude Include="src\headers\renderer.hpp" />
+    <ClInclude Include="src\headers\renderObject.hpp" />
     <ClInclude Include="src\headers\shader.hpp" />
     <ClInclude Include="src\headers\texture.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\light.frag" />
-    <None Include="src\shaders\light.vert" />
     <None Include="src\shaders\phong.frag" />
     <None Include="src\shaders\phong.vert" />
-    <None Include="src\shaders\shader1.frag" />
-    <None Include="src\shaders\shader1.vert" />
-    <None Include="src\shaders\shader2.frag" />
-    <None Include="src\shaders\shader2.vert" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
   </ItemGroup>

@@ -27,7 +27,7 @@ void ImGuiInit(GLFWwindow* window)
 	ImGui::StyleColorsDark();
 }
 
-void ImGuiDrawWindows(Camera &camera, float &strength, glm::vec3 &position)
+void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -36,7 +36,7 @@ void ImGuiDrawWindows(Camera &camera, float &strength, glm::vec3 &position)
 	CameraMenu(camera);
 	PerformanceMenu();
 	KeysMenu();
-	ShaderSettings(strength);
+	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings(position);
 
 	ImGui::Render();
@@ -86,7 +86,7 @@ void PerformanceMenu()
 
 	lastFrames[frameIndex] = deltaTime;
 	frameIndex++;
-	
+
 	if (frameIndex == 100)
 	{
 		frameIndex = 0;
@@ -117,11 +117,39 @@ void KeysMenu()
 	ImGui::End();
 }
 
-void ShaderSettings(float &strength)
+void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
 {
 	ImGui::Begin("Shader settings");
-	ImGui::PushItemWidth(100.0f);
-	ImGui::SliderFloat("Specular strength", &strength, 0.0f, 1.0f);
+
+	ImGui::Text("Ambient");
+	ImGui::PushItemWidth(50.0f);
+	ImGui::SliderFloat("R", &ambient[0], 0.0f, 1.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("G", &ambient[1], 0.0f, 1.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("B", &ambient[2], 0.0f, 1.0f);
+	ImGui::NewLine();
+
+	ImGui::Text("Diffuse");
+	ImGui::PushItemWidth(50.0f);
+	ImGui::SliderFloat("R", &diffuse[0], 0.0f, 1.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("G", &diffuse[1], 0.0f, 1.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("B", &diffuse[2], 0.0f, 1.0f);
+	ImGui::NewLine();
+
+	ImGui::Text("Specular");
+	ImGui::PushItemWidth(50.0f);
+	ImGui::SliderFloat("R", &specular[0], 0.0f, 1.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("G", &specular[1], 0.0f, 1.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("B", &specular[2], 0.0f, 1.0f);
+	ImGui::NewLine();
+
+	ImGui::SliderFloat("Shininess", &shininess, 0.0f, 512.0f);
+
 	ImGui::End();
 }
 
