@@ -33,6 +33,7 @@
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\skybox.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="src\headers\input.hpp" />
     <ClInclude Include="src\headers\interface.hpp" />
     <ClInclude Include="src\headers\main.hpp" />
+    <ClInclude Include="src\headers\model.hpp" />
     <ClInclude Include="src\headers\renderer.hpp" />
     <ClInclude Include="src\headers\renderObject.hpp" />
     <ClInclude Include="src\headers\shader.hpp" />

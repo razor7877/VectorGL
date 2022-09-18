@@ -1,6 +1,9 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 
+#include <vector>
+#include <map>
+
 #include <glad/glad.h>
 
 #include "headers/texture.hpp"
@@ -8,10 +11,24 @@
 #include "material.hpp"
 #include "renderObject.hpp"
 
+struct Vertex
+{
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TexCoords;
+};
+
 // A helper class to easily produce and manage objects in the world
 class Mesh : public virtual renderObject
 {
 public:
+	std::vector<float> vertices;
+	std::vector<float> texCoords;
+	std::vector<float> normals;
+	std::vector<unsigned int> indices;
+
+	std::vector<Texture> textures;
+
 	GLuint VAO; // The object's VAO
 
 	GLuint VBO; // The object's VBO
@@ -20,23 +37,24 @@ public:
 	GLuint indicesBO;
 
 	Material material;
-	
-	unsigned int vertSize; // The size of the object's vertices array
-	unsigned int indicesSize;
 
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
 
 	Mesh();
 	// Instantiates a game object, generates the VBO, VAO and attrib pointers
 	Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
+	Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture> textures, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Used in render loop to draw vertices arrays to screen
 	void renderObject::drawObject() override;
+	void renderObject::setupObject() override;
 	renderObjectType renderObject::getType() override;
 	// Generates buffers and enables correct draw calls to use given texture
-	void addMaterial(Material mat, float texCoords[], unsigned int texSize);
+	void addTexCoords(std::vector<float> texCoords);
+	void addTexCoords(float texCoords[], unsigned int texSize);
+	void addTexture(Texture texture);
 	void addNormals(float normals[], unsigned int normalSize);
-	void addIndices(int indices[], unsigned int indicesSize);
+	void addIndices(unsigned int indices[], unsigned int indicesSize);
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
 	void rotateModel(float degrees, glm::vec3 rotationPoint);

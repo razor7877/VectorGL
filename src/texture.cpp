@@ -9,8 +9,10 @@ Texture::Texture()
 
 }
 
-Texture::Texture(const char* filename, bool stbiFlipOnLoad = false)
+Texture::Texture(std::string filename, std::string type, bool stbiFlipOnLoad)
 {
+	this->type = type;
+
 	// Create OpenGL texture
 	glGenTextures(1, &texID);
 	glBindTexture(GL_TEXTURE_2D, texID);
@@ -26,7 +28,7 @@ Texture::Texture(const char* filename, bool stbiFlipOnLoad = false)
 	stbi_set_flip_vertically_on_load(stbiFlipOnLoad);
 
 	// Attempts loading image data from given filename
-	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		GLenum format = GL_RGB;
@@ -42,7 +44,7 @@ Texture::Texture(const char* filename, bool stbiFlipOnLoad = false)
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load texture: " << filename << std::endl;
 	}
 
 	stbi_image_free(data);

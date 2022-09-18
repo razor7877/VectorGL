@@ -89,6 +89,9 @@
     <ClCompile Include="src\skybox.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\model.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp">
@@ -125,6 +128,9 @@
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\renderObject.hpp">
+      <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\model.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
   </ItemGroup>

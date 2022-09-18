@@ -10,7 +10,7 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-uniform sampler2D texture1;
+uniform sampler2D texture_diffuse1;
 
 struct Material
 {
@@ -64,6 +64,6 @@ void main()
 	// If texture coordinates are supplied, apply the texture
 	if (TexCoord != 0)
 	{
-		FragColor *= texture(texture1, TexCoord);
+		FragColor *= texture(texture_diffuse1, TexCoord);
 	}
 }

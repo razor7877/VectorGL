@@ -14,6 +14,7 @@
 
 #include "headers/main.hpp"
 #include "headers/shader.hpp"
+#include "headers/model.hpp"
 #include "headers/Mesh.hpp"
 #include "headers/skybox.hpp"
 #include "headers/texture.hpp"
@@ -32,7 +33,7 @@ int windowHeight = WINDOW_HEIGHT;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 5.0f, 3.0f));
 
 glm::vec3 lightPos(1.0f, 1.4f, 4.0f);
 
@@ -274,7 +275,7 @@ int main()
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 
-	Texture crate = Texture("img/container2.png", false);
+	Texture crate = Texture("img/container2.png", "texture_diffuse", false);
 	Material boxTex = Material(crate);
 
 	// Sets up global uniforms for each shader used
@@ -308,9 +309,9 @@ int main()
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer();
-
+	
 	Mesh cube = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
-	cube.addMaterial(boxTex, tcoords, sizeof(tcoords));
+	//cube.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	cube.addNormals(normals, sizeof(normals));
 
 	Mesh instances[1000];
@@ -320,7 +321,7 @@ int main()
 		for (int y = 0; y < 10; y++)
 		{
 			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f));
-			mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
+			//mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
 			mesh.addNormals(normals, sizeof(normals));
 			instances[i] = mesh;
 
@@ -330,11 +331,13 @@ int main()
 
 	for (int i = 0; i < 1000; i++)
 	{
-		defaultRenderer.objects.push_back(&instances[i]);
+		//defaultRenderer.objects.push_back(&instances[i]);
 	}
 
 	Mesh light = Mesh(vertices, sizeof(vertices), phongShader.ID, lightPos);
-	light.addMaterial(boxTex, tcoords, sizeof(tcoords));
+	//light.addMaterial(boxTex, tcoords, sizeof(tcoords));
+	light.addTexture(crate);
+	light.addTexCoords(tcoords, sizeof(tcoords));
 	light.scaleModel(0.25f, 0.25f, 0.25f);;
 
 	Cubemap cubemap = Cubemap("img/skybox/night/");
@@ -347,7 +350,7 @@ int main()
 		-0.5f,  0.5f, 0.0f   // top left 
 	};
 
-	int rectI[] = {
+	unsigned int rectI[] = {
 		0, 1, 3,
 		1, 2, 3
 	};
@@ -355,12 +358,16 @@ int main()
 	Mesh rectangle = Mesh(rectV, sizeof(rectV), phongShader.ID, glm::vec3(-5.0f, 0.0f, 0.0f));
 	rectangle.addIndices(rectI, sizeof(rectI));
 
-	defaultRenderer.objects.push_back(&rectangle);
-	defaultRenderer.objects.push_back(&light);
-	defaultRenderer.objects.push_back(&cube);
-	defaultRenderer.objects.push_back(&skybox);
+	Model model = Model("models/cottage/cottage_obj.obj", phongShader.ID);
 
-	// After all needed objects have been added, initializes the renderer's data
+	//defaultRenderer.objects.push_back(&rectangle);
+	//defaultRenderer.objects.push_back(&light);
+	//defaultRenderer.objects.push_back(&cube);
+	//defaultRenderer.objects.push_back(&skybox);
+	
+	defaultRenderer.objects.push_back(&model);
+
+	// After all needed objects have been added, initializes the renderer's data and sets up every object's data
 	defaultRenderer.init();
 
 	// Initializes the ImGui UI system
@@ -368,12 +375,17 @@ int main()
 
 	float strength = 0.0f;
 	float currentFrame;
+
 	glDisable(GL_CULL_FACE);
+
+	// Enabled to use the grid shader
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
+
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
