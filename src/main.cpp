@@ -418,7 +418,8 @@ int main()
 		light.translateModel(lightPos);
 		light.scaleModel(0.25f, 0.25f, 0.25f);
 
-		defaultRenderer.render();
+		//defaultRenderer.render();
+		model.drawObject();
 
 		gridShader.use();
 		glDrawArrays(GL_TRIANGLES, 0, 6);

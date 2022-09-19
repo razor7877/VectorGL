@@ -46,6 +46,7 @@ void Mesh::drawObject()
 			glActiveTexture(GL_TEXTURE0 + i);
 			std::string number;
 			std::string name = textures[i].type;
+
 			if (name == "texture_diffuse")
 			{
 				number = std::to_string(diffuseNr++);
@@ -108,10 +109,6 @@ void Mesh::setupObject()
 	// If the mesh uses textures
 	if (textures.size() > 0)
 	{
-		for (Texture t : textures)
-		{
-			std::cout << t.type << std::endl;
-		}
 		// Generates a buffer to store texture coordinates data
 		glGenBuffers(1, &texCoordBO);
 
@@ -133,6 +130,8 @@ void Mesh::setupObject()
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
 	}
+
+	std::cout << VAO << std::endl;
 }
 
 renderObjectType Mesh::getType()

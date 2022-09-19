@@ -11,13 +11,6 @@
 #include "material.hpp"
 #include "renderObject.hpp"
 
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexCoords;
-};
-
 // A helper class to easily produce and manage objects in the world
 class Mesh : public virtual renderObject
 {
@@ -35,8 +28,6 @@ public:
 	GLuint texCoordBO;
 	GLuint normalBO;
 	GLuint indicesBO;
-
-	Material material;
 
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
 

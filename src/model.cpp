@@ -76,44 +76,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<unsigned int> indices;
 
 	std::vector<Texture> textures;
-	/*
-	for (int i = 0; i < mesh->mNumVertices; i++)
-	{
-		Vertex vertex;
-		glm::vec3 vector;
-
-		// Retrieves vertex position data
-		vector.x = mesh->mVertices[i].x;
-		vector.y = mesh->mVertices[i].y;
-		vector.z = mesh->mVertices[i].z;
-		vertex.Position = vector;
-
-		// Retrieves normals data
-		if (mesh->HasNormals())
-		{
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertex.Normal = vector;
-		}
-
-		// If present, retrieves texture coordinates data
-		if (mesh->mTextureCoords[0])
-		{
-			glm::vec2 vec;
-			vec.x = mesh->mTextureCoords[0][i].x;
-			vec.y = mesh->mTextureCoords[0][i].y;
-			vertex.TexCoords = vec;
-		}
-		else
-		{
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-		}
-
-		vertices.insert(vertices.end(), &vertex.Position[0], &vertex.Position[2]);
-		texCoords.insert(texCoords.end(), &vertex.TexCoords[0], &vertex.TexCoords[1]);
-		normals.insert(normals.end(), &vertex.Normal[0], &vertex.Normal[2]);
-	}*/
 
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -139,7 +101,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			texCoords.push_back(0.0f);
 		}
 	}
-	int count = 0;
+
 	for (int i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
