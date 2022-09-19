@@ -67,6 +67,8 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
 	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL 3D Engine", NULL, NULL);
 	if (window == NULL)
 	{
@@ -358,12 +360,12 @@ int main()
 	Mesh rectangle = Mesh(rectV, sizeof(rectV), phongShader.ID, glm::vec3(-5.0f, 0.0f, 0.0f));
 	rectangle.addIndices(rectI, sizeof(rectI));
 
-	Model model = Model("models/cottage/cottage_obj.obj", phongShader.ID);
+	Model model = Model("models/tank/scene.gltf", phongShader.ID);
 
 	//defaultRenderer.objects.push_back(&rectangle);
 	//defaultRenderer.objects.push_back(&light);
 	//defaultRenderer.objects.push_back(&cube);
-	//defaultRenderer.objects.push_back(&skybox);
+	defaultRenderer.objects.push_back(&skybox);
 	
 	defaultRenderer.objects.push_back(&model);
 
@@ -381,7 +383,7 @@ int main()
 	// Enabled to use the grid shader
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -418,8 +420,8 @@ int main()
 		light.translateModel(lightPos);
 		light.scaleModel(0.25f, 0.25f, 0.25f);
 
-		//defaultRenderer.render();
-		model.drawObject();
+		defaultRenderer.render();
+		std::cout << glGetError() << std::endl;
 
 		gridShader.use();
 		glDrawArrays(GL_TRIANGLES, 0, 6);

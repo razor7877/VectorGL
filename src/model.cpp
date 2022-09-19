@@ -18,17 +18,21 @@ Model::Model(std::string path, GLuint shaderProgramID)
 
 void Model::drawObject()
 {
-	for (Mesh mesh : meshes)
+	for (int i = 0; i < meshes.size(); i++)
 	{
-		mesh.drawObject();
+		meshes[i].drawObject();
 	}
 }
 
 void Model::setupObject()
 {
-	for (Mesh mesh : meshes)
+	// Do NOT iterate over the meshes using a foreach loop such as:
+	// for (Mesh mesh : meshes)
+	// Doing so causes the generated data (VAOs, VBOs etc.) to be lost when going out of scope
+	// Which results in memory access violations
+	for (int i = 0; i < meshes.size(); i++)
 	{
-		mesh.setupObject();
+		meshes[i].setupObject();
 	}
 }
 
@@ -134,7 +138,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture> textures;
-
 	for (int i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;

@@ -15,6 +15,12 @@ Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm:
 	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
 	this->shaderProgramID = shaderProgramID;
 	this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
+
+	this->VAO = {};
+	this->VBO = {};
+	this->indicesBO = {};
+	this->texCoordBO = {};
+	this->normalBO = {};
 }
 
 Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture> textures, GLuint shaderProgramID, glm::vec3 position)
@@ -27,6 +33,12 @@ Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vecto
 
 	addNormals(&normals[0], normals.size() * sizeof(float));
 	addIndices(&indices[0], indices.size() * sizeof(unsigned int));
+
+	this->VAO = {};
+	this->VBO = {};
+	this->indicesBO = {};
+	this->texCoordBO = {};
+	this->normalBO = {};
 }
 
 void Mesh::drawObject()
@@ -93,9 +105,6 @@ void Mesh::setupObject()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
 	// If the mesh uses indices
 	if (indices.size() > 0)
 	{
@@ -105,6 +114,9 @@ void Mesh::setupObject()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 	}
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	// If the mesh uses textures
 	if (textures.size() > 0)
@@ -130,8 +142,6 @@ void Mesh::setupObject()
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
 	}
-
-	std::cout << VAO << std::endl;
 }
 
 renderObjectType Mesh::getType()

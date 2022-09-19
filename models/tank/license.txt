@@ -1,0 +1,11 @@
+Model Information:
+* title:	Chemical tank
+* source:	https://sketchfab.com/3d-models/chemical-tank-63c001e74ff5402fbcf1338479c9c0c5
+* author:	ixMkc1 (https://sketchfab.com/ixMkc1)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Chemical tank" (https://sketchfab.com/3d-models/chemical-tank-63c001e74ff5402fbcf1338479c9c0c5) by ixMkc1 (https://sketchfab.com/ixMkc1) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

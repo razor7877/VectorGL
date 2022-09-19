@@ -12,6 +12,16 @@ void Renderer::init()
 		object->setupObject();
 		shaderMap[object->shaderProgramID].push_back(object);
 	}
+
+	/*
+	for (auto& shaderObjectPair : shaderMap)
+	{
+		glUseProgram(shaderObjectPair.first);
+		for (renderObject* objectPtr : shaderObjectPair.second)
+		{
+			objectPtr->setupObject();
+		}
+	}*/
 }
 
 void Renderer::render()
