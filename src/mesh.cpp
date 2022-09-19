@@ -108,7 +108,6 @@ void Mesh::setupObject()
 	// If the mesh uses indices
 	if (indices.size() > 0)
 	{
-		std::cout << vertices.size() << " " << indices.size() << std::endl;
 		glGenBuffers(1, &indicesBO);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBO);
@@ -177,32 +176,32 @@ void Mesh::addIndices(unsigned int indices[], unsigned int indicesSize)
 	this->indices.insert(this->indices.end(), &indices[0], &indices[indicesSize / sizeof(unsigned int)]);
 }
 
-void Mesh::rotateModel(float degrees, glm::vec3 rotationPoint)
+void Mesh::rotateMesh(float degrees, glm::vec3 rotationPoint)
 {
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), rotationPoint);
 }
 
-void Mesh::rotateModel(float degrees, float x, float y, float z)
+void Mesh::rotateMesh(float degrees, float x, float y, float z)
 {
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), glm::vec3(x, y, z));
 }
 
-void Mesh::translateModel(glm::vec3 translation)
+void Mesh::translateMesh(glm::vec3 translation)
 {
 	modelMatrix = glm::translate(modelMatrix, translation);
 }
 
-void Mesh::translateModel(float x, float y, float z)
+void Mesh::translateMesh(float x, float y, float z)
 {
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(x, y, z));
 }
 
-void Mesh::scaleModel(glm::vec3 scaleVec)
+void Mesh::scaleMesh(glm::vec3 scaleVec)
 {
 	modelMatrix = glm::scale(modelMatrix, scaleVec);
 }
 
-void Mesh::scaleModel(float scaleX, float scaleY, float scaleZ)
+void Mesh::scaleMesh(float scaleX, float scaleY, float scaleZ)
 {
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(scaleX, scaleY, scaleZ));
 }

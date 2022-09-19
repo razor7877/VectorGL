@@ -12,7 +12,6 @@
 class Model : public virtual renderObject
 {
 public:
-	GLuint shaderProgramID;
 	std::vector<Mesh> meshes;
 	Model();
 	Model(std::string path, GLuint shaderProgramID);
@@ -20,6 +19,18 @@ public:
 	void renderObject::drawObject() override;
 	void renderObject::setupObject() override;
 	renderObjectType renderObject::getType() override;
+
+	// Rotates the object's model matrix using a vec3 or xyz floats
+	void rotateModel(float degrees, glm::vec3 rotationPoint);
+	void rotateModel(float degrees, float x, float y, float z);
+
+	// Translate the object's model matrix using a vec3 or xyz floats
+	void translateModel(glm::vec3 translation);
+	void translateModel(float x, float y, float z);
+
+	// Scales the object's model matrix using a vec3 or xyz floats
+	void scaleModel(glm::vec3 scaleVec);
+	void scaleModel(float scaleX, float scaleY, float scaleZ);
 
 private:
 	

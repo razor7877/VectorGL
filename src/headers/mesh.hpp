@@ -48,16 +48,16 @@ public:
 	void addIndices(unsigned int indices[], unsigned int indicesSize);
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
-	void rotateModel(float degrees, glm::vec3 rotationPoint);
-	void rotateModel(float degrees, float x, float y, float z);
+	void rotateMesh(float degrees, glm::vec3 rotationPoint);
+	void rotateMesh(float degrees, float x, float y, float z);
 
 	// Translate the object's model matrix using a vec3 or xyz floats
-	void translateModel(glm::vec3 translation);
-	void translateModel(float x, float y, float z);
+	void translateMesh(glm::vec3 translation);
+	void translateMesh(float x, float y, float z);
 
 	// Scales the object's model matrix using a vec3 or xyz floats
-	void scaleModel(glm::vec3 scaleVec);
-	void scaleModel(float scaleX, float scaleY, float scaleZ);
+	void scaleMesh(glm::vec3 scaleVec);
+	void scaleMesh(float scaleX, float scaleY, float scaleZ);
 };
 
 #endif

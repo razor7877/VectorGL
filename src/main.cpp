@@ -311,10 +311,6 @@ int main()
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer();
-	
-	Mesh cube = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(0.0f, 0.0f, 2.0f));
-	//cube.addMaterial(boxTex, tcoords, sizeof(tcoords));
-	cube.addNormals(normals, sizeof(normals));
 
 	Mesh instances[1000];
 	int i = 0;
@@ -337,34 +333,18 @@ int main()
 	}
 
 	Mesh light = Mesh(vertices, sizeof(vertices), phongShader.ID, lightPos);
-	//light.addMaterial(boxTex, tcoords, sizeof(tcoords));
 	light.addTexture(crate);
 	light.addTexCoords(tcoords, sizeof(tcoords));
-	light.scaleModel(0.25f, 0.25f, 0.25f);;
+	light.scaleMesh(0.25f, 0.25f, 0.25f);;
 
 	Cubemap cubemap = Cubemap("img/skybox/night/");
 	Skybox skybox = Skybox(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID, cubemap);
 
-	float rectV[] = {
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left 
-	};
+	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID);
+	model.scaleModel(0.05f, 0.05f, 0.05f);
+	model.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
-	unsigned int rectI[] = {
-		0, 1, 3,
-		1, 2, 3
-	};
-
-	Mesh rectangle = Mesh(rectV, sizeof(rectV), phongShader.ID, glm::vec3(-5.0f, 0.0f, 0.0f));
-	rectangle.addIndices(rectI, sizeof(rectI));
-
-	Model model = Model("models/tank/scene.gltf", phongShader.ID);
-
-	//defaultRenderer.objects.push_back(&rectangle);
-	//defaultRenderer.objects.push_back(&light);
-	//defaultRenderer.objects.push_back(&cube);
+	defaultRenderer.objects.push_back(&light);
 	defaultRenderer.objects.push_back(&skybox);
 	
 	defaultRenderer.objects.push_back(&model);
@@ -377,8 +357,6 @@ int main()
 
 	float strength = 0.0f;
 	float currentFrame;
-
-	glDisable(GL_CULL_FACE);
 
 	// Enabled to use the grid shader
 	glEnable(GL_BLEND);
@@ -417,10 +395,11 @@ int main()
 
 		// Update movement of the light emitting cube
 		light.modelMatrix = glm::mat4(1.0f);
-		light.translateModel(lightPos);
-		light.scaleModel(0.25f, 0.25f, 0.25f);
+		light.translateMesh(lightPos);
+		light.scaleMesh(0.25f, 0.25f, 0.25f);
 
 		defaultRenderer.render();
+
 		std::cout << glGetError() << std::endl;
 
 		gridShader.use();

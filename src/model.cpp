@@ -151,3 +151,51 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 	return textures;
 }
+
+void Model::rotateModel(float degrees, glm::vec3 rotationPoint)
+{
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].rotateMesh(degrees, rotationPoint);
+	}
+}
+
+void Model::rotateModel(float degrees, float x, float y, float z)
+{
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].rotateMesh(degrees, x, y, z);
+	}
+}
+
+void Model::translateModel(glm::vec3 translation)
+{
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].translateMesh(translation);
+	}
+}
+
+void Model::translateModel(float x, float y, float z)
+{
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].translateMesh(x, y, z);
+	}
+}
+
+void Model::scaleModel(glm::vec3 scaleVec)
+{
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].scaleMesh(scaleVec);
+	}
+}
+
+void Model::scaleModel(float scaleX, float scaleY, float scaleZ)
+{
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].scaleMesh(scaleX, scaleY, scaleZ);
+	}
+}
