@@ -11,7 +11,8 @@
 #include "material.hpp"
 #include "renderObject.hpp"
 
-// A helper class to easily produce and manage objects in the world
+// A mesh is any 3D object that contains vertices data, and may contain normals, textures & materials, indices etc.
+// A mesh can exist on it's own or be apart of a Model object
 class Mesh : public virtual renderObject
 {
 public:

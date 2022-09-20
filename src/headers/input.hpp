@@ -1,7 +1,8 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
-#include <glad/glad.h>
+// This file contains functions responsible for handling and processing the various user inputs
+// such as mouse movement, clicking, scrolling, and keyboard presses
 
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;

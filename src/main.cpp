@@ -224,17 +224,6 @@ int main()
 		0.0f,  1.0f,  0.0f
 	};
 
-	float trivertices[] = {
-		// first triangle
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f,  0.5f, 0.0f,  // top left 
-		// second triangle
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left
-	};
-
 	float tcoords[] = {
 		0.0f, 0.0f,
 		1.0f, 0.0f,
@@ -344,10 +333,14 @@ int main()
 	model.scaleModel(0.05f, 0.05f, 0.05f);
 	model.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
-	defaultRenderer.objects.push_back(&light);
-	defaultRenderer.objects.push_back(&skybox);
-	
-	defaultRenderer.objects.push_back(&model);
+	Model model2 = Model("models/airplane/11803_Airplane_v1_l1.obj", phongShader.ID);
+	model2.translateModel(30.0f, 0.0f, 30.0f);
+	model2.scaleModel(0.005f, 0.005f, 0.005f);
+
+	defaultRenderer.addObject(&light);
+	defaultRenderer.addObject(&skybox);
+	defaultRenderer.addObject(&model);
+	defaultRenderer.addObject(&model2);
 
 	// After all needed objects have been added, initializes the renderer's data and sets up every object's data
 	defaultRenderer.init();
@@ -355,7 +348,6 @@ int main()
 	// Initializes the ImGui UI system
 	ImGuiInit(window);
 
-	float strength = 0.0f;
 	float currentFrame;
 
 	// Enabled to use the grid shader

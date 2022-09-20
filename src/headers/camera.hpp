@@ -1,6 +1,9 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+// The camera class is responsible for the various actions that can be done by a camera object
+// This includes looking around, moving inside the world etc.
+
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>

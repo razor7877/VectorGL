@@ -1,14 +1,8 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-
+// A class used to easily compile shaders from a given source and setup their data to be used by OpenGL
+// Also contains helper methods to easily modify the shader's uniforms
 class Shader
 {
 public:

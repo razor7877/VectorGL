@@ -3,6 +3,11 @@
 #include "headers/renderer.hpp"
 #include "headers/renderObject.hpp"
 
+void Renderer::addObject(renderObject* objectPtr)
+{
+	objects.push_back(objectPtr);
+}
+
 void Renderer::init()
 {
 	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding

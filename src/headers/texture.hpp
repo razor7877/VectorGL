@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include <glad/glad.h>
-
 // A helper class to easily load and use 2D textures
 class Texture
 {

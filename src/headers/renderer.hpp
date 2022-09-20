@@ -4,9 +4,10 @@
 #include <vector>
 #include <map>
 
-#include "mesh.hpp"
 #include "renderObject.hpp"
 
+// A renderer class, that does all that is needed for setting up and then drawing many things such as models, meshes, skyboxes etc.
+// It contains a vector of renderObject, that stores the various objects to be drawn
 class Renderer
 {
 public:
@@ -14,6 +15,8 @@ public:
 	std::vector<renderObject*> objects;
 	// Associates each shader used in the meshes vector with its corresponding meshes
 	std::map<int, std::vector<renderObject*>> shaderMap;
+
+	void addObject(renderObject* objectPtr);
 
 	// Initializes the renderer data, done before the render loop
 	void init();

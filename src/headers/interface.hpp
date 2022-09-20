@@ -4,6 +4,8 @@
 #include "headers/camera.hpp"
 #include "cubemap.hpp"
 
+// This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library
+
 extern float deltaTime;
 
 void ImGuiInit(GLFWwindow* window);
