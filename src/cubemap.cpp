@@ -13,19 +13,26 @@ Cubemap::Cubemap()
 
 Cubemap::Cubemap(std::string facesPath)
 {
-	std::vector<std::string> faces = {
+	Cubemap::Cubemap({
 		facesPath + "right.png",
 		facesPath + "left.png",
 		facesPath + "top.png",
 		facesPath + "bottom.png",
 		facesPath + "front.png",
 		facesPath + "back.png",
-	};
-
-	Cubemap::Cubemap(faces);
+	});
 }
 
 Cubemap::Cubemap(std::vector<std::string> faces)
+{
+	this->faces = faces;
+	for (std::string f : this->faces)
+	{
+		std::cout << f << std::endl;
+	}
+}
+
+void Cubemap::setupObject()
 {
 	glGenTextures(1, &texID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
@@ -36,7 +43,7 @@ Cubemap::Cubemap(std::vector<std::string> faces)
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
-			GLenum format;
+			GLenum format = GL_RGB;
 			if (nrChannels == 1)
 				format = GL_RED;
 			if (nrChannels == 3)

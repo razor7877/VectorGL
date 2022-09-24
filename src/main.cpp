@@ -333,9 +333,9 @@ int main()
 	model.scaleModel(0.05f, 0.05f, 0.05f);
 	model.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
-	Model model2 = Model("models/airplane/11803_Airplane_v1_l1.obj", phongShader.ID);
+	Model model2 = Model("models/tank/scene.gltf", phongShader.ID);
 	model2.translateModel(30.0f, 0.0f, 30.0f);
-	model2.scaleModel(0.005f, 0.005f, 0.005f);
+	model2.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	defaultRenderer.addObject(&light);
 	defaultRenderer.addObject(&skybox);

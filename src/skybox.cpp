@@ -14,8 +14,6 @@ Skybox::Skybox(float vertices[], unsigned int vertSize, GLuint shaderProgramID, 
 // Draw the skybox
 void Skybox::drawObject()
 {
-	glUseProgram(shaderProgramID);
-
 	glDepthFunc(GL_LEQUAL);
 
 	glBindVertexArray(VAO);
@@ -23,4 +21,9 @@ void Skybox::drawObject()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	glDepthFunc(GL_LESS);
+}
+
+void Skybox::setupObject()
+{
+	cubemap.setupObject();
 }

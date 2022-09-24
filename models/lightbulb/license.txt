@@ -1,0 +1,11 @@
+Model Information:
+* title:	Edison Light Bulb
+* source:	https://sketchfab.com/3d-models/edison-light-bulb-aeb0e4832f04463280510e550e2cdbd5
+* author:	Fishboe (https://sketchfab.com/ministephen)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Edison Light Bulb" (https://sketchfab.com/3d-models/edison-light-bulb-aeb0e4832f04463280510e550e2cdbd5) by Fishboe (https://sketchfab.com/ministephen) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
