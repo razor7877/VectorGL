@@ -25,5 +25,6 @@ void Skybox::drawObject()
 
 void Skybox::setupObject()
 {
+	Mesh::setupObject();
 	cubemap.setupObject();
 }

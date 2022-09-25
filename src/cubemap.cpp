@@ -8,28 +8,25 @@
 
 Cubemap::Cubemap()
 {
-
+	this->texID = {};
 }
 
 Cubemap::Cubemap(std::string facesPath)
 {
-	Cubemap::Cubemap({
-		facesPath + "right.png",
-		facesPath + "left.png",
-		facesPath + "top.png",
-		facesPath + "bottom.png",
-		facesPath + "front.png",
-		facesPath + "back.png",
-	});
+	this->texID = {};
+
+	faces.push_back(facesPath + "right.png");
+	faces.push_back(facesPath + "left.png");
+	faces.push_back(facesPath + "top.png");
+	faces.push_back(facesPath + "bottom.png");
+	faces.push_back(facesPath + "front.png");
+	faces.push_back(facesPath + "back.png");
 }
 
 Cubemap::Cubemap(std::vector<std::string> faces)
 {
+	this->texID = {};
 	this->faces = faces;
-	for (std::string f : this->faces)
-	{
-		std::cout << f << std::endl;
-	}
 }
 
 void Cubemap::setupObject()
