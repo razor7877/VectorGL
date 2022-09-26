@@ -2,9 +2,9 @@
 #include <cstring>
 #include <iostream>
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #include "headers/main.hpp"
 #include "headers/interface.hpp"
@@ -36,7 +36,7 @@ void ImGuiInit(GLFWwindow* window)
 	ImGui::StyleColorsDark();
 }
 
-void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Cubemap& cubemap)
+void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox& skybox)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -47,7 +47,7 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, g
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings(position);
-	SkyboxSettings(cubemap);
+	SkyboxSettings(skybox);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -149,7 +149,7 @@ void LightSettings(glm::vec3& position)
 	ImGui::End();
 }
 
-void SkyboxSettings(Cubemap& cubemap)
+void SkyboxSettings(Skybox& skybox)
 {
 	ImGui::Begin("Skybox settings");
 
@@ -166,18 +166,20 @@ void SkyboxSettings(Cubemap& cubemap)
 				switch (item_current_idx)
 				{
 					case 0:
-						cubemap = Cubemap("img/skybox/grass/");
+						skybox.cubemap = Cubemap("img/skybox/grass/");
 						break;
 
 					case 1:
-						cubemap = Cubemap("img/skybox/night/");
+						skybox.cubemap = Cubemap("img/skybox/night/");
 						break;
 
 					case 2:
-						cubemap = Cubemap("img/skybox/sky/");
+						skybox.cubemap = Cubemap("img/skybox/sky/");
 						break;
 				}
 			}
+
+			skybox.setupObject();
 
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected)

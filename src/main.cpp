@@ -4,9 +4,9 @@
 
 #include <iostream>
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -398,7 +398,7 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, cubemap);
+		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
