@@ -23,7 +23,9 @@
 #include "io/input.hpp"
 #include "cubemap.hpp"
 #include "renderer.hpp"
+#include "lights/directionalLight.hpp"
 #include "lights/pointLight.hpp"
+#include "lights/spotLight.hpp"
 
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;
@@ -298,8 +300,15 @@ int main()
 	phongShader.setVec3("material.specular", boxTex.specular);
 	phongShader.setFloat("material.shininess", boxTex.shininess);
 
-	PointLight pointLight = PointLight(glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(5.0f, 5.0f, 5.0f), 1.0f, 0.0f, 0.0f);
+	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
 	pointLight.sendToShader(phongShader.ID, 0);
+	PointLight light2 = PointLight(glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-5.0f, 5.0f, -5.0f), 1.0f, 0.045f, 0.0075f);
+	light2.sendToShader(phongShader.ID, 1);
+	phongShader.setInt("nrPointLights", 2);
+
+	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.5f));
+	dirLight.sendToShader(phongShader.ID, 0);
+	phongShader.setInt("nrDirLights", 1);
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer();
@@ -311,7 +320,8 @@ int main()
 		for (int y = 0; y < 10; y++)
 		{
 			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f));
-			//mesh.addMaterial(boxTex, tcoords, sizeof(tcoords));
+			mesh.addTexture(crate);
+			mesh.addTexCoords(tcoords, sizeof(tcoords));
 			mesh.addNormals(normals, sizeof(normals));
 			instances[i] = mesh;
 
@@ -393,12 +403,12 @@ int main()
 		light.translateMesh(lightPos);
 		light.scaleMesh(0.25f, 0.25f, 0.25f);
 
+		gridShader.use();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		defaultRenderer.render();
 
 		std::cout << glGetError() << std::endl;
-
-		gridShader.use();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);

@@ -111,14 +111,49 @@ vec3 phong()
 	return result;
 }
 
-/*vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
 {
+	vec3 lightDir = normalize(-light.direction);
 
-}*/
+	// Diffuse shading
+	float diff = max(dot(normal, lightDir), 0.0);
+
+	// Specular shading
+	vec3 reflectDir = reflect(-lightDir, normal);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+	// Combine results
+	vec3 ambient = light.ambientColor;
+	vec3 diffuse = light.diffuseColor * (diff * material.diffuse);
+	vec3 specular = light.specularColor * (spec * material.specular);
+
+	return (ambient + diffuse + specular);
+}
 
 vec3 calcPointLight(PointLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
 {
+	vec3 lightDir = normalize(light.position - FragPos);
 
+	// Diffuse shading
+	float diff = max(dot(normal, lightDir), 0.0);
+
+	// Specular shading
+	vec3 reflectDir = reflect(-lightDir, normal);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+	// Attenuation
+	float distance = length(light.position - FragPos);
+	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+	// Combine results
+	vec3 ambient = light.ambientColor;
+	vec3 diffuse = light.diffuseColor * (diff * material.diffuse);
+	vec3 specular = light.specularColor * (spec * material.specular);
+	ambient *= attenuation;
+	diffuse *= attenuation;
+	specular *= attenuation;
+
+	return (ambient + diffuse + specular);
 }
 
 /*vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
@@ -138,31 +173,29 @@ void main()
 		FragColor = vec4(1.0);
 	}
 
-	// If texture coordinates are supplied, apply the texture
-	if (TexCoord != 0)
-	{
-		FragColor *= texture(texture_diffuse1, TexCoord);
-	}
-
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);
 
-	/*
 	for (int i = 0; i < nrDirLights; i++)
 	{
 		result += calcDirLight(dirLights[i], Normal, viewDir);
 	}
-	*/
 
 	for (int i = 0; i < nrPointLights; i++)
 	{
 		result += calcPointLight(pointLights[i], Normal, FragPos, viewDir);
 	}
-
 	/*
 	for (int i = 0; i < nrSpotLights; i++)
 	{
 		result += calcSpotLight(spotLights[i], Normal, FragPos, viewDir);
+	}*/
+
+	FragColor = vec4(result, 1.0);
+
+	// If texture coordinates are supplied, apply the texture
+	if (TexCoord != 0)
+	{
+		FragColor *= texture(texture_diffuse1, TexCoord);
 	}
-	*/
 }
