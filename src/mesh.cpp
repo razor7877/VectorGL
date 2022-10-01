@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "headers/Mesh.hpp"
+#include "mesh.hpp"
 
 Mesh::Mesh()
 {
@@ -141,11 +141,6 @@ void Mesh::setupObject()
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
 	}
-}
-
-renderObjectType Mesh::getType()
-{
-	return renderObjectType::OBJECT_MESH;
 }
 
 // Add texture coordinates data to the mesh

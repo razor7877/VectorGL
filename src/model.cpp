@@ -3,7 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-#include "headers/model.hpp"
+#include "model.hpp"
 
 Model::Model()
 {
@@ -34,11 +34,6 @@ void Model::setupObject()
 	{
 		meshes[i].setupObject();
 	}
-}
-
-renderObjectType Model::getType()
-{
-	return renderObjectType::OBJECT_MODEL;
 }
 
 void Model::loadModel(std::string path)

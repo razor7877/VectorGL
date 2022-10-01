@@ -12,11 +12,11 @@ class Renderer
 {
 public:
 	// Store a vector of mesh pointers that refers to all the meshes to be drawn
-	std::vector<renderObject*> objects;
+	std::vector<RenderObject*> objects;
 	// Associates each shader used in the meshes vector with its corresponding meshes
-	std::map<int, std::vector<renderObject*>> shaderMap;
+	std::map<int, std::vector<RenderObject*>> shaderMap;
 
-	void addObject(renderObject* objectPtr);
+	void addObject(RenderObject* objectPtr);
 
 	// Initializes the renderer data, done before the render loop
 	void init();

@@ -4,7 +4,7 @@
 
 #include <stb_image.h>
 
-#include "headers/cubemap.hpp"
+#include "cubemap.hpp"
 
 Cubemap::Cubemap()
 {

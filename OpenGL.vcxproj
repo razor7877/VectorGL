@@ -28,8 +28,12 @@
     <ClCompile Include="includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="libs\glad.c" />
     <ClCompile Include="src\cubemap.cpp" />
-    <ClCompile Include="src\input.cpp" />
-    <ClCompile Include="src\interface.cpp" />
+    <ClCompile Include="src\io\input.cpp" />
+    <ClCompile Include="src\io\interface.cpp" />
+    <ClCompile Include="src\lights\directionalLight.cpp" />
+    <ClCompile Include="src\lights\light.cpp" />
+    <ClCompile Include="src\lights\pointLight.cpp" />
+    <ClCompile Include="src\lights\spotLight.cpp" />
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -43,10 +47,14 @@
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp" />
     <ClInclude Include="src\headers\cubemap.hpp" />
+    <ClInclude Include="src\headers\io\input.hpp" />
+    <ClInclude Include="src\headers\io\interface.hpp" />
+    <ClInclude Include="src\headers\lights\directionalLight.hpp" />
+    <ClInclude Include="src\headers\lights\light.hpp" />
+    <ClInclude Include="src\headers\lights\pointLight.hpp" />
+    <ClInclude Include="src\headers\lights\spotLight.hpp" />
     <ClInclude Include="src\headers\material.hpp" />
     <ClInclude Include="src\headers\mesh.hpp" />
-    <ClInclude Include="src\headers\input.hpp" />
-    <ClInclude Include="src\headers\interface.hpp" />
     <ClInclude Include="src\headers\main.hpp" />
     <ClInclude Include="src\headers\model.hpp" />
     <ClInclude Include="src\headers\renderer.hpp" />
@@ -166,7 +174,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\headers;$(ProjectDir)includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

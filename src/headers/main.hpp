@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "headers/camera.hpp"
+#include "camera.hpp"
 
 extern int windowWidth;
 extern int windowHeight;

@@ -6,9 +6,9 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "headers/main.hpp"
-#include "headers/interface.hpp"
-#include "headers/camera.hpp"
+#include "main.hpp"
+#include "io/interface.hpp"
+#include "camera.hpp"
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049

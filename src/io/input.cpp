@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "headers/main.hpp"
-#include "headers/input.hpp"
-#include "headers/camera.hpp"
+#include "main.hpp"
+#include "io/input.hpp"
+#include "camera.hpp"
 
 float lastX = windowWidth / 2;
 float lastY = windowHeight / 2;

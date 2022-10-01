@@ -30,6 +30,15 @@
     <Filter Include="Fichiers sources\src\loaders">
       <UniqueIdentifier>{0806553c-e68b-4afd-8819-ed5de1ae5fd5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\src\lights">
+      <UniqueIdentifier>{667ad21e-8aed-4ce9-a3a4-4fb58482b368}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\src\headers\lights">
+      <UniqueIdentifier>{7dee73f7-6165-4c39-92ae-d6bf1250bcae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\src\headers\io">
+      <UniqueIdentifier>{db14beb6-4909-489a-b614-54e812f9e05b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\texture.cpp">
@@ -80,17 +89,29 @@
     <ClCompile Include="src\stb_image.cpp">
       <Filter>Fichiers sources\src\loaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\interface.cpp">
-      <Filter>Fichiers sources\src\io</Filter>
-    </ClCompile>
-    <ClCompile Include="src\input.cpp">
-      <Filter>Fichiers sources\src\io</Filter>
-    </ClCompile>
     <ClCompile Include="src\skybox.cpp">
       <Filter>Fichiers sources\src</Filter>
     </ClCompile>
     <ClCompile Include="src\model.cpp">
       <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lights\light.cpp">
+      <Filter>Fichiers sources\src\lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lights\directionalLight.cpp">
+      <Filter>Fichiers sources\src\lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lights\pointLight.cpp">
+      <Filter>Fichiers sources\src\lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lights\spotLight.cpp">
+      <Filter>Fichiers sources\src\lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\input.cpp">
+      <Filter>Fichiers sources\src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\interface.cpp">
+      <Filter>Fichiers sources\src\io</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,12 +128,6 @@
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\texture.hpp">
-      <Filter>Fichiers sources\src\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\headers\interface.hpp">
-      <Filter>Fichiers sources\src\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\headers\input.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\cubemap.hpp">
@@ -132,6 +147,24 @@
     </ClInclude>
     <ClInclude Include="src\headers\model.hpp">
       <Filter>Fichiers sources\src\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\io\input.hpp">
+      <Filter>Fichiers sources\src\headers\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\io\interface.hpp">
+      <Filter>Fichiers sources\src\headers\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\lights\directionalLight.hpp">
+      <Filter>Fichiers sources\src\headers\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\lights\light.hpp">
+      <Filter>Fichiers sources\src\headers\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\lights\pointLight.hpp">
+      <Filter>Fichiers sources\src\headers\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\lights\spotLight.hpp">
+      <Filter>Fichiers sources\src\headers\lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

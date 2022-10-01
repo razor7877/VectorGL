@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "headers/renderer.hpp"
-#include "headers/renderObject.hpp"
+#include "renderer.hpp"
+#include "renderObject.hpp"
 
-void Renderer::addObject(renderObject* objectPtr)
+void Renderer::addObject(RenderObject* objectPtr)
 {
 	objects.push_back(objectPtr);
 }
@@ -12,21 +12,11 @@ void Renderer::init()
 {
 	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
 	// shader ID using the shaderMap table
-	for (renderObject* object : objects)
+	for (RenderObject* object : objects)
 	{
 		object->setupObject();
 		shaderMap[object->shaderProgramID].push_back(object);
 	}
-
-	/*
-	for (auto& shaderObjectPair : shaderMap)
-	{
-		glUseProgram(shaderObjectPair.first);
-		for (renderObject* objectPtr : shaderObjectPair.second)
-		{
-			objectPtr->setupObject();
-		}
-	}*/
 }
 
 void Renderer::render()
@@ -37,7 +27,7 @@ void Renderer::render()
 	{
 		// Use the current shader, then draw all objects associated with it
 		glUseProgram(shaderObjectPair.first);
-		for (renderObject* objectPtr : shaderObjectPair.second)
+		for (RenderObject* objectPtr : shaderObjectPair.second)
 		{
 			objectPtr->drawObject();
 		}

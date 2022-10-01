@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-#include "headers/texture.hpp"
+#include "texture.hpp"
 
 Texture::Texture()
 {

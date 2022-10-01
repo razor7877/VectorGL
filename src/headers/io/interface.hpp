@@ -1,7 +1,7 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include "headers/camera.hpp"
+#include "camera.hpp"
 #include "skybox.hpp"
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library

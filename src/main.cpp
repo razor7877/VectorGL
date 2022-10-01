@@ -12,17 +12,17 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
-#include "headers/main.hpp"
-#include "headers/shader.hpp"
-#include "headers/model.hpp"
-#include "headers/Mesh.hpp"
-#include "headers/skybox.hpp"
-#include "headers/texture.hpp"
-#include "headers/camera.hpp"
-#include "headers/interface.hpp"
-#include "headers/input.hpp"
-#include "headers/cubemap.hpp"
-#include "headers/renderer.hpp"
+#include "main.hpp"
+#include "shader.hpp"
+#include "model.hpp"
+#include "Mesh.hpp"
+#include "skybox.hpp"
+#include "texture.hpp"
+#include "camera.hpp"
+#include "io/interface.hpp"
+#include "io/input.hpp"
+#include "cubemap.hpp"
+#include "renderer.hpp"
 
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;

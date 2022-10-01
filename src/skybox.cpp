@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-#include "headers/skybox.hpp"
+#include "skybox.hpp"
 
 // Setup default mesh variables with parent constructor, then set class specific variables
 Skybox::Skybox(float vertices[], unsigned int vertSize, GLuint shaderProgramID, Cubemap cubemap, glm::vec3 position)
