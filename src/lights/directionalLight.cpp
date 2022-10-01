@@ -5,3 +5,8 @@ directionalLight::directionalLight(glm::vec3 ambientColor, glm::vec3 diffuseColo
 {
 	this->direction = direction;
 }
+
+void directionalLight::sendToShader(unsigned int shaderProgramID, unsigned int index)
+{
+
+}

@@ -23,6 +23,7 @@
 #include "io/input.hpp"
 #include "cubemap.hpp"
 #include "renderer.hpp"
+#include "lights/pointLight.hpp"
 
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;
@@ -288,7 +289,6 @@ int main()
 	// Sets up variables for the phong lighting shader
 	phongShader.use();
 	phongShader.setInt("texture1", 0);
-	phongShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	phongShader.setVec3("lightPos", lightPos);
 	phongShader.setVec3("viewPos", camera.position);
@@ -297,6 +297,9 @@ int main()
 	phongShader.setVec3("material.diffuse", boxTex.diffuse);
 	phongShader.setVec3("material.specular", boxTex.specular);
 	phongShader.setFloat("material.shininess", boxTex.shininess);
+
+	PointLight pointLight = PointLight(glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(5.0f, 5.0f, 5.0f), 1.0f, 0.0f, 0.0f);
+	pointLight.sendToShader(phongShader.ID, 0);
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer();

@@ -1,16 +1,42 @@
 #version 330 core
-in vec3 FragPos;
-in vec2 TexCoord;
-in vec3 Normal;
 
-out vec4 FragColor;
+// DEFINING STRUCTS
+struct DirectionalLight
+{
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
 
-uniform vec3 objectColor;
-uniform vec3 lightColor;
-uniform vec3 lightPos;
-uniform vec3 viewPos;
+	vec3 direction;
+};
 
-uniform sampler2D texture_diffuse1;
+struct PointLight
+{
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
+
+	vec3 position;
+	float constant;
+	float linear;
+	float quadratic;
+};
+
+struct SpotLight
+{
+	vec3 ambientColor;
+	vec3 diffuseColor;
+	vec3 specularColor;
+
+	vec3 position;
+	float constant;
+	float linear;
+	float quadratic;
+
+	vec3 direction;
+	float cutOff;
+	float outerCutoff;
+};
 
 struct Material
 {
@@ -20,8 +46,44 @@ struct Material
 	float shininess;
 };
 
+// DEFINING FUNCTION PROTOTYPES
+vec3 phong();
+vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir);
+vec3 calcPointLight(PointLight light, vec3 normal, vec3 FragPos, vec3 viewDir);
+vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir);
+
+// DEFINING INPUT VALUES
+// Takes as input fragment position, a texture coordinate, and possibly a normal vector
+in vec3 FragPos;
+in vec2 TexCoord;
+in vec3 Normal;
+
+// DEFINING OUTPUT VALUES
+out vec4 FragColor;
+
+
+// DEFINING UNIFORMS
+uniform vec3 lightColor;
+uniform vec3 lightPos;
+uniform vec3 viewPos;
+
+uniform sampler2D texture_diffuse1;
+
 uniform Material material;
 
+// There is one uniform for each light type, each being an array that contains up to
+// 32 of this light type
+#define NR_DIR_LIGHTS 32
+#define NR_POINT_LIGHTS 32
+#define NR_SPOT_LIGHTS 32
+uniform DirectionalLight dirLights[NR_DIR_LIGHTS];
+uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform SpotLight spotLights[NR_SPOT_LIGHTS];
+uniform int nrDirLights;
+uniform int nrPointLights;
+uniform int nrSpotLights;
+
+// DEFINING FUNCTIONS
 vec3 phong()
 {
 	float viewDistance = length(lightPos - FragPos);
@@ -49,6 +111,21 @@ vec3 phong()
 	return result;
 }
 
+/*vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+{
+
+}*/
+
+vec3 calcPointLight(PointLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
+{
+
+}
+
+/*vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
+{
+
+}*/
+
 void main()
 {
 	// If normals are supplied, apply phong lighting
@@ -66,4 +143,26 @@ void main()
 	{
 		FragColor *= texture(texture_diffuse1, TexCoord);
 	}
+
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 result = vec3(0.0);
+
+	/*
+	for (int i = 0; i < nrDirLights; i++)
+	{
+		result += calcDirLight(dirLights[i], Normal, viewDir);
+	}
+	*/
+
+	for (int i = 0; i < nrPointLights; i++)
+	{
+		result += calcPointLight(pointLights[i], Normal, FragPos, viewDir);
+	}
+
+	/*
+	for (int i = 0; i < nrSpotLights; i++)
+	{
+		result += calcSpotLight(spotLights[i], Normal, FragPos, viewDir);
+	}
+	*/
 }

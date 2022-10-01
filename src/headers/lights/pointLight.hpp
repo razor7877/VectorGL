@@ -15,6 +15,7 @@ public:
 	float quadratic;
 
 	PointLight(glm::vec3 ambientColor, glm::vec3 diffuseColor, glm::vec3 specularColor, glm::vec3 position, float constant, float linear, float quadratic);
+	void Light::sendToShader(unsigned int shaderProgramID, unsigned int index) override;
 };
 
 #endif
