@@ -113,6 +113,12 @@
     <ClCompile Include="src\io\interface.cpp">
       <Filter>Fichiers sources\src\io</Filter>
     </ClCompile>
+    <ClCompile Include="src\lights\lightManager.cpp">
+      <Filter>Fichiers sources\src\lights</Filter>
+    </ClCompile>
+    <ClCompile Include="renderObject.cpp">
+      <Filter>Fichiers sources\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\headers\camera.hpp">
@@ -164,6 +170,9 @@
       <Filter>Fichiers sources\src\headers\lights</Filter>
     </ClInclude>
     <ClInclude Include="src\headers\lights\spotLight.hpp">
+      <Filter>Fichiers sources\src\headers\lights</Filter>
+    </ClInclude>
+    <ClInclude Include="src\headers\lights\lightManager.hpp">
       <Filter>Fichiers sources\src\headers\lights</Filter>
     </ClInclude>
   </ItemGroup>

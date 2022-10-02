@@ -5,7 +5,7 @@
 
 #include "light.hpp"
 
-class PointLight : Light
+class PointLight : public virtual Light
 {
 public:
 	glm::vec3 position;
@@ -16,6 +16,7 @@ public:
 
 	PointLight(glm::vec3 ambientColor, glm::vec3 diffuseColor, glm::vec3 specularColor, glm::vec3 position, float constant, float linear, float quadratic);
 	void Light::sendToShader(unsigned int shaderProgramID, unsigned int index) override;
+	LightType Light::getLightType() override;
 };
 
 #endif

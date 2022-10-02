@@ -7,7 +7,14 @@
 
 Mesh::Mesh()
 {
+	this->shaderProgramID = {};
+	this->modelMatrix = glm::mat4(1.0f);
 
+	this->VAO = {};
+	this->VBO = {};
+	this->indicesBO = {};
+	this->texCoordBO = {};
+	this->normalBO = {};
 }
 
 Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)

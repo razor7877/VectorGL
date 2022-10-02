@@ -33,3 +33,8 @@ void PointLight::sendToShader(unsigned int shaderProgramID, unsigned int index)
 	glUniform1f(glGetUniformLocation(shaderProgramID, linearLoc.c_str()), linear);
 	glUniform1f(glGetUniformLocation(shaderProgramID, quadraticLoc.c_str()), quadratic);
 }
+
+LightType PointLight::getLightType()
+{
+	return LightType::LIGHT_POINTLIGHT;
+}

@@ -42,3 +42,8 @@ void SpotLight::sendToShader(unsigned int shaderProgramID, unsigned int index)
 	glUniform1f(glGetUniformLocation(shaderProgramID, cutOffLoc.c_str()), cutOff);
 	glUniform1f(glGetUniformLocation(shaderProgramID, outerCutOffLoc.c_str()), outerCutOff);
 }
+
+LightType SpotLight::getLightType()
+{
+	return LightType::LIGHT_SPOTLIGHT;
+}

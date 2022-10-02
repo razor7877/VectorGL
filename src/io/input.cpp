@@ -4,8 +4,8 @@
 #include "io/input.hpp"
 #include "camera.hpp"
 
-float lastX = windowWidth / 2;
-float lastY = windowHeight / 2;
+float lastX = (float)windowWidth / 2;
+float lastY = (float)windowHeight / 2;
 
 bool showCursor = false;
 bool wireframeMode = false;
@@ -29,16 +29,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	if (firstMouse)
 	{
-		lastX = xpos;
-		lastY = ypos;
+		lastX = (float)xpos;
+		lastY = (float)ypos;
 		firstMouse = false;
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
+	float xoffset = (float)(xpos - lastX);
+	float yoffset = (float)(lastY - ypos);
 
-	lastX = xpos;
-	lastY = ypos;
+	lastX = (float)xpos;
+	lastY = (float)ypos;
 
 	camera.processMouseMovement(xoffset, yoffset);
 }
@@ -134,21 +134,21 @@ void processInput(GLFWwindow* window, float &deltaTime)
 	// Forward movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camera.processKeyboard(FORWARD, deltaTime);
+		camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
 	}
 	// Backward movement
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camera.processKeyboard(BACKWARD, deltaTime);
+		camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
 	}
 	// Left movement
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		camera.processKeyboard(LEFT, deltaTime);
+		camera.processKeyboard(CameraMovement::LEFT, deltaTime);
 	}
 	// Right movement
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		camera.processKeyboard(RIGHT, deltaTime);
+		camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
 	}
 }

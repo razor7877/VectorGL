@@ -24,3 +24,8 @@ void DirectionalLight::sendToShader(unsigned int shaderProgramID, unsigned int i
 	glUniform3fv(glGetUniformLocation(shaderProgramID, specularLoc.c_str()), 1, &specularColor[0]);
 	glUniform3fv(glGetUniformLocation(shaderProgramID, directionLoc.c_str()), 1, &direction[0]);
 }
+
+LightType DirectionalLight::getLightType()
+{
+	return LightType::LIGHT_DIRLIGHT;
+}

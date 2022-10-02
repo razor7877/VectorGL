@@ -27,11 +27,13 @@
     <ClCompile Include="includes\imgui\imgui_tables.cpp" />
     <ClCompile Include="includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="libs\glad.c" />
+    <ClCompile Include="renderObject.cpp" />
     <ClCompile Include="src\cubemap.cpp" />
     <ClCompile Include="src\io\input.cpp" />
     <ClCompile Include="src\io\interface.cpp" />
     <ClCompile Include="src\lights\directionalLight.cpp" />
     <ClCompile Include="src\lights\light.cpp" />
+    <ClCompile Include="src\lights\lightManager.cpp" />
     <ClCompile Include="src\lights\pointLight.cpp" />
     <ClCompile Include="src\lights\spotLight.cpp" />
     <ClCompile Include="src\material.cpp" />
@@ -51,6 +53,7 @@
     <ClInclude Include="src\headers\io\interface.hpp" />
     <ClInclude Include="src\headers\lights\directionalLight.hpp" />
     <ClInclude Include="src\headers\lights\light.hpp" />
+    <ClInclude Include="src\headers\lights\lightManager.hpp" />
     <ClInclude Include="src\headers\lights\pointLight.hpp" />
     <ClInclude Include="src\headers\lights\spotLight.hpp" />
     <ClInclude Include="src\headers\material.hpp" />

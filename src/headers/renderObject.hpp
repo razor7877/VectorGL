@@ -9,6 +9,8 @@ class RenderObject
 public:
 	GLuint shaderProgramID; // The ID of the shader used to draw the object
 
+	RenderObject();
+
 	virtual void drawObject() = 0;
 	virtual void setupObject() = 0;
 };

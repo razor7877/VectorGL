@@ -300,22 +300,19 @@ int main()
 	phongShader.setVec3("material.specular", boxTex.specular);
 	phongShader.setFloat("material.shininess", boxTex.shininess);
 
-	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
-	pointLight.sendToShader(phongShader.ID, 0);
-	PointLight light2 = PointLight(glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-5.0f, 5.0f, -5.0f), 1.0f, 0.045f, 0.0075f);
-	light2.sendToShader(phongShader.ID, 1);
-	phongShader.setInt("nrPointLights", 2);
-
-	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.5f));
-	dirLight.sendToShader(phongShader.ID, 0);
-	phongShader.setInt("nrDirLights", 1);
-
-	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), 0.0f);
-	spotLight.sendToShader(phongShader.ID, 0);
-	phongShader.setInt("nrSpotLights", 1);
-
 	// Creates a renderer for drawing objects
-	Renderer defaultRenderer = Renderer();
+	Renderer defaultRenderer = Renderer(phongShader.ID);
+
+	// Sets up lighting for the renderer's LightManager
+	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
+	PointLight pointLight2 = PointLight(glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-5.0f, 5.0f, -5.0f), 1.0f, 0.045f, 0.0075f);
+	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.3f));
+	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
+
+	defaultRenderer.addLight(&pointLight);
+	defaultRenderer.addLight(&pointLight2);
+	defaultRenderer.addLight(&dirLight);
+	defaultRenderer.addLight(&spotLight);
 
 	Mesh instances[1000];
 	int i = 0;
@@ -376,7 +373,7 @@ int main()
 	{
 
 		// Calculates elapsed time since last frame for time-based calculations
-		currentFrame = glfwGetTime();
+		currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 

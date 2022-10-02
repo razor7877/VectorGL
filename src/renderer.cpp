@@ -3,13 +3,29 @@
 #include "renderer.hpp"
 #include "renderObject.hpp"
 
+Renderer::Renderer(GLuint lightShaderProgramID)
+{
+	lightManager = LightManager(lightShaderProgramID);
+}
+
 void Renderer::addObject(RenderObject* objectPtr)
 {
 	objects.push_back(objectPtr);
 }
 
+void Renderer::addLight(Light* lightPtr)
+{
+	lightManager.addLight(lightPtr);
+}
+
 void Renderer::init()
 {
+	// Initializes the light manager if it was setup to send all required data to the shader
+	if (lightManager.shaderProgramID != 0)
+	{
+		lightManager.init();
+	}
+
 	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
 	// shader ID using the shaderMap table
 	for (RenderObject* object : objects)

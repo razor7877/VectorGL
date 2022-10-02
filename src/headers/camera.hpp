@@ -12,7 +12,7 @@
 #include <vector>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum Camera_Movement
+enum class CameraMovement
 {
 	FORWARD,
 	BACKWARD,
@@ -66,22 +66,22 @@ public:
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-	void processKeyboard(Camera_Movement direction, float deltaTime)
+	void processKeyboard(CameraMovement direction, float deltaTime)
 	{
 		float velocity = movementSpeed * deltaTime;
-		if (direction == FORWARD)
+		if (direction == CameraMovement::FORWARD)
 		{
 			position += front * velocity;
 		}
-		if (direction == BACKWARD)
+		if (direction == CameraMovement::BACKWARD)
 		{
 			position -= front * velocity;
 		}
-		if (direction == LEFT)
+		if (direction == CameraMovement::LEFT)
 		{
 			position -= right * velocity;
 		}
-		if (direction == RIGHT)
+		if (direction == CameraMovement::RIGHT)
 		{
 			position += right * velocity;
 		}
@@ -131,7 +131,7 @@ private:
 	void updateCameraVectors()
 	{
 		// Calculate the new front vector
-		glm::vec3 newFront;
+		glm::vec3 newFront{};
 		newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 		newFront.y = sin(glm::radians(pitch));
 		newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
