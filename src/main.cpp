@@ -310,6 +310,10 @@ int main()
 	dirLight.sendToShader(phongShader.ID, 0);
 	phongShader.setInt("nrDirLights", 1);
 
+	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), 0.0f);
+	spotLight.sendToShader(phongShader.ID, 0);
+	phongShader.setInt("nrSpotLights", 1);
+
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer();
 
@@ -383,7 +387,7 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Updates matrixes to update camera movement
+		// Updates matrices to update camera movement
 		projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 		view = camera.getViewMatrix();
 
@@ -398,10 +402,15 @@ int main()
 		phongShader.setVec3("material.specular", boxTex.specular);
 		phongShader.setFloat("material.shininess", boxTex.shininess);
 
-		// Update movement of the light emitting cube
+		// Updates movement of the light emitting cube
 		light.modelMatrix = glm::mat4(1.0f);
 		light.translateMesh(lightPos);
 		light.scaleMesh(0.25f, 0.25f, 0.25f);
+
+		// Updates spotlight position and direction based on camera's movement
+		spotLight.position = camera.position;
+		spotLight.direction = camera.front;
+		spotLight.sendToShader(phongShader.ID, 0);
 
 		gridShader.use();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
