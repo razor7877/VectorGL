@@ -25,7 +25,6 @@ void LightManager::init()
 {
 	for (Light* light : lights)
 	{
-		std::cout << nrDirLights << " " << nrPointLights << " " << nrSpotLights << std::endl;
 		switch (light->getLightType())
 		{
 			case LightType::LIGHT_DIRLIGHT:
