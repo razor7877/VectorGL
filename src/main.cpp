@@ -105,7 +105,6 @@ int main()
 	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
 	Shader gridShader = Shader("src/shaders/grid.vert", "src/shaders/grid.frag");
 
-	float skyboxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
 	float vertices[] = { -0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,  0.5f, };
 	float normals[] = { 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f };
 	float tcoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
@@ -134,14 +133,14 @@ int main()
 
 	// Sets up variables for the phong lighting shader
 	phongShader.use()
-	.setInt("texture1", 0)
-	.setVec3("lightColor", 1.0f, 1.0f, 1.0f)
-	.setVec3("lightPos", lightPos)
-	.setVec3("viewPos", camera.position)
-	.setVec3("material.ambient", boxTex.ambient)
-	.setVec3("material.diffuse", boxTex.diffuse)
-	.setVec3("material.specular", boxTex.specular)
-	.setFloat("material.shininess", boxTex.shininess);
+		.setInt("texture1", 0)
+		.setVec3("lightColor", 1.0f, 1.0f, 1.0f)
+		.setVec3("lightPos", lightPos)
+		.setVec3("viewPos", camera.position)
+		.setVec3("material.ambient", boxTex.ambient)
+		.setVec3("material.diffuse", boxTex.diffuse)
+		.setVec3("material.specular", boxTex.specular)
+		.setFloat("material.shininess", boxTex.shininess);
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer(phongShader.ID);
@@ -153,9 +152,9 @@ int main()
 	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
 
 	defaultRenderer.addLight(&pointLight)
-	.addLight(&pointLight2)
-	.addLight(&dirLight)
-	.addLight(&spotLight);
+		.addLight(&pointLight2)
+		.addLight(&dirLight)
+		.addLight(&spotLight);
 
 	Mesh instances[1000];
 	int i = 0;
@@ -179,19 +178,19 @@ int main()
 	}
 
 	Cubemap cubemap = Cubemap("img/skybox/night/");
-	Skybox skybox = Skybox(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID, cubemap);
+	Skybox skybox = Skybox(skyboxShader.ID, cubemap);
 
 	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
-	.scaleModel(0.05f, 0.05f, 0.05f)
-	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
+		.scaleModel(0.05f, 0.05f, 0.05f)
+		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	Model model2 = Model("models/tank/scene.gltf", phongShader.ID)
-	.translateModel(30.0f, 0.0f, 30.0f)
-	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
+		.translateModel(30.0f, 0.0f, 30.0f)
+		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	defaultRenderer.addObject(&skybox)
-	.addObject(&model)
-	.addObject(&model2);
+		.addObject(&model)
+		.addObject(&model2);
 
 	// After all needed objects have been added, initializes the renderer's data and sets up every object's data
 	defaultRenderer.init();
@@ -204,11 +203,10 @@ int main()
 	// Enabled to use the grid shader
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
-
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -229,12 +227,12 @@ int main()
 
 		// Models for phong lighting
 		phongShader.use()
-		.setVec3("viewPos", camera.position)
-		.setVec3("lightPos", lightPos)
-		.setVec3("material.ambient", boxTex.ambient)
-		.setVec3("material.diffuse", boxTex.diffuse)
-		.setVec3("material.specular", boxTex.specular)
-		.setFloat("material.shininess", boxTex.shininess);
+			.setVec3("viewPos", camera.position)
+			.setVec3("lightPos", lightPos)
+			.setVec3("material.ambient", boxTex.ambient)
+			.setVec3("material.diffuse", boxTex.diffuse)
+			.setVec3("material.specular", boxTex.specular)
+			.setFloat("material.shininess", boxTex.shininess);
 
 		// Updates spotlight position and direction based on camera's movement
 		spotLight.position = camera.position;
@@ -243,6 +241,9 @@ int main()
 
 		gridShader.use();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		model.scaleModel(1.0f, 1.0f, 1.0f)
+		.translateModel(1.0, 1.0, 1.0);
 
 		defaultRenderer.render();
 

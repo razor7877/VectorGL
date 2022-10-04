@@ -42,23 +42,23 @@ public:
 	void RenderObject::setupObject() override;
 
 	// Generates buffers and enables correct draw calls to use given texture
-	Mesh addTexCoords(std::vector<float> texCoords);
-	Mesh addTexCoords(float texCoords[], unsigned int texSize);
-	Mesh addTexture(Texture texture);
-	Mesh addNormals(float normals[], unsigned int normalSize);
-	Mesh addIndices(unsigned int indices[], unsigned int indicesSize);
+	Mesh& addTexCoords(std::vector<float> texCoords);
+	Mesh& addTexCoords(float texCoords[], unsigned int texSize);
+	Mesh& addTexture(Texture texture);
+	Mesh& addNormals(float normals[], unsigned int normalSize);
+	Mesh& addIndices(unsigned int indices[], unsigned int indicesSize);
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
-	Mesh rotateMesh(float degrees, glm::vec3 rotationPoint);
-	Mesh rotateMesh(float degrees, float x, float y, float z);
+	Mesh& rotateMesh(float degrees, glm::vec3 rotationPoint);
+	Mesh& rotateMesh(float degrees, float x, float y, float z);
 
 	// Translate the object's model matrix using a vec3 or xyz floats
-	Mesh translateMesh(glm::vec3 translation);
-	Mesh translateMesh(float x, float y, float z);
+	Mesh& translateMesh(glm::vec3 translation);
+	Mesh& translateMesh(float x, float y, float z);
 
 	// Scales the object's model matrix using a vec3 or xyz floats
-	Mesh scaleMesh(glm::vec3 scaleVec);
-	Mesh scaleMesh(float scaleX, float scaleY, float scaleZ);
+	Mesh& scaleMesh(glm::vec3 scaleVec);
+	Mesh& scaleMesh(float scaleX, float scaleY, float scaleZ);
 };
 
 #endif

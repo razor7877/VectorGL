@@ -38,8 +38,8 @@ Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vecto
 	this->texCoords = texCoords;
 	this->textures = textures;
 
-	addNormals(&normals[0], normals.size() * sizeof(float));
-	addIndices(&indices[0], indices.size() * sizeof(unsigned int));
+	addNormals(&normals[0], (GLsizei)normals.size() * sizeof(float));
+	addIndices(&indices[0], (GLsizei)indices.size() * sizeof(unsigned int));
 
 	this->VAO = {};
 	this->VBO = {};
@@ -94,11 +94,11 @@ void Mesh::drawObject()
 	if (indices.size() == 0)
 	{
 		// Draw the object's vertices as triangles
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size() * sizeof(float));
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size() * sizeof(float));
 	}
 	else
 	{
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
 	}
 }
 
@@ -151,69 +151,69 @@ void Mesh::setupObject()
 }
 
 // Add texture coordinates data to the mesh
-Mesh Mesh::addTexCoords(std::vector<float> texCoords)
+Mesh& Mesh::addTexCoords(std::vector<float> texCoords)
 {
 	this->texCoords = texCoords;
     return *this;
 }
 
-Mesh Mesh::addTexCoords(float texCoords[], unsigned int texSize)
+Mesh& Mesh::addTexCoords(float texCoords[], unsigned int texSize)
 {
 	this->texCoords.insert(this->texCoords.end(), &texCoords[0], &texCoords[texSize / sizeof(float)]);
     return *this;
 }
 
-Mesh Mesh::addTexture(Texture texture)
+Mesh& Mesh::addTexture(Texture texture)
 {
 	textures.insert(textures.end(), texture);
     return *this;
 }
 
 // Add normals data to the mesh
-Mesh Mesh::addNormals(float normals[], unsigned int normalSize)
+Mesh& Mesh::addNormals(float normals[], unsigned int normalSize)
 {
 	this->normals.insert(this->normals.end(), &normals[0], &normals[normalSize / sizeof(float)]);
     return *this;
 }
 
 // Add indices data to the mesh
-Mesh Mesh::addIndices(unsigned int indices[], unsigned int indicesSize)
+Mesh& Mesh::addIndices(unsigned int indices[], unsigned int indicesSize)
 {
 	this->indices.insert(this->indices.end(), &indices[0], &indices[indicesSize / sizeof(unsigned int)]);
     return *this;
 }
 
-Mesh Mesh::rotateMesh(float degrees, glm::vec3 rotationPoint)
+Mesh& Mesh::rotateMesh(float degrees, glm::vec3 rotationPoint)
 {
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), rotationPoint);
     return *this;
 }
 
-Mesh Mesh::rotateMesh(float degrees, float x, float y, float z)
+Mesh& Mesh::rotateMesh(float degrees, float x, float y, float z)
 {
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), glm::vec3(x, y, z));
     return *this;
 }
 
-Mesh Mesh::translateMesh(glm::vec3 translation)
+Mesh& Mesh::translateMesh(glm::vec3 translation)
 {
 	modelMatrix = glm::translate(modelMatrix, translation);
     return *this;
 }
 
-Mesh Mesh::translateMesh(float x, float y, float z)
+Mesh& Mesh::translateMesh(float x, float y, float z)
 {
 	modelMatrix = glm::translate(modelMatrix, glm::vec3(x, y, z));
     return *this;
 }
 
-Mesh Mesh::scaleMesh(glm::vec3 scaleVec)
+Mesh& Mesh::scaleMesh(glm::vec3 scaleVec)
 {
 	modelMatrix = glm::scale(modelMatrix, scaleVec);
     return *this;
 }
 
-Mesh Mesh::scaleMesh(float scaleX, float scaleY, float scaleZ)
+Mesh& Mesh::scaleMesh(float scaleX, float scaleY, float scaleZ)
 {
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(scaleX, scaleY, scaleZ));
     return *this;

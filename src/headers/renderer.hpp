@@ -22,8 +22,8 @@ public:
 
 	Renderer(GLuint lightShaderProgramID);
 
-	Renderer addObject(RenderObject* objectPtr);
-	Renderer addLight(Light* lightPtr);
+	Renderer& addObject(RenderObject* objectPtr);
+	Renderer& addLight(Light* lightPtr);
 
 	// Initializes the renderer data, done before the render loop
 	void init();
