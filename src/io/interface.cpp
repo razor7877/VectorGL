@@ -163,6 +163,8 @@ void SkyboxSettings(Skybox& skybox)
 			{
 				item_current_idx = i;
 
+				std::cout << skybox.cubemap.texID << std::endl;
+
 				switch (item_current_idx)
 				{
 					case 0:
@@ -177,9 +179,10 @@ void SkyboxSettings(Skybox& skybox)
 						skybox.cubemap = Cubemap("img/skybox/sky/");
 						break;
 				}
-			}
 
-			skybox.setupObject();
+				skybox.setupObject();
+
+			}
 
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 			if (is_selected)
