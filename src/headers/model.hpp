@@ -22,16 +22,16 @@ public:
 	void RenderObject::setupObject() override;
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
-	void rotateModel(float degrees, glm::vec3 rotationPoint);
-	void rotateModel(float degrees, float x, float y, float z);
+	Model rotateModel(float degrees, glm::vec3 rotationPoint);
+	Model rotateModel(float degrees, float x, float y, float z);
 
 	// Translate the object's model matrix using a vec3 or xyz floats
-	void translateModel(glm::vec3 translation);
-	void translateModel(float x, float y, float z);
+	Model translateModel(glm::vec3 translation);
+	Model translateModel(float x, float y, float z);
 
 	// Scales the object's model matrix using a vec3 or xyz floats
-	void scaleModel(glm::vec3 scaleVec);
-	void scaleModel(float scaleX, float scaleY, float scaleZ);
+	Model scaleModel(glm::vec3 scaleVec);
+	Model scaleModel(float scaleX, float scaleY, float scaleZ);
 
 private:
 	

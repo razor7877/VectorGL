@@ -8,14 +8,16 @@ Renderer::Renderer(GLuint lightShaderProgramID)
 	lightManager = LightManager(lightShaderProgramID);
 }
 
-void Renderer::addObject(RenderObject* objectPtr)
+Renderer Renderer::addObject(RenderObject* objectPtr)
 {
 	objects.push_back(objectPtr);
+	return *this;
 }
 
-void Renderer::addLight(Light* lightPtr)
+Renderer Renderer::addLight(Light* lightPtr)
 {
 	lightManager.addLight(lightPtr);
+	return *this;
 }
 
 void Renderer::init()

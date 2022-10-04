@@ -133,16 +133,15 @@ int main()
 	float shininess = 32.0f;
 
 	// Sets up variables for the phong lighting shader
-	phongShader.use();
-	phongShader.setInt("texture1", 0);
-	phongShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	phongShader.setVec3("lightPos", lightPos);
-	phongShader.setVec3("viewPos", camera.position);
-
-	phongShader.setVec3("material.ambient", boxTex.ambient);
-	phongShader.setVec3("material.diffuse", boxTex.diffuse);
-	phongShader.setVec3("material.specular", boxTex.specular);
-	phongShader.setFloat("material.shininess", boxTex.shininess);
+	phongShader.use()
+	.setInt("texture1", 0)
+	.setVec3("lightColor", 1.0f, 1.0f, 1.0f)
+	.setVec3("lightPos", lightPos)
+	.setVec3("viewPos", camera.position)
+	.setVec3("material.ambient", boxTex.ambient)
+	.setVec3("material.diffuse", boxTex.diffuse)
+	.setVec3("material.specular", boxTex.specular)
+	.setFloat("material.shininess", boxTex.shininess);
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer(phongShader.ID);
@@ -153,10 +152,10 @@ int main()
 	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.3f));
 	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
 
-	defaultRenderer.addLight(&pointLight);
-	defaultRenderer.addLight(&pointLight2);
-	defaultRenderer.addLight(&dirLight);
-	defaultRenderer.addLight(&spotLight);
+	defaultRenderer.addLight(&pointLight)
+	.addLight(&pointLight2)
+	.addLight(&dirLight)
+	.addLight(&spotLight);
 
 	Mesh instances[1000];
 	int i = 0;
@@ -164,10 +163,10 @@ int main()
 	{
 		for (int y = 0; y < 10; y++)
 		{
-			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f));
-			mesh.addTexture(crate);
-			mesh.addTexCoords(tcoords, sizeof(tcoords));
-			mesh.addNormals(normals, sizeof(normals));
+			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f))
+			.addTexture(crate)
+			.addTexCoords(tcoords, sizeof(tcoords))
+			.addNormals(normals, sizeof(normals));
 			instances[i] = mesh;
 
 			i++;
@@ -182,16 +181,17 @@ int main()
 	Cubemap cubemap = Cubemap("img/skybox/night/");
 	Skybox skybox = Skybox(skyboxVertices, sizeof(skyboxVertices), skyboxShader.ID, cubemap);
 
-	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID);
-	model.scaleModel(0.05f, 0.05f, 0.05f);
-	model.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
-	Model model2 = Model("models/tank/scene.gltf", phongShader.ID);
-	model2.translateModel(30.0f, 0.0f, 30.0f);
-	model2.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
+	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
+	.scaleModel(0.05f, 0.05f, 0.05f)
+	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
-	defaultRenderer.addObject(&skybox);
-	defaultRenderer.addObject(&model);
-	defaultRenderer.addObject(&model2);
+	Model model2 = Model("models/tank/scene.gltf", phongShader.ID)
+	.translateModel(30.0f, 0.0f, 30.0f)
+	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
+
+	defaultRenderer.addObject(&skybox)
+	.addObject(&model)
+	.addObject(&model2);
 
 	// After all needed objects have been added, initializes the renderer's data and sets up every object's data
 	defaultRenderer.init();
@@ -228,13 +228,13 @@ int main()
 		updateUniformBuffer(view, projection);
 
 		// Models for phong lighting
-		phongShader.use();
-		phongShader.setVec3("viewPos", camera.position);
-		phongShader.setVec3("lightPos", lightPos);
-		phongShader.setVec3("material.ambient", boxTex.ambient);
-		phongShader.setVec3("material.diffuse", boxTex.diffuse);
-		phongShader.setVec3("material.specular", boxTex.specular);
-		phongShader.setFloat("material.shininess", boxTex.shininess);
+		phongShader.use()
+		.setVec3("viewPos", camera.position)
+		.setVec3("lightPos", lightPos)
+		.setVec3("material.ambient", boxTex.ambient)
+		.setVec3("material.diffuse", boxTex.diffuse)
+		.setVec3("material.specular", boxTex.specular)
+		.setFloat("material.shininess", boxTex.shininess);
 
 		// Updates spotlight position and direction based on camera's movement
 		spotLight.position = camera.position;
