@@ -5,6 +5,9 @@
 
 #include "pointLight.hpp"
 
+// A spot light is a type of light placed at a xyz point in space that emits a cone of light in a specific direction
+// It represents lights like a flashlight or a car's headlights
+
 class SpotLight : public virtual Light
 {
 public:

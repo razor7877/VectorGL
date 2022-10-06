@@ -5,6 +5,9 @@
 
 #include "light.hpp"
 
+// A point light is a type of light placed at a xyz point in space that emits light all around itself
+// It represents any sort of simple light sources
+
 class PointLight : public virtual Light
 {
 public:

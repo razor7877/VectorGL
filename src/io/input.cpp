@@ -45,6 +45,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+	// If cursor is shown (interacting with UI), don't change FOV
+	if (showCursor)
+	{
+		return;
+	}
 	camera.processMouseScroll(static_cast<float>(yoffset));
 }
 
@@ -125,7 +130,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void processInput(GLFWwindow* window, float &deltaTime)
 {
-	// If cursor is shown, don't handle movement
+	// If cursor is shown (interacting with UI), don't handle movement
 	if (showCursor)
 	{
 		return;

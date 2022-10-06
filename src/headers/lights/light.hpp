@@ -15,13 +15,17 @@ enum class LightType
 class Light
 {
 public:
+	// The colors of each of the light's components
 	glm::vec3 ambientColor;
 	glm::vec3 diffuseColor;
 	glm::vec3 specularColor;
 
 	Light();
 	Light(glm::vec3 ambientColor, glm::vec3 diffuseColor, glm::vec3 specularColor);
+	// Sends the necessary data as uniforms to a given program ID and a given index for the light type's array
 	void virtual sendToShader(unsigned int shaderProgramID, unsigned int index) = 0;
+	// Returns an enum corresponding to the specific class of a Light object
+	// Used by the LightManager class to count the number of each type of light (for sending data to shaders)
 	LightType virtual getLightType() = 0;
 };
 

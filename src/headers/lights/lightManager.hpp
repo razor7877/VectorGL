@@ -6,6 +6,9 @@
 #include <glad/glad.h>
 
 #include "light.hpp"
+#include "directionalLight.hpp"
+#include "pointLight.hpp"
+#include "spotLight.hpp"
 
 // A lightmanager serves to manages multiple lights. It is used in a renderer, and serves to easily add
 // different lights to a scene and seamlessly handles sending all needed data to the shaders
@@ -27,6 +30,10 @@ public:
 	void addLight(Light* light);
 
 	void init();
+
+	std::vector<DirectionalLight*> getDirLights();
+	std::vector<PointLight*> getPointLights();
+	std::vector<SpotLight*> getSpotLights();
 };
 
 #endif

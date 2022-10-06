@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "lights/lightManager.hpp"
 
 LightManager::LightManager()
@@ -44,4 +46,73 @@ void LightManager::init()
 	glUniform1i(glGetUniformLocation(shaderProgramID, "nrDirLights"), nrDirLights);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "nrPointLights"), nrPointLights);
 	glUniform1i(glGetUniformLocation(shaderProgramID, "nrSpotLights"), nrSpotLights);
+}
+
+std::vector<DirectionalLight*> LightManager::getDirLights()
+{
+	std::vector<DirectionalLight*> dirLights;
+
+	for (Light* light : lights)
+	{
+		if (light->getLightType() == LightType::LIGHT_DIRLIGHT)
+		{
+			DirectionalLight* lightPtr = dynamic_cast<DirectionalLight*>(light);
+			if (lightPtr == NULL)
+			{
+				std::cout << "LightManager::getDirLights() - Got nullptr when attempting to cast Light object to DirectionalLight" << std::endl;
+			}
+			else
+			{
+				dirLights.push_back(lightPtr);
+			}
+		}
+	}
+
+	return dirLights;
+}
+
+std::vector<PointLight*> LightManager::getPointLights()
+{
+	std::vector<PointLight*> pointLights;
+
+	for (Light* light : lights)
+	{
+		if (light->getLightType() == LightType::LIGHT_POINTLIGHT)
+		{
+			PointLight* lightPtr = dynamic_cast<PointLight*>(light);
+			if (lightPtr == NULL)
+			{
+				std::cout << "LightManager::getPointLights() - Got nullptr when attempting to cast Light object to PointLight" << std::endl;
+			}
+			else
+			{
+				pointLights.push_back(lightPtr);
+			}
+		}
+	}
+
+	return pointLights;
+}
+
+std::vector<SpotLight*> LightManager::getSpotLights()
+{
+	std::vector<SpotLight*> spotLights;
+
+	for (Light* light : lights)
+	{
+		if (light->getLightType() == LightType::LIGHT_SPOTLIGHT)
+		{
+			SpotLight* lightPtr = dynamic_cast<SpotLight*>(light);
+			if (lightPtr == NULL)
+			{
+				std::cout << "LightManager::getSpotLights() - Got nullptr when attempting to cast Light object to SpotLight" << std::endl;
+			}
+			else
+			{
+				spotLights.push_back(lightPtr);
+			}
+		}
+	}
+
+	return spotLights;
 }

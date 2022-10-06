@@ -3,6 +3,9 @@
 
 #include <lights/light.hpp>
 
+// A directional light is a type of light that lights up every object in the world from a given direction
+// It represents light sources that are very far away such as the sun
+
 class DirectionalLight : public virtual Light
 {
 public:
