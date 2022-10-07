@@ -3,6 +3,11 @@
 #include "renderer.hpp"
 #include "renderObject.hpp"
 
+Renderer::Renderer()
+{
+	this->lightManager = {};
+}
+
 Renderer::Renderer(GLuint lightShaderProgramID)
 {
 	lightManager = LightManager(lightShaderProgramID);

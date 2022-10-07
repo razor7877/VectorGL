@@ -3,13 +3,13 @@
 
 #include "camera.hpp"
 #include "skybox.hpp"
-#include "lights/lightManager.hpp"
+#include "renderer.hpp"
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library
 
 extern float deltaTime;
 
-void ImGuiInit(GLFWwindow* window, LightManager lightManager);
+void ImGuiInit(GLFWwindow* window, Renderer rendererArg);
 void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox& skybox);
 
 // See and change camera position, speed etc.
@@ -20,6 +20,7 @@ void PerformanceMenu();
 void KeysMenu();
 // Enables modifications of some shader values
 void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
+// Displays the scene's lights and allows real-time modification of their attributes
 void LightSettings(glm::vec3& position);
 void SkyboxSettings(Skybox& skybox);
 

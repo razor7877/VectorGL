@@ -105,7 +105,7 @@ public:
 			}
 			if (pitch < -89.0f)
 			{
-				pitch = 89.0f;
+				pitch = -89.0f;
 			}
 		}
 

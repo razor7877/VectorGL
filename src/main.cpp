@@ -212,7 +212,7 @@ int main()
 	defaultRenderer.init();
 
 	// Initializes the ImGui UI system
-	ImGuiInit(window, defaultRenderer.lightManager);
+	ImGuiInit(window, defaultRenderer);
 
 	int glErrorCurrent;
 	float currentFrame;

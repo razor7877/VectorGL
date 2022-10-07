@@ -9,6 +9,7 @@
 
 #include "main.hpp"
 #include "io/interface.hpp"
+#include "lights/lightManager.hpp"
 #include "lights/directionalLight.hpp"
 #include "lights/pointLight.hpp"
 #include "lights/spotLight.hpp"
@@ -26,6 +27,7 @@ int frameIndex{};
 float timeToFrame = 1;
 
 // Used for dynamically showing existing lights and enabling their realtime modification
+Renderer renderer;
 LightManager lightManager;
 std::vector<DirectionalLight*> dirLights;
 std::vector<PointLight*> pointLights;
@@ -35,7 +37,7 @@ std::vector<SpotLight*> spotLights;
 const char* items[] = { "Grass", "Night", "Sky" };
 static int item_current_idx = 1; // Selection data index
 
-void ImGuiInit(GLFWwindow* window, LightManager lightManagerArg)
+void ImGuiInit(GLFWwindow* window, Renderer rendererArg)
 {
 	// Setup Dear ImgGui context
 	IMGUI_CHECKVERSION();
@@ -47,7 +49,8 @@ void ImGuiInit(GLFWwindow* window, LightManager lightManagerArg)
 	// Setup Dear ImgUi style
 	ImGui::StyleColorsDark();
 
-	lightManager = lightManagerArg;
+	renderer = rendererArg;
+	lightManager = renderer.lightManager;
 	dirLights = lightManager.getDirLights();
 	pointLights = lightManager.getPointLights();
 	spotLights = lightManager.getSpotLights();
