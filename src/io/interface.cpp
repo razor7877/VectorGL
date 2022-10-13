@@ -56,7 +56,7 @@ void ImGuiInit(GLFWwindow* window, Renderer rendererArg)
 	spotLights = lightManager.getSpotLights();
 }
 
-void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox& skybox)
+void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox& skybox)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -66,7 +66,7 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& position, glm::vec3& ambient, g
 	PerformanceMenu();
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
-	LightSettings(position);
+	LightSettings();
 	SkyboxSettings(skybox);
 
 	ImGui::Render();
@@ -160,12 +160,10 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 	ImGui::End();
 }
 
-void LightSettings(glm::vec3& position)
+void LightSettings()
 {
 	ImGui::Begin("Light settings");
 
-	ImGui::DragFloat3("Position", &position[0]);
-	
 	for (int i = 0; i < dirLights.size(); i++)
 	{
 		if (ImGui::CollapsingHeader(("DirectionalLight " + std::to_string(i)).c_str()))
@@ -179,7 +177,7 @@ void LightSettings(glm::vec3& position)
 			if (ImGui::ColorEdit3(("DL_Spec " + std::to_string(i)).c_str(), &(dirLights[i]->specularColor[0])))
 				modified = true;
 
-			if (ImGui::DragFloat3(("DL_Dir " + std::to_string(i)).c_str(), &(dirLights[i]->direction[0])))
+			if (ImGui::DragFloat3(("DL_Dir " + std::to_string(i)).c_str(), &(dirLights[i]->direction[0]), 0.002f))
 				modified = true;
 
 			if (modified)
@@ -215,7 +213,6 @@ void LightSettings(glm::vec3& position)
 			if (modified)
 			{
 				pointLights[i]->sendToShader(lightManager.shaderProgramID, i);
-				std::cout << "Update PL" << std::endl;
 			}
 		}
 	}
@@ -231,6 +228,11 @@ void LightSettings(glm::vec3& position)
 			if (ImGui::ColorEdit3(("SL_Diff " + std::to_string(i)).c_str(), &(spotLights[i]->diffuseColor[0])))
 				modified = true;
 			if (ImGui::ColorEdit3(("SL_Spec " + std::to_string(i)).c_str(), &(spotLights[i]->specularColor[0])))
+				modified = true;
+
+			if (ImGui::DragFloat3(("SL_Pos " + std::to_string(i)).c_str(), &(spotLights[i]->position[0])))
+				modified = true;
+			if (ImGui::DragFloat3(("SL_Dir " + std::to_string(i)).c_str(), &(spotLights[i]->direction[0]), 0.002f))
 				modified = true;
 
 			if (ImGui::DragFloat(("SL_Const " + std::to_string(i)).c_str(), &(spotLights[i]->constant), 0.002f, 0.0f, 1.0f))

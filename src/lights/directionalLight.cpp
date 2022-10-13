@@ -12,7 +12,7 @@ DirectionalLight::DirectionalLight(glm::vec3 ambientColor, glm::vec3 diffuseColo
 
 void DirectionalLight::sendToShader(unsigned int shaderProgramID, unsigned int index)
 {
-	std::string lightLocation = "dirLights[" + std::to_string(index) + ']';
+	std::string lightLocation = "dirLights[" + std::to_string(index) + "]";
 
 	std::string ambientLoc = lightLocation + ".ambientColor";
 	std::string diffuseLoc = lightLocation + ".diffuseColor";

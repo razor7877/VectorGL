@@ -157,3 +157,8 @@ void processInput(GLFWwindow* window, float &deltaTime)
 		camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
 	}
 }
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}

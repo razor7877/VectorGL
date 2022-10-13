@@ -84,32 +84,6 @@ uniform int nrPointLights;
 uniform int nrSpotLights;
 
 // DEFINING FUNCTIONS
-vec3 phong()
-{
-	float viewDistance = length(lightPos - FragPos);
-	float falloff = 1.0 / (1.0 + 0.01 * viewDistance*viewDistance);
-
-	// Ambient lighting
-	float ambientStrength = 0.25;
-	vec3 ambient = ambientStrength * material.ambient;
-
-	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(lightPos - FragPos);
-
-	// Diffuse lighting
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = lightColor * (diff * material.diffuse) * falloff;
-	
-	// Specular lighting
-	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 reflectDir = reflect(-lightDir, norm);
-
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = lightColor * (spec * material.specular) * falloff;
-
-	vec3 result = ambient + diffuse + specular;
-	return result;
-}
 
 vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
 {
@@ -188,16 +162,6 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
 
 void main()
 {
-	// If normals are supplied, apply phong lighting
-	if (Normal != 0)
-	{
-		FragColor = vec4(phong(), 1.0);
-	}
-	else
-	{
-		FragColor = vec4(1.0);
-	}
-
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);
 

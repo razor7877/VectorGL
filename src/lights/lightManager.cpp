@@ -25,6 +25,11 @@ void LightManager::addLight(Light* lightPtr)
 
 void LightManager::init()
 {
+	// Make sure the count of each light is set to 0 in case the LightManager gets initialized again
+	this->nrDirLights = {};
+	this->nrPointLights = {};
+	this->nrSpotLights = {};
+
 	for (Light* light : lights)
 	{
 		switch (light->getLightType())

@@ -15,8 +15,7 @@ PointLight::PointLight(glm::vec3 ambientColor, glm::vec3 diffuseColor, glm::vec3
 
 void PointLight::sendToShader(unsigned int shaderProgramID, unsigned int index)
 {
-	std::string lightLocation = "pointLights[" + std::to_string(index) + ']';
-
+	std::string lightLocation = "pointLights[" + std::to_string(index) + "]";
 	std::string ambientLoc = lightLocation + ".ambientColor";
 	std::string diffuseLoc = lightLocation + ".diffuseColor";
 	std::string specularLoc = lightLocation + ".specularColor";

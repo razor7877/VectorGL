@@ -17,6 +17,5 @@ void initUniformBuffer();
 void updateUniformBuffer(glm::mat4 view, glm::mat4 projection);
 int setupGlfwContext();
 int main();
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 #endif

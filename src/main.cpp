@@ -40,11 +40,10 @@ float lastFrame = 0.0f;
 
 Camera camera(glm::vec3(0.0f, 5.0f, 3.0f));
 
-glm::vec3 lightPos(1.0f, 1.4f, 4.0f);
-
 // Uniform buffer object (global uniforms)
 unsigned int UBO;
 
+// Sets up necessary data for the uniform buffer
 void initUniformBuffer()
 {
 	glGenBuffers(1, &UBO);
@@ -56,6 +55,7 @@ void initUniformBuffer()
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2);
 }
 
+// Updates the uniform buffer's data
 void updateUniformBuffer(glm::mat4 view, glm::mat4 projection)
 {
 	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
@@ -143,8 +143,6 @@ int main()
 	// Sets up variables for the phong lighting shader
 	phongShader.use()
 		.setInt("texture1", 0)
-		.setVec3("lightColor", 1.0f, 1.0f, 1.0f)
-		.setVec3("lightPos", lightPos)
 		.setVec3("viewPos", camera.position)
 		.setVec3("material.ambient", boxTex.ambient)
 		.setVec3("material.diffuse", boxTex.diffuse)
@@ -157,14 +155,16 @@ int main()
 	// Sets up lighting for the renderer's LightManager
 	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
 	PointLight pointLight2 = PointLight(glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-5.0f, 5.0f, -5.0f), 1.0f, 0.045f, 0.0075f);
-	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.3f));
+	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.4f), glm::vec3(0.7f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.3f));
 	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
-
+	SpotLight sl2 = SpotLight(glm::vec3(0.0f, 0.0f, 0.6f), glm::vec3(0.0f, 0.0f, 0.8f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 15.0f, 0.0f), 0.0f, 0.0f, 0.001f, glm::vec3(0.0f, -1.0f, 0.0f), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(12.5f)));
+	
 	defaultRenderer.addLight(&pointLight)
 		.addLight(&pointLight2)
 		.addLight(&dirLight)
-		.addLight(&spotLight);
-
+		.addLight(&spotLight)
+		.addLight(&sl2);
+		
 	// Vertices, normals and texture coordinates for a crate
 	float vertices[] = { -0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,  0.5f, };
 	float normals[] = { 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f };
@@ -178,9 +178,9 @@ int main()
 		for (int y = 0; y < 10; y++)
 		{
 			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f))
-			.addTexture(crate)
-			.addTexCoords(tcoords, sizeof(tcoords))
-			.addNormals(normals, sizeof(normals));
+				.addTexture(crate)
+				.addTexCoords(tcoords, sizeof(tcoords))
+				.addNormals(normals, sizeof(normals));
 			instances[i] = mesh;
 
 			i++;
@@ -190,10 +190,11 @@ int main()
 	// Add the instances to the renderer to be drawn
 	for (int i = 0; i < 1000; i++)
 	{
-		//defaultRenderer.objects.push_back(&instances[i]);
+		defaultRenderer.objects.push_back(&instances[i]);
 	}
 
-	Cubemap cubemap = Cubemap("img/skybox/night/");
+	// TODO: Fix skybox changes in interface.cpp
+	Cubemap cubemap = Cubemap("img/skybox/sky/");
 	Skybox skybox = Skybox(skyboxShader.ID, cubemap);
 
 	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
@@ -204,26 +205,30 @@ int main()
 		.translateModel(30.0f, 0.0f, 30.0f)
 		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
+	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	Mesh grid = Mesh(gridVerts, sizeof(gridVerts), gridShader.ID);
+
 	defaultRenderer.addObject(&skybox)
 		.addObject(&model)
-		.addObject(&model2);
+		.addObject(&model2)
+		.addObject(&grid);
 	
-	// After all needed objects have been added, initializes the renderer's data and sets up every object's data
+	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init();
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, defaultRenderer);
 
+	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;
+	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
-
-	skybox.setupObject();
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Clears the buffers and last frame before rendering the next one
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Calculates elapsed time since last frame for time-based calculations
@@ -242,7 +247,6 @@ int main()
 		// Models for phong lighting
 		phongShader.use()
 			.setVec3("viewPos", camera.position)
-			.setVec3("lightPos", lightPos)
 			.setVec3("material.ambient", boxTex.ambient)
 			.setVec3("material.diffuse", boxTex.diffuse)
 			.setVec3("material.specular", boxTex.specular)
@@ -251,19 +255,23 @@ int main()
 		// Updates spotlight position and direction based on camera's movement
 		spotLight.position = camera.position;
 		spotLight.direction = camera.front;
-		spotLight.sendToShader(phongShader.ID, 0);
 
-		gridShader.use();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// TODO: Fix code in interface.cpp so that only modified lights are sent to shader again
+		// instead of reupdating entire lightManager every frame
 		defaultRenderer.lightManager.init();
 		defaultRenderer.render();
-
-		// Print error code to console if there is one
-		glErrorCurrent = glGetError();
-		if (glErrorCurrent != 0) { std::cout << glGetError() << std::endl; };
+		
+		// TODO: Fix grid shader
+		gridShader.use();
+		grid.drawObject();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, lightPos, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);
+		ImGuiDrawWindows(camera, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);
+		
+		// Print error code to console if there is one
+		glErrorCurrent = glGetError();
+		if (glErrorCurrent != 0) { std::cout << glErrorCurrent << std::endl; };
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
@@ -272,10 +280,4 @@ int main()
 
 	glfwTerminate();
 	return 0;
-}
-
-// Callback function to handle window size change
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
 }

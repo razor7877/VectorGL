@@ -18,5 +18,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 // Used to process various key presses like movement keys
 void processInput(GLFWwindow* window, float& deltaTime);
+// Callback function to handle window size change
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 #endif
