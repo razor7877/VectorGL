@@ -63,7 +63,8 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 	ImGui::NewFrame();
 
 	CameraMenu(camera);
-	PerformanceMenu();
+	// TODO : Check whether NVIDIA GPU used or not to prevent GL 1280 error with other vendors
+	//PerformanceMenu();
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings();

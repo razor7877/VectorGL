@@ -139,6 +139,7 @@
     <IncludePath>C:\Users\razor7877\Desktop\OpenGL\OpenGL\includes;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\razor7877\Desktop\OpenGL\OpenGL\libs;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
+    <OutDir>bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

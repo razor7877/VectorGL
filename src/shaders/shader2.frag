@@ -7,7 +7,7 @@ uniform sampler2D texture1;
 
 void main()
 {
-    if (TexCoord == 0)
+    if (TexCoord == vec2(0.0, 0.0))
     {
         FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     }

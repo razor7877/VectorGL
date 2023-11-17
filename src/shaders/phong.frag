@@ -183,7 +183,7 @@ void main()
 	FragColor = vec4(result, 1.0);
 
 	// If texture coordinates are supplied, apply the texture
-	if (TexCoord != 0)
+	if (TexCoord != vec2(0.0, 0.0))
 	{
 		FragColor *= texture(texture_diffuse1, TexCoord);
 	}

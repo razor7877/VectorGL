@@ -52,7 +52,8 @@ void initUniformBuffer()
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2);
+	// Make sure buffer range corresponds to actual buffer size!
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4));
 }
 
 // Updates the uniform buffer's data
@@ -131,7 +132,7 @@ int main()
 	glUniformBlockBinding(skyboxShader.ID, UBIskyboxShader, 0);
 
 	updateUniformBuffer(view, projection);
-
+	
 	Texture crate = Texture("img/container2.png", "texture_diffuse", false);
 	Material boxTex = Material(crate);
 
@@ -164,7 +165,7 @@ int main()
 		.addLight(&dirLight)
 		.addLight(&spotLight)
 		.addLight(&sl2);
-		
+	
 	// Vertices, normals and texture coordinates for a crate
 	float vertices[] = { -0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,  0.5f, };
 	float normals[] = { 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f };
@@ -186,7 +187,7 @@ int main()
 			i++;
 		}
 	}
-
+	
 	// Add the instances to the renderer to be drawn
 	for (int i = 0; i < 1000; i++)
 	{
@@ -196,7 +197,7 @@ int main()
 	// TODO: Fix skybox changes in interface.cpp
 	Cubemap cubemap = Cubemap("img/skybox/sky/");
 	Skybox skybox = Skybox(skyboxShader.ID, cubemap);
-
+	
 	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
 		.scaleModel(0.05f, 0.05f, 0.05f)
 		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
@@ -210,15 +211,15 @@ int main()
 
 	defaultRenderer.addObject(&skybox)
 		.addObject(&model)
-		.addObject(&model2)
-		.addObject(&grid);
+		.addObject(&model2);
+		//.addObject(&grid);
 	
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init();
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, defaultRenderer);
-
+	
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
@@ -230,7 +231,7 @@ int main()
 		// Clears the buffers and last frame before rendering the next one
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -238,7 +239,7 @@ int main()
 
 		// Processes any mouse or keyboard input for camera movement
 		processInput(window, deltaTime);
-
+		
 		// Updates matrices to update camera movement
 		projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
 		view = camera.getViewMatrix();
@@ -262,16 +263,16 @@ int main()
 		defaultRenderer.render();
 		
 		// TODO: Fix grid shader
-		gridShader.use();
-		grid.drawObject();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
+		//gridShader.use();
+		//grid.drawObject();
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);
-		
+
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		if (glErrorCurrent != 0) { std::cout << glErrorCurrent << std::endl; };
+		if (glErrorCurrent != 0) { std::cout << "OpenGL error code: " << glErrorCurrent << std::endl; }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

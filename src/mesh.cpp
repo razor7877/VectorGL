@@ -123,7 +123,7 @@ void Mesh::setupObject()
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
+	
 	// If the mesh uses textures
 	if (textures.size() > 0)
 	{
@@ -136,7 +136,7 @@ void Mesh::setupObject()
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 	}
-
+	
 	// If the object uses normals
 	if (normals.size() > 0)
 	{
