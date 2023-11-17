@@ -18,8 +18,11 @@
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 
 // NVIDIA GPU only, serves to query the amount of total and available VRAM
-GLint total_mem_kb = 0;
-GLint cur_avail_mem_kb = 0;
+int total_mem_kb = 0;
+int cur_avail_mem_kb = 0;
+const char* gpuVendor{};
+std::string gpuVendorStr{};
+bool isNvidiaGpu = false;
 
 // For calculating the FPS, the time taken to render the last 100 frames is used
 float lastFrames[100];
@@ -39,6 +42,11 @@ static int item_current_idx = 1; // Selection data index
 
 void ImGuiInit(GLFWwindow* window, Renderer rendererArg)
 {
+	// OpenGL context needs to be initalized beforehand to call glGetString()
+	gpuVendor = (char*)glGetString(GL_VENDOR);
+	gpuVendorStr = std::string(gpuVendor);
+	isNvidiaGpu = gpuVendorStr == "Nvidia";
+
 	// Setup Dear ImgGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -63,8 +71,7 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 	ImGui::NewFrame();
 
 	CameraMenu(camera);
-	// TODO : Check whether NVIDIA GPU used or not to prevent GL 1280 error with other vendors
-	//PerformanceMenu();
+	PerformanceMenu();
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings();
@@ -103,9 +110,6 @@ void CameraMenu(Camera& camera)
 
 void PerformanceMenu()
 {
-	glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb);
-	glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb);
-
 	ImGui::Begin("Performance");
 
 	ImGui::Text("Frame render time: %.2f ms", timeToFrame * 1000);;
@@ -126,9 +130,15 @@ void PerformanceMenu()
 
 	ImGui::Text("Framerate: %i", (int)(1 / timeToFrame));
 
-	ImGui::Text("Total VRAM (MB): %i", total_mem_kb / 1000);
-	ImGui::Text("Available VRAM (MB): %i", cur_avail_mem_kb / 1000);
-	ImGui::Text("Used VRAM (MB): %i", (total_mem_kb - cur_avail_mem_kb) / 1000);
+	if (isNvidiaGpu)
+	{
+		glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb);
+		glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb);
+
+		ImGui::Text("Total VRAM (MB): %i", total_mem_kb / 1000);
+		ImGui::Text("Available VRAM (MB): %i", cur_avail_mem_kb / 1000);
+		ImGui::Text("Used VRAM (MB): %i", (total_mem_kb - cur_avail_mem_kb) / 1000);
+	}
 
 	ImGui::End();
 }
