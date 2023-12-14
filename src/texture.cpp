@@ -35,6 +35,8 @@ Texture::Texture(std::string filename, std::string type, bool stbiFlipOnLoad)
 		GLenum format = GL_RGB;
 		if (nrChannels == 1)
 			format = GL_RED;
+		if (nrChannels == 2)
+			format = GL_RG;
 		if (nrChannels == 3)
 			format = GL_RGB;
 		if (nrChannels == 4)

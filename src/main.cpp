@@ -75,7 +75,7 @@ int setupGlfwContext()
 
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL 3D Engine", NULL, NULL);
+	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "VectorGL", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -196,24 +196,24 @@ int main()
 	}*/
 
 	// TODO: Fix skybox changes in interface.cpp
-	Cubemap cubemap = Cubemap("img/skybox/night/");
+	Cubemap cubemap = Cubemap("img/skybox/sky/");
 	Skybox skybox = Skybox(skyboxShader.ID, cubemap);
 	
 	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
 		.scaleModel(0.05f, 0.05f, 0.05f)
 		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
-	Model model2 = Model("models/tank/scene.gltf", phongShader.ID)
-		.translateModel(30.0f, 0.0f, 30.0f)
-		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
+	//Model model2 = Model("models/tank/scene.gltf", phongShader.ID)
+	//	.translateModel(30.0f, 0.0f, 30.0f)
+	//	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	Mesh grid = Mesh(gridVerts, sizeof(gridVerts), gridShader.ID);
 	grid.setupObject();
 
 	defaultRenderer.addObject(&skybox)
-		.addObject(&model)
-		.addObject(&model2);
+		.addObject(&model);
+		//.addObject(&model2);
 		//.addObject(&grid);
 	
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data

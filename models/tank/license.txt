@@ -1,11 +1,11 @@
 Model Information:
-* title:	Chemical tank
-* source:	https://sketchfab.com/3d-models/chemical-tank-63c001e74ff5402fbcf1338479c9c0c5
-* author:	ixMkc1 (https://sketchfab.com/ixMkc1)
+* title:	Tank T-80U
+* source:	https://sketchfab.com/3d-models/tank-t-80u-ebf4b55eeabb421cbf2758a2ec948439
+* author:	javanilga (https://sketchfab.com/javanilga)
 
 Model License:
 * license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 * requirements:	Author must be credited. Commercial use is allowed.
 
 If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
-This work is based on "Chemical tank" (https://sketchfab.com/3d-models/chemical-tank-63c001e74ff5402fbcf1338479c9c0c5) by ixMkc1 (https://sketchfab.com/ixMkc1) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+This work is based on "Tank T-80U" (https://sketchfab.com/3d-models/tank-t-80u-ebf4b55eeabb421cbf2758a2ec948439) by javanilga (https://sketchfab.com/javanilga) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
