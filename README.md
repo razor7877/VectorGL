@@ -36,4 +36,4 @@ It works on Windows (Visual Studio/MSVC) and should probably work on Linux and M
 
 ![](img/tank_wireframe.png "")
 ![](img/sea_keep.png "")
-![](img/interfaces.png "")
+![](img/interface.png "")
