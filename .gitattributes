@@ -1,2 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shader files
+*.vert linguist-detectable
+*.vert linguist-language=GLSL
+*.frag linguist-detectable
+*.frag linguist-language=GLSL
+
+src/glad/glad.c linguist-vendored
+includes/glad/glad.h linguist-vendored
+includes/stb_image.h linguist-vendored
+includes/KHR/khrplatform.h linguist-vendored
