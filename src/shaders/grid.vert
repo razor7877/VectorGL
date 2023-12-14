@@ -30,8 +30,8 @@ vec3 UnprojectPoint(float x, float y, float z, mat4 vi, mat4 pr)
 void main()
 {
 	vec3 p = gridPlane[gl_VertexID].xyz;
-	nearPoint = UnprojectPoint(p.x, p.y, 0.0, view, projection);
-	farPoint = UnprojectPoint(p.x, p.y, 1.0, view, projection);
+	nearPoint = UnprojectPoint(p.x, p.y, 0.0, view, projection).xyz;
+	farPoint = UnprojectPoint(p.x, p.y, 1.0, view, projection).xyz;
 
 	gl_Position = vec4(p, 1.0);
 }

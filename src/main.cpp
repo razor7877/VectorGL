@@ -5,8 +5,8 @@
 #include <iostream>
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -115,9 +115,9 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Shader phongShader = Shader("src/shaders/phong.vert", "src/shaders/phong.frag");
-	Shader skyboxShader = Shader("src/shaders/skybox.vert", "src/shaders/skybox.frag");
-	Shader gridShader = Shader("src/shaders/grid.vert", "src/shaders/grid.frag");
+	Shader phongShader = Shader("shaders/phong.vert", "shaders/phong.frag");
+	Shader skyboxShader = Shader("shaders/skybox.vert", "shaders/skybox.frag");
+	Shader gridShader = Shader("shaders/grid2.vert", "shaders/grid2.frag");
 
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
@@ -170,6 +170,7 @@ int main()
 	float vertices[] = { -0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,  0.5f, };
 	float normals[] = { 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f };
 	float tcoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+	
 	/*
 	// Creates a large 10 by 100 row of crates
 	Mesh instances[1000];
@@ -195,7 +196,7 @@ int main()
 	}*/
 
 	// TODO: Fix skybox changes in interface.cpp
-	Cubemap cubemap = Cubemap("img/skybox/sky/");
+	Cubemap cubemap = Cubemap("img/skybox/night/");
 	Skybox skybox = Skybox(skyboxShader.ID, cubemap);
 	
 	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
@@ -208,10 +209,11 @@ int main()
 
 	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	Mesh grid = Mesh(gridVerts, sizeof(gridVerts), gridShader.ID);
+	grid.setupObject();
 
 	defaultRenderer.addObject(&skybox)
-		.addObject(&model);
-		//.addObject(&model2);
+		.addObject(&model)
+		.addObject(&model2);
 		//.addObject(&grid);
 	
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
@@ -263,9 +265,9 @@ int main()
 		defaultRenderer.render();
 		
 		// TODO: Fix grid shader
-		//gridShader.use();
+		gridShader.use();
 		//grid.drawObject();
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);
