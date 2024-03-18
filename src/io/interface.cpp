@@ -193,6 +193,7 @@ void LightSettings()
 
 			if (modified)
 			{
+				glUseProgram(lightManager.shaderProgramID);
 				dirLights[i]->sendToShader(lightManager.shaderProgramID, i);
 			}
 		}
@@ -223,6 +224,7 @@ void LightSettings()
 
 			if (modified)
 			{
+				glUseProgram(lightManager.shaderProgramID);
 				pointLights[i]->sendToShader(lightManager.shaderProgramID, i);
 			}
 		}
@@ -260,6 +262,7 @@ void LightSettings()
 
 			if (modified)
 			{
+				glUseProgram(lightManager.shaderProgramID);
 				spotLights[i]->sendToShader(lightManager.shaderProgramID, i);
 			}
 		}
