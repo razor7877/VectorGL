@@ -12,6 +12,7 @@ public:
 	std::string path;
 
 	Texture();
+	~Texture();
 
 	Texture(std::string filename, std::string type, bool stbiFlipOnLoad = false);
 

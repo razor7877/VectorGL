@@ -9,6 +9,7 @@ public:
 	unsigned int ID;
 
 	Shader(const char* vertexPath, const char* fragmentPath);
+	~Shader();
 	Shader use();
 	
 	// Various methods to set uniforms for the shader

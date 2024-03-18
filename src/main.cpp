@@ -259,8 +259,6 @@ int main()
 		spotLight.position = camera.position;
 		spotLight.direction = camera.front;
 
-		// TODO: Fix code in interface.cpp so that only modified lights are sent to shader again
-		// instead of reupdating entire lightManager every frame
 		defaultRenderer.render();
 		
 		// TODO: Fix grid shader

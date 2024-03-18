@@ -16,6 +16,7 @@ public:
 	std::vector<std::string> faces;
 
 	Cubemap();
+	~Cubemap();
 
 	// A constructor that builds a cubemap from a path that contains 6 PNG files named
 	// right left top bottom front back .png

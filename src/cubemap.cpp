@@ -29,6 +29,11 @@ Cubemap::Cubemap(std::vector<std::string> faces)
 	this->faces = faces;
 }
 
+Cubemap::~Cubemap()
+{
+	glDeleteTextures(1, &this->texID);
+}
+
 void Cubemap::setupObject()
 {
 	glGenTextures(1, &texID);

@@ -33,6 +33,7 @@ public:
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
 
 	Mesh();
+	~Mesh();
 	// Instantiates a game object, generates the VBO, VAO and attrib pointers
 	Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 	Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture> textures, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));

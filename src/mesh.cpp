@@ -48,6 +48,16 @@ Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vecto
 	this->normalBO = {};
 }
 
+Mesh::~Mesh()
+{
+	glDeleteBuffers(1, &this->VBO);
+	glDeleteBuffers(1, &this->indicesBO);
+	glDeleteBuffers(1, &this->texCoordBO);
+	glDeleteBuffers(1, &this->normalBO);
+
+	glDeleteVertexArrays(1, &this->VAO);
+}
+
 void Mesh::drawObject()
 {
 	// Make sure the object's VAO is bound

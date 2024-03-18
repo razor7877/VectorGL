@@ -53,6 +53,11 @@ Texture::Texture(std::string filename, std::string type, bool stbiFlipOnLoad)
 	stbi_image_free(data);
 }
 
+Texture::~Texture()
+{
+	glDeleteTextures(1, &this->texID);
+}
+
 void Texture::bindTexture()
 {
 	glBindTexture(GL_TEXTURE_2D, texID);

@@ -16,6 +16,11 @@ Model::Model(std::string path, GLuint shaderProgramID)
 	loadModel(path);
 }
 
+Model::~Model()
+{
+
+}
+
 void Model::drawObject()
 {
 	for (int i = 0; i < meshes.size(); i++)
