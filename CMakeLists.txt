@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 project(VectorGL)
 
+set(CMAKE_CXX_STANDARD 17)
+
 find_package(OpenGL REQUIRED)
 
 # Add library subfolders

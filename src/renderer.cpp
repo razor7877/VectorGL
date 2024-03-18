@@ -46,11 +46,11 @@ void Renderer::render()
 {
 	// Iterates over the shaderID : mesh keypair values to draw objects more efficiently
 	// Draw calls are grouped by shader
-	for (auto& shaderObjectPair : shaderMap)
+	for (auto& [shader, object] : shaderMap)
 	{
 		// Use the current shader, then draw all objects associated with it
-		glUseProgram(shaderObjectPair.first);
-		for (RenderObject* objectPtr : shaderObjectPair.second)
+		glUseProgram(shader);
+		for (RenderObject* objectPtr : object)
 		{
 			objectPtr->drawObject();
 		}
