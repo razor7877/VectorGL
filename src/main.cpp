@@ -115,9 +115,9 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Shader phongShader = Shader("shaders/phong.vert", "shaders/phong.frag");
-	Shader skyboxShader = Shader("shaders/skybox.vert", "shaders/skybox.frag");
-	Shader gridShader = Shader("shaders/grid2.vert", "shaders/grid2.frag");
+	Shader* phongShader = new Shader("shaders/phong.vert", "shaders/phong.frag");
+	Shader* skyboxShader = new Shader("shaders/skybox.vert", "shaders/skybox.frag");
+	Shader* gridShader = new Shader("shaders/grid2.vert", "shaders/grid2.frag");
 
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
@@ -125,11 +125,11 @@ int main()
 	// Sets up global uniforms for each shader used
 	initUniformBuffer();
 
-	unsigned int UBIphongShader = glGetUniformBlockIndex(phongShader.ID, "Matrices");
-	glUniformBlockBinding(phongShader.ID, UBIphongShader, 0);
+	unsigned int UBIphongShader = glGetUniformBlockIndex(phongShader->ID, "Matrices");
+	glUniformBlockBinding(phongShader->ID, UBIphongShader, 0);
 
-	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader.ID, "Matrices");
-	glUniformBlockBinding(skyboxShader.ID, UBIskyboxShader, 0);
+	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader->ID, "Matrices");
+	glUniformBlockBinding(skyboxShader->ID, UBIskyboxShader, 0);
 
 	updateUniformBuffer(view, projection);
 	
@@ -142,16 +142,16 @@ int main()
 	float shininess = 32.0f;
 
 	// Sets up variables for the phong lighting shader
-	phongShader.use()
-		.setInt("texture1", 0)
-		.setVec3("viewPos", camera.position)
-		.setVec3("material.ambient", boxTex.ambient)
-		.setVec3("material.diffuse", boxTex.diffuse)
-		.setVec3("material.specular", boxTex.specular)
-		.setFloat("material.shininess", boxTex.shininess);
+	phongShader->use()
+		->setInt("texture1", 0)
+		->setVec3("viewPos", camera.position)
+		->setVec3("material.ambient", boxTex.ambient)
+		->setVec3("material.diffuse", boxTex.diffuse)
+		->setVec3("material.specular", boxTex.specular)
+		->setFloat("material.shininess", boxTex.shininess);
 
 	// Creates a renderer for drawing objects
-	Renderer defaultRenderer = Renderer(phongShader.ID);
+	Renderer defaultRenderer = Renderer(phongShader->ID);
 
 	// Sets up lighting for the renderer's LightManager
 	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
@@ -170,36 +170,12 @@ int main()
 	float vertices[] = { -0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,  0.5f, };
 	float normals[] = { 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f };
 	float tcoords[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
-	
-	/*
-	// Creates a large 10 by 100 row of crates
-	Mesh instances[1000];
-	int i = 0;
-	for (int x = 0; x < 100; x++)
-	{
-		for (int y = 0; y < 10; y++)
-		{
-			Mesh mesh = Mesh(vertices, sizeof(vertices), phongShader.ID, glm::vec3(x, y, 0.0f))
-				.addTexture(crate)
-				.addTexCoords(tcoords, sizeof(tcoords))
-				.addNormals(normals, sizeof(normals));
-			instances[i] = mesh;
-
-			i++;
-		}
-	}
-	
-	// Add the instances to the renderer to be drawn
-	for (int i = 0; i < 1000; i++)
-	{
-		defaultRenderer.objects.push_back(&instances[i]);
-	}*/
 
 	// TODO: Fix skybox changes in interface.cpp
-	Cubemap cubemap = Cubemap("img/skybox/sky/");
-	Skybox skybox = Skybox(skyboxShader.ID, cubemap);
+	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
+	Skybox* skybox = new Skybox(skyboxShader->ID , cubemap);
 	
-	Model model = Model("models/sea_keep/scene.gltf", phongShader.ID)
+	Model model = Model("models/sea_keep/scene.gltf", phongShader->ID)
 		.scaleModel(0.05f, 0.05f, 0.05f)
 		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
@@ -208,10 +184,10 @@ int main()
 	//	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-	Mesh grid = Mesh(gridVerts, sizeof(gridVerts), gridShader.ID);
+	Mesh grid = Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
 	grid.setupObject();
 
-	defaultRenderer.addObject(&skybox)
+	defaultRenderer.addObject(skybox)
 		.addObject(&model);
 		//.addObject(&model2);
 		//.addObject(&grid);
@@ -248,12 +224,12 @@ int main()
 		updateUniformBuffer(view, projection);
 		
 		// Models for phong lighting
-		phongShader.use()
-			.setVec3("viewPos", camera.position)
-			.setVec3("material.ambient", boxTex.ambient)
-			.setVec3("material.diffuse", boxTex.diffuse)
-			.setVec3("material.specular", boxTex.specular)
-			.setFloat("material.shininess", boxTex.shininess);
+		phongShader->use()
+			->setVec3("viewPos", camera.position)
+			->setVec3("material.ambient", boxTex.ambient)
+			->setVec3("material.diffuse", boxTex.diffuse)
+			->setVec3("material.specular", boxTex.specular)
+			->setFloat("material.shininess", boxTex.shininess);
 
 		// Updates spotlight position and direction based on camera's movement
 		spotLight.position = camera.position;
@@ -262,7 +238,7 @@ int main()
 		defaultRenderer.render();
 		
 		// TODO: Fix grid shader
-		gridShader.use();
+		gridShader->use();
 		//grid.drawObject();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		
@@ -277,6 +253,10 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	delete phongShader;
+	delete skyboxShader;
+	delete gridShader;
 
 	glfwTerminate();
 	return 0;

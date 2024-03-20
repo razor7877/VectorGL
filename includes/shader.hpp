@@ -10,21 +10,21 @@ public:
 
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
-	Shader use();
+	Shader* use();
 	
 	// Various methods to set uniforms for the shader
-	Shader setBool(const std::string& name, bool value) const;
-	Shader setInt(const std::string& name, int value) const;
-	Shader setFloat(const std::string& name, float value) const;
-	Shader setVec2(const std::string& name, const glm::vec2& value) const;
-	Shader setVec2(const std::string& name, float x, float y) const;
-	Shader setVec3(const std::string& name, const glm::vec3& value) const;
-	Shader setVec3(const std::string& name, float x, float y, float z) const;
-	Shader setVec4(const std::string& name, const glm::vec4& value) const;
-	Shader setVec4(const std::string& name, float x, float y, float z, float w) const;
-	Shader setMat2(const std::string& name, const glm::mat2& value) const;
-	Shader setMat3(const std::string& name, const glm::mat3& value) const;
-	Shader setMat4(const std::string& name, const glm::mat4& value) const;
+	Shader* setBool(const std::string& name, bool value);
+	Shader* setInt(const std::string& name, int value);
+	Shader* setFloat(const std::string& name, float value);
+	Shader* setVec2(const std::string& name, const glm::vec2& value);
+	Shader* setVec2(const std::string& name, float x, float y);
+	Shader* setVec3(const std::string& name, const glm::vec3& value);
+	Shader* setVec3(const std::string& name, float x, float y, float z);
+	Shader* setVec4(const std::string& name, const glm::vec4& value);
+	Shader* setVec4(const std::string& name, float x, float y, float z, float w);
+	Shader* setMat2(const std::string& name, const glm::mat2& value);
+	Shader* setMat3(const std::string& name, const glm::mat3& value);
+	Shader* setMat4(const std::string& name, const glm::mat4& value);
 
 private:
 	void checkCompileErrors(GLuint shader, std::string type);

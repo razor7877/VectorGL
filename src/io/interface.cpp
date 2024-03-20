@@ -64,7 +64,7 @@ void ImGuiInit(GLFWwindow* window, Renderer rendererArg)
 	spotLights = lightManager.getSpotLights();
 }
 
-void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox& skybox)
+void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox* skybox)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -271,7 +271,7 @@ void LightSettings()
 	ImGui::End();
 }
 
-void SkyboxSettings(Skybox& skybox)
+void SkyboxSettings(Skybox* skybox)
 {
 	ImGui::Begin("Skybox settings");
 
@@ -285,24 +285,24 @@ void SkyboxSettings(Skybox& skybox)
 			{
 				item_current_idx = i;
 
-				std::cout << skybox.cubemap.texID << std::endl;
+				std::cout << skybox->cubemap->texID << std::endl;
 
 				switch (item_current_idx)
 				{
 					case 0:
-						skybox.cubemap = Cubemap("img/skybox/grass/");
+						//skybox->cubemap = Cubemap("img/skybox/grass/");
 						break;
 
 					case 1:
-						skybox.cubemap = Cubemap("img/skybox/night/");
+						//skybox->cubemap = Cubemap("img/skybox/night/");
 						break;
 
 					case 2:
-						skybox.cubemap = Cubemap("img/skybox/sky/");
+						//skybox->cubemap = Cubemap("img/skybox/sky/");
 						break;
 				}
 
-				skybox.setupObject();
+				skybox->setupObject();
 
 			}
 

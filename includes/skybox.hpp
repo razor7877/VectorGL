@@ -9,10 +9,10 @@
 class Skybox : public Mesh
 {
 public:
-	Cubemap cubemap;
+	Cubemap* cubemap;
 	static float boxVertices[];
 
-	Skybox(GLuint shaderProgramID, Cubemap cubemap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
+	Skybox(GLuint shaderProgramID, Cubemap* cubemap, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	void RenderObject::drawObject() override;
 	void RenderObject::setupObject() override;
