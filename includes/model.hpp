@@ -16,8 +16,8 @@ class Model : public virtual RenderObject
 public:
 	std::vector<Mesh*> meshes;
 	Model();
-	~Model();
 	Model(std::string path, GLuint shaderProgramID);
+	~Model() override;
 
 	void RenderObject::drawObject() override;
 	void RenderObject::setupObject() override;

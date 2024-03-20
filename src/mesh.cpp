@@ -47,7 +47,7 @@ Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vecto
 	this->texCoordBO = {};
 	this->normalBO = {};
 }
-
+/*
 Mesh::~Mesh()
 {
 	std::cout << "Calling mesh destructor" << std::endl;
@@ -57,7 +57,7 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &this->normalBO);
 
 	glDeleteVertexArrays(1, &this->VAO);
-}
+}*/
 
 void Mesh::drawObject()
 {

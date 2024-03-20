@@ -19,6 +19,17 @@ Renderer& Renderer::addObject(RenderObject* objectPtr)
 	return *this;
 }
 
+Renderer& Renderer::removeObject(RenderObject* objectPtr)
+{
+	
+
+	std::vector<RenderObject*>* vector = &this->shaderMap[objectPtr->shaderProgramID];
+	std::cout << vector->size() << std::endl;
+	vector->erase(std::remove(vector->begin(), vector->end(), objectPtr), vector->end());
+	std::cout << vector->size() << std::endl;
+	return *this;
+}
+
 Renderer& Renderer::addLight(Light* lightPtr)
 {
 	lightManager.addLight(lightPtr);

@@ -26,6 +26,7 @@ public:
 
 	// Adds an object (model, mesh, skybox...) to the renderer's object vector
 	Renderer& addObject(RenderObject* objectPtr);
+	Renderer& removeObject(RenderObject* objectPtr);
 	// Adds a light (dirlight, pointlight, spotlight ...) to the renderer's LightManager
 	Renderer& addLight(Light* lightPtr);
 

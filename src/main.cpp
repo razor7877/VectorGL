@@ -203,6 +203,9 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
+	defaultRenderer.removeObject(model);
+	delete model;
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -264,7 +267,7 @@ int main()
 	delete cubemap;
 	delete skybox;
 
-	delete model;
+	//delete model;
 
 	glfwTerminate();
 	return 0;
