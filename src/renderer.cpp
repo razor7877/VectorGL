@@ -15,14 +15,16 @@ Renderer::Renderer(GLuint lightShaderProgramID)
 
 Renderer& Renderer::addObject(RenderObject* objectPtr)
 {
-	objects.push_back(objectPtr);
+	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
+	// shader ID using the shaderMap table
+	shaderMap[objectPtr->shaderProgramID].push_back(objectPtr);
+
+	objectPtr->setupObject();
 	return *this;
 }
 
 Renderer& Renderer::removeObject(RenderObject* objectPtr)
 {
-	
-
 	std::vector<RenderObject*>* vector = &this->shaderMap[objectPtr->shaderProgramID];
 	std::cout << vector->size() << std::endl;
 	vector->erase(std::remove(vector->begin(), vector->end(), objectPtr), vector->end());
@@ -42,14 +44,6 @@ void Renderer::init()
 	if (lightManager.shaderProgramID != 0)
 	{
 		lightManager.init();
-	}
-
-	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
-	// shader ID using the shaderMap table
-	for (RenderObject* object : objects)
-	{
-		object->setupObject();
-		shaderMap[object->shaderProgramID].push_back(object);
 	}
 }
 
