@@ -3,6 +3,7 @@
 #include "main.hpp"
 #include "io/input.hpp"
 #include "camera.hpp"
+#include "model.hpp"
 
 float lastX = (float)windowWidth / 2;
 float lastY = (float)windowHeight / 2;
@@ -19,6 +20,8 @@ int lastHeight = WINDOW_HEIGHT;
 // Used to save the last coordinates of the windowed mode window
 int lastXPos = 50;
 int lastYPos = 50;
+
+extern Renderer defaultRenderer;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -125,6 +128,32 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			windowWidth = lastWidth;
 			windowHeight = lastHeight;
 		}
+	}
+
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+
+	}
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+	int i;
+	for (i = 0; i < count; i++)
+	{
+		std::string newPath = std::string(paths[i]);
+
+		int index = 0;
+		for (size_t i = 0; i < newPath.length(); ++i)
+		{
+			if (newPath[i] == '\\')
+			{
+				newPath[i] = '/';
+			}
+		}
+		std::cout << "Drop callback path: " << newPath << std::endl;
+		// TODO : This is not properly disposed of!!
+		defaultRenderer.addObject(new Model(newPath, defaultRenderer.lightManager.shaderProgramID));
 	}
 }
 

@@ -30,7 +30,7 @@ int frameIndex{};
 float timeToFrame = 1;
 
 // Used for dynamically showing existing lights and enabling their realtime modification
-Renderer renderer;
+Renderer* renderer;
 LightManager lightManager;
 std::vector<DirectionalLight*> dirLights;
 std::vector<PointLight*> pointLights;
@@ -40,7 +40,7 @@ std::vector<SpotLight*> spotLights;
 const char* items[] = { "Grass", "Night", "Sky" };
 static int item_current_idx = 1; // Selection data index
 
-void ImGuiInit(GLFWwindow* window, Renderer rendererArg)
+void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 {
 	// OpenGL context needs to be initalized beforehand to call glGetString()
 	gpuVendor = (char*)glGetString(GL_VENDOR);
@@ -58,7 +58,7 @@ void ImGuiInit(GLFWwindow* window, Renderer rendererArg)
 	ImGui::StyleColorsDark();
 
 	renderer = rendererArg;
-	lightManager = renderer.lightManager;
+	lightManager = renderer->lightManager;
 	dirLights = lightManager.getDirLights();
 	pointLights = lightManager.getPointLights();
 	spotLights = lightManager.getSpotLights();

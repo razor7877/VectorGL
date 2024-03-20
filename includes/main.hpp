@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.hpp"
+#include "renderer.hpp"
 
 extern int windowWidth;
 extern int windowHeight;

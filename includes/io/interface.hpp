@@ -9,7 +9,7 @@
 
 extern float deltaTime;
 
-void ImGuiInit(GLFWwindow* window, Renderer rendererArg);
+void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
 void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox* skybox);
 
 // See and change camera position, speed etc.

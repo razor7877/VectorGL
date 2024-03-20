@@ -42,6 +42,7 @@ Camera camera(glm::vec3(0.0f, 5.0f, 3.0f));
 
 // Uniform buffer object (global uniforms)
 unsigned int UBO;
+Renderer defaultRenderer;
 
 // Sets up necessary data for the uniform buffer
 void initUniformBuffer()
@@ -90,6 +91,7 @@ int setupGlfwContext()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetDropCallback(window, drop_callback);
 
 	// Check if GLAD loaded successfully
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -151,7 +153,7 @@ int main()
 		->setFloat("material.shininess", boxTex->shininess);
 
 	// Creates a renderer for drawing objects
-	Renderer defaultRenderer = Renderer(phongShader->ID);
+	defaultRenderer = Renderer(phongShader->ID);
 
 	// Sets up lighting for the renderer's LightManager
 	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
@@ -196,7 +198,7 @@ int main()
 	defaultRenderer.init();
 
 	// Initializes the ImGui UI system
-	ImGuiInit(window, defaultRenderer);
+	ImGuiInit(window, &defaultRenderer);
 	
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;
