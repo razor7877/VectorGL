@@ -25,10 +25,10 @@ Renderer& Renderer::addObject(RenderObject* objectPtr)
 
 Renderer& Renderer::removeObject(RenderObject* objectPtr)
 {
+	// Get the vector associated with the object's shader
 	std::vector<RenderObject*>* vector = &this->shaderMap[objectPtr->shaderProgramID];
-	std::cout << vector->size() << std::endl;
 	vector->erase(std::remove(vector->begin(), vector->end(), objectPtr), vector->end());
-	std::cout << vector->size() << std::endl;
+
 	return *this;
 }
 
@@ -64,5 +64,5 @@ void Renderer::render()
 
 void Renderer::end()
 {
-
+	
 }

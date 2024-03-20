@@ -27,7 +27,7 @@
 #include "lights/pointLight.hpp"
 #include "lights/spotLight.hpp"
 
-GLFWwindow* window;
+
 
 const int WINDOW_WIDTH = 1920;
 const int WINDOW_HEIGHT = 1080;
@@ -65,42 +65,6 @@ void updateUniformBuffer(glm::mat4 view, glm::mat4 projection)
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &projection[0][0]);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-int setupGlfwContext()
-{
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-
-	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "VectorGL", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwMakeContextCurrent(window);
-
-	// Set callback functions for window resizing and handling input
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetDropCallback(window, drop_callback);
-
-	// Check if GLAD loaded successfully
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
-	return 0;
 }
 
 int main()

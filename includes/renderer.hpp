@@ -22,8 +22,9 @@ public:
 	Renderer();
 	Renderer(GLuint lightShaderProgramID);
 
-	// Adds an object (model, mesh, skybox...) to the renderer's object vector
+	// Adds an object (model, mesh, skybox...) to the renderer
 	Renderer& addObject(RenderObject* objectPtr);
+	// Removes an object from the renderer which stops it being drawn
 	Renderer& removeObject(RenderObject* objectPtr);
 	// Adds a light (dirlight, pointlight, spotlight ...) to the renderer's LightManager
 	Renderer& addLight(Light* lightPtr);

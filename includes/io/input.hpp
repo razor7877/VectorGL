@@ -10,6 +10,8 @@ extern const int WINDOW_HEIGHT;
 extern int windowWidth;
 extern int windowHeight;
 
+int setupGlfwContext();
+
 // Callback function to register mouse input
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 // Callback function to register scrolling
