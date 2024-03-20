@@ -18,14 +18,15 @@ Model::Model(std::string path, GLuint shaderProgramID)
 
 Model::~Model()
 {
-
+	for (Mesh* mesh : meshes)
+		delete mesh;
 }
 
 void Model::drawObject()
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].drawObject();
+		meshes[i]->drawObject();
 	}
 }
 
@@ -37,7 +38,7 @@ void Model::setupObject()
 	// Which results in memory access violations
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].setupObject();
+		meshes[i]->setupObject();
 	}
 }
 
@@ -72,14 +73,14 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<float> vertices;
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
 
-	std::vector<Texture> textures;
+	std::vector<Texture*> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -119,89 +120,89 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-		std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
+		std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
 		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+		std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
-	return Mesh(vertices, texCoords, normals, indices, textures, shaderProgramID);
+	return new Mesh(vertices, texCoords, normals, indices, textures, shaderProgramID);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-	std::vector<Texture> textures;
+	std::vector<Texture*> textures;
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		std::string path = directory + '/' + std::string(str.C_Str());
 
-		Texture texture = Texture(path, typeName, false);
-		texture.path = str.C_Str();
+		Texture* texture = new Texture(path, typeName, false);
+		texture->path = str.C_Str();
 		textures.push_back(texture);
 	}
 
 	return textures;
 }
 
-Model& Model::rotateModel(float degrees, glm::vec3 rotationPoint)
+Model* Model::rotateModel(float degrees, glm::vec3 rotationPoint)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].rotateMesh(degrees, rotationPoint);
+		meshes[i]->rotateMesh(degrees, rotationPoint);
 	}
-	return *this;
+	return this;
 }
 
-Model& Model::rotateModel(float degrees, float x, float y, float z)
+Model* Model::rotateModel(float degrees, float x, float y, float z)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].rotateMesh(degrees, x, y, z);
+		meshes[i]->rotateMesh(degrees, x, y, z);
 	}
-	return *this;
+	return this;
 }
 
-Model& Model::translateModel(glm::vec3 translation)
+Model* Model::translateModel(glm::vec3 translation)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].translateMesh(translation);
+		meshes[i]->translateMesh(translation);
 	}
-	return *this;
+	return this;
 }
 
-Model& Model::translateModel(float x, float y, float z)
+Model* Model::translateModel(float x, float y, float z)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].translateMesh(x, y, z);
+		meshes[i]->translateMesh(x, y, z);
 	}
-	return *this;
+	return this;
 }
 
-Model& Model::scaleModel(glm::vec3 scaleVec)
+Model* Model::scaleModel(glm::vec3 scaleVec)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].scaleMesh(scaleVec);
+		meshes[i]->scaleMesh(scaleVec);
 	}
-	return *this;
+	return this;
 }
 
-Model& Model::scaleModel(float scaleX, float scaleY, float scaleZ)
+Model* Model::scaleModel(float scaleX, float scaleY, float scaleZ)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].scaleMesh(scaleX, scaleY, scaleZ);
+		meshes[i]->scaleMesh(scaleX, scaleY, scaleZ);
 	}
-	return *this;
+	return this;
 }

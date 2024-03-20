@@ -30,7 +30,7 @@ Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm:
 	this->normalBO = {};
 }
 
-Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture> textures, GLuint shaderProgramID, glm::vec3 position)
+Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position)
 {
 	this->vertices = vertices;
 	this->shaderProgramID = shaderProgramID;
@@ -50,6 +50,7 @@ Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vecto
 
 Mesh::~Mesh()
 {
+	std::cout << "Calling mesh destructor" << std::endl;
 	glDeleteBuffers(1, &this->VBO);
 	glDeleteBuffers(1, &this->indicesBO);
 	glDeleteBuffers(1, &this->texCoordBO);
@@ -74,7 +75,7 @@ void Mesh::drawObject()
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			std::string number;
-			std::string name = textures[i].type;
+			std::string name = textures[i]->type;
 
 			if (name == "texture_diffuse")
 			{
@@ -94,7 +95,7 @@ void Mesh::drawObject()
 			}
 
 			glUniform1i(glGetUniformLocation(shaderProgramID, (name + number).c_str()), i);
-			glBindTexture(GL_TEXTURE_2D, textures[i].texID);
+			glBindTexture(GL_TEXTURE_2D, textures[i]->texID);
 		}
 	}
 
@@ -173,7 +174,7 @@ Mesh& Mesh::addTexCoords(float texCoords[], unsigned int texSize)
     return *this;
 }
 
-Mesh& Mesh::addTexture(Texture texture)
+Mesh& Mesh::addTexture(Texture* texture)
 {
 	textures.insert(textures.end(), texture);
     return *this;

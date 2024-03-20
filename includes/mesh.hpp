@@ -21,7 +21,7 @@ public:
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
 
-	std::vector<Texture> textures;
+	std::vector<Texture*> textures;
 
 	GLuint VAO; // The object's VAO
 
@@ -36,7 +36,7 @@ public:
 	~Mesh();
 	// Instantiates a game object, generates the VBO, VAO and attrib pointers
 	Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
-	Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture> textures, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
+	Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// Used in render loop to draw vertices arrays to screen
 	void RenderObject::drawObject() override;
@@ -45,7 +45,7 @@ public:
 	// Generates buffers and enables correct draw calls to use given texture
 	Mesh& addTexCoords(std::vector<float> texCoords);
 	Mesh& addTexCoords(float texCoords[], unsigned int texSize);
-	Mesh& addTexture(Texture texture);
+	Mesh& addTexture(Texture* texture);
 	Mesh& addNormals(float normals[], unsigned int normalSize);
 	Mesh& addIndices(unsigned int indices[], unsigned int indicesSize);
 

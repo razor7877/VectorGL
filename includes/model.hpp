@@ -14,7 +14,7 @@
 class Model : public virtual RenderObject
 {
 public:
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 	Model();
 	~Model();
 	Model(std::string path, GLuint shaderProgramID);
@@ -23,16 +23,16 @@ public:
 	void RenderObject::setupObject() override;
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
-	Model& rotateModel(float degrees, glm::vec3 rotationPoint);
-	Model& rotateModel(float degrees, float x, float y, float z);
+	Model* rotateModel(float degrees, glm::vec3 rotationPoint);
+	Model* rotateModel(float degrees, float x, float y, float z);
 
 	// Translate the object's model matrix using a vec3 or xyz floats
-	Model& translateModel(glm::vec3 translation);
-	Model& translateModel(float x, float y, float z);
+	Model* translateModel(glm::vec3 translation);
+	Model* translateModel(float x, float y, float z);
 
 	// Scales the object's model matrix using a vec3 or xyz floats
-	Model& scaleModel(glm::vec3 scaleVec);
-	Model& scaleModel(float scaleX, float scaleY, float scaleZ);
+	Model* scaleModel(glm::vec3 scaleVec);
+	Model* scaleModel(float scaleX, float scaleY, float scaleZ);
 
 private:
 	
@@ -40,8 +40,8 @@ private:
 
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	Mesh* processMesh(aiMesh* mesh, const aiScene* scene);
+	std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 };
 
 #endif

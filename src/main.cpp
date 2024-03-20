@@ -133,8 +133,8 @@ int main()
 
 	updateUniformBuffer(view, projection);
 	
-	Texture crate = Texture("img/container2.png", "texture_diffuse", false);
-	Material boxTex = Material(crate);
+	Texture* crate = new Texture("img/container2.png", "texture_diffuse", false);
+	Material* boxTex = new Material(crate);
 
 	glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
 	glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -145,10 +145,10 @@ int main()
 	phongShader->use()
 		->setInt("texture1", 0)
 		->setVec3("viewPos", camera.position)
-		->setVec3("material.ambient", boxTex.ambient)
-		->setVec3("material.diffuse", boxTex.diffuse)
-		->setVec3("material.specular", boxTex.specular)
-		->setFloat("material.shininess", boxTex.shininess);
+		->setVec3("material.ambient", boxTex->ambient)
+		->setVec3("material.diffuse", boxTex->diffuse)
+		->setVec3("material.specular", boxTex->specular)
+		->setFloat("material.shininess", boxTex->shininess);
 
 	// Creates a renderer for drawing objects
 	Renderer defaultRenderer = Renderer(phongShader->ID);
@@ -175,20 +175,20 @@ int main()
 	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
 	Skybox* skybox = new Skybox(skyboxShader->ID , cubemap);
 	
-	Model model = Model("models/sea_keep/scene.gltf", phongShader->ID)
-		.scaleModel(0.05f, 0.05f, 0.05f)
-		.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
+	Model* model = (new Model("models/sea_keep/scene.gltf", phongShader->ID))
+		->scaleModel(0.05f, 0.05f, 0.05f)
+		->rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	//Model model2 = Model("models/tank/scene.gltf", phongShader.ID)
 	//	.translateModel(30.0f, 0.0f, 30.0f)
 	//	.rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-	Mesh grid = Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
-	grid.setupObject();
+	Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
+	grid->setupObject();
 
 	defaultRenderer.addObject(skybox)
-		.addObject(&model);
+		.addObject(model);
 		//.addObject(&model2);
 		//.addObject(&grid);
 	
@@ -226,10 +226,10 @@ int main()
 		// Models for phong lighting
 		phongShader->use()
 			->setVec3("viewPos", camera.position)
-			->setVec3("material.ambient", boxTex.ambient)
-			->setVec3("material.diffuse", boxTex.diffuse)
-			->setVec3("material.specular", boxTex.specular)
-			->setFloat("material.shininess", boxTex.shininess);
+			->setVec3("material.ambient", boxTex->ambient)
+			->setVec3("material.diffuse", boxTex->diffuse)
+			->setVec3("material.specular", boxTex->specular)
+			->setFloat("material.shininess", boxTex->shininess);
 
 		// Updates spotlight position and direction based on camera's movement
 		spotLight.position = camera.position;
@@ -243,7 +243,7 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, boxTex.ambient, boxTex.diffuse, boxTex.specular, boxTex.shininess, skybox);
+		ImGuiDrawWindows(camera, boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess, skybox);
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
@@ -257,6 +257,14 @@ int main()
 	delete phongShader;
 	delete skyboxShader;
 	delete gridShader;
+
+	delete crate;
+	delete boxTex;
+
+	delete cubemap;
+	delete skybox;
+
+	delete model;
 
 	glfwTerminate();
 	return 0;
