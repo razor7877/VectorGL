@@ -138,7 +138,13 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
-	return new Mesh(vertices, texCoords, normals, indices, textures, shaderProgramID);
+	Mesh* newMesh = new Mesh(vertices, texCoords, normals, indices, textures, shaderProgramID);
+	newMesh->setParent(this);
+
+	this->addChild(newMesh);
+	newMesh->addChild(new Mesh());
+
+	return newMesh;
 }
 
 std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)

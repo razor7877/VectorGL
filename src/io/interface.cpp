@@ -317,10 +317,30 @@ void SkyboxSettings(Skybox* skybox)
 	ImGui::End();
 }
 
+void SceneGraphRecurse(std::vector<RenderObject*> children)
+{
+	for (RenderObject* node : children)
+	{
+		if (ImGui::CollapsingHeader(node->getLabel().c_str()))
+		{
+			ImGui::Indent();
+			for (RenderObject* child : node->getChildren())
+			{
+				if (ImGui::CollapsingHeader(child->getLabel().c_str()))
+				{
+					SceneGraphRecurse(child->getChildren());
+				}
+			}
+			ImGui::Unindent();
+		}
+	}
+}
+
 void SceneGraph()
 {
-	for (RenderObject* node : renderer->objects)
-	{
-		if (ImGui::CollapsingHeader(node->getLabel().c_str())) {}
-	}
+	ImGui::Begin("Scene graph");
+
+	SceneGraphRecurse(renderer->objects);
+
+	ImGui::End();
 }
