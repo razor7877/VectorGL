@@ -9,6 +9,7 @@ RenderObject::RenderObject()
 	this->parent = {};
 	this->shaderProgramID = {};
 	this->modelMatrix = {};
+	this->isVisible = true;
 }
 
 RenderObject::~RenderObject()
@@ -34,6 +35,16 @@ void RenderObject::setParent(RenderObject* parent)
 void RenderObject::addChild(RenderObject* child)
 {
 	this->children.push_back(child);
+}
+
+bool RenderObject::getIsVisible()
+{
+	return this->isVisible;
+}
+
+void RenderObject::setIsVisible(bool isVisible)
+{
+	this->isVisible = isVisible;
 }
 
 glm::mat4 RenderObject::getModelMatrix()

@@ -331,14 +331,18 @@ void ShowNodeDetails()
 	{
 		ImGui::Text(selectedSceneNode->getLabel().c_str());
 
-		
 		glm::vec3 position = selectedSceneNode->getPosition();
 		if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
 			selectedSceneNode->setPosition(position);
 
+		glm::vec3 rotation = selectedSceneNode->getRotation();
+		if (ImGui::DragFloat3("Position", &rotation[0])) {}
+
 		glm::vec3 scale = selectedSceneNode->getScale();
 		if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
 			selectedSceneNode->setScale(scale);
+
+		ImGui::Checkbox("Visible");
 	}
 
 	ImGui::End();

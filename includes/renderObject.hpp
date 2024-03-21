@@ -33,6 +33,9 @@ public:
 	// Adds a child to the object
 	void addChild(RenderObject* child);
 
+	bool getIsVisible();
+	void setIsVisible(bool isVisible);
+
 	glm::mat4 getModelMatrix();
 	glm::vec3 getPosition();
 	glm::vec3 getRotation();
@@ -73,6 +76,7 @@ protected:
 	std::vector<RenderObject*> children;
 
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
+	bool isVisible; // Whether the object should be drawn or not
 };
 
 #endif
