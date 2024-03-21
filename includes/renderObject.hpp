@@ -34,21 +34,39 @@ public:
 	void addChild(RenderObject* child);
 
 	glm::mat4 getModelMatrix();
+	glm::vec3 getPosition();
+	glm::vec3 getRotation();
+	glm::vec3 getScale();
 
-	// Rotates the object's model matrix using a vec3
-	RenderObject& rotateObject(float degrees, glm::vec3 rotationPoint);
-	// Rotates the object's model matrix using xyz floats
-	RenderObject& rotateObject(float degrees, float x, float y, float z);
+	// Rotates the object's model matrix using a vec3 (relative transform)
+	RenderObject* rotateObject(float degrees, glm::vec3 rotationPoint);
+	// Rotates the object's model matrix using xyz floats (relative transform)
+	RenderObject* rotateObject(float degrees, float x, float y, float z);
 
-	// Translate the object's model matrix using a vec3
-	RenderObject& translateObject(glm::vec3 translation);
-	// Translate the object's model matrix using xyz floats
-	RenderObject& translateObject(float x, float y, float z);
+	// Translate the object's model matrix using a vec3 (relative transform)
+	RenderObject* translateObject(glm::vec3 translation);
+	// Translate the object's model matrix using xyz floats (relative transform)
+	RenderObject* translateObject(float x, float y, float z);
 
-	// Scales the object's model matrix using a vec3
-	RenderObject& scaleObject(glm::vec3 scaleVec);
-	// Scales the object's model matrix using xyz floats
-	RenderObject& scaleObject(float scaleX, float scaleY, float scaleZ);
+	// Scales the object's model matrix using a vec3 (relative transform)
+	RenderObject* scaleObject(glm::vec3 scaleVec);
+	// Scales the object's model matrix using xyz floats (relative transform)
+	RenderObject* scaleObject(float scaleX, float scaleY, float scaleZ);
+
+	// Rotates the object's model matrix using a vec3 (absolute transform)
+	RenderObject* setRotation(float degrees, glm::vec3 rotationPoint);
+	// Rotates the object's model matrix using xyz floats (absolute transform)
+	RenderObject* setRotation(float degrees, float x, float y, float z);
+
+	// Translate the object's model matrix using a vec 3 (absolute transform)
+	RenderObject* setPosition(glm::vec3 translation);
+	// Translate the object's model matrix using xyz floats (absolute transform)
+	RenderObject* setPosition(float x, float y, float z);
+
+	// Scales the object's model matrix using a vec3 (absolute transform)
+	RenderObject* setScale(glm::vec3 scaleVec);
+	// Scales the object's model matrix using xyz floats (absolute transform)
+	RenderObject* setScale(float x, float y, float z);
 
 protected:
 	RenderObject* parent;
