@@ -182,7 +182,7 @@ Model* Model::rotateModel(float degrees, glm::vec3 rotationPoint)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i]->rotateMesh(degrees, rotationPoint);
+		meshes[i]->rotateObject(degrees, rotationPoint);
 	}
 	return this;
 }
@@ -191,7 +191,7 @@ Model* Model::rotateModel(float degrees, float x, float y, float z)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i]->rotateMesh(degrees, x, y, z);
+		meshes[i]->rotateObject(degrees, x, y, z);
 	}
 	return this;
 }
@@ -200,7 +200,7 @@ Model* Model::translateModel(glm::vec3 translation)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i]->translateMesh(translation);
+		meshes[i]->translateObject(translation);
 	}
 	return this;
 }
@@ -209,7 +209,7 @@ Model* Model::translateModel(float x, float y, float z)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i]->translateMesh(x, y, z);
+		meshes[i]->translateObject(x, y, z);
 	}
 	return this;
 }
@@ -218,7 +218,7 @@ Model* Model::scaleModel(glm::vec3 scaleVec)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i]->scaleMesh(scaleVec);
+		meshes[i]->scaleObject(scaleVec);
 	}
 	return this;
 }
@@ -227,7 +227,7 @@ Model* Model::scaleModel(float scaleX, float scaleY, float scaleZ)
 {
 	for (int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i]->scaleMesh(scaleX, scaleY, scaleZ);
+		meshes[i]->scaleObject(scaleX, scaleY, scaleZ);
 	}
 	return this;
 }

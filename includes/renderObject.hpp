@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <glm/glm.hpp>
 #include <glad/glad.h>
 
 // An interface to be implemented by any object that should be drawn by a renderer
@@ -32,9 +33,27 @@ public:
 	// Adds a child to the object
 	void addChild(RenderObject* child);
 
-private:
+
+	// Rotates the object's model matrix using a vec3
+	RenderObject& rotateObject(float degrees, glm::vec3 rotationPoint);
+	// Rotates the object's model matrix using xyz floats
+	RenderObject& rotateObject(float degrees, float x, float y, float z);
+
+	// Translate the object's model matrix using a vec3
+	RenderObject& translateObject(glm::vec3 translation);
+	// Translate the object's model matrix using xyz floats
+	RenderObject& translateObject(float x, float y, float z);
+
+	// Scales the object's model matrix using a vec3
+	RenderObject& scaleObject(glm::vec3 scaleVec);
+	// Scales the object's model matrix using xyz floats
+	RenderObject& scaleObject(float scaleX, float scaleY, float scaleZ);
+
+protected:
 	RenderObject* parent;
 	std::vector<RenderObject*> children;
+
+	glm::mat4 modelMatrix; // The object's model matrix (position in world)
 };
 
 #endif

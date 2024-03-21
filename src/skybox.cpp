@@ -19,7 +19,7 @@ void Skybox::drawObject()
 {
 	glDepthFunc(GL_LEQUAL);
 
-	glBindVertexArray(VAO);
+	glBindVertexArray(this->VAO);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->texID);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 

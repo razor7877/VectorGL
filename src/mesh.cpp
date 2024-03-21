@@ -196,39 +196,3 @@ Mesh& Mesh::addIndices(unsigned int indices[], unsigned int indicesSize)
 	this->indices.insert(this->indices.end(), &indices[0], &indices[indicesSize / sizeof(unsigned int)]);
     return *this;
 }
-
-Mesh& Mesh::rotateMesh(float degrees, glm::vec3 rotationPoint)
-{
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), rotationPoint);
-    return *this;
-}
-
-Mesh& Mesh::rotateMesh(float degrees, float x, float y, float z)
-{
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(degrees), glm::vec3(x, y, z));
-    return *this;
-}
-
-Mesh& Mesh::translateMesh(glm::vec3 translation)
-{
-	modelMatrix = glm::translate(modelMatrix, translation);
-    return *this;
-}
-
-Mesh& Mesh::translateMesh(float x, float y, float z)
-{
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(x, y, z));
-    return *this;
-}
-
-Mesh& Mesh::scaleMesh(glm::vec3 scaleVec)
-{
-	modelMatrix = glm::scale(modelMatrix, scaleVec);
-    return *this;
-}
-
-Mesh& Mesh::scaleMesh(float scaleX, float scaleY, float scaleZ)
-{
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(scaleX, scaleY, scaleZ));
-    return *this;
-}
