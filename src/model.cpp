@@ -29,7 +29,8 @@ void Model::drawObject()
 {
 	for (RenderObject* mesh : this->children)
 	{
-		mesh->drawObject();
+		if (mesh->getIsVisible())
+			mesh->drawObject();
 	}
 }
 

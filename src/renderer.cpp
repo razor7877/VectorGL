@@ -58,7 +58,8 @@ void Renderer::render()
 		glUseProgram(shader);
 		for (RenderObject* objectPtr : object)
 		{
-			objectPtr->drawObject();
+			if (objectPtr->getIsVisible())
+				objectPtr->drawObject();
 		}
 	}
 }
