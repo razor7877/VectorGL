@@ -45,6 +45,8 @@ void Model::setupObject()
 	}
 }
 
+std::string Model::getLabel() { return "Model"; }
+
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer import;

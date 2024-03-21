@@ -31,3 +31,5 @@ void Skybox::setupObject()
 	Mesh::setupObject();
 	cubemap->setupObject();
 }
+
+std::string Skybox::getLabel() { return "Skybox"; }

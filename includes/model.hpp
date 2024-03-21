@@ -23,6 +23,7 @@ public:
 
 	void RenderObject::drawObject() override;
 	void RenderObject::setupObject() override;
+	std::string RenderObject::getLabel() override;
 
 	// Rotates the object's model matrix using a vec3 or xyz floats
 	Model* rotateModel(float degrees, glm::vec3 rotationPoint);

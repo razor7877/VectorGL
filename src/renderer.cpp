@@ -15,6 +15,7 @@ Renderer::Renderer(GLuint lightShaderProgramID)
 
 Renderer& Renderer::addObject(RenderObject* objectPtr)
 {
+	this->objects.push_back(objectPtr);
 	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
 	// shader ID using the shaderMap table
 	shaderMap[objectPtr->shaderProgramID].push_back(objectPtr);

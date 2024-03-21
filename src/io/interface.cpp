@@ -76,6 +76,7 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings();
 	SkyboxSettings(skybox);
+	SceneGraph();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -314,4 +315,12 @@ void SkyboxSettings(Skybox* skybox)
 	}
 
 	ImGui::End();
+}
+
+void SceneGraph()
+{
+	for (RenderObject* node : renderer->objects)
+	{
+		if (ImGui::CollapsingHeader(node->getLabel().c_str())) {}
+	}
 }

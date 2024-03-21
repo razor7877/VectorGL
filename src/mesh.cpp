@@ -47,17 +47,18 @@ Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vecto
 	this->texCoordBO = {};
 	this->normalBO = {};
 }
-/*
+
 Mesh::~Mesh()
 {
 	std::cout << "Calling mesh destructor" << std::endl;
+
 	glDeleteBuffers(1, &this->VBO);
 	glDeleteBuffers(1, &this->indicesBO);
 	glDeleteBuffers(1, &this->texCoordBO);
 	glDeleteBuffers(1, &this->normalBO);
 
 	glDeleteVertexArrays(1, &this->VAO);
-}*/
+}
 
 void Mesh::drawObject()
 {
@@ -160,6 +161,8 @@ void Mesh::setupObject()
 		glEnableVertexAttribArray(2);
 	}
 }
+
+std::string Mesh::getLabel() { return "Mesh"; }
 
 // Add texture coordinates data to the mesh
 Mesh& Mesh::addTexCoords(std::vector<float> texCoords)

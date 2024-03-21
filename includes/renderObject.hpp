@@ -14,6 +14,7 @@ public:
 
 	virtual void drawObject() = 0;
 	virtual void setupObject() = 0;
+	virtual std::string getLabel() = 0;
 };
 
 #endif
