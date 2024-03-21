@@ -20,6 +20,9 @@ Model::~Model()
 {
 	for (Mesh* mesh : meshes)
 		delete mesh;
+
+	for (auto [path, texture] : this->loadedTextures)
+		delete texture;
 }
 
 void Model::drawObject()
@@ -139,14 +142,29 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture*> textures;
+	std::cout << "loadMaterialTexture()\n";
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		std::string path = directory + '/' + std::string(str.C_Str());
 
-		Texture* texture = new Texture(path, typeName, false);
-		texture->path = str.C_Str();
+		Texture* texture;
+
+		// Texture has not been loaded yet
+		if (this->loadedTextures.count(path) == 0)
+		{
+			std::cout << "Loading texture path: " << path << "\n";
+			texture = new Texture(path, typeName, false);
+			texture->path = str.C_Str();
+			this->loadedTextures[path] = texture;
+		}
+		else
+		{
+			std::cout << "Reusing texture\n";
+			texture = this->loadedTextures[path];
+		}
+		
 		textures.push_back(texture);
 	}
 
