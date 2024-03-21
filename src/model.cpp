@@ -18,30 +18,26 @@ Model::Model(std::string path, GLuint shaderProgramID)
 
 Model::~Model()
 {
-	for (Mesh* mesh : meshes)
+	for (RenderObject* mesh : this->children)
 		delete mesh;
 
-	for (auto [path, texture] : this->loadedTextures)
+	for (auto& [path, texture] : this->loadedTextures)
 		delete texture;
 }
 
 void Model::drawObject()
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->drawObject();
+		mesh->drawObject();
 	}
 }
 
 void Model::setupObject()
 {
-	// Do NOT iterate over the meshes using a foreach loop such as:
-	// for (Mesh mesh : meshes)
-	// Doing so causes the generated data (VAOs, VBOs etc.) to be lost when going out of scope
-	// Which results in memory access violations
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->setupObject();
+		mesh->setupObject();
 	}
 }
 
@@ -69,7 +65,9 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		Mesh* newMesh = processMesh(mesh, scene);
+		newMesh->setParent(this);
+		this->children.push_back(newMesh);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -139,9 +137,6 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	}
 
 	Mesh* newMesh = new Mesh(vertices, texCoords, normals, indices, textures, shaderProgramID);
-	newMesh->setParent(this);
-
-	this->addChild(newMesh);
 
 	return newMesh;
 }
@@ -180,54 +175,54 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 
 Model* Model::rotateModel(float degrees, glm::vec3 rotationPoint)
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->rotateObject(degrees, rotationPoint);
+		mesh->rotateObject(degrees, rotationPoint);
 	}
 	return this;
 }
 
 Model* Model::rotateModel(float degrees, float x, float y, float z)
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->rotateObject(degrees, x, y, z);
+		mesh->rotateObject(degrees, x, y, z);
 	}
 	return this;
 }
 
 Model* Model::translateModel(glm::vec3 translation)
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->translateObject(translation);
+		mesh->translateObject(translation);
 	}
 	return this;
 }
 
 Model* Model::translateModel(float x, float y, float z)
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->translateObject(x, y, z);
+		mesh->translateObject(x, y, z);
 	}
 	return this;
 }
 
 Model* Model::scaleModel(glm::vec3 scaleVec)
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->scaleObject(scaleVec);
+		mesh->scaleObject(scaleVec);
 	}
 	return this;
 }
 
 Model* Model::scaleModel(float scaleX, float scaleY, float scaleZ)
 {
-	for (int i = 0; i < meshes.size(); i++)
+	for (RenderObject* mesh : this->children)
 	{
-		meshes[i]->scaleObject(scaleX, scaleY, scaleZ);
+		mesh->scaleObject(scaleX, scaleY, scaleZ);
 	}
 	return this;
 }

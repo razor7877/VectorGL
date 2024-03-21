@@ -138,7 +138,7 @@ int main()
 	Skybox* skybox = new Skybox(skyboxShader->ID , cubemap);
 	
 	Model* model = (new Model("models/sea_keep/scene.gltf", phongShader->ID))
-		->scaleModel(0.05f, 0.05f, 0.05f)
+		->scaleModel(0.075f, 0.075f, 0.075f)
 		->rotateModel(-90.0f, 1.0f, 0.0f, 0.0f);
 
 	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};

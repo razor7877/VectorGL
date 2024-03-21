@@ -14,7 +14,6 @@
 class Model : public virtual RenderObject
 {
 public:
-	std::vector<Mesh*> meshes;
 	// We use a map to keep track of any textures that are already loaded and might be reused
 	std::map<std::string, Texture*> loadedTextures;
 	Model();

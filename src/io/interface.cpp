@@ -342,7 +342,9 @@ void ShowNodeDetails()
 		if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
 			selectedSceneNode->setScale(scale);
 
-		ImGui::Checkbox("Visible");
+		bool isVisible = selectedSceneNode->getIsVisible();
+		if (ImGui::Checkbox("Visible", &isVisible))
+			selectedSceneNode->setIsVisible(isVisible);
 	}
 
 	ImGui::End();
