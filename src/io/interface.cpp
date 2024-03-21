@@ -36,6 +36,9 @@ std::vector<DirectionalLight*> dirLights;
 std::vector<PointLight*> pointLights;
 std::vector<SpotLight*> spotLights;
 
+// The currently selected node in the scene graph
+RenderObject* selectedSceneNode{};
+
 // An array containing the choice names for the different skyboxes
 const char* items[] = { "Grass", "Night", "Sky" };
 static int item_current_idx = 1; // Selection data index
@@ -319,16 +322,25 @@ void SkyboxSettings(Skybox* skybox)
 
 void SceneGraphRecurse(std::vector<RenderObject*> children, int& labelIndex)
 {
-	ImGui::Indent();
 	for (RenderObject* child : children)
 	{
+		ImGuiTreeNodeFlags flags = 0;
+		if (child->getChildren().size() == 0)
+			flags |= ImGuiTreeNodeFlags_Leaf;
+
+		if (selectedSceneNode == child)
+			flags |= ImGuiTreeNodeFlags_Selected;
+
 		std::string label = child->getLabel() + std::to_string(labelIndex++);
-		if (ImGui::CollapsingHeader(label.c_str()))
+		if (ImGui::TreeNodeEx(label.c_str(), flags))
 		{
+			if (ImGui::IsItemClicked())
+				selectedSceneNode = child;
+
 			SceneGraphRecurse(child->getChildren(), labelIndex);
+			ImGui::TreePop();
 		}
 	}
-	ImGui::Unindent();
 }
 
 void SceneGraph()
@@ -337,13 +349,10 @@ void SceneGraph()
 
 	ImGui::Begin("Scene graph");
 
-	for (RenderObject* node : renderer->objects)
+	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		std::string label = node->getLabel() + std::to_string(labelIndex++);
-		if (ImGui::CollapsingHeader(label.c_str()))
-		{
-			SceneGraphRecurse(node->getChildren(), labelIndex);
-		}
+		SceneGraphRecurse(renderer->objects, labelIndex);
+		ImGui::TreePop();
 	}
 
 	ImGui::End();

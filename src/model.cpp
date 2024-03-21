@@ -142,7 +142,6 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	newMesh->setParent(this);
 
 	this->addChild(newMesh);
-	newMesh->addChild(new Mesh());
 
 	return newMesh;
 }
