@@ -320,7 +320,20 @@ void SkyboxSettings(Skybox* skybox)
 	ImGui::End();
 }
 
-void SceneGraphRecurse(std::vector<RenderObject*> children, int& labelIndex)
+void SceneGraph()
+{
+	ImGui::Begin("Scene graph");
+
+	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		SceneGraphRecurse(renderer->objects);
+		ImGui::TreePop();
+	}
+
+	ImGui::End();
+}
+
+void SceneGraphRecurse(std::vector<RenderObject*> children)
 {
 	for (RenderObject* child : children)
 	{
@@ -331,29 +344,13 @@ void SceneGraphRecurse(std::vector<RenderObject*> children, int& labelIndex)
 		if (selectedSceneNode == child)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		std::string label = child->getLabel() + std::to_string(labelIndex++);
-		if (ImGui::TreeNodeEx(label.c_str(), flags))
+		if (ImGui::TreeNodeEx(child->getLabel().c_str(), flags))
 		{
 			if (ImGui::IsItemClicked())
 				selectedSceneNode = child;
 
-			SceneGraphRecurse(child->getChildren(), labelIndex);
+			SceneGraphRecurse(child->getChildren());
 			ImGui::TreePop();
 		}
 	}
-}
-
-void SceneGraph()
-{
-	int labelIndex = 0; // This is used to create unique identifiers for each collapsing header
-
-	ImGui::Begin("Scene graph");
-
-	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		SceneGraphRecurse(renderer->objects, labelIndex);
-		ImGui::TreePop();
-	}
-
-	ImGui::End();
 }

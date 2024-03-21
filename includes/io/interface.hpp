@@ -22,8 +22,10 @@ void KeysMenu();
 void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
 // Displays the scene's lights and allows real-time modification of their attributes
 void LightSettings();
+// Allows changing the skybox at runtime
 void SkyboxSettings(Skybox* skybox);
-void SceneGraphRecurse(std::vector<RenderObject*> children, int& labelIndex);
+// Displays the scene graph
 void SceneGraph();
+void SceneGraphRecurse(std::vector<RenderObject*> children);
 
 #endif

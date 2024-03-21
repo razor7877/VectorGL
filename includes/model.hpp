@@ -25,20 +25,22 @@ public:
 	void RenderObject::setupObject() override;
 	std::string RenderObject::getLabel() override;
 
-	// Rotates the object's model matrix using a vec3 or xyz floats
+	// Rotates the object's model matrix using a vec3
 	Model* rotateModel(float degrees, glm::vec3 rotationPoint);
+	// Rotates the object's model matrix using xyz floats
 	Model* rotateModel(float degrees, float x, float y, float z);
 
-	// Translate the object's model matrix using a vec3 or xyz floats
+	// Translate the object's model matrix using a vec3
 	Model* translateModel(glm::vec3 translation);
+	// Translate the object's model matrix using xyz floats
 	Model* translateModel(float x, float y, float z);
 
-	// Scales the object's model matrix using a vec3 or xyz floats
+	// Scales the object's model matrix using a vec3
 	Model* scaleModel(glm::vec3 scaleVec);
+	// Scales the object's model matrix using xyz floats
 	Model* scaleModel(float scaleX, float scaleY, float scaleZ);
 
 private:
-	
 	std::string directory;
 
 	void loadModel(std::string path);
