@@ -218,7 +218,7 @@ int main()
 	delete crate;
 	delete boxTex;
 
-	delete cubemap;
+	delete skybox->cubemap;
 	delete skybox;
 
 	//delete model;

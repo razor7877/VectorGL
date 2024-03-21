@@ -24,6 +24,8 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 void LightSettings();
 // Allows changing the skybox at runtime
 void SkyboxSettings(Skybox* skybox);
+// Shows the details of the currently selected node in the scene graph
+void ShowNodeDetails();
 // Displays the scene graph
 void SceneGraph();
 void SceneGraphRecurse(std::vector<RenderObject*> children);

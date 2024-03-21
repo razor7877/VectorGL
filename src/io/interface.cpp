@@ -79,6 +79,7 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	LightSettings();
 	SkyboxSettings(skybox);
+	ShowNodeDetails();
 	SceneGraph();
 
 	ImGui::Render();
@@ -291,23 +292,24 @@ void SkyboxSettings(Skybox* skybox)
 
 				std::cout << skybox->cubemap->texID << std::endl;
 
+				delete skybox->cubemap;
+
 				switch (item_current_idx)
 				{
 					case 0:
-						//skybox->cubemap = Cubemap("img/skybox/grass/");
+						skybox->cubemap = new Cubemap("img/skybox/grass/");
 						break;
 
 					case 1:
-						//skybox->cubemap = Cubemap("img/skybox/night/");
+						skybox->cubemap = new Cubemap("img/skybox/night/");
 						break;
 
 					case 2:
-						//skybox->cubemap = Cubemap("img/skybox/sky/");
+						skybox->cubemap = new Cubemap("img/skybox/sky/");
 						break;
 				}
 
-				skybox->setupObject();
-
+				skybox->cubemap->setupObject();
 			}
 
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -315,6 +317,19 @@ void SkyboxSettings(Skybox* skybox)
 				ImGui::SetItemDefaultFocus();
 		}
 		ImGui::EndCombo();
+	}
+
+	ImGui::End();
+}
+
+void ShowNodeDetails()
+{
+	ImGui::Begin("Node details");
+
+	if (selectedSceneNode != nullptr)
+	{
+		ImGui::Text(selectedSceneNode->getLabel().c_str());
+
 	}
 
 	ImGui::End();

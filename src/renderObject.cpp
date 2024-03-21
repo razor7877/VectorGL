@@ -8,6 +8,7 @@ RenderObject::RenderObject()
 {
 	this->parent = {};
 	this->shaderProgramID = {};
+	this->modelMatrix = {};
 }
 
 RenderObject::~RenderObject()
@@ -33,6 +34,11 @@ void RenderObject::setParent(RenderObject* parent)
 void RenderObject::addChild(RenderObject* child)
 {
 	this->children.push_back(child);
+}
+
+glm::mat4 RenderObject::getModelMatrix()
+{
+	return this->modelMatrix;
 }
 
 RenderObject& RenderObject::rotateObject(float degrees, glm::vec3 rotationPoint)

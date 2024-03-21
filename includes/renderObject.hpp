@@ -33,6 +33,7 @@ public:
 	// Adds a child to the object
 	void addChild(RenderObject* child);
 
+	glm::mat4 getModelMatrix();
 
 	// Rotates the object's model matrix using a vec3
 	RenderObject& rotateObject(float degrees, glm::vec3 rotationPoint);
