@@ -317,30 +317,34 @@ void SkyboxSettings(Skybox* skybox)
 	ImGui::End();
 }
 
-void SceneGraphRecurse(std::vector<RenderObject*> children)
+void SceneGraphRecurse(std::vector<RenderObject*> children, int& labelIndex)
 {
-	for (RenderObject* node : children)
+	ImGui::Indent();
+	for (RenderObject* child : children)
 	{
-		if (ImGui::CollapsingHeader(node->getLabel().c_str()))
+		std::string label = child->getLabel() + std::to_string(labelIndex++);
+		if (ImGui::CollapsingHeader(label.c_str()))
 		{
-			ImGui::Indent();
-			for (RenderObject* child : node->getChildren())
-			{
-				if (ImGui::CollapsingHeader(child->getLabel().c_str()))
-				{
-					SceneGraphRecurse(child->getChildren());
-				}
-			}
-			ImGui::Unindent();
+			SceneGraphRecurse(child->getChildren(), labelIndex);
 		}
 	}
+	ImGui::Unindent();
 }
 
 void SceneGraph()
 {
+	int labelIndex = 0; // This is used to create unique identifiers for each collapsing header
+
 	ImGui::Begin("Scene graph");
 
-	SceneGraphRecurse(renderer->objects);
+	for (RenderObject* node : renderer->objects)
+	{
+		std::string label = node->getLabel() + std::to_string(labelIndex++);
+		if (ImGui::CollapsingHeader(label.c_str()))
+		{
+			SceneGraphRecurse(node->getChildren(), labelIndex);
+		}
+	}
 
 	ImGui::End();
 }
