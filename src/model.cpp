@@ -20,6 +20,8 @@ Model::Model(std::string path, GLuint shaderProgramID)
 
 Model::~Model()
 {
+	std::cout << "Calling model destructor" << std::endl;
+
 	for (auto& [path, texture] : this->loadedTextures)
 		delete texture;
 }
@@ -68,11 +70,11 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		Mesh* newMesh = processMesh(mesh, scene);
 
-		newMesh->setParent(this);
-		this->children.push_back(newMesh);
-
 		std::string nodeName = std::string(node->mName.C_Str());
 		newMesh->setLabel(nodeName);
+
+		newMesh->setParent(this);
+		this->addChild(newMesh);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)

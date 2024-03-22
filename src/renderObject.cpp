@@ -14,13 +14,14 @@ RenderObject::RenderObject()
 
 RenderObject::~RenderObject()
 {
-	std::cout << "RenderObject dtor called\n";
 	if (this->parent != nullptr)
 	{
 		this->parent->removeChild(this);
 	}
-
-	for (RenderObject* child : this->children)
+	
+	// We need to copy the list of children, since deleting the children will modify the original vector
+	std::vector<RenderObject*> children = this->children;
+	for (RenderObject* child : children)
 	{
 		delete child;
 	}
@@ -54,6 +55,7 @@ void RenderObject::setParent(RenderObject* parent)
 void RenderObject::addChild(RenderObject* child)
 {
 	this->children.push_back(child);
+	std::cout << "Parent " << this->label << " now has child " << child->getLabel() << std::endl;
 }
 
 void RenderObject::removeChild(RenderObject* child)
