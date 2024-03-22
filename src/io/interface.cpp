@@ -336,7 +336,8 @@ void ShowNodeDetails()
 			selectedSceneNode->setPosition(position);
 
 		glm::vec3 rotation = selectedSceneNode->getRotation();
-		if (ImGui::DragFloat3("Rotation", &rotation[0])) {}
+		if (ImGui::DragFloat3("Rotation", &rotation[0]))
+			selectedSceneNode->setRotation(rotation);
 
 		glm::vec3 scale = selectedSceneNode->getScale();
 		if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))

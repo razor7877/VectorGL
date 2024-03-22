@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 
 // An interface to be implemented by any object that should be drawn by a renderer
-// TODO : A render object should keep transform matrices and have methods to apply transforms (move/scale/rotate)
+// TODO : Use unique_ptr
 class RenderObject
 {
 public:
@@ -45,10 +45,12 @@ public:
 	glm::vec3 getRotation();
 	glm::vec3 getScale();
 
+	void updateModelMatrix();
+
 	// Rotates the object's model matrix using a vec3 (relative transform)
-	RenderObject* rotateObject(float degrees, glm::vec3 rotationPoint);
+	RenderObject* rotateObject(glm::vec3 rotation);
 	// Rotates the object's model matrix using xyz floats (relative transform)
-	RenderObject* rotateObject(float degrees, float x, float y, float z);
+	RenderObject* rotateObject(float x, float y, float z);
 
 	// Translate the object's model matrix using a vec3 (relative transform)
 	RenderObject* translateObject(glm::vec3 translation);
@@ -61,9 +63,9 @@ public:
 	RenderObject* scaleObject(float scaleX, float scaleY, float scaleZ);
 
 	// Rotates the object's model matrix using a vec3 (absolute transform)
-	RenderObject* setRotation(float degrees, glm::vec3 rotationPoint);
+	RenderObject* setRotation(glm::vec3 rotation);
 	// Rotates the object's model matrix using xyz floats (absolute transform)
-	RenderObject* setRotation(float degrees, float x, float y, float z);
+	RenderObject* setRotation(float x, float y, float z);
 
 	// Translate the object's model matrix using a vec 3 (absolute transform)
 	RenderObject* setPosition(glm::vec3 translation);
@@ -81,7 +83,11 @@ protected:
 	RenderObject* parent;
 	std::vector<RenderObject*> children;
 
+	glm::vec3 position;
+	glm::vec3 rotation;
+	glm::vec3 scale;
 	glm::mat4 modelMatrix; // The object's model matrix (position in world)
+
 	bool isVisible; // Whether the object should be drawn or not
 };
 

@@ -6,9 +6,15 @@
 
 RenderObject::RenderObject()
 {
-	this->parent = {};
 	this->shaderProgramID = {};
-	this->modelMatrix = {};
+
+	this->parent = {};
+
+	this->position = {};
+	this->rotation = {};
+	this->scale = glm::vec3(1.0f);
+	this->modelMatrix = glm::mat4(1.0f);
+
 	this->isVisible = true;
 }
 
@@ -80,105 +86,129 @@ glm::mat4 RenderObject::getModelMatrix()
 
 glm::vec3 RenderObject::getPosition()
 {
-	return glm::vec3(
-		this->modelMatrix[3][0],
-		this->modelMatrix[3][1],
-		this->modelMatrix[3][2]
-	);
+	return this->position;
 }
 
-// TODO : Implement
 glm::vec3 RenderObject::getRotation()
 {
-	return glm::vec3(1.0f);
+	return this->rotation;
 }
 
-// TODO : Implement
 glm::vec3 RenderObject::getScale()
 {
-	return glm::vec3(
-		this->modelMatrix[0][0],
-		this->modelMatrix[1][0],
-		this->modelMatrix[2][0]
-	);
+	return this->scale;
 }
 
-RenderObject* RenderObject::rotateObject(float degrees, glm::vec3 rotationPoint)
+void RenderObject::updateModelMatrix()
 {
-	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(degrees), rotationPoint);
+	this->modelMatrix = glm::mat4(1.0f);
+	this->modelMatrix = glm::translate(this->modelMatrix, this->position); // Apply position
+
+	const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
+		glm::radians(this->rotation.x),
+		glm::vec3(1.0f, 0.0f, 0.0f));
+	const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f),
+		glm::radians(this->rotation.y),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f),
+		glm::radians(this->rotation.z),
+		glm::vec3(0.0f, 0.0f, 1.0f));
+
+	// Y * X * Z
+	const glm::mat4 rotationMatrix = transformY * transformX * transformZ;
+	this->modelMatrix *= rotationMatrix; // Apply rotation
+
+	this->modelMatrix = glm::scale(this->modelMatrix, this->scale); // Apply scaling
+
+	// A node should inherit the transform of the parent
+	if (this->parent != nullptr)
+		this->modelMatrix = this->parent->getModelMatrix() * this->modelMatrix;
+
+	// Since children inherit of the parent transform, they need to be updated too
+	for (RenderObject* child : this->children)
+		child->updateModelMatrix();
+}
+
+RenderObject* RenderObject::rotateObject(glm::vec3 rotation)
+{
+	this->rotation = rotation;
+	this->updateModelMatrix();
 	return this;
 }
 
-RenderObject* RenderObject::rotateObject(float degrees, float x, float y, float z)
+RenderObject* RenderObject::rotateObject(float x, float y, float z)
 {
-	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(degrees), glm::vec3(x, y, z));
+	this->rotation = glm::vec3(x, y, z);
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::translateObject(glm::vec3 translation)
 {
-	this->modelMatrix = glm::translate(this->modelMatrix, translation);
+	this->position += translation;
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::translateObject(float x, float y, float z)
 {
-	this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(x, y, z));
+	this->position += glm::vec3(x, y, z);
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::scaleObject(glm::vec3 scaleVec)
 {
-	this->modelMatrix = glm::scale(this->modelMatrix, scaleVec);
+	this->scale += scaleVec;
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::scaleObject(float scaleX, float scaleY, float scaleZ)
 {
-	this->modelMatrix = glm::scale(this->modelMatrix, glm::vec3(scaleX, scaleY, scaleZ));
+	this->scale += glm::vec3(scaleX, scaleY, scaleZ);
+	this->updateModelMatrix();
 	return this;
 }
 
-RenderObject* RenderObject::setRotation(float degrees, glm::vec3 rotationPoint)
+RenderObject* RenderObject::setRotation(glm::vec3 rotation)
 {
-	this->modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(degrees), rotationPoint);
+	this->rotation = rotation;
+	this->updateModelMatrix();
 	return this;
 }
 
-RenderObject* RenderObject::setRotation(float degrees, float x, float y, float z)
+RenderObject* RenderObject::setRotation(float x, float y, float z)
 {
-	this->modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(degrees), glm::vec3(x, y, z));
+	this->rotation = glm::vec3(x, y, z);
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::setPosition(glm::vec3 translation)
 {
-	this->modelMatrix[3][0] = translation.x;
-	this->modelMatrix[3][1] = translation.y;
-	this->modelMatrix[3][2] = translation.z;
+	this->position = translation;
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::setPosition(float x, float y, float z)
 {
-	this->modelMatrix[3][0] = x;
-	this->modelMatrix[3][1] = y;
-	this->modelMatrix[3][2] = z;
+	this->position = glm::vec3(x, y, z);
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::setScale(glm::vec3 scaleVec)
 {
-	this->modelMatrix[0][0] = scaleVec.x;
-	this->modelMatrix[1][0] = scaleVec.y;
-	this->modelMatrix[2][0] = scaleVec.z;
+	this->scale = scaleVec;
+	this->updateModelMatrix();
 	return this;
 }
 
 RenderObject* RenderObject::setScale(float x, float y, float z)
 {
-	this->modelMatrix[0][0] = x;
-	this->modelMatrix[1][0] = y;
-	this->modelMatrix[2][0] = z;
+	this->scale = glm::vec3(x, y, z);
+	this->updateModelMatrix();
 	return this;
 }
