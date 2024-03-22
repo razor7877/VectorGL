@@ -352,6 +352,7 @@ void ShowNodeDetails()
 		if (ImGui::Button("Delete object"))
 		{
 			renderer->removeObject(selectedSceneNode);
+
 			delete selectedSceneNode;
 			selectedSceneNode = nullptr;
 		}
@@ -386,8 +387,12 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 
 		if (selectedSceneNode == child)
 			flags |= ImGuiTreeNodeFlags_Selected;
+		
+		if (!child->getIsVisible())
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.4f));
 
 		ImGui::PushID(child); // Pushing ID to avoid conflict of nodes with same name
+
 		if (ImGui::TreeNodeEx(child->getLabel().c_str(), flags))
 		{
 			if (ImGui::IsItemClicked())
@@ -397,5 +402,8 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
+		
+		if (!child->getIsVisible())
+			ImGui::PopStyleColor();
 	}
 }

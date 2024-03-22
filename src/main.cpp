@@ -148,7 +148,7 @@ int main()
 	defaultRenderer.addObject(skybox)
 		.addObject(model);
 		//.addObject(&grid);
-	
+
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init();
 
