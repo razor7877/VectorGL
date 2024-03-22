@@ -30,6 +30,8 @@ Renderer& Renderer::removeObject(RenderObject* objectPtr)
 	std::vector<RenderObject*>* vector = &this->shaderMap[objectPtr->shaderProgramID];
 	vector->erase(std::remove(vector->begin(), vector->end(), objectPtr), vector->end());
 
+	this->objects.erase(std::remove(this->objects.begin(), this->objects.end(), objectPtr), this->objects.end());
+
 	return *this;
 }
 

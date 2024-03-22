@@ -345,6 +345,19 @@ void ShowNodeDetails()
 		bool isVisible = selectedSceneNode->getIsVisible();
 		if (ImGui::Checkbox("Visible", &isVisible))
 			selectedSceneNode->setIsVisible(isVisible);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+		if (ImGui::Button("Delete object"))
+		{
+			renderer->removeObject(selectedSceneNode);
+			delete selectedSceneNode;
+			selectedSceneNode = nullptr;
+		}
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
 	}
 
 	ImGui::End();

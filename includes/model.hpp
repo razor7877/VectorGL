@@ -18,7 +18,7 @@ public:
 	std::map<std::string, Texture*> loadedTextures;
 	Model();
 	Model(std::string path, GLuint shaderProgramID);
-	~Model() override;
+	~Model();
 
 	void RenderObject::drawObject() override;
 	void RenderObject::setupObject() override;

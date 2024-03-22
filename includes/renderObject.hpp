@@ -32,6 +32,8 @@ public:
 	void setParent(RenderObject* parent);
 	// Adds a child to the object
 	void addChild(RenderObject* child);
+	// Removes a child from the object
+	void removeChild(RenderObject* child);
 
 	bool getIsVisible();
 	void setIsVisible(bool isVisible);

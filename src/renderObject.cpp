@@ -14,7 +14,16 @@ RenderObject::RenderObject()
 
 RenderObject::~RenderObject()
 {
-	std::cout << "RenderObject derived class did not override destructor" << std::endl;
+	std::cout << "RenderObject dtor called\n";
+	if (this->parent != nullptr)
+	{
+		this->parent->removeChild(this);
+	}
+
+	for (RenderObject* child : this->children)
+	{
+		delete child;
+	}
 }
 
 RenderObject* RenderObject::getParent()
@@ -35,6 +44,11 @@ void RenderObject::setParent(RenderObject* parent)
 void RenderObject::addChild(RenderObject* child)
 {
 	this->children.push_back(child);
+}
+
+void RenderObject::removeChild(RenderObject* child)
+{
+	this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
 }
 
 bool RenderObject::getIsVisible()

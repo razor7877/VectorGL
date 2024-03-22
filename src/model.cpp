@@ -18,9 +18,6 @@ Model::Model(std::string path, GLuint shaderProgramID)
 
 Model::~Model()
 {
-	for (RenderObject* mesh : this->children)
-		delete mesh;
-
 	for (auto& [path, texture] : this->loadedTextures)
 		delete texture;
 }
