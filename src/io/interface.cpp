@@ -185,18 +185,20 @@ void LightSettings()
 
 	for (int i = 0; i < dirLights.size(); i++)
 	{
-		if (ImGui::CollapsingHeader(("DirectionalLight " + std::to_string(i)).c_str()))
+		ImGui::PushID(dirLights[i]);
+
+		if (ImGui::CollapsingHeader("DirectionalLight"))
 		{
 			bool modified = false;
 
-			if (ImGui::ColorEdit3(("DL_Amb " + std::to_string(i)).c_str(), &(dirLights[i]->ambientColor[0])))
+			if (ImGui::ColorEdit3("DL_Amb", &(dirLights[i]->ambientColor[0])))
 				modified = true;
-			if (ImGui::ColorEdit3(("DL_Diff " + std::to_string(i)).c_str(), &(dirLights[i]->diffuseColor[0])))
+			if (ImGui::ColorEdit3("DL_Diff", &(dirLights[i]->diffuseColor[0])))
 				modified = true;
-			if (ImGui::ColorEdit3(("DL_Spec " + std::to_string(i)).c_str(), &(dirLights[i]->specularColor[0])))
+			if (ImGui::ColorEdit3("DL_Spec", &(dirLights[i]->specularColor[0])))
 				modified = true;
 
-			if (ImGui::DragFloat3(("DL_Dir " + std::to_string(i)).c_str(), &(dirLights[i]->direction[0]), 0.002f))
+			if (ImGui::DragFloat3("DL_Dir", &(dirLights[i]->direction[0]), 0.002f))
 				modified = true;
 
 			if (modified)
@@ -205,29 +207,33 @@ void LightSettings()
 				dirLights[i]->sendToShader(lightManager.shaderProgramID, i);
 			}
 		}
+
+		ImGui::PopID();
 	}
 
 	for (int i = 0; i < pointLights.size(); i++)
 	{
-		if (ImGui::CollapsingHeader(("PointLight " + std::to_string(i)).c_str()))
+		ImGui::PushID(pointLights[i]);
+
+		if (ImGui::CollapsingHeader("PointLight"))
 		{
 			bool modified = false;
 
-			if (ImGui::ColorEdit3(("PL_Amb " + std::to_string(i)).c_str(), &(pointLights[i]->ambientColor[0])))
+			if (ImGui::ColorEdit3("PL_Amb", &(pointLights[i]->ambientColor[0])))
 				modified = true;
-			if (ImGui::ColorEdit3(("PL_Diff " + std::to_string(i)).c_str(), &(pointLights[i]->diffuseColor[0])))
+			if (ImGui::ColorEdit3("PL_Diff", &(pointLights[i]->diffuseColor[0])))
 				modified = true;
-			if (ImGui::ColorEdit3(("PL_Spec " + std::to_string(i)).c_str(), &(pointLights[i]->specularColor[0])))
-				modified = true;
-
-			if (ImGui::DragFloat3(("PL_Pos " + std::to_string(i)).c_str(), &(pointLights[i]->position[0])))
+			if (ImGui::ColorEdit3("PL_Spec", &(pointLights[i]->specularColor[0])))
 				modified = true;
 
-			if (ImGui::DragFloat(("PL_Const " + std::to_string(i)).c_str(), &(pointLights[i]->constant), 0.002f, 0.0f, 1.0f))
+			if (ImGui::DragFloat3("PL_Pos", &(pointLights[i]->position[0])))
 				modified = true;
-			if (ImGui::DragFloat(("PL_Lin " + std::to_string(i)).c_str(), &(pointLights[i]->linear), 0.002f, 0.0f, 1.0f))
+
+			if (ImGui::DragFloat("PL_Const", &(pointLights[i]->constant), 0.002f, 0.0f, 1.0f))
 				modified = true;
-			if (ImGui::DragFloat(("PL_Quad " + std::to_string(i)).c_str(), &(pointLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
+			if (ImGui::DragFloat("PL_Lin", &(pointLights[i]->linear), 0.002f, 0.0f, 1.0f))
+				modified = true;
+			if (ImGui::DragFloat("PL_Quad", &(pointLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
 				modified = true;
 
 			if (modified)
@@ -236,36 +242,40 @@ void LightSettings()
 				pointLights[i]->sendToShader(lightManager.shaderProgramID, i);
 			}
 		}
+
+		ImGui::PopID();
 	}
 
 	for (int i = 0; i < spotLights.size(); i++)
 	{
-		if (ImGui::CollapsingHeader(("SpotLight " + std::to_string(i)).c_str()))
+		ImGui::PushID(spotLights[i]);
+
+		if (ImGui::CollapsingHeader("SpotLight"))
 		{
 			bool modified = false;
 
-			if (ImGui::ColorEdit3(("SL_Amb " + std::to_string(i)).c_str(), &(spotLights[i]->ambientColor[0])))
+			if (ImGui::ColorEdit3("SL_Amb", &(spotLights[i]->ambientColor[0])))
 				modified = true;
-			if (ImGui::ColorEdit3(("SL_Diff " + std::to_string(i)).c_str(), &(spotLights[i]->diffuseColor[0])))
+			if (ImGui::ColorEdit3("SL_Diff", &(spotLights[i]->diffuseColor[0])))
 				modified = true;
-			if (ImGui::ColorEdit3(("SL_Spec " + std::to_string(i)).c_str(), &(spotLights[i]->specularColor[0])))
-				modified = true;
-
-			if (ImGui::DragFloat3(("SL_Pos " + std::to_string(i)).c_str(), &(spotLights[i]->position[0])))
-				modified = true;
-			if (ImGui::DragFloat3(("SL_Dir " + std::to_string(i)).c_str(), &(spotLights[i]->direction[0]), 0.002f))
+			if (ImGui::ColorEdit3("SL_Spec", &(spotLights[i]->specularColor[0])))
 				modified = true;
 
-			if (ImGui::DragFloat(("SL_Const " + std::to_string(i)).c_str(), &(spotLights[i]->constant), 0.002f, 0.0f, 1.0f))
+			if (ImGui::DragFloat3("SL_Pos", &(spotLights[i]->position[0])))
 				modified = true;
-			if (ImGui::DragFloat(("SL_Lin " + std::to_string(i)).c_str(), &(spotLights[i]->linear), 0.002f, 0.0f, 1.0f))
-				modified = true;
-			if (ImGui::DragFloat(("SL_Quad " + std::to_string(i)).c_str(), &(spotLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
+			if (ImGui::DragFloat3("SL_Dir", &(spotLights[i]->direction[0]), 0.002f))
 				modified = true;
 
-			if (ImGui::DragFloat(("SL_cutOff " + std::to_string(i)).c_str(), &(spotLights[i]->cutOff), 0.002f, 0.001f, 1.0f))
+			if (ImGui::DragFloat("SL_Const", &(spotLights[i]->constant), 0.002f, 0.0f, 1.0f))
 				modified = true;
-			if (ImGui::DragFloat(("SL_outerCutOff " + std::to_string(i)).c_str(), &(spotLights[i]->outerCutOff), 0.002f, 0.001f, 1.0f))
+			if (ImGui::DragFloat("SL_Lin", &(spotLights[i]->linear), 0.002f, 0.0f, 1.0f))
+				modified = true;
+			if (ImGui::DragFloat("SL_Quad", &(spotLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
+				modified = true;
+
+			if (ImGui::DragFloat("SL_cutOff", &(spotLights[i]->cutOff), 0.002f, 0.001f, 1.0f))
+				modified = true;
+			if (ImGui::DragFloat("SL_outerCutOff", &(spotLights[i]->outerCutOff), 0.002f, 0.001f, 1.0f))
 				modified = true;
 
 			if (modified)
@@ -274,6 +284,8 @@ void LightSettings()
 				spotLights[i]->sendToShader(lightManager.shaderProgramID, i);
 			}
 		}
+
+		ImGui::PopID();
 	}
 
 	ImGui::End();
