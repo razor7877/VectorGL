@@ -7,11 +7,13 @@
 
 Model::Model()
 {
-
+	this->label = "Model";
 }
 
 Model::Model(std::string path, GLuint shaderProgramID)
 {
+	this->label = "Model";
+
 	this->shaderProgramID = shaderProgramID;
 	loadModel(path);
 }
@@ -39,12 +41,13 @@ void Model::setupObject()
 	}
 }
 
-std::string Model::getLabel() { return "Model"; }
-
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+
+	std::string sceneName = std::string(scene->mName.C_Str());
+	this->setLabel(sceneName);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -64,8 +67,12 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		Mesh* newMesh = processMesh(mesh, scene);
+
 		newMesh->setParent(this);
 		this->children.push_back(newMesh);
+
+		std::string nodeName = std::string(node->mName.C_Str());
+		newMesh->setLabel(nodeName);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)

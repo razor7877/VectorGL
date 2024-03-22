@@ -336,7 +336,7 @@ void ShowNodeDetails()
 			selectedSceneNode->setPosition(position);
 
 		glm::vec3 rotation = selectedSceneNode->getRotation();
-		if (ImGui::DragFloat3("Position", &rotation[0])) {}
+		if (ImGui::DragFloat3("Rotation", &rotation[0])) {}
 
 		glm::vec3 scale = selectedSceneNode->getScale();
 		if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
@@ -387,6 +387,7 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 		if (selectedSceneNode == child)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
+		ImGui::PushID(child); // Pushing ID to avoid conflict of nodes with same name
 		if (ImGui::TreeNodeEx(child->getLabel().c_str(), flags))
 		{
 			if (ImGui::IsItemClicked())
@@ -395,5 +396,6 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 			SceneGraphRecurse(child->getChildren());
 			ImGui::TreePop();
 		}
+		ImGui::PopID();
 	}
 }

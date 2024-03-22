@@ -22,7 +22,9 @@ public:
 	// A method that contains any API calls to send all necessary data to the GPU
 	virtual void setupObject() = 0;
 	// Returns a label to identify the object in the scene graph
-	virtual std::string getLabel() = 0;
+	std::string getLabel();
+	// Sets the label of the object
+	void setLabel(std::string label);
 
 	// Returns the object's parent
 	RenderObject* getParent();
@@ -74,6 +76,8 @@ public:
 	RenderObject* setScale(float x, float y, float z);
 
 protected:
+	std::string label = "RenderObject";
+
 	RenderObject* parent;
 	std::vector<RenderObject*> children;
 

@@ -16,7 +16,6 @@ public:
 
 	void RenderObject::drawObject() override;
 	void RenderObject::setupObject() override;
-	std::string RenderObject::getLabel() override;
 };
 
 #endif

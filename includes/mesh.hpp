@@ -25,7 +25,6 @@ public:
 	// Used in render loop to draw vertices arrays to screen
 	void RenderObject::drawObject() override;
 	void RenderObject::setupObject() override;
-	std::string RenderObject::getLabel() override;
 
 	// Generates buffers and enables correct draw calls to use given texture
 	Mesh& addTexCoords(std::vector<float> texCoords);

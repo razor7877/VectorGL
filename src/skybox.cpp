@@ -11,6 +11,7 @@ float Skybox::boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 
 Skybox::Skybox(GLuint shaderProgramID, Cubemap* cubemap, glm::vec3 position)
 	: Mesh(boxVertices, sizeof(boxVertices), shaderProgramID, position)
 {
+	this->label = "Skybox";
 	this->cubemap = cubemap;
 }
 
@@ -31,5 +32,3 @@ void Skybox::setupObject()
 	Mesh::setupObject();
 	cubemap->setupObject();
 }
-
-std::string Skybox::getLabel() { return "Skybox"; }

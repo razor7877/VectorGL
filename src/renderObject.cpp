@@ -26,6 +26,16 @@ RenderObject::~RenderObject()
 	}
 }
 
+std::string RenderObject::getLabel()
+{
+	return this->label;
+}
+
+void RenderObject::setLabel(std::string label)
+{
+	this->label = label;
+}
+
 RenderObject* RenderObject::getParent()
 {
 	return this->parent;

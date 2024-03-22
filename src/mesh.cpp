@@ -7,6 +7,8 @@
 
 Mesh::Mesh()
 {
+	this->label = "Mesh";
+
 	this->shaderProgramID = {};
 	this->modelMatrix = glm::mat4(1.0f);
 
@@ -19,6 +21,8 @@ Mesh::Mesh()
 
 Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)
 {
+	this->label = "Mesh";
+
 	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
 	this->shaderProgramID = shaderProgramID;
 	this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
@@ -32,6 +36,8 @@ Mesh::Mesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm:
 
 Mesh::Mesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position)
 {
+	this->label = "Mesh";
+
 	this->vertices = vertices;
 	this->shaderProgramID = shaderProgramID;
 	this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
@@ -161,8 +167,6 @@ void Mesh::setupObject()
 		glEnableVertexAttribArray(2);
 	}
 }
-
-std::string Mesh::getLabel() { return "Mesh"; }
 
 // Add texture coordinates data to the mesh
 Mesh& Mesh::addTexCoords(std::vector<float> texCoords)
