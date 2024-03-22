@@ -369,7 +369,7 @@ void SceneGraph()
 {
 	ImGui::Begin("Scene graph");
 
-	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 	{
 		SceneGraphRecurse(renderer->objects);
 		ImGui::TreePop();
@@ -382,9 +382,17 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 {
 	for (RenderObject* child : children)
 	{
-		ImGuiTreeNodeFlags flags = 0;
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
+
+		// Different flags for tree and leaf nodes
 		if (child->getChildren().size() == 0)
+		{
 			flags |= ImGuiTreeNodeFlags_Leaf;
+		}
+		else
+		{
+			flags |= ImGuiTreeNodeFlags_OpenOnArrow;
+		}
 
 		if (selectedSceneNode == child)
 			flags |= ImGuiTreeNodeFlags_Selected;
@@ -396,12 +404,15 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 
 		if (ImGui::TreeNodeEx(child->getLabel().c_str(), flags))
 		{
-			if (ImGui::IsItemClicked())
+			if (ImGui::IsItemClicked()) // Detects clicks on opened tree node
 				selectedSceneNode = child;
 
 			SceneGraphRecurse(child->getChildren());
 			ImGui::TreePop();
 		}
+		else if (ImGui::IsItemClicked()) // Detects clicks on unopened tree node
+			selectedSceneNode = child;
+
 		ImGui::PopID();
 		
 		if (!child->getIsVisible())

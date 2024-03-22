@@ -15,7 +15,7 @@
 #include "main.hpp"
 #include "shader.hpp"
 #include "model.hpp"
-#include "Mesh.hpp"
+#include "mesh.hpp"
 #include "skybox.hpp"
 #include "texture.hpp"
 #include "camera.hpp"
@@ -141,14 +141,15 @@ int main()
 	model->setScale(0.075f, 0.075f, 0.075f)
 		 ->rotateObject(-90.0f, 0.0f, 0.0f);
 
-	float gridVerts[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
+		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
 	Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
-	grid->setupObject();
+	grid->setLabel("Grid");
 
 	defaultRenderer.addObject(skybox)
 		.addObject(model);
-		//.addObject(&grid);
-
+		//.addObject(grid);
+		
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init();
 
@@ -194,11 +195,6 @@ int main()
 
 		defaultRenderer.render();
 		
-		// TODO: Fix grid shader
-		gridShader->use();
-		//grid.drawObject();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess, skybox);
 
@@ -220,8 +216,6 @@ int main()
 
 	delete skybox->cubemap;
 	delete skybox;
-
-	//delete model;
 
 	glfwTerminate();
 	return 0;
