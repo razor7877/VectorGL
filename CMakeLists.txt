@@ -23,6 +23,7 @@ target_sources(VectorGL PUBLIC
 	libs/ImGui/backends/imgui_impl_opengl3.cpp
 	libs/ImGui/imgui_tables.cpp
 	libs/ImGui/imgui_widgets.cpp
+	libs/ImGui/misc/cpp/imgui_stdlib.cpp
 )
 
 # Add header files

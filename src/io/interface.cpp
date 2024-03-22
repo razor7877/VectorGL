@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "imgui/imgui.h"
+#include "imgui/misc/cpp/imgui_stdlib.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
@@ -38,6 +39,8 @@ std::vector<SpotLight*> spotLights;
 
 // The currently selected node in the scene graph
 RenderObject* selectedSceneNode{};
+
+std::string editLabel{};
 
 // An array containing the choice names for the different skyboxes
 const char* items[] = { "Grass", "Night", "Sky" };
@@ -394,9 +397,11 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 			flags |= ImGuiTreeNodeFlags_OpenOnArrow;
 		}
 
+		// Highlight selected node
 		if (selectedSceneNode == child)
 			flags |= ImGuiTreeNodeFlags_Selected;
 		
+		// Change text color for hidden nodes
 		if (!child->getIsVisible())
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.4f));
 
@@ -404,18 +409,60 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 
 		if (ImGui::TreeNodeEx(child->getLabel().c_str(), flags))
 		{
-			if (ImGui::IsItemClicked()) // Detects clicks on opened tree node
-				selectedSceneNode = child;
+			// Detects clicks on opened tree node
+			HandleSceneGraphClick(child);
 
 			SceneGraphRecurse(child->getChildren());
 			ImGui::TreePop();
 		}
-		else if (ImGui::IsItemClicked()) // Detects clicks on unopened tree node
-			selectedSceneNode = child;
+		else
+		{
+			// Detects clicks on unopened tree node
+			HandleSceneGraphClick(child);
+		}
 
 		ImGui::PopID();
 		
 		if (!child->getIsVisible())
 			ImGui::PopStyleColor();
+	}
+}
+
+void HandleSceneGraphClick(RenderObject* object)
+{
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+		selectedSceneNode = object;
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		ImGui::OpenPopup("NodePopup");
+
+	if (ImGui::BeginPopup("NodePopup"))
+	{
+		if (ImGui::Button("Rename"))
+			ImGui::OpenPopup("RenamePopup");
+
+		if (ImGui::BeginPopup("RenamePopup"))
+		{
+			ImGui::SetKeyboardFocusHere(0);
+			editLabel = object->getLabel();
+			
+			if (ImGui::InputText("##editLabel", &editLabel, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				object->setLabel(editLabel);
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::Button("Delete"))
+		{
+			if (object == selectedSceneNode)
+				selectedSceneNode = nullptr;
+
+			renderer->removeObject(object);
+			delete object;
+		}
+			
+
+		ImGui::EndPopup();
 	}
 }
