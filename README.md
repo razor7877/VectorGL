@@ -1,7 +1,7 @@
 # VectorGL
 A 3D forward renderer powered by C++/OpenGL. This is not meant for serious use and was simply made as a learning experience.
 
-![](img/tank.png "")
+![](img/engine_2.png "")
 
 ## Features
 
