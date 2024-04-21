@@ -12,6 +12,7 @@ A 3D forward renderer powered by C++/OpenGL. This is not meant for serious use a
  - Compile and use multiple shaders
  - Support for multiple lights: point lights, spot lights, directional lights
  - Basic renderer for batch rendering by shader and lighting
+ - Scene graph that can be visualized and interacted with using the UI
  - LightManager class is associated to a renderer to handle all the lights and send them to the shaders
  - Global Phong shader for models & meshes
  - Camera system to move around
