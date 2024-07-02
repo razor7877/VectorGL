@@ -86,7 +86,18 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 	SceneGraph();
 
 	ImGui::Begin("Viewer");
-	ImGui::Image((ImTextureID)renderer->GetRenderTexture(), ImVec2(windowWidth, windowHeight), ImVec2(0, 1), ImVec2(1, 0));
+
+	ImVec2 contentRegionSize = ImGui::GetContentRegionAvail();
+	
+	defaultRenderer.resizeFramebuffer(glm::vec2(contentRegionSize.x, contentRegionSize.y));
+
+	ImGui::Image(
+		(ImTextureID)renderer->GetRenderTexture(),
+		contentRegionSize,
+		ImVec2(0, 1),
+		ImVec2(1, 0)
+	);
+
 	ImGui::End();
 
 	ImGui::Render();

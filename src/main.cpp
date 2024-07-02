@@ -151,7 +151,7 @@ int main()
 		//.addObject(grid);
 		
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
-	defaultRenderer.init();
+	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);

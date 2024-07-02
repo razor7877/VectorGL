@@ -13,6 +13,7 @@ extern int windowWidth;
 extern int windowHeight;
 
 extern Camera camera;
+extern Renderer defaultRenderer;
 
 void initUniformBuffer();
 void updateUniformBuffer(glm::mat4 view, glm::mat4 projection);

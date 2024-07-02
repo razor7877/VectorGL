@@ -33,10 +33,13 @@ public:
 	Renderer& addLight(Light* lightPtr);
 
 	// Initializes the renderer data, done before the render loop
-	void init();
+	void init(glm::vec2 windowSize);
 	// Draws the renderer's content
 	void render();
 	void end();
+
+	// Resizes the existing framebuffer with the size specified
+	void resizeFramebuffer(glm::vec2 newSize);
 
 private:
 	std::vector<RenderObject*> objects;
@@ -48,6 +51,10 @@ private:
 	GLuint depthBuffer;
 	GLuint renderTexture;
 	GLenum drawBuffers[1];
+	glm::vec2 windowSize;
+
+	// Creates a framebuffer with the size specified
+	void createFramebuffer(glm::vec2 windowSize);
 };
 
 #endif
