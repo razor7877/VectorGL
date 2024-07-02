@@ -1,16 +1,35 @@
 #include <iostream>
 
+#include "main.hpp"
 #include "renderer.hpp"
 #include "renderObject.hpp"
 
 Renderer::Renderer()
 {
 	this->lightManager = {};
+
+	this->frameBuffer = {};
+	this->depthBuffer = {};
+	this->renderTexture = {};
 }
 
 Renderer::Renderer(GLuint lightShaderProgramID)
 {
-	lightManager = LightManager(lightShaderProgramID);
+	this->lightManager = LightManager(lightShaderProgramID);
+
+	this->frameBuffer = {};
+	this->depthBuffer = {};
+	this->renderTexture = {};
+}
+
+std::vector<RenderObject*> Renderer::GetObjects()
+{
+	return this->objects;
+}
+
+GLuint Renderer::GetRenderTexture()
+{
+	return this->renderTexture;
 }
 
 Renderer& Renderer::addObject(RenderObject* objectPtr)
@@ -48,10 +67,43 @@ void Renderer::init()
 	{
 		lightManager.init();
 	}
+
+	glGenFramebuffers(1, &this->frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
+	// Render texture for the FBO
+	glGenTextures(1, &this->renderTexture);
+	glBindTexture(GL_TEXTURE_2D, this->renderTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	// Depth buffer for the FBO
+	glGenRenderbuffers(1, &this->depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, this->depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowWidth, windowHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthBuffer);
+
+	// Set texture as color attachment 0
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
+
+	this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, drawBuffers);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Error while attempting to create framebuffer!" << std::endl;
 }
 
 void Renderer::render()
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, this->frameBuffer);
+	glViewport(0, 0, windowWidth, windowHeight);
+
+	// Clears the buffers and last frame before rendering the next one
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	// Iterates over the shaderID : mesh keypair values to draw objects more efficiently
 	// Draw calls are grouped by shader
 	for (auto& [shader, object] : shaderMap)
@@ -64,6 +116,8 @@ void Renderer::render()
 				objectPtr->drawObject();
 		}
 	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::end()

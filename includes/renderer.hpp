@@ -14,14 +14,16 @@
 class Renderer
 {
 public:
-	std::vector<RenderObject*> objects;
-	// Associates each shader used in the meshes vector with its corresponding meshes
-	std::map<int, std::vector<RenderObject*>> shaderMap;
 	// The renderer's light manager, used to handle lighting and various light types
 	LightManager lightManager;
 
 	Renderer();
 	Renderer(GLuint lightShaderProgramID);
+
+	// Returns the list of objects that the renderer contains
+	std::vector<RenderObject*> GetObjects();
+	// Returns the framebuffer that renderer draws into
+	GLuint GetRenderTexture();
 
 	// Adds an object (model, mesh, skybox...) to the renderer
 	Renderer& addObject(RenderObject* objectPtr);
@@ -35,6 +37,17 @@ public:
 	// Draws the renderer's content
 	void render();
 	void end();
+
+private:
+	std::vector<RenderObject*> objects;
+
+	// Associates each shader used in the meshes vector with its corresponding meshes
+	std::map<int, std::vector<RenderObject*>> shaderMap;
+
+	GLuint frameBuffer;
+	GLuint depthBuffer;
+	GLuint renderTexture;
+	GLenum drawBuffers[1];
 };
 
 #endif

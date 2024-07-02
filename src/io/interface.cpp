@@ -85,6 +85,10 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 	ShowNodeDetails();
 	SceneGraph();
 
+	ImGui::Begin("Viewer");
+	ImGui::Image((ImTextureID)renderer->GetRenderTexture(), ImVec2(windowWidth, windowHeight), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::End();
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -386,7 +390,7 @@ void SceneGraph()
 
 	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 	{
-		SceneGraphRecurse(renderer->objects);
+		SceneGraphRecurse(renderer->GetObjects());
 		ImGui::TreePop();
 	}
 

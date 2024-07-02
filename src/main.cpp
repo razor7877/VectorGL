@@ -167,7 +167,7 @@ int main()
 		// Clears the buffers and last frame before rendering the next one
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
