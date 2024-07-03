@@ -132,10 +132,15 @@ void Renderer::init(glm::vec2 windowSize)
 		lightManager.init();
 	}
 
+	for (Entity* entity : this->entities)
+	{
+		entity->start();
+	}
+
 	this->createFramebuffer(windowSize);
 }
 
-void Renderer::render()
+void Renderer::render(float deltaTime)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, this->frameBuffer);
 	glViewport(0, 0, this->windowSize.x, this->windowSize.y);
@@ -156,6 +161,9 @@ void Renderer::render()
 				objectPtr->drawObject();
 		}
 	}
+
+	for (Entity* entity : this->entities)
+		entity->update(deltaTime);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

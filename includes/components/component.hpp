@@ -1,13 +1,14 @@
 #pragma once
 
+class Entity;
+
 class Component
 {
 public:
-	Component() {}
+	Entity* parent{};
+
+	Component(Entity* parent) : parent(parent) {}
 
 	virtual void start() = 0;
 	virtual void update() = 0;
-
-protected:
-
 };

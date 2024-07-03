@@ -1,8 +1,9 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "components/transformComponent.hpp"
+#include "entity.hpp"
 
-TransformComponent::TransformComponent() : Component()
+TransformComponent::TransformComponent(Entity* parent) : Component(parent)
 {
 	this->position = {};
 	this->rotation = {};
@@ -70,14 +71,22 @@ void TransformComponent::updateModelMatrix()
 
 	this->modelMatrix = glm::scale(this->modelMatrix, this->scale); // Apply scaling
 
-	// TODO : Reflect changes on children again
-	//// A node should inherit the transform of the parent
-	//if (this->parent != nullptr)
-	//	this->modelMatrix = this->parent->getModelMatrix() * this->modelMatrix;
+	// A node should inherit the transform of the parent
+	if (this->parent != nullptr)
+		this->modelMatrix = this->parent->transform->getModelMatrix() * this->modelMatrix;
 
-	//// Since children inherit of the parent transform, they need to be updated too
-	//for (TransformComponent* child : this->children)
-	//	child->updateModelMatrix();
+	// Since children inherit of the parent transform, they need to be updated too
+	for (Entity* child : this->parent->getChildren())
+		child->transform->updateModelMatrix();
+}
+
+void TransformComponent::setModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+{
+	this->position = position;
+	this->rotation = rotation;
+	this->scale = scale;
+
+	this->updateModelMatrix();
 }
 
 TransformComponent* TransformComponent::rotateObject(glm::vec3 rotation)

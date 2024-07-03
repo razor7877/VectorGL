@@ -15,8 +15,15 @@
 class Entity
 {
 public:
+	TransformComponent* transform;
+
 	Entity();
 	~Entity();
+
+	/// <summary>
+	/// Starts the entity and its components
+	/// </summary>
+	void start();
 
 	/// <summary>
 	/// Updates the entity and its components
@@ -75,7 +82,12 @@ T* Entity::addComponent()
 	const std::type_info& componentType = typeid(T);
 
 	if (this->components.count(componentType) == 0)
-		this->components[componentType] = new(T);
+	{
+		this->components[componentType] = new T(this);
+
+		if (componentType == typeid(TransformComponent))
+			this->transform = dynamic_cast<TransformComponent*>(this->components[componentType]);
+	}
 
 	return dynamic_cast<T*>(this->components[componentType]);
 }

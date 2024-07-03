@@ -15,6 +15,14 @@ Entity::~Entity()
 	}
 }
 
+void Entity::start()
+{
+	for (auto& [type, component] : this->components)
+	{
+		component->start();
+	}
+}
+
 void Entity::update(float deltaTime)
 {
 	for (auto& [type, component] : this->components)

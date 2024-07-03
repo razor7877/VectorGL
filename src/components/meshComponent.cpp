@@ -4,8 +4,9 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "components/meshComponent.hpp"
+#include "entity.hpp"
 
-MeshComponent::MeshComponent() : Component()
+MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
 	this->shaderProgramID = {};
 
@@ -78,6 +79,8 @@ void MeshComponent::start()
 
 void MeshComponent::update()
 {
+	glUseProgram(this->shaderProgramID);
+
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
@@ -117,7 +120,7 @@ void MeshComponent::update()
 	}
 
 	// Send the object's model matrix to the shader
-	//glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &this->transform->getModelMatrix()[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &this->parent->transform->getModelMatrix()[0][0]);
 
 	if (indices.size() == 0)
 	{
@@ -128,6 +131,37 @@ void MeshComponent::update()
 	{
 		glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
 	}
+}
+
+void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)
+{
+	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
+	this->shaderProgramID = shaderProgramID;
+	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
+
+	this->VAO = {};
+	this->VBO = {};
+	this->indicesBO = {};
+	this->texCoordBO = {};
+	this->normalBO = {};
+}
+
+void MeshComponent::setupMesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position)
+{
+	this->vertices = vertices;
+	this->shaderProgramID = shaderProgramID;
+	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
+	this->texCoords = texCoords;
+	this->textures = textures;
+
+	addNormals(&normals[0], (GLsizei)normals.size() * sizeof(float));
+	addIndices(&indices[0], (GLsizei)indices.size() * sizeof(unsigned int));
+
+	this->VAO = {};
+	this->VBO = {};
+	this->indicesBO = {};
+	this->texCoordBO = {};
+	this->normalBO = {};
 }
 
 // Add texture coordinates data to the MeshComponent

@@ -42,7 +42,7 @@ public:
 	// Initializes the renderer data, done before the render loop
 	void init(glm::vec2 windowSize);
 	// Draws the renderer's content
-	void render();
+	void render(float deltaTime);
 	void end();
 
 	// Resizes the existing framebuffer with the size specified

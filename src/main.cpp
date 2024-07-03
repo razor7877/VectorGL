@@ -114,13 +114,7 @@ int main()
 	float shininess = 32.0f;
 
 	// Sets up variables for the phong lighting shader
-	phongShader->use()
-		->setInt("texture1", 0)
-		->setVec3("viewPos", camera.position)
-		->setVec3("material.ambient", boxTex->ambient)
-		->setVec3("material.diffuse", boxTex->diffuse)
-		->setVec3("material.specular", boxTex->specular)
-		->setFloat("material.shininess", boxTex->shininess);
+	phongShader->use()->setInt("texture1", 0);
 
 	// Creates a renderer for drawing objects
 	defaultRenderer = Renderer(phongShader->ID);
@@ -142,19 +136,29 @@ int main()
 	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
 	Skybox* skybox = new Skybox(skyboxShader->ID , cubemap);
 	
-	Model* model = (new Model("models/sea_keep/scene.gltf", phongShader->ID));
-	model->setScale(0.075f, 0.075f, 0.075f)
-		 ->rotateObject(-90.0f, 0.0f, 0.0f);
+	//Model* model = (new Model("models/sea_keep/scene.gltf", phongShader->ID));
+	//model->setScale(0.075f, 0.075f, 0.075f)
+	//	 ->rotateObject(-90.0f, 0.0f, 0.0f);
 
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
-	Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
-	grid->setLabel("Grid");
+	//Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
+	//grid->setLabel("Grid");
 
-	defaultRenderer.addObject(skybox)
-		.addObject(model);
+	defaultRenderer.addObject(skybox);
+		//.addObject(model);
 		//.addObject(grid);
-		
+	
+	// A list of vertices that represent a box used to draw any skybox
+	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
+
+	Entity* meshEntity = new Entity();
+	TransformComponent* meshTransform = meshEntity->addComponent<TransformComponent>();
+	MeshComponent* mesh = meshEntity->addComponent<MeshComponent>();
+	mesh->setupMesh(boxVertices, sizeof(boxVertices), phongShader->ID);
+
+	defaultRenderer.addEntity(meshEntity);
+
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 
@@ -165,12 +169,6 @@ int main()
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
-
-	Entity* meshEntity = new Entity();
-	TransformComponent* meshTransform = meshEntity->addComponent<TransformComponent>();
-	MeshComponent* mesh = meshEntity->addComponent<MeshComponent>();
-
-	defaultRenderer.addEntity(meshEntity);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -204,7 +202,7 @@ int main()
 		spotLight.position = camera.position;
 		spotLight.direction = camera.front;
 
-		defaultRenderer.render();
+		defaultRenderer.render(deltaTime);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(camera, boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess, skybox);
@@ -218,15 +216,15 @@ int main()
 		glfwPollEvents();
 	}
 
-	delete phongShader;
-	delete skyboxShader;
-	delete gridShader;
+	if (phongShader != nullptr) delete phongShader;
+	if (skyboxShader != nullptr) delete skyboxShader;
+	if (gridShader != nullptr) delete gridShader;
 
-	delete crate;
-	delete boxTex;
+	if (crate != nullptr) delete crate;
+	if (boxTex != nullptr) delete boxTex;
 
-	delete skybox->cubemap;
-	delete skybox;
+	if (skybox != nullptr && skybox->cubemap != nullptr) delete skybox->cubemap;
+	if (skybox != nullptr) delete skybox;
 
 	glfwTerminate();
 	return 0;

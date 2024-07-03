@@ -3,12 +3,11 @@
 #include <glm/glm.hpp>
 
 #include "component.hpp"
-#include "entity.hpp"
 
 class TransformComponent : public virtual Component
 {
 public:
-	TransformComponent();
+	TransformComponent(Entity* parent);
 	~TransformComponent();
 
 	void Component::start() override;
@@ -20,6 +19,7 @@ public:
 	glm::vec3 getScale();
 
 	void updateModelMatrix();
+	void setModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
 	// Rotates the object's model matrix using a vec3 (relative transform)
 	TransformComponent* rotateObject(glm::vec3 rotation);
