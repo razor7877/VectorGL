@@ -18,6 +18,8 @@
 #include "components/cameraComponent.hpp"
 #include "components/lights/lightComponent.hpp"
 #include "components/lights/pointLightComponent.hpp"
+#include "components/lights/spotLightComponent.hpp"
+#include "components/lights/directionalLightComponent.hpp"
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
@@ -505,6 +507,39 @@ void ShowComponentUI(Component* component)
 			ImGui::DragFloat("Constant", &(pointLightComponent->constant), 0.002f, 0.0f, 1.0f);
 			ImGui::DragFloat("Linear", &(pointLightComponent->linear), 0.002f, 0.0f, 1.0f);
 			ImGui::DragFloat("Quadratic", &(pointLightComponent->quadratic), 0.002f, 0.001f, 1.0f);
+		}
+	}
+	else if (dynamic_cast<SpotLightComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Spot light"))
+		{
+			SpotLightComponent* spotLightComponent = dynamic_cast<SpotLightComponent*>(component);
+
+			ImGui::ColorEdit3("Ambient", &(spotLightComponent->ambientColor[0]));
+			ImGui::ColorEdit3("Diffuse", &(spotLightComponent->diffuseColor[0]));
+			ImGui::ColorEdit3("Specular", &(spotLightComponent->specularColor[0]));
+
+			ImGui::DragFloat("Constant", &(spotLightComponent->constant), 0.002f, 0.0f, 1.0f);
+			ImGui::DragFloat("Linear", &(spotLightComponent->linear), 0.002f, 0.0f, 1.0f);
+			ImGui::DragFloat("Quadratic", &(spotLightComponent->quadratic), 0.002f, 0.001f, 1.0f);
+
+			ImGui::DragFloat("Cutoff", &(spotLightComponent->cutOff), 0.002f, 0.001f, 1.0f);
+			ImGui::DragFloat("Outer cutoff", &(spotLightComponent->outerCutOff), 0.002f, 0.001f, 1.0f);
+
+			ImGui::DragFloat3("Direction", &(spotLightComponent->direction[0]), 0.002f);
+		}
+	}
+	else if (dynamic_cast<DirectionalLightComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Directional light"))
+		{
+			DirectionalLightComponent* directionalLightComponent = dynamic_cast<DirectionalLightComponent*>(component);
+
+			ImGui::ColorEdit3("Ambient", &(directionalLightComponent->ambientColor[0]));
+			ImGui::ColorEdit3("Diffuse", &(directionalLightComponent->diffuseColor[0]));
+			ImGui::ColorEdit3("Specular", &(directionalLightComponent->specularColor[0]));
+
+			ImGui::DragFloat3("Direction", &(directionalLightComponent->direction[0]), 0.002f);
 		}
 	}
 }
