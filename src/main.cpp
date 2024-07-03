@@ -22,10 +22,6 @@
 #include "io/interface.hpp"
 #include "io/input.hpp"
 
-#include "lights/directionalLight.hpp"
-#include "lights/pointLight.hpp"
-#include "lights/spotLight.hpp"
-
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
 #include "components/lights/pointLightComponent.hpp"

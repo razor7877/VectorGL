@@ -6,7 +6,6 @@
 
 #include "entity.hpp"
 #include "lights/lightManager.hpp"
-#include "lights/light.hpp"
 
 // A renderer class, that does all that is needed for setting up and then drawing many things such as models, meshes, skyboxes etc.
 // It contains a vector of renderObject, that stores the various objects to be drawn

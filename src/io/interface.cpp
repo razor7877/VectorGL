@@ -12,9 +12,6 @@
 #include "entity.hpp"
 #include "io/interface.hpp"
 #include "lights/lightManager.hpp"
-#include "lights/directionalLight.hpp"
-#include "lights/pointLight.hpp"
-#include "lights/spotLight.hpp"
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
