@@ -27,6 +27,11 @@ std::vector<RenderObject*> Renderer::GetObjects()
 	return this->objects;
 }
 
+std::vector<Entity*> Renderer::GetEntities()
+{
+	return this->entities;
+}
+
 GLuint Renderer::GetRenderTexture()
 {
 	return this->renderTexture;
@@ -58,6 +63,16 @@ Renderer& Renderer::addLight(Light* lightPtr)
 {
 	lightManager.addLight(lightPtr);
 	return *this;
+}
+
+void Renderer::addEntity(Entity* objectPtr)
+{
+	this->entities.push_back(objectPtr);
+}
+
+void Renderer::removeEntity(Entity* objectPtr)
+{
+	this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), objectPtr), this->entities.end());
 }
 
 void Renderer::resizeFramebuffer(glm::vec2 newSize)

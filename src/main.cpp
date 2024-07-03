@@ -161,6 +161,8 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
+	Entity* lightEntity = new Entity();
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{

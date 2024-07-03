@@ -28,7 +28,7 @@ void SkyboxSettings(Skybox* skybox);
 void ShowNodeDetails();
 // Displays the scene graph
 void SceneGraph();
-void SceneGraphRecurse(std::vector<RenderObject*> children);
-void HandleSceneGraphClick(RenderObject* object);
+void SceneGraphRecurse(std::vector<Entity*> children);
+void HandleSceneGraphClick(Entity* object);
 
 #endif

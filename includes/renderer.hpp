@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 
+#include "entity.hpp"
 #include "renderObject.hpp"
 #include "lights/lightManager.hpp"
 #include "lights/light.hpp"
@@ -22,6 +23,7 @@ public:
 
 	// Returns the list of objects that the renderer contains
 	std::vector<RenderObject*> GetObjects();
+	std::vector<Entity*> GetEntities();
 	// Returns the framebuffer that renderer draws into
 	GLuint GetRenderTexture();
 
@@ -31,6 +33,11 @@ public:
 	Renderer& removeObject(RenderObject* objectPtr);
 	// Adds a light (dirlight, pointlight, spotlight ...) to the renderer's LightManager
 	Renderer& addLight(Light* lightPtr);
+
+	// Adds an object (model, mesh, skybox...) to the renderer
+	void addEntity(Entity* objectPtr);
+	// Removes an object from the renderer which stops it being drawn
+	void removeEntity(Entity* objectPtr);
 
 	// Initializes the renderer data, done before the render loop
 	void init(glm::vec2 windowSize);
@@ -43,6 +50,7 @@ public:
 
 private:
 	std::vector<RenderObject*> objects;
+	std::vector<Entity*> entities;
 
 	// Associates each shader used in the meshes vector with its corresponding meshes
 	std::map<int, std::vector<RenderObject*>> shaderMap;

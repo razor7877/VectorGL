@@ -9,6 +9,7 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 
 #include "main.hpp"
+#include "entity.hpp"
 #include "io/interface.hpp"
 #include "lights/lightManager.hpp"
 #include "lights/directionalLight.hpp"
@@ -38,7 +39,7 @@ std::vector<PointLight*> pointLights;
 std::vector<SpotLight*> spotLights;
 
 // The currently selected node in the scene graph
-RenderObject* selectedSceneNode{};
+Entity* selectedSceneNode{};
 
 std::string editLabel{};
 
@@ -361,35 +362,35 @@ void ShowNodeDetails()
 	{
 		ImGui::Text(selectedSceneNode->getLabel().c_str());
 
-		glm::vec3 position = selectedSceneNode->getPosition();
-		if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
-			selectedSceneNode->setPosition(position);
+		//glm::vec3 position = selectedSceneNode->getPosition();
+		//if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
+		//	selectedSceneNode->setPosition(position);
 
-		glm::vec3 rotation = selectedSceneNode->getRotation();
-		if (ImGui::DragFloat3("Rotation", &rotation[0]))
-			selectedSceneNode->setRotation(rotation);
+		//glm::vec3 rotation = selectedSceneNode->getRotation();
+		//if (ImGui::DragFloat3("Rotation", &rotation[0]))
+		//	selectedSceneNode->setRotation(rotation);
 
-		glm::vec3 scale = selectedSceneNode->getScale();
-		if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
-			selectedSceneNode->setScale(scale);
+		//glm::vec3 scale = selectedSceneNode->getScale();
+		//if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
+		//	selectedSceneNode->setScale(scale);
 
-		bool isVisible = selectedSceneNode->getIsVisible();
+		bool isVisible = selectedSceneNode->getIsEnabled();
 		if (ImGui::Checkbox("Visible", &isVisible))
-			selectedSceneNode->setIsVisible(isVisible);
+			selectedSceneNode->setIsEnabled(isVisible);
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
-		if (ImGui::Button("Delete object"))
-		{
-			renderer->removeObject(selectedSceneNode);
+		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+		//ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+		//if (ImGui::Button("Delete object"))
+		//{
+		//	renderer->removeObject(selectedSceneNode);
 
-			delete selectedSceneNode;
-			selectedSceneNode = nullptr;
-		}
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
+		//	delete selectedSceneNode;
+		//	selectedSceneNode = nullptr;
+		//}
+		//ImGui::PopStyleColor();
+		//ImGui::PopStyleColor();
+		//ImGui::PopStyleColor();
 	}
 
 	ImGui::End();
@@ -401,16 +402,16 @@ void SceneGraph()
 
 	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 	{
-		SceneGraphRecurse(renderer->GetObjects());
+		//SceneGraphRecurse(renderer->GetEntities());
 		ImGui::TreePop();
 	}
 
 	ImGui::End();
 }
 
-void SceneGraphRecurse(std::vector<RenderObject*> children)
+void SceneGraphRecurse(std::vector<Entity*> children)
 {
-	for (RenderObject* child : children)
+	for (Entity* child : children)
 	{
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
 
@@ -429,7 +430,7 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 			flags |= ImGuiTreeNodeFlags_Selected;
 		
 		// Change text color for hidden nodes
-		if (!child->getIsVisible())
+		if (!child->getIsEnabled())
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.4f));
 
 		ImGui::PushID(child); // Pushing ID to avoid conflict of nodes with same name
@@ -450,12 +451,12 @@ void SceneGraphRecurse(std::vector<RenderObject*> children)
 
 		ImGui::PopID();
 		
-		if (!child->getIsVisible())
+		if (!child->getIsEnabled())
 			ImGui::PopStyleColor();
 	}
 }
 
-void HandleSceneGraphClick(RenderObject* object)
+void HandleSceneGraphClick(Entity* object)
 {
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 		selectedSceneNode = object;
@@ -485,8 +486,8 @@ void HandleSceneGraphClick(RenderObject* object)
 			if (object == selectedSceneNode)
 				selectedSceneNode = nullptr;
 
-			renderer->removeObject(object);
-			delete object;
+			//renderer->removeObject(object);
+			//delete object;
 		}
 			
 
