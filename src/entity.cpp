@@ -28,6 +28,9 @@ void Entity::start()
 
 void Entity::update(float deltaTime)
 {
+	if (!this->isEnabled)
+		return;
+
 	for (auto& [type, component] : this->components)
 	{
 		component->update();
@@ -35,6 +38,11 @@ void Entity::update(float deltaTime)
 
 	for (Entity* child : this->children)
 		child->update(deltaTime);
+}
+
+std::map<std::type_index, Component*> Entity::getComponents()
+{
+	return this->components;
 }
 
 std::string Entity::getLabel()

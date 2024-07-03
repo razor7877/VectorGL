@@ -31,4 +31,6 @@ void SceneGraph();
 void SceneGraphRecurse(std::vector<Entity*> children);
 void HandleSceneGraphClick(Entity* object);
 
+void ShowComponentUI(Component* component);
+
 #endif

@@ -16,6 +16,9 @@
 #include "lights/pointLight.hpp"
 #include "lights/spotLight.hpp"
 
+#include "components/meshComponent.hpp"
+#include "components/transformComponent.hpp"
+
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 
@@ -362,21 +365,12 @@ void ShowNodeDetails()
 	{
 		ImGui::Text(selectedSceneNode->getLabel().c_str());
 
-		//glm::vec3 position = selectedSceneNode->getPosition();
-		//if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
-		//	selectedSceneNode->setPosition(position);
-
-		//glm::vec3 rotation = selectedSceneNode->getRotation();
-		//if (ImGui::DragFloat3("Rotation", &rotation[0]))
-		//	selectedSceneNode->setRotation(rotation);
-
-		//glm::vec3 scale = selectedSceneNode->getScale();
-		//if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
-		//	selectedSceneNode->setScale(scale);
-
 		bool isVisible = selectedSceneNode->getIsEnabled();
 		if (ImGui::Checkbox("Visible", &isVisible))
 			selectedSceneNode->setIsEnabled(isVisible);
+
+		for (auto& [type, component] : selectedSceneNode->getComponents())
+			ShowComponentUI(component);
 
 		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
 		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -492,5 +486,37 @@ void HandleSceneGraphClick(Entity* object)
 			
 
 		ImGui::EndPopup();
+	}
+}
+
+void ShowComponentUI(Component* component)
+{
+	const std::type_index& componentType = typeid(component);
+
+	if (dynamic_cast<TransformComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Transform"))
+		{
+			TransformComponent* transformComponent = dynamic_cast<TransformComponent*>(component);
+
+			glm::vec3 position = transformComponent->getPosition();
+			if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
+				transformComponent->setPosition(position);
+
+			glm::vec3 rotation = transformComponent->getRotation();
+			if (ImGui::DragFloat3("Rotation", &rotation[0]))
+				transformComponent->setRotation(rotation);
+
+			glm::vec3 scale = transformComponent->getScale();
+			if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
+				transformComponent->setScale(scale);
+		}
+	}
+	else if (dynamic_cast<MeshComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Mesh"))
+		{
+			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
+		}
 	}
 }

@@ -44,6 +44,8 @@ public:
 	/// <returns>A pointer to the component, or nullptr it it doesn't have one</returns>
 	template <typename T> T* getComponent();
 
+	std::map<std::type_index, Component*> getComponents();
+
 	// Returns a label to identify the object in the scene graph
 	std::string getLabel();
 	// Sets the label of the object

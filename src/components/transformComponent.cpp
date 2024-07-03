@@ -71,9 +71,10 @@ void TransformComponent::updateModelMatrix()
 
 	this->modelMatrix = glm::scale(this->modelMatrix, this->scale); // Apply scaling
 
-	// A node should inherit the transform of the parent
-	if (this->parent != nullptr)
-		this->modelMatrix = this->parent->transform->getModelMatrix() * this->modelMatrix;
+	// A node should inherit the transform of the parent entity
+	// The parent is the entity that contains this component, we want the entity above
+	if (this->parent->getParent() != nullptr)
+		this->modelMatrix = this->parent->getParent()->transform->getModelMatrix() * this->modelMatrix;
 
 	// Since children inherit of the parent transform, they need to be updated too
 	for (Entity* child : this->parent->getChildren())
