@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <stb_image.h>
+#include <utilities/stb_image.h>
 
 #include "main.hpp"
 #include "shader.hpp"
@@ -30,6 +30,7 @@
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
+#include "components/lights/pointLightComponent.hpp"
 
 #include "utilities/resourceLoader.hpp"
 
@@ -152,6 +153,12 @@ int main()
 	cameraComponent = cameraEntity->addComponent<CameraComponent>();
 
 	defaultRenderer.addEntity(cameraEntity);
+
+	Entity* pointLightEntity = new Entity("Point light");
+	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
+	pointLightComponent->setShader(phongShader->ID, 0);
+
+	defaultRenderer.addEntity(pointLightEntity);
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));

@@ -19,6 +19,8 @@
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
 #include "components/cameraComponent.hpp"
+#include "components/lights/lightComponent.hpp"
+#include "components/lights/pointLightComponent.hpp"
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
@@ -525,7 +527,6 @@ void ShowComponentUI(Component* component)
 			if (newSensitivity != currentSensitivity)
 				cameraComponent->setSensitivity(newSensitivity);
 
-			ImGui::NewLine();
 			if (ImGui::Button("Reset"))
 			{
 				cameraComponent->setZoom(CameraComponent::ZOOM);
@@ -533,6 +534,24 @@ void ShowComponentUI(Component* component)
 				cameraComponent->setSpeed(CameraComponent::SPEED);
 				cameraComponent->setSensitivity(CameraComponent::SENSITIVITY);
 			}
+
+			ImGui::PopItemWidth();
+			ImGui::PopItemWidth();
+		}
+	}
+	else if (dynamic_cast<PointLightComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Point light"))
+		{
+			PointLightComponent* pointLightComponent = dynamic_cast<PointLightComponent*>(component);
+
+			ImGui::ColorEdit3("Ambient", &(pointLightComponent->ambientColor[0]));
+			ImGui::ColorEdit3("Diffuse", &(pointLightComponent->diffuseColor[0]));
+			ImGui::ColorEdit3("Specular", &(pointLightComponent->specularColor[0]));
+
+			ImGui::DragFloat("Constant", &(pointLightComponent->constant), 0.002f, 0.0f, 1.0f);
+			ImGui::DragFloat("Linear", &(pointLightComponent->linear), 0.002f, 0.0f, 1.0f);
+			ImGui::DragFloat("Quadratic", &(pointLightComponent->quadratic), 0.002f, 0.001f, 1.0f);
 		}
 	}
 }

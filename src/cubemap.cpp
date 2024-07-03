@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include <stb_image.h>
+#include <utilities/stb_image.h>
 
 #include "cubemap.hpp"
 

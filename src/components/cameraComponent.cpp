@@ -32,6 +32,8 @@ void CameraComponent::update()
 
 glm::mat4 CameraComponent::getViewMatrix()
 {
+	this->updateCameraVectors();
+
 	return glm::lookAt(this->parent->transform->getPosition(), this->parent->transform->getPosition() + this->front, this->up);
 }
 
