@@ -2,8 +2,8 @@
 
 #include "main.hpp"
 #include "io/input.hpp"
-#include "camera.hpp"
 #include "model.hpp"
+#include "components/cameraComponent.hpp"
 
 GLFWwindow* window;
 
@@ -81,7 +81,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 
-	camera.processMouseMovement(xoffset, yoffset);
+	cameraComponent->processMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -91,7 +91,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		return;
 	}
-	camera.processMouseScroll(static_cast<float>(yoffset));
+	cameraComponent->processMouseScroll(static_cast<float>(yoffset));
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -206,22 +206,22 @@ void processInput(GLFWwindow* window, float &deltaTime)
 	// Forward movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+		cameraComponent->processKeyboard(CameraMovement::FORWARD, deltaTime);
 	}
 	// Backward movement
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+		cameraComponent->processKeyboard(CameraMovement::BACKWARD, deltaTime);
 	}
 	// Left movement
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+		cameraComponent->processKeyboard(CameraMovement::LEFT, deltaTime);
 	}
 	// Right movement
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+		cameraComponent->processKeyboard(CameraMovement::RIGHT, deltaTime);
 	}
 }
 

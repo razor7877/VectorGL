@@ -18,7 +18,6 @@
 #include "mesh.hpp"
 #include "skybox.hpp"
 #include "texture.hpp"
-#include "camera.hpp"
 #include "cubemap.hpp"
 #include "renderer.hpp"
 
@@ -45,11 +44,11 @@ int windowHeight = WINDOW_HEIGHT;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Camera camera(glm::vec3(0.0f, 5.0f, 3.0f));
-
 // Uniform buffer object (global uniforms)
 unsigned int UBO;
 Renderer defaultRenderer;
+
+CameraComponent* cameraComponent;
 
 // Sets up necessary data for the uniform buffer
 void initUniformBuffer()
@@ -92,9 +91,6 @@ int main()
 	Shader* skyboxShader = new Shader("shaders/skybox.vert", "shaders/skybox.frag");
 	Shader* gridShader = new Shader("shaders/grid2.vert", "shaders/grid2.frag");
 
-	glm::mat4 view = camera.getViewMatrix();
-	glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
-
 	// Sets up global uniforms for each shader used
 	initUniformBuffer();
 
@@ -103,8 +99,6 @@ int main()
 
 	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader->ID, "Matrices");
 	glUniformBlockBinding(skyboxShader->ID, UBIskyboxShader, 0);
-
-	updateUniformBuffer(view, projection);
 	
 	Texture* crate = new Texture("img/container2.png", "texture_diffuse", false);
 	Material* boxTex = new Material(crate);
@@ -125,22 +119,18 @@ int main()
 	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
 	PointLight pointLight2 = PointLight(glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-5.0f, 5.0f, -5.0f), 1.0f, 0.045f, 0.0075f);
 	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.4f), glm::vec3(0.7f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.3f));
-	SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
+	//SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
 	SpotLight sl2 = SpotLight(glm::vec3(0.0f, 0.0f, 0.6f), glm::vec3(0.0f, 0.0f, 0.8f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 15.0f, 0.0f), 0.0f, 0.0f, 0.001f, glm::vec3(0.0f, -1.0f, 0.0f), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(12.5f)));
 	
 	defaultRenderer.addLight(&pointLight)
 		.addLight(&pointLight2)
 		.addLight(&dirLight)
-		.addLight(&spotLight)
+		//.addLight(&spotLight)
 		.addLight(&sl2);
 	
 	// TODO: Fix skybox changes in interface.cpp
 	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
 	Skybox* skybox = new Skybox(skyboxShader->ID , cubemap);
-	
-	//Model* model = (new Model("models/sea_keep/scene.gltf", phongShader->ID));
-	//model->setScale(0.075f, 0.075f, 0.075f)
-	//	 ->rotateObject(-90.0f, 0.0f, 0.0f);
 
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
@@ -151,15 +141,17 @@ int main()
 		//.addObject(model);
 		//.addObject(grid);
 	
-	// A list of vertices that represent a box used to draw any skybox
-	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
-
 	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader->ID);
 	model->transform
 		->setScale(0.075f, 0.075f, 0.075f)
 		->rotateObject(-90.0f, 0.0f, 0.0f);
 
 	defaultRenderer.addEntity(model);
+
+	Entity* cameraEntity = new Entity("Camera");
+	cameraComponent = cameraEntity->addComponent<CameraComponent>();
+
+	defaultRenderer.addEntity(cameraEntity);
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
@@ -187,27 +179,22 @@ int main()
 		// Processes any mouse or keyboard input for camera movement
 		processInput(window, deltaTime);
 		
-		// Updates matrices to update camera movement
-		projection = glm::perspective(glm::radians(camera.zoom), (float)windowWidth / (float)windowHeight, 0.01f, 100.0f);
-		view = camera.getViewMatrix();
-		updateUniformBuffer(view, projection);
-		
 		// Models for phong lighting
 		phongShader->use()
-			->setVec3("viewPos", camera.position)
+			->setVec3("viewPos", cameraComponent->getPosition())
 			->setVec3("material.ambient", boxTex->ambient)
 			->setVec3("material.diffuse", boxTex->diffuse)
 			->setVec3("material.specular", boxTex->specular)
 			->setFloat("material.shininess", boxTex->shininess);
 
 		// Updates spotlight position and direction based on camera's movement
-		spotLight.position = camera.position;
-		spotLight.direction = camera.front;
+		//spotLight.position = camera.position;
+		//spotLight.direction = camera.front;
 
 		defaultRenderer.render(deltaTime);
 		
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(camera, boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess, skybox);
+		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess, skybox);
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();

@@ -6,14 +6,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "camera.hpp"
+#include "components/cameraComponent.hpp"
 #include "renderer.hpp"
 
 extern int windowWidth;
 extern int windowHeight;
 
-extern Camera camera;
 extern Renderer defaultRenderer;
+extern CameraComponent* cameraComponent;
 
 void initUniformBuffer();
 void updateUniformBuffer(glm::mat4 view, glm::mat4 projection);

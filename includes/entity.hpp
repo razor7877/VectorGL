@@ -18,6 +18,7 @@ public:
 	TransformComponent* transform;
 
 	Entity();
+	Entity(std::string label);
 	~Entity();
 
 	/// <summary>

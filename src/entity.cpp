@@ -7,6 +7,12 @@ Entity::Entity()
 	this->transform = this->addComponent<TransformComponent>();
 }
 
+Entity::Entity(std::string label)
+{
+	this->transform = this->addComponent<TransformComponent>();
+	this->label = label;
+}
+
 Entity::~Entity()
 {
 	for (auto& [type, component] : this->components)

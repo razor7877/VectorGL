@@ -7,7 +7,6 @@
 class TransformComponent : public virtual Component
 {
 public:
-	TransformComponent();
 	TransformComponent(Entity* parent);
 	~TransformComponent();
 

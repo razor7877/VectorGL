@@ -18,6 +18,7 @@
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
+#include "components/cameraComponent.hpp"
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
@@ -74,13 +75,12 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 	spotLights = lightManager.getSpotLights();
 }
 
-void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox* skybox)
+void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox* skybox)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	CameraMenu(camera);
 	PerformanceMenu();
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
@@ -106,33 +106,6 @@ void ImGuiDrawWindows(Camera& camera, glm::vec3& ambient, glm::vec3& diffuse, gl
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void CameraMenu(Camera& camera)
-{
-	ImGui::Begin("Camera");
-
-	// Camera FOV value
-	ImGui::PushItemWidth(100.0f);
-	ImGui::SliderFloat("FOV", &camera.zoom, 1.0f, 90.0f);
-
-	ImGui::PushItemWidth(150.0f);
-	ImGui::DragFloat3("Position", &camera.position[0]);
-
-	ImGui::PushItemWidth(100.0f);
-	ImGui::InputFloat("Speed", &camera.movementSpeed);
-	ImGui::InputFloat("Sensitivity", &camera.mouseSensitivity);
-
-	ImGui::NewLine();
-	if (ImGui::Button("Reset"))
-	{
-		camera.zoom = ZOOM;
-		camera.position = glm::vec3(0.0f, 0.0f, 0.0f);
-		camera.movementSpeed = SPEED;
-		camera.mouseSensitivity = SENSITIVITY;
-	}
-
-	ImGui::End();
 }
 
 void PerformanceMenu()
@@ -517,6 +490,49 @@ void ShowComponentUI(Component* component)
 		if (ImGui::CollapsingHeader("Mesh"))
 		{
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
+		}
+	}
+	else if (dynamic_cast<CameraComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Camera"))
+		{
+			CameraComponent* cameraComponent = dynamic_cast<CameraComponent*>(component);
+
+			float currentZoom = cameraComponent->getZoom();
+			float newZoom = currentZoom;
+
+			// Camera FOV value
+			ImGui::PushItemWidth(100.0f);
+			ImGui::SliderFloat("FOV", &newZoom, 1.0f, 90.0f);
+
+			if (newZoom != currentZoom)
+				cameraComponent->setZoom(newZoom);
+
+			float currentSpeed = cameraComponent->getSpeed();
+			float newSpeed = currentSpeed;
+
+			float currentSensitivity = cameraComponent->getSensitivity();
+			float newSensitivity = currentSensitivity;
+
+			// Camera speed and sensitivity
+			ImGui::PushItemWidth(100.0f);
+			ImGui::InputFloat("Speed", &newSpeed);
+			ImGui::InputFloat("Sensitivity", &newSensitivity);
+
+			if (newSpeed != currentSpeed)
+				cameraComponent->setSpeed(newSpeed);
+
+			if (newSensitivity != currentSensitivity)
+				cameraComponent->setSensitivity(newSensitivity);
+
+			ImGui::NewLine();
+			if (ImGui::Button("Reset"))
+			{
+				cameraComponent->setZoom(CameraComponent::ZOOM);
+				cameraComponent->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+				cameraComponent->setSpeed(CameraComponent::SPEED);
+				cameraComponent->setSensitivity(CameraComponent::SENSITIVITY);
+			}
 		}
 	}
 }
