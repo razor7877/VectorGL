@@ -82,12 +82,7 @@ T* Entity::addComponent()
 	const std::type_info& componentType = typeid(T);
 
 	if (this->components.count(componentType) == 0)
-	{
 		this->components[componentType] = new T(this);
-
-		if (componentType == typeid(TransformComponent))
-			this->transform = dynamic_cast<TransformComponent*>(this->components[componentType]);
-	}
 
 	return dynamic_cast<T*>(this->components[componentType]);
 }

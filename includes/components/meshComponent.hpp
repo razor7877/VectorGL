@@ -19,7 +19,14 @@ public:
 	void Component::update() override;
 
 	void setupMesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0));
-	void setupMesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position);
+	void setupMesh(
+		std::vector<float> vertices,
+		std::vector<float> texCoords,
+		std::vector<float> normals,
+		std::vector<unsigned int> indices,
+		std::vector<Texture*> textures,
+		GLuint shaderProgramID,
+		glm::vec3 position = glm::vec3(1.0f));
 
 	// Generates buffers and enables correct draw calls to use given texture
 	MeshComponent& addTexCoords(std::vector<float> texCoords);

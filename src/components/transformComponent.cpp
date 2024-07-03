@@ -5,8 +5,8 @@
 
 TransformComponent::TransformComponent(Entity* parent) : Component(parent)
 {
-	this->position = {};
-	this->rotation = {};
+	this->position = glm::vec3(0);
+	this->rotation = glm::vec3(0);
 	this->scale = glm::vec3(1.0f);
 	this->modelMatrix = glm::mat4(1.0f);
 }

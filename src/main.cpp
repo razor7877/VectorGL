@@ -32,6 +32,8 @@
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
 
+#include "utilities/resourceLoader.hpp"
+
 extern GLFWwindow* window;
 
 const int WINDOW_WIDTH = 1920;
@@ -152,12 +154,8 @@ int main()
 	// A list of vertices that represent a box used to draw any skybox
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
 
-	Entity* meshEntity = new Entity();
-	TransformComponent* meshTransform = meshEntity->addComponent<TransformComponent>();
-	MeshComponent* mesh = meshEntity->addComponent<MeshComponent>();
-	mesh->setupMesh(boxVertices, sizeof(boxVertices), phongShader->ID);
-
-	defaultRenderer.addEntity(meshEntity);
+	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader->ID);
+	defaultRenderer.addEntity(model);
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));

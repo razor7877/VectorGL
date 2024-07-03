@@ -146,7 +146,13 @@ void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, GLuint sh
 	this->normalBO = {};
 }
 
-void MeshComponent::setupMesh(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position)
+void MeshComponent::setupMesh(
+	std::vector<float> vertices,
+	std::vector<float> texCoords,
+	std::vector<float> normals,
+	std::vector<unsigned int> indices,
+	std::vector<Texture*> textures, GLuint shaderProgramID,
+	glm::vec3 position)
 {
 	this->vertices = vertices;
 	this->shaderProgramID = shaderProgramID;

@@ -4,7 +4,7 @@
 
 Entity::Entity()
 {
-
+	this->transform = this->addComponent<TransformComponent>();
 }
 
 Entity::~Entity()
@@ -21,6 +21,9 @@ void Entity::start()
 	{
 		component->start();
 	}
+
+	for (Entity* child : this->children)
+		child->start();
 }
 
 void Entity::update(float deltaTime)
@@ -29,6 +32,9 @@ void Entity::update(float deltaTime)
 	{
 		component->update();
 	}
+
+	for (Entity* child : this->children)
+		child->update(deltaTime);
 }
 
 std::string Entity::getLabel()
