@@ -116,13 +116,6 @@ int main()
 	defaultRenderer = Renderer();
 	LightManager::getInstance().shaderProgramID = phongShader->ID;
 
-	// Sets up lighting for the renderer's LightManager
-	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
-	PointLight pointLight2 = PointLight(glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-5.0f, 5.0f, -5.0f), 1.0f, 0.045f, 0.0075f);
-	DirectionalLight dirLight = DirectionalLight(glm::vec3(0.4f), glm::vec3(0.7f), glm::vec3(1.0f), glm::vec3(-0.2f, -1.0f, -0.3f));
-	//SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
-	SpotLight sl2 = SpotLight(glm::vec3(0.0f, 0.0f, 0.6f), glm::vec3(0.0f, 0.0f, 0.8f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 15.0f, 0.0f), 0.0f, 0.0f, 0.001f, glm::vec3(0.0f, -1.0f, 0.0f), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(12.5f)));
-	
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
 	//Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
@@ -157,6 +150,11 @@ int main()
 	SpotLightComponent* spotLightComponent = spotLightEntity->addComponent<SpotLightComponent>();
 
 	defaultRenderer.addEntity(spotLightEntity);
+
+	Entity* dirLightEntity = new Entity("Directional light");
+	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
+
+	defaultRenderer.addEntity(dirLightEntity);
 
 	Entity* skyEntity = new Entity("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
