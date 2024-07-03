@@ -402,7 +402,7 @@ void SceneGraph()
 
 	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 	{
-		//SceneGraphRecurse(renderer->GetEntities());
+		SceneGraphRecurse(renderer->GetEntities());
 		ImGui::TreePop();
 	}
 

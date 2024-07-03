@@ -19,13 +19,18 @@
 #include "skybox.hpp"
 #include "texture.hpp"
 #include "camera.hpp"
-#include "io/interface.hpp"
-#include "io/input.hpp"
 #include "cubemap.hpp"
 #include "renderer.hpp"
+
+#include "io/interface.hpp"
+#include "io/input.hpp"
+
 #include "lights/directionalLight.hpp"
 #include "lights/pointLight.hpp"
 #include "lights/spotLight.hpp"
+
+#include "components/meshComponent.hpp"
+#include "components/transformComponent.hpp"
 
 extern GLFWwindow* window;
 
@@ -161,7 +166,11 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
-	Entity* lightEntity = new Entity();
+	Entity* meshEntity = new Entity();
+	TransformComponent* meshTransform = meshEntity->addComponent<TransformComponent>();
+	MeshComponent* mesh = meshEntity->addComponent<MeshComponent>();
+
+	defaultRenderer.addEntity(meshEntity);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))

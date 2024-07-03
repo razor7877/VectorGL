@@ -1,11 +1,13 @@
 #pragma once
 
 #include <map>
+#include <typeindex>
 #include <typeinfo>
 #include <string>
 #include <vector>
 
 #include "components/component.hpp"
+#include "components/transformComponent.hpp"
 
 /// <summary>
 /// Represents an entity in the world which can contain various components
@@ -13,6 +15,9 @@
 class Entity
 {
 public:
+	Entity();
+	~Entity();
+
 	/// <summary>
 	/// Updates the entity and its components
 	/// </summary>
@@ -23,14 +28,14 @@ public:
 	/// Adds a component to the entity if it doesn't already exist
 	/// </summary>
 	/// <typeparam name="T">The type of the component to create</typeparam>
-	template <typename T> void addComponent();
+	template <typename T> T* addComponent();
 
 	/// <summary>
 	/// Gets a component from the entity
 	/// </summary>
 	/// <typeparam name="T">The type of the component</typeparam>
 	/// <returns>A pointer to the component, or nullptr it it doesn't have one</returns>
-	template <typename T> T getComponent();
+	template <typename T> T* getComponent();
 
 	// Returns a label to identify the object in the scene graph
 	std::string getLabel();
@@ -50,13 +55,40 @@ public:
 
 	bool getIsEnabled();
 	void setIsEnabled(bool isEnabled);
+
 private:
-	std::map<std::type_info, Component*> components;
+	std::map<std::type_index, Component*> components;
 
 	std::string label = "Entity";
 
-	Entity* parent;
+	Entity* parent = nullptr;
 	std::vector<Entity*> children;
 
-	bool isEnabled;
+	bool isEnabled = true;
 };
+
+template <typename T>
+T* Entity::addComponent()
+{
+	static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+
+	const std::type_info& componentType = typeid(T);
+
+	if (this->components.count(componentType) == 0)
+		this->components[componentType] = new(T);
+
+	return dynamic_cast<T*>(this->components[componentType]);
+}
+
+template <typename T>
+T* Entity::getComponent()
+{
+	static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+
+	const std::type_info& componentType = typeid(T);
+
+	if (this->components.count(componentType))
+		return dynamic_cast<T*>(this->components[componentType]);
+
+	return nullptr;
+}

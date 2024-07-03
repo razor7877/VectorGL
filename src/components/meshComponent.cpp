@@ -5,41 +5,9 @@
 
 #include "components/meshComponent.hpp"
 
-MeshComponent::MeshComponent()
+MeshComponent::MeshComponent() : Component()
 {
 	this->shaderProgramID = {};
-	this->modelMatrix = glm::mat4(1.0f);
-
-	this->VAO = {};
-	this->VBO = {};
-	this->indicesBO = {};
-	this->texCoordBO = {};
-	this->normalBO = {};
-}
-
-MeshComponent::MeshComponent(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)
-{
-	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
-	this->shaderProgramID = shaderProgramID;
-	this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
-
-	this->VAO = {};
-	this->VBO = {};
-	this->indicesBO = {};
-	this->texCoordBO = {};
-	this->normalBO = {};
-}
-
-MeshComponent::MeshComponent(std::vector<float> vertices, std::vector<float> texCoords, std::vector<float> normals, std::vector<unsigned int> indices, std::vector<Texture*> textures, GLuint shaderProgramID, glm::vec3 position)
-{
-	this->vertices = vertices;
-	this->shaderProgramID = shaderProgramID;
-	this->modelMatrix = glm::translate(glm::mat4(1.0f), position);
-	this->texCoords = texCoords;
-	this->textures = textures;
-
-	addNormals(&normals[0], (GLsizei)normals.size() * sizeof(float));
-	addIndices(&indices[0], (GLsizei)indices.size() * sizeof(unsigned int));
 
 	this->VAO = {};
 	this->VBO = {};
@@ -149,7 +117,7 @@ void MeshComponent::update()
 	}
 
 	// Send the object's model matrix to the shader
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &modelMatrix[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &this->transform->getModelMatrix()[0][0]);
 
 	if (indices.size() == 0)
 	{

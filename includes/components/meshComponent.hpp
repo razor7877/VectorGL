@@ -2,31 +2,17 @@
 
 #include <vector>
 
-#include "glad/glad.h"
-#include "glm/glm.hpp"
+#include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include "component.hpp"
+#include "transformComponent.hpp"
 #include "texture.hpp"
 
 class MeshComponent : public virtual Component
 {
 public:
 	MeshComponent();
-	MeshComponent(
-		float vertices[],
-		unsigned int vertSize,
-		GLuint shaderProgramID,
-		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)
-	);
-	MeshComponent(
-		std::vector<float> vertices,
-		std::vector<float> texCoords,
-		std::vector<float> normals,
-		std::vector<unsigned int> indices,
-		std::vector<Texture*> textures,
-		GLuint shaderProgramID,
-		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)
-	);
 	~MeshComponent();
 
 	void Component::start() override;
