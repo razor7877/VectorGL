@@ -8,7 +8,7 @@
 
 ResourceLoader ResourceLoader::instance;
 
-ResourceLoader ResourceLoader::getInstance()
+ResourceLoader& ResourceLoader::getInstance()
 {
 	return ResourceLoader::instance;
 }

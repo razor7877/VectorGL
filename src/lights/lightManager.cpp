@@ -4,7 +4,7 @@
 
 LightManager LightManager::instance;
 
-LightManager LightManager::getInstance()
+LightManager& LightManager::getInstance()
 {
 	return LightManager::instance;
 }
@@ -17,42 +17,40 @@ LightManager::LightManager()
 	this->nrSpotLights = {};
 }
 
-LightManager::LightManager(GLuint shaderProgramID)
-{
-	this->shaderProgramID = shaderProgramID;
-	this->nrDirLights = {};
-	this->nrPointLights = {};
-	this->nrSpotLights = {};
-}
-
 void LightManager::init()
 {
-	// Make sure the count of each light is set to 0 in case the LightManager gets initialized again
-	this->nrDirLights = {};
-	this->nrPointLights = {};
-	this->nrSpotLights = {};
-
 	this->sendToShader();
 }
 
 void LightManager::sendToShader()
 {
-	glUniform1i(glGetUniformLocation(shaderProgramID, "nrDirLights"), nrDirLights);
-	glUniform1i(glGetUniformLocation(shaderProgramID, "nrPointLights"), nrPointLights);
-	glUniform1i(glGetUniformLocation(shaderProgramID, "nrSpotLights"), nrSpotLights);
+	glUseProgram(this->shaderProgramID);
+
+	glUniform1i(glGetUniformLocation(this->shaderProgramID, "nrDirLights"), this->nrDirLights);
+	glUniform1i(glGetUniformLocation(this->shaderProgramID, "nrPointLights"), this->nrPointLights);
+	glUniform1i(glGetUniformLocation(this->shaderProgramID, "nrSpotLights"), this->nrSpotLights);
 }
 
 unsigned int LightManager::addDirLight()
 {
-	return nrDirLights++;
+	this->nrDirLights++;
+	this->sendToShader();
+
+	return this->nrDirLights - 1;
 }
 
 unsigned int LightManager::addPointLight()
 {
-	return nrPointLights++;
+	this->nrPointLights++;
+	this->sendToShader();
+
+	return this->nrPointLights - 1;
 }
 
 unsigned int LightManager::addSpotLight()
 {
-	return nrSpotLights++;
+	this->nrSpotLights++;
+	this->sendToShader();
+
+	return this->nrSpotLights - 1;
 }

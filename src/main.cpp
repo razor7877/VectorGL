@@ -14,12 +14,10 @@
 
 #include "main.hpp"
 #include "shader.hpp"
-#include "model.hpp"
-#include "mesh.hpp"
-#include "skybox.hpp"
 #include "texture.hpp"
 #include "cubemap.hpp"
 #include "renderer.hpp"
+#include "material.hpp"
 
 #include "io/interface.hpp"
 #include "io/input.hpp"
@@ -115,7 +113,8 @@ int main()
 	phongShader->use()->setInt("texture1", 0);
 
 	// Creates a renderer for drawing objects
-	defaultRenderer = Renderer(phongShader->ID);
+	defaultRenderer = Renderer();
+	LightManager::getInstance().shaderProgramID = phongShader->ID;
 
 	// Sets up lighting for the renderer's LightManager
 	PointLight pointLight = PointLight(glm::vec3(0.0f, 0.2f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 5.0f, 5.0f), 1.0f, 0.045f, 0.0075f);
@@ -124,20 +123,10 @@ int main()
 	//SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
 	SpotLight sl2 = SpotLight(glm::vec3(0.0f, 0.0f, 0.6f), glm::vec3(0.0f, 0.0f, 0.8f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 15.0f, 0.0f), 0.0f, 0.0f, 0.001f, glm::vec3(0.0f, -1.0f, 0.0f), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(12.5f)));
 	
-	//defaultRenderer.addLight(&pointLight)
-	//	.addLight(&pointLight2)
-	//	.addLight(&dirLight)
-	//	//.addLight(&spotLight)
-	//	.addLight(&sl2);
-
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
 	//Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
 	//grid->setLabel("Grid");
-
-	//defaultRenderer.addObject(skybox);
-		//.addObject(model);
-		//.addObject(grid);
 	
 	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader->ID);
 	model->transform
@@ -153,7 +142,7 @@ int main()
 
 	// Add point light
 	Entity* pointLightEntity = new Entity("Point light");
-	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
+	PointLightComponent* pointLightComponent = cameraEntity->addComponent<PointLightComponent>();
 
 	// Add mesh to the light
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
@@ -211,6 +200,7 @@ int main()
 			->setFloat("material.shininess", boxTex->shininess);
 
 		defaultRenderer.render(deltaTime);
+		LightManager::getInstance().init();
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess);

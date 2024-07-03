@@ -2,7 +2,6 @@
 
 #include "main.hpp"
 #include "io/input.hpp"
-#include "model.hpp"
 #include "components/cameraComponent.hpp"
 #include "utilities/resourceLoader.hpp"
 
@@ -192,7 +191,7 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
 		}
 		std::cout << "Drop callback path: " << newPath << std::endl;
 		// TODO : This is not properly disposed of!!
-		defaultRenderer.addEntity(ResourceLoader::getInstance().loadModelFromFilepath(newPath, defaultRenderer.lightManager.shaderProgramID));
+		defaultRenderer.addEntity(ResourceLoader::getInstance().loadModelFromFilepath(newPath, LightManager::getInstance().shaderProgramID));
 	}
 }
 

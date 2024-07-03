@@ -15,16 +15,9 @@
 class LightManager
 {
 public:
-	static LightManager getInstance();
+	static LightManager& getInstance();
 
 	GLuint shaderProgramID;
-
-	unsigned int nrDirLights;
-	unsigned int nrPointLights;
-	unsigned int nrSpotLights;
-
-	LightManager();
-	LightManager(GLuint shaderProgramID);
 
 	unsigned int addDirLight();
 	unsigned int addPointLight();
@@ -36,6 +29,14 @@ public:
 
 private:
 	static LightManager instance;
+
+	LightManager();
+	LightManager(LightManager const&) = delete;
+	LightManager& operator=(LightManager const&) = delete;
+
+	unsigned int nrDirLights;
+	unsigned int nrPointLights;
+	unsigned int nrSpotLights;
 };
 
 #endif

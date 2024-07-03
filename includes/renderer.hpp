@@ -5,7 +5,6 @@
 #include <map>
 
 #include "entity.hpp"
-#include "renderObject.hpp"
 #include "lights/lightManager.hpp"
 #include "lights/light.hpp"
 
@@ -14,11 +13,7 @@
 class Renderer
 {
 public:
-	// The renderer's light manager, used to handle lighting and various light types
-	LightManager lightManager;
-
 	Renderer();
-	Renderer(GLuint lightShaderProgramID);
 
 	std::vector<Entity*> GetEntities();
 	// Returns the framebuffer that renderer draws into
@@ -42,7 +37,7 @@ private:
 	std::vector<Entity*> entities;
 
 	// Associates each shader used in the meshes vector with its corresponding meshes
-	std::map<int, std::vector<RenderObject*>> shaderMap;
+	//std::map<int, std::vector<RenderObject*>> shaderMap;
 
 	GLuint frameBuffer;
 	GLuint depthBuffer;

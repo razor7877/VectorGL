@@ -39,7 +39,6 @@ float timeToFrame = 1;
 
 // Used for dynamically showing existing lights and enabling their realtime modification
 Renderer* renderer;
-LightManager lightManager;
 
 // The currently selected node in the scene graph
 Entity* selectedSceneNode{};
@@ -68,7 +67,6 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 	ImGui::StyleColorsDark();
 
 	renderer = rendererArg;
-	lightManager = renderer->lightManager;
 }
 
 void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)

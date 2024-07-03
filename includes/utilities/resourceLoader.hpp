@@ -9,7 +9,7 @@
 class ResourceLoader
 {
 public:
-	static ResourceLoader getInstance();
+	static ResourceLoader& getInstance();
 
 	Entity* loadModelFromFilepath(std::string path, GLuint shaderProgramID);
 	
@@ -20,6 +20,8 @@ private:
 	std::map<std::string, Texture*> loadedTextures;
 
 	ResourceLoader();
+	ResourceLoader(ResourceLoader const&) = delete;
+	ResourceLoader& operator=(ResourceLoader const&) = delete;
 
 	void processNode(aiNode* node, const aiScene* scene, GLuint shaderProgramID, Entity* parent);
 	Entity* processMesh(aiMesh* mesh, const aiScene* scene, GLuint shaderProgramID, Entity* parent);

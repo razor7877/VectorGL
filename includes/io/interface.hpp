@@ -1,7 +1,6 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include "skybox.hpp"
 #include "renderer.hpp"
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library

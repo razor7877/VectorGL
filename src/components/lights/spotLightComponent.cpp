@@ -16,6 +16,8 @@ SpotLightComponent::SpotLightComponent(Entity* parent) : LightComponent(parent),
 
 void SpotLightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index)
 {
+	glUseProgram(shaderProgramID);
+
 	std::string lightLocation = "spotLights[" + std::to_string(index) + "]";
 
 	std::string ambientLoc = lightLocation + ".ambientColor";

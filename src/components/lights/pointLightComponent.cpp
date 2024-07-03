@@ -16,6 +16,8 @@ PointLightComponent::PointLightComponent(Entity* parent) : LightComponent(parent
 
 void PointLightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index)
 {
+	glUseProgram(shaderProgramID);
+
 	std::string lightLocation = "pointLights[" + std::to_string(index) + "]";
 	std::string ambientLoc = lightLocation + ".ambientColor";
 	std::string diffuseLoc = lightLocation + ".diffuseColor";

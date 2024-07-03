@@ -4,15 +4,11 @@
 
 LightComponent::LightComponent(Entity* parent) : Component(parent)
 {
-	this->shaderProgramID = 0;
-	this->index = 0;
-
-	this->isEnabled = false;
-
 	this->ambientColor = glm::vec3(1.0f);
 	this->diffuseColor = glm::vec3(1.0f);
 	this->specularColor = glm::vec3(1.0f);
 
+	this->index = 0;
 	this->shaderProgramID = LightManager::getInstance().shaderProgramID;
 }
 
@@ -23,6 +19,5 @@ void LightComponent::start()
 
 void LightComponent::update()
 {
-	if (this->isEnabled)
-		this->sendToShader(this->shaderProgramID, this->index);
+	this->sendToShader(this->shaderProgramID, this->index);
 }
