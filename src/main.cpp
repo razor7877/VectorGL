@@ -31,6 +31,9 @@
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
 #include "components/lights/pointLightComponent.hpp"
+#include "components/lights/spotLightComponent.hpp"
+#include "components/lights/directionalLightComponent.hpp"
+#include "components/skyboxComponent.hpp"
 
 #include "utilities/resourceLoader.hpp"
 
@@ -77,9 +80,7 @@ void updateUniformBuffer(glm::mat4 view, glm::mat4 projection)
 int main()
 {
 	if (setupGlfwContext() != 0)
-	{
 		return -1;
-	}
 	
 	// Sets up some parameters for the OpenGL context
 	// Depth test for depth buffering, face culling for performance, blending for transparency
@@ -123,22 +124,18 @@ int main()
 	//SpotLight spotLight = SpotLight(glm::vec3(0.6f), glm::vec3(0.8f), glm::vec3(1.0f), camera.position, 1.0f, 0.09f, 0.032f, camera.front, glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)));
 	SpotLight sl2 = SpotLight(glm::vec3(0.0f, 0.0f, 0.6f), glm::vec3(0.0f, 0.0f, 0.8f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 15.0f, 0.0f), 0.0f, 0.0f, 0.001f, glm::vec3(0.0f, -1.0f, 0.0f), glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(12.5f)));
 	
-	defaultRenderer.addLight(&pointLight)
-		.addLight(&pointLight2)
-		.addLight(&dirLight)
-		//.addLight(&spotLight)
-		.addLight(&sl2);
-	
-	// TODO: Fix skybox changes in interface.cpp
-	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
-	Skybox* skybox = new Skybox(skyboxShader->ID , cubemap);
+	//defaultRenderer.addLight(&pointLight)
+	//	.addLight(&pointLight2)
+	//	.addLight(&dirLight)
+	//	//.addLight(&spotLight)
+	//	.addLight(&sl2);
 
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
 	//Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
 	//grid->setLabel("Grid");
 
-	defaultRenderer.addObject(skybox);
+	//defaultRenderer.addObject(skybox);
 		//.addObject(model);
 		//.addObject(grid);
 	
@@ -154,11 +151,30 @@ int main()
 
 	defaultRenderer.addEntity(cameraEntity);
 
+	// Add point light
 	Entity* pointLightEntity = new Entity("Point light");
 	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
-	pointLightComponent->setShader(phongShader->ID, 0);
+
+	// Add mesh to the light
+	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
+
+	MeshComponent* lightMesh = pointLightEntity->addComponent<MeshComponent>();
+	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), phongShader->ID);
 
 	defaultRenderer.addEntity(pointLightEntity);
+
+	// Add spot light
+	Entity* spotLightEntity = new Entity("Spot light");
+	SpotLightComponent* spotLightComponent = spotLightEntity->addComponent<SpotLightComponent>();
+
+	defaultRenderer.addEntity(spotLightEntity);
+
+	Entity* skyEntity = new Entity("Skybox");
+	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
+	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
+	skyComponent->setupSkybox(cubemap, skyboxShader->ID);
+
+	defaultRenderer.addEntity(skyEntity);
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
@@ -194,14 +210,10 @@ int main()
 			->setVec3("material.specular", boxTex->specular)
 			->setFloat("material.shininess", boxTex->shininess);
 
-		// Updates spotlight position and direction based on camera's movement
-		//spotLight.position = camera.position;
-		//spotLight.direction = camera.front;
-
 		defaultRenderer.render(deltaTime);
 		
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess, skybox);
+		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess);
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
@@ -219,8 +231,7 @@ int main()
 	if (crate != nullptr) delete crate;
 	if (boxTex != nullptr) delete boxTex;
 
-	if (skybox != nullptr && skybox->cubemap != nullptr) delete skybox->cubemap;
-	if (skybox != nullptr) delete skybox;
+	if (cubemap != nullptr) delete cubemap;
 
 	glfwTerminate();
 	return 0;

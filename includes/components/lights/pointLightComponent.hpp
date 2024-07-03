@@ -12,8 +12,5 @@ public:
 
 	PointLightComponent(Entity* parent);
 
-	void Component::start() override;
-	void Component::update() override;
-
 	void LightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index) override;
 };

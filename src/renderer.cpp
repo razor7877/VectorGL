@@ -22,11 +22,6 @@ Renderer::Renderer(GLuint lightShaderProgramID)
 	this->renderTexture = {};
 }
 
-std::vector<RenderObject*> Renderer::GetObjects()
-{
-	return this->objects;
-}
-
 std::vector<Entity*> Renderer::GetEntities()
 {
 	return this->entities;
@@ -35,34 +30,6 @@ std::vector<Entity*> Renderer::GetEntities()
 GLuint Renderer::GetRenderTexture()
 {
 	return this->renderTexture;
-}
-
-Renderer& Renderer::addObject(RenderObject* objectPtr)
-{
-	this->objects.push_back(objectPtr);
-	// For each mesh in the renderer's meshes vector, associates the mesh and it's corresponding
-	// shader ID using the shaderMap table
-	shaderMap[objectPtr->shaderProgramID].push_back(objectPtr);
-
-	objectPtr->setupObject();
-	return *this;
-}
-
-Renderer& Renderer::removeObject(RenderObject* objectPtr)
-{
-	// Get the vector associated with the object's shader
-	std::vector<RenderObject*>* vector = &this->shaderMap[objectPtr->shaderProgramID];
-	vector->erase(std::remove(vector->begin(), vector->end(), objectPtr), vector->end());
-
-	this->objects.erase(std::remove(this->objects.begin(), this->objects.end(), objectPtr), this->objects.end());
-
-	return *this;
-}
-
-Renderer& Renderer::addLight(Light* lightPtr)
-{
-	lightManager.addLight(lightPtr);
-	return *this;
 }
 
 void Renderer::addEntity(Entity* objectPtr)
@@ -128,14 +95,10 @@ void Renderer::init(glm::vec2 windowSize)
 {
 	// Initializes the light manager if it was setup to send all required data to the shader
 	if (lightManager.shaderProgramID != 0)
-	{
 		lightManager.init();
-	}
 
 	for (Entity* entity : this->entities)
-	{
 		entity->start();
-	}
 
 	this->createFramebuffer(windowSize);
 }

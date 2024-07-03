@@ -3,23 +3,15 @@
 #include <glad/glad.h>
 
 #include "components/lights/pointLightComponent.hpp"
+#include "lights/lightManager.hpp"
 
 PointLightComponent::PointLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
 {
 	this->constant = 1.0f;
 	this->linear = 0.045f;
 	this->quadratic = 0.0075f;
-}
 
-void PointLightComponent::start()
-{
-
-}
-
-void PointLightComponent::update()
-{
-	if (this->isEnabled)
-		this->sendToShader(this->shaderProgramID, this->index);
+	this->index = LightManager::getInstance().addPointLight();
 }
 
 void PointLightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index)

@@ -19,7 +19,9 @@ public:
 
 	LightComponent(Entity* parent);
 
-	void setShader(GLuint shaderProgramID, int index);
+	void Component::start() override;
+	void Component::update() override;
+
 	void virtual sendToShader(unsigned int shaderProgramID, unsigned int index) = 0;
 
 protected:

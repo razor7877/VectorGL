@@ -40,9 +40,6 @@ float timeToFrame = 1;
 // Used for dynamically showing existing lights and enabling their realtime modification
 Renderer* renderer;
 LightManager lightManager;
-std::vector<DirectionalLight*> dirLights;
-std::vector<PointLight*> pointLights;
-std::vector<SpotLight*> spotLights;
 
 // The currently selected node in the scene graph
 Entity* selectedSceneNode{};
@@ -72,12 +69,9 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 
 	renderer = rendererArg;
 	lightManager = renderer->lightManager;
-	dirLights = lightManager.getDirLights();
-	pointLights = lightManager.getPointLights();
-	spotLights = lightManager.getSpotLights();
 }
 
-void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox* skybox)
+void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -86,8 +80,7 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	PerformanceMenu();
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
-	LightSettings();
-	SkyboxSettings(skybox);
+	SkyboxSettings();
 	ShowNodeDetails();
 	SceneGraph();
 
@@ -173,119 +166,84 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 	ImGui::End();
 }
 
-void LightSettings()
-{
-	ImGui::Begin("Light settings");
+//void LightSettings()
+//{
+//	ImGui::Begin("Light settings");
+//
+//	for (int i = 0; i < dirLights.size(); i++)
+//	{
+//		ImGui::PushID(dirLights[i]);
+//
+//		if (ImGui::CollapsingHeader("DirectionalLight"))
+//		{
+//			bool modified = false;
+//
+//			if (ImGui::ColorEdit3("DL_Amb", &(dirLights[i]->ambientColor[0])))
+//				modified = true;
+//			if (ImGui::ColorEdit3("DL_Diff", &(dirLights[i]->diffuseColor[0])))
+//				modified = true;
+//			if (ImGui::ColorEdit3("DL_Spec", &(dirLights[i]->specularColor[0])))
+//				modified = true;
+//
+//			if (ImGui::DragFloat3("DL_Dir", &(dirLights[i]->direction[0]), 0.002f))
+//				modified = true;
+//
+//			if (modified)
+//			{
+//				glUseProgram(lightManager.shaderProgramID);
+//				dirLights[i]->sendToShader(lightManager.shaderProgramID, i);
+//			}
+//		}
+//
+//		ImGui::PopID();
+//	}
+//
+//	for (int i = 0; i < spotLights.size(); i++)
+//	{
+//		ImGui::PushID(spotLights[i]);
+//
+//		if (ImGui::CollapsingHeader("SpotLight"))
+//		{
+//			bool modified = false;
+//
+//			if (ImGui::ColorEdit3("SL_Amb", &(spotLights[i]->ambientColor[0])))
+//				modified = true;
+//			if (ImGui::ColorEdit3("SL_Diff", &(spotLights[i]->diffuseColor[0])))
+//				modified = true;
+//			if (ImGui::ColorEdit3("SL_Spec", &(spotLights[i]->specularColor[0])))
+//				modified = true;
+//
+//			if (ImGui::DragFloat3("SL_Pos", &(spotLights[i]->position[0])))
+//				modified = true;
+//			if (ImGui::DragFloat3("SL_Dir", &(spotLights[i]->direction[0]), 0.002f))
+//				modified = true;
+//
+//			if (ImGui::DragFloat("SL_Const", &(spotLights[i]->constant), 0.002f, 0.0f, 1.0f))
+//				modified = true;
+//			if (ImGui::DragFloat("SL_Lin", &(spotLights[i]->linear), 0.002f, 0.0f, 1.0f))
+//				modified = true;
+//			if (ImGui::DragFloat("SL_Quad", &(spotLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
+//				modified = true;
+//
+//			if (ImGui::DragFloat("SL_cutOff", &(spotLights[i]->cutOff), 0.002f, 0.001f, 1.0f))
+//				modified = true;
+//			if (ImGui::DragFloat("SL_outerCutOff", &(spotLights[i]->outerCutOff), 0.002f, 0.001f, 1.0f))
+//				modified = true;
+//
+//			if (modified)
+//			{
+//				glUseProgram(lightManager.shaderProgramID);
+//				spotLights[i]->sendToShader(lightManager.shaderProgramID, i);
+//			}
+//		}
+//
+//		ImGui::PopID();
+//	}
+//
+//	ImGui::End();
+//}
 
-	for (int i = 0; i < dirLights.size(); i++)
-	{
-		ImGui::PushID(dirLights[i]);
-
-		if (ImGui::CollapsingHeader("DirectionalLight"))
-		{
-			bool modified = false;
-
-			if (ImGui::ColorEdit3("DL_Amb", &(dirLights[i]->ambientColor[0])))
-				modified = true;
-			if (ImGui::ColorEdit3("DL_Diff", &(dirLights[i]->diffuseColor[0])))
-				modified = true;
-			if (ImGui::ColorEdit3("DL_Spec", &(dirLights[i]->specularColor[0])))
-				modified = true;
-
-			if (ImGui::DragFloat3("DL_Dir", &(dirLights[i]->direction[0]), 0.002f))
-				modified = true;
-
-			if (modified)
-			{
-				glUseProgram(lightManager.shaderProgramID);
-				dirLights[i]->sendToShader(lightManager.shaderProgramID, i);
-			}
-		}
-
-		ImGui::PopID();
-	}
-
-	for (int i = 0; i < pointLights.size(); i++)
-	{
-		ImGui::PushID(pointLights[i]);
-
-		if (ImGui::CollapsingHeader("PointLight"))
-		{
-			bool modified = false;
-
-			if (ImGui::ColorEdit3("PL_Amb", &(pointLights[i]->ambientColor[0])))
-				modified = true;
-			if (ImGui::ColorEdit3("PL_Diff", &(pointLights[i]->diffuseColor[0])))
-				modified = true;
-			if (ImGui::ColorEdit3("PL_Spec", &(pointLights[i]->specularColor[0])))
-				modified = true;
-
-			if (ImGui::DragFloat3("PL_Pos", &(pointLights[i]->position[0])))
-				modified = true;
-
-			if (ImGui::DragFloat("PL_Const", &(pointLights[i]->constant), 0.002f, 0.0f, 1.0f))
-				modified = true;
-			if (ImGui::DragFloat("PL_Lin", &(pointLights[i]->linear), 0.002f, 0.0f, 1.0f))
-				modified = true;
-			if (ImGui::DragFloat("PL_Quad", &(pointLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
-				modified = true;
-
-			if (modified)
-			{
-				glUseProgram(lightManager.shaderProgramID);
-				pointLights[i]->sendToShader(lightManager.shaderProgramID, i);
-			}
-		}
-
-		ImGui::PopID();
-	}
-
-	for (int i = 0; i < spotLights.size(); i++)
-	{
-		ImGui::PushID(spotLights[i]);
-
-		if (ImGui::CollapsingHeader("SpotLight"))
-		{
-			bool modified = false;
-
-			if (ImGui::ColorEdit3("SL_Amb", &(spotLights[i]->ambientColor[0])))
-				modified = true;
-			if (ImGui::ColorEdit3("SL_Diff", &(spotLights[i]->diffuseColor[0])))
-				modified = true;
-			if (ImGui::ColorEdit3("SL_Spec", &(spotLights[i]->specularColor[0])))
-				modified = true;
-
-			if (ImGui::DragFloat3("SL_Pos", &(spotLights[i]->position[0])))
-				modified = true;
-			if (ImGui::DragFloat3("SL_Dir", &(spotLights[i]->direction[0]), 0.002f))
-				modified = true;
-
-			if (ImGui::DragFloat("SL_Const", &(spotLights[i]->constant), 0.002f, 0.0f, 1.0f))
-				modified = true;
-			if (ImGui::DragFloat("SL_Lin", &(spotLights[i]->linear), 0.002f, 0.0f, 1.0f))
-				modified = true;
-			if (ImGui::DragFloat("SL_Quad", &(spotLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
-				modified = true;
-
-			if (ImGui::DragFloat("SL_cutOff", &(spotLights[i]->cutOff), 0.002f, 0.001f, 1.0f))
-				modified = true;
-			if (ImGui::DragFloat("SL_outerCutOff", &(spotLights[i]->outerCutOff), 0.002f, 0.001f, 1.0f))
-				modified = true;
-
-			if (modified)
-			{
-				glUseProgram(lightManager.shaderProgramID);
-				spotLights[i]->sendToShader(lightManager.shaderProgramID, i);
-			}
-		}
-
-		ImGui::PopID();
-	}
-
-	ImGui::End();
-}
-
-void SkyboxSettings(Skybox* skybox)
+void SkyboxSettings()
 {
 	ImGui::Begin("Skybox settings");
 
@@ -299,26 +257,26 @@ void SkyboxSettings(Skybox* skybox)
 			{
 				item_current_idx = i;
 
-				std::cout << skybox->cubemap->texID << std::endl;
+				//std::cout << skybox->cubemap->texID << std::endl;
 
-				delete skybox->cubemap;
+				//delete skybox->cubemap;
 
 				switch (item_current_idx)
 				{
 					case 0:
-						skybox->cubemap = new Cubemap("img/skybox/grass/");
+						//skybox->cubemap = new Cubemap("img/skybox/grass/");
 						break;
 
 					case 1:
-						skybox->cubemap = new Cubemap("img/skybox/night/");
+						//skybox->cubemap = new Cubemap("img/skybox/night/");
 						break;
 
 					case 2:
-						skybox->cubemap = new Cubemap("img/skybox/sky/");
+						//skybox->cubemap = new Cubemap("img/skybox/sky/");
 						break;
 				}
 
-				skybox->cubemap->setupObject();
+				//skybox->cubemap->setupObject();
 			}
 
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

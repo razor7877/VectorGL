@@ -9,7 +9,7 @@
 extern float deltaTime;
 
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
-void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess, Skybox* skybox);
+void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
 
 // Performance info : framerate etc.
 void PerformanceMenu();
@@ -17,10 +17,8 @@ void PerformanceMenu();
 void KeysMenu();
 // Enables modifications of some shader values
 void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
-// Displays the scene's lights and allows real-time modification of their attributes
-void LightSettings();
 // Allows changing the skybox at runtime
-void SkyboxSettings(Skybox* skybox);
+void SkyboxSettings();
 // Shows the details of the currently selected node in the scene graph
 void ShowNodeDetails();
 // Displays the scene graph

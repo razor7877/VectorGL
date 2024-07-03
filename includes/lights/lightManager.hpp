@@ -15,11 +15,10 @@
 class LightManager
 {
 public:
+	static LightManager getInstance();
+
 	GLuint shaderProgramID;
 
-	// Stores a vector of Light objects, which can be objects from any classes that implement the Light
-	// interface (DirectionalLight, PointLight, SpotLight ...)
-	std::vector<Light*> lights;
 	unsigned int nrDirLights;
 	unsigned int nrPointLights;
 	unsigned int nrSpotLights;
@@ -27,13 +26,16 @@ public:
 	LightManager();
 	LightManager(GLuint shaderProgramID);
 
-	void addLight(Light* light);
+	unsigned int addDirLight();
+	unsigned int addPointLight();
+	unsigned int addSpotLight();
 
 	void init();
+	// Sends the current number of each type of light to the shader
+	void sendToShader();
 
-	std::vector<DirectionalLight*> getDirLights();
-	std::vector<PointLight*> getPointLights();
-	std::vector<SpotLight*> getSpotLights();
+private:
+	static LightManager instance;
 };
 
 #endif
