@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
+#include <utilities/glad.h>
 #include <glm/glm.hpp>
 
 #include "entity.hpp"

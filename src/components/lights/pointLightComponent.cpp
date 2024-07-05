@@ -1,6 +1,6 @@
 #include <string>
 
-#include <glad/glad.h>
+#include <utilities/glad.h>
 
 #include "components/lights/pointLightComponent.hpp"
 #include "lights/lightManager.hpp"

@@ -1,3 +1,6 @@
+#include <glm/glm.hpp>
+#include <glm/glm/ext/matrix_transform.hpp>
+
 #include "components/lights/spotLightComponent.hpp"
 #include "lights/lightManager.hpp"
 
@@ -30,12 +33,21 @@ void SpotLightComponent::sendToShader(unsigned int shaderProgramID, unsigned int
 	std::string quadraticLoc = lightLocation + ".quadratic";
 	std::string cutOffLoc = lightLocation + ".cutOff";
 	std::string outerCutOffLoc = lightLocation + ".outerCutOff";
+	
+	glm::vec3 rotation = this->parent->transform->getRotation();
+
+	// Calculate the new front vector
+	glm::vec3 newDirection{};
+	newDirection.x = cos(glm::radians(rotation.x)) * cos(glm::radians(rotation.y));
+	newDirection.y = sin(glm::radians(rotation.y));
+	newDirection.z = sin(glm::radians(rotation.x)) * cos(glm::radians(rotation.y));
+	newDirection = glm::normalize(newDirection);
 
 	glUniform3fv(glGetUniformLocation(shaderProgramID, ambientLoc.c_str()), 1, &this->ambientColor[0]);
 	glUniform3fv(glGetUniformLocation(shaderProgramID, diffuseLoc.c_str()), 1, &this->diffuseColor[0]);
 	glUniform3fv(glGetUniformLocation(shaderProgramID, specularLoc.c_str()), 1, &this->specularColor[0]);
 	glUniform3fv(glGetUniformLocation(shaderProgramID, positionLoc.c_str()), 1, &this->parent->transform->getPosition()[0]);
-	glUniform3fv(glGetUniformLocation(shaderProgramID, directionLoc.c_str()), 1, &direction[0]);
+	glUniform3fv(glGetUniformLocation(shaderProgramID, directionLoc.c_str()), 1, &newDirection[0]);
 	glUniform1f(glGetUniformLocation(shaderProgramID, constantLoc.c_str()), this->constant);
 	glUniform1f(glGetUniformLocation(shaderProgramID, linearLoc.c_str()), this->linear);
 	glUniform1f(glGetUniformLocation(shaderProgramID, quadraticLoc.c_str()), this->quadratic);

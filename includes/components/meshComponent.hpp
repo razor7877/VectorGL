@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <glad/glad.h>
+#include <utilities/glad.h>
 #include <glm/glm.hpp>
 
 #include "component.hpp"

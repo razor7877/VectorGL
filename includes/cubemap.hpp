@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include <glad/glad.h>
+#include <utilities/glad.h>
 
 // A simple class used to easily build an OpenGL cubemap from image files passed as constructor arguments
 // It may be used to for example draw a skybox

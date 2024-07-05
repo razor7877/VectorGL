@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
+#include <utilities/glad.h>
 #include <assimp/scene.h>
 
 #include "entity.hpp"
