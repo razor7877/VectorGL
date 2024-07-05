@@ -155,8 +155,7 @@ int main()
 
 	Entity* skyEntity = new Entity("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
-	Cubemap* cubemap = new Cubemap("img/skybox/sky/");
-	skyComponent->setupSkybox(cubemap, skyboxShader->ID);
+	skyComponent->setupSkybox(skyboxShader->ID);
 
 	defaultRenderer.addEntity(skyEntity);
 
@@ -220,8 +219,6 @@ int main()
 
 	if (crate != nullptr) delete crate;
 	if (boxTex != nullptr) delete boxTex;
-
-	if (cubemap != nullptr) delete cubemap;
 
 	glfwTerminate();
 	return 0;

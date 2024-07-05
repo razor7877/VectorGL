@@ -23,6 +23,7 @@
 #include "components/lights/pointLightComponent.hpp"
 #include "components/lights/spotLightComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
+#include "components/skyboxComponent.hpp"
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
@@ -49,7 +50,7 @@ std::string editLabel{};
 
 // An array containing the choice names for the different skyboxes
 const char* comboSkyboxes[] = { "Grass", "Night", "Sky" };
-static int current_skybox_id = 1; // Selection data index
+static int current_skybox_id = (int)SkyboxComponent::DEFAULT_SKY;
 
 // A map to determine text color depending on log type
 std::map<LogLevel, ImVec4> logToColor =
@@ -104,7 +105,6 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
 	ShowEditor();
-	SkyboxSettings();
 	ShowNodeDetails();
 	SceneGraph();
 
@@ -266,7 +266,7 @@ void ShowEditor()
 {
 	auto cpos = editor.GetCursorPosition();
 
-	ImGui::Begin("Text Editor Demo", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Shader editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
 	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
 	if (ImGui::BeginMenuBar())
 	{
@@ -333,52 +333,6 @@ void ShowEditor()
 		editor.GetLanguageDefinition().mName.c_str(), fileToEdit);
 
 	editor.Render("TextEditor");
-	ImGui::End();
-}
-
-void SkyboxSettings()
-{
-	ImGui::Begin("Skybox settings");
-
-	const char* combo_preview_value = comboSkyboxes[current_skybox_id]; // Pass in the preview value visible before opening the combo
-	if (ImGui::BeginCombo("Skybox", combo_preview_value))
-	{
-		for (int i = 0; i < IM_ARRAYSIZE(comboSkyboxes); i++)
-		{
-			const bool is_selected = (current_skybox_id == i);
-			if (ImGui::Selectable(comboSkyboxes[i], is_selected))
-			{
-				current_skybox_id = i;
-
-				//std::cout << skybox->cubemap->texID << std::endl;
-
-				//delete skybox->cubemap;
-
-				switch (current_skybox_id)
-				{
-					case 0:
-						//skybox->cubemap = new Cubemap("img/skybox/grass/");
-						break;
-
-					case 1:
-						//skybox->cubemap = new Cubemap("img/skybox/night/");
-						break;
-
-					case 2:
-						//skybox->cubemap = new Cubemap("img/skybox/sky/");
-						break;
-				}
-
-				//skybox->cubemap->setupObject();
-			}
-
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			if (is_selected)
-				ImGui::SetItemDefaultFocus();
-		}
-		ImGui::EndCombo();
-	}
-
 	ImGui::End();
 }
 
@@ -536,6 +490,46 @@ void ShowComponentUI(Component* component)
 			glm::vec3 scale = transformComponent->getScale();
 			if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
 				transformComponent->setScale(scale);
+		}
+	}
+	else if (dynamic_cast<SkyboxComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Skybox"))
+		{
+			SkyboxComponent* skyboxComponent = dynamic_cast<SkyboxComponent*>(component);
+
+			const char* combo_preview_value = comboSkyboxes[current_skybox_id];
+			if (ImGui::BeginCombo("##skySelector", combo_preview_value))
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					const bool is_selected = (current_skybox_id == i);
+					if (ImGui::Selectable(comboSkyboxes[i], is_selected))
+					{
+						current_skybox_id = i;
+
+						switch (current_skybox_id)
+						{
+							case (int)SkyboxType::GRASS:
+								skyboxComponent->changeSkybox(SkyboxType::GRASS);
+								break;
+
+							case (int)SkyboxType::NIGHT:
+								skyboxComponent->changeSkybox(SkyboxType::NIGHT);
+								break;
+
+							case (int)SkyboxType::SKY:
+								skyboxComponent->changeSkybox(SkyboxType::SKY);
+								break;
+						}
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
 		}
 	}
 	else if (dynamic_cast<MeshComponent*>(component))
