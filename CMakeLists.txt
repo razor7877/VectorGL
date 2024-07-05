@@ -48,6 +48,9 @@ add_executable(VectorGL
 	${LIGHTS_INCLUDES}
 	${UTILITIES_INCLUDES}
 
+	libs/ImGuiColorTextEdit/TextEditor.cpp
+	libs/ImGuiColorTextEdit/TextEditor.h
+	
 	libs/ImGui/imgui.cpp
 	libs/ImGui/imgui_demo.cpp
 	libs/ImGui/imgui_draw.cpp

@@ -20,6 +20,8 @@ void PerformanceMenu();
 void KeysMenu();
 // Enables modifications of some shader values
 void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
+void SetupEditor();
+void ShowEditor();
 // Allows changing the skybox at runtime
 void SkyboxSettings();
 // Shows the details of the currently selected node in the scene graph
