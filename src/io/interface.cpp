@@ -46,8 +46,21 @@ Entity* selectedSceneNode{};
 std::string editLabel{};
 
 // An array containing the choice names for the different skyboxes
-const char* items[] = { "Grass", "Night", "Sky" };
-static int item_current_idx = 1; // Selection data index
+const char* comboSkyboxes[] = { "Grass", "Night", "Sky" };
+static int current_skybox_id = 1; // Selection data index
+
+// A map to determine text color depending on log type
+std::map<LogLevel, ImVec4> logToColor =
+{
+	{ LogLevel::LOG_INFO, ImVec4(0.8f, 0.8f, 0.8f, 1.0f) },
+	{ LogLevel::LOG_WARNING, ImVec4(1.0f, 1.0f, 0.0f, 1.0f) },
+	{ LogLevel::LOG_ERROR, ImVec4(1.0f, 0.1f, 0.1f, 1.0f) },
+	{ LogLevel::LOG_DEBUG, ImVec4(0.1f, 0.1f, 1.0f, 1.0f) },
+};
+
+// An array for the log filter choices
+const char* comboLogLevels[] = { "All", "Info", "Warning", "Error", "Debug" };
+int current_log_filter_id = 0;
 
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 {
@@ -106,17 +119,6 @@ void ShowViewer()
 	ImGui::End();
 }
 
-std::map<LogLevel, ImVec4> logToColor = 
-{
-	{ LogLevel::LOG_INFO, ImVec4(0.8f, 0.8f, 0.8f, 1.0f) },
-	{ LogLevel::LOG_WARNING, ImVec4(1.0f, 1.0f, 0.0f, 1.0f) },
-	{ LogLevel::LOG_ERROR, ImVec4(1.0f, 0.1f, 0.1f, 1.0f) },
-	{ LogLevel::LOG_DEBUG, ImVec4(0.1f, 0.1f, 1.0f, 1.0f) },
-};
-
-const char* logLevels[] = {"All", "Info", "Warning", "Error", "Debug"};
-int current_filter_id = 0;
-
 void ShowConsole()
 {
 	ImGui::Begin("Console");
@@ -126,18 +128,18 @@ void ShowConsole()
 
 	std::vector<Log> logs;
 
-	if (current_filter_id == 0)
+	if (current_log_filter_id == 0)
 		logs = Logger::getLogs();
-	else if (current_filter_id == 1)
+	else if (current_log_filter_id == 1)
 		logs = Logger::getLogs(LogLevel::LOG_INFO);
-	else if (current_filter_id == 2)
+	else if (current_log_filter_id == 2)
 		logs = Logger::getLogs(LogLevel::LOG_WARNING);
-	else if (current_filter_id == 3)
+	else if (current_log_filter_id == 3)
 		logs = Logger::getLogs(LogLevel::LOG_ERROR);
-	else if (current_filter_id == 4)
+	else if (current_log_filter_id == 4)
 		logs = Logger::getLogs(LogLevel::LOG_DEBUG);
 
-	for (auto i = logs.size() - 1; i > 0; i--)
+	for (int i = logs.size() - 1; i > 0; i--)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, logToColor[logs[i].logLevel]);
 		ImGui::Text(logs[i].logMessage.c_str());
@@ -153,13 +155,13 @@ void ShowConsole()
 	ImGui::SameLine();
 	ImGui::PushItemWidth(200);
 
-	if (ImGui::BeginCombo("##logFilterCombo", logLevels[current_filter_id]))
+	if (ImGui::BeginCombo("##logFilterCombo", comboLogLevels[current_log_filter_id]))
 	{
-		for (int i = 0; i < IM_ARRAYSIZE(logLevels); i++)
+		for (int i = 0; i < IM_ARRAYSIZE(comboLogLevels); i++)
 		{
-			bool is_selected = (current_filter_id == i);
-			if (ImGui::Selectable(logLevels[i], is_selected))
-				current_filter_id = i;
+			bool is_selected = (current_log_filter_id == i);
+			if (ImGui::Selectable(comboLogLevels[i], is_selected))
+				current_log_filter_id = i;
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();
 		}
@@ -238,21 +240,21 @@ void SkyboxSettings()
 {
 	ImGui::Begin("Skybox settings");
 
-	const char* combo_preview_value = items[item_current_idx]; // Pass in the preview value visible before opening the combo
+	const char* combo_preview_value = comboSkyboxes[current_skybox_id]; // Pass in the preview value visible before opening the combo
 	if (ImGui::BeginCombo("Skybox", combo_preview_value))
 	{
-		for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+		for (int i = 0; i < IM_ARRAYSIZE(comboSkyboxes); i++)
 		{
-			const bool is_selected = (item_current_idx == i);
-			if (ImGui::Selectable(items[i], is_selected))
+			const bool is_selected = (current_skybox_id == i);
+			if (ImGui::Selectable(comboSkyboxes[i], is_selected))
 			{
-				item_current_idx = i;
+				current_skybox_id = i;
 
 				//std::cout << skybox->cubemap->texID << std::endl;
 
 				//delete skybox->cubemap;
 
-				switch (item_current_idx)
+				switch (current_skybox_id)
 				{
 					case 0:
 						//skybox->cubemap = new Cubemap("img/skybox/grass/");
