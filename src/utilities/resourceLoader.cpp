@@ -5,6 +5,7 @@
 
 #include "utilities/resourceLoader.hpp"
 #include "components/meshComponent.hpp"
+#include "logger.hpp"
 
 ResourceLoader ResourceLoader::instance;
 
@@ -133,7 +134,9 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, GLuint s
 std::vector<Texture*> ResourceLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture*> textures;
-	std::cout << "loadMaterialTexture()\n";
+
+	Logger::logDebug("loadMaterialTexture()");
+
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
 		aiString str;
@@ -145,14 +148,14 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(aiMaterial* mat, aiTe
 		// Texture has not been loaded yet
 		if (this->loadedTextures.count(path) == 0)
 		{
-			std::cout << "Loading texture path: " << path << "\n";
+			Logger::logInfo(std::string("Loading texture path " + path));
 			texture = new Texture(path, typeName, false);
 			texture->path = str.C_Str();
 			this->loadedTextures[path] = texture;
 		}
 		else
 		{
-			std::cout << "Reusing texture\n";
+			Logger::logInfo(std::string("Reusing texture path " + path));
 			texture = this->loadedTextures[path];
 		}
 

@@ -18,6 +18,7 @@
 #include "cubemap.hpp"
 #include "renderer.hpp"
 #include "material.hpp"
+#include "logger.hpp"
 
 #include "io/interface.hpp"
 #include "io/input.hpp"
@@ -170,6 +171,11 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
+	Logger::logDebug("Test");
+	Logger::logWarning("Test");
+	Logger::logError("Test");
+	Logger::logInfo("Test");
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -201,7 +207,7 @@ int main()
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		if (glErrorCurrent != 0) { std::cout << "OpenGL error code: " << glErrorCurrent << std::endl; }
+		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

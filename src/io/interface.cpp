@@ -12,6 +12,7 @@
 #include "entity.hpp"
 #include "io/interface.hpp"
 #include "lights/lightManager.hpp"
+#include "logger.hpp"
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
@@ -74,6 +75,8 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+	ShowViewer();
+	ShowConsole();
 	PerformanceMenu();
 	KeysMenu();
 	ShaderSettings(ambient, diffuse, specular, shininess);
@@ -81,10 +84,16 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ShowNodeDetails();
 	SceneGraph();
 
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ShowViewer()
+{
 	ImGui::Begin("Viewer");
 
 	ImVec2 contentRegionSize = ImGui::GetContentRegionAvail();
-	
+
 	defaultRenderer.resizeFramebuffer(glm::vec2(contentRegionSize.x, contentRegionSize.y));
 
 	ImGui::Image(
@@ -95,9 +104,71 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	);
 
 	ImGui::End();
+}
 
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+std::map<LogLevel, ImVec4> logToColor = 
+{
+	{ LogLevel::LOG_INFO, ImVec4(0.8f, 0.8f, 0.8f, 1.0f) },
+	{ LogLevel::LOG_WARNING, ImVec4(1.0f, 1.0f, 0.0f, 1.0f) },
+	{ LogLevel::LOG_ERROR, ImVec4(1.0f, 0.1f, 0.1f, 1.0f) },
+	{ LogLevel::LOG_DEBUG, ImVec4(0.1f, 0.1f, 1.0f, 1.0f) },
+};
+
+const char* logLevels[] = {"All", "Info", "Warning", "Error", "Debug"};
+int current_filter_id = 0;
+
+void ShowConsole()
+{
+	ImGui::Begin("Console");
+
+	ImGui::BeginChild("Logs", ImVec2(0, 150), 0, ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
+
+	std::vector<Log> logs;
+
+	if (current_filter_id == 0)
+		logs = Logger::getLogs();
+	else if (current_filter_id == 1)
+		logs = Logger::getLogs(LogLevel::LOG_INFO);
+	else if (current_filter_id == 2)
+		logs = Logger::getLogs(LogLevel::LOG_WARNING);
+	else if (current_filter_id == 3)
+		logs = Logger::getLogs(LogLevel::LOG_ERROR);
+	else if (current_filter_id == 4)
+		logs = Logger::getLogs(LogLevel::LOG_DEBUG);
+
+	for (auto i = logs.size() - 1; i > 0; i--)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Text, logToColor[logs[i].logLevel]);
+		ImGui::Text(logs[i].logMessage.c_str());
+		ImGui::PopStyleColor();
+	}
+
+	ImGui::PopStyleColor();
+	ImGui::EndChild();
+
+	if (ImGui::Button("Clear logs"))
+		Logger::clearLogs();
+
+	ImGui::SameLine();
+	ImGui::PushItemWidth(200);
+
+	if (ImGui::BeginCombo("##logFilterCombo", logLevels[current_filter_id]))
+	{
+		for (int i = 0; i < IM_ARRAYSIZE(logLevels); i++)
+		{
+			bool is_selected = (current_filter_id == i);
+			if (ImGui::Selectable(logLevels[i], is_selected))
+				current_filter_id = i;
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+		}
+
+		ImGui::EndCombo();
+	}
+
+	ImGui::PopItemWidth();
+	ImGui::End();
 }
 
 void PerformanceMenu()
@@ -162,83 +233,6 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 
 	ImGui::End();
 }
-
-//void LightSettings()
-//{
-//	ImGui::Begin("Light settings");
-//
-//	for (int i = 0; i < dirLights.size(); i++)
-//	{
-//		ImGui::PushID(dirLights[i]);
-//
-//		if (ImGui::CollapsingHeader("DirectionalLight"))
-//		{
-//			bool modified = false;
-//
-//			if (ImGui::ColorEdit3("DL_Amb", &(dirLights[i]->ambientColor[0])))
-//				modified = true;
-//			if (ImGui::ColorEdit3("DL_Diff", &(dirLights[i]->diffuseColor[0])))
-//				modified = true;
-//			if (ImGui::ColorEdit3("DL_Spec", &(dirLights[i]->specularColor[0])))
-//				modified = true;
-//
-//			if (ImGui::DragFloat3("DL_Dir", &(dirLights[i]->direction[0]), 0.002f))
-//				modified = true;
-//
-//			if (modified)
-//			{
-//				glUseProgram(lightManager.shaderProgramID);
-//				dirLights[i]->sendToShader(lightManager.shaderProgramID, i);
-//			}
-//		}
-//
-//		ImGui::PopID();
-//	}
-//
-//	for (int i = 0; i < spotLights.size(); i++)
-//	{
-//		ImGui::PushID(spotLights[i]);
-//
-//		if (ImGui::CollapsingHeader("SpotLight"))
-//		{
-//			bool modified = false;
-//
-//			if (ImGui::ColorEdit3("SL_Amb", &(spotLights[i]->ambientColor[0])))
-//				modified = true;
-//			if (ImGui::ColorEdit3("SL_Diff", &(spotLights[i]->diffuseColor[0])))
-//				modified = true;
-//			if (ImGui::ColorEdit3("SL_Spec", &(spotLights[i]->specularColor[0])))
-//				modified = true;
-//
-//			if (ImGui::DragFloat3("SL_Pos", &(spotLights[i]->position[0])))
-//				modified = true;
-//			if (ImGui::DragFloat3("SL_Dir", &(spotLights[i]->direction[0]), 0.002f))
-//				modified = true;
-//
-//			if (ImGui::DragFloat("SL_Const", &(spotLights[i]->constant), 0.002f, 0.0f, 1.0f))
-//				modified = true;
-//			if (ImGui::DragFloat("SL_Lin", &(spotLights[i]->linear), 0.002f, 0.0f, 1.0f))
-//				modified = true;
-//			if (ImGui::DragFloat("SL_Quad", &(spotLights[i]->quadratic), 0.002f, 0.001f, 1.0f))
-//				modified = true;
-//
-//			if (ImGui::DragFloat("SL_cutOff", &(spotLights[i]->cutOff), 0.002f, 0.001f, 1.0f))
-//				modified = true;
-//			if (ImGui::DragFloat("SL_outerCutOff", &(spotLights[i]->outerCutOff), 0.002f, 0.001f, 1.0f))
-//				modified = true;
-//
-//			if (modified)
-//			{
-//				glUseProgram(lightManager.shaderProgramID);
-//				spotLights[i]->sendToShader(lightManager.shaderProgramID, i);
-//			}
-//		}
-//
-//		ImGui::PopID();
-//	}
-//
-//	ImGui::End();
-//}
 
 void SkyboxSettings()
 {

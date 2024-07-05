@@ -10,6 +10,10 @@ extern float deltaTime;
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
 void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
 
+// Window with 3D viewer
+void ShowViewer();
+// Log console
+void ShowConsole();
 // Performance info : framerate etc.
 void PerformanceMenu();
 // Shows the various controls
