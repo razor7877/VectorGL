@@ -44,6 +44,9 @@ glm::mat4 CameraComponent::getProjectionMatrix(float width, float height)
 
 void CameraComponent::processKeyboard(CameraMovement direction, float deltaTime)
 {
+	if (!this->parent->getIsEnabled())
+		return;
+
 	float velocity = movementSpeed * deltaTime;
 
 	if (direction == CameraMovement::FORWARD)
@@ -58,6 +61,9 @@ void CameraComponent::processKeyboard(CameraMovement direction, float deltaTime)
 
 void CameraComponent::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
 {
+	if (!this->parent->getIsEnabled())
+		return;
+
 	xoffset *= mouseSensitivity;
 	yoffset *= mouseSensitivity;
 
@@ -85,6 +91,9 @@ void CameraComponent::processMouseMovement(float xoffset, float yoffset, GLboole
 
 void CameraComponent::processMouseScroll(float yoffset)
 {
+	if (!this->parent->getIsEnabled())
+		return;
+
 	this->zoom -= (float)yoffset;
 
 	if (this->zoom < 1.0f)

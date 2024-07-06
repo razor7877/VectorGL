@@ -116,6 +116,13 @@ void ShowViewer()
 {
 	ImGui::Begin("Viewer");
 
+	bool isViewerActive = ImGui::IsWindowFocused();
+
+	if (isViewerActive)
+		cameraComponent->parent->setIsEnabled(true);
+	else
+		cameraComponent->parent->setIsEnabled(false);
+
 	ImVec2 contentRegionSize = ImGui::GetContentRegionAvail();
 
 	defaultRenderer.resizeFramebuffer(glm::vec2(contentRegionSize.x, contentRegionSize.y));
