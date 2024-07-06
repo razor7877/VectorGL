@@ -94,6 +94,8 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 	renderer = rendererArg;
 }
 
+bool showTest = false;
+
 void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
 {
 	ImGui_ImplOpenGL3_NewFrame();
@@ -101,9 +103,17 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ImGui::NewFrame();
 
 	ImGui::BeginMainMenuBar();
-	ImGui::Button("Test");
+	ImGui::MenuItem("Test", NULL, &showTest);
 	ImGui::EndMainMenuBar();
 
+	// We want to create a full size window
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+	ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+
+	ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+
+	// We can now show all the different dockable windows
 	ShowViewer();
 	ShowConsole();
 	PerformanceMenu();
@@ -112,6 +122,8 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ShowEditor();
 	ShowNodeDetails();
 	SceneGraph();
+
+	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

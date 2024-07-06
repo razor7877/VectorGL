@@ -37,6 +37,8 @@ void Renderer::resizeFramebuffer(glm::vec2 newSize)
 
 	this->windowSize = newSize;
 
+	glBindFramebuffer(GL_FRAMEBUFFER, this->frameBuffer);
+
 	glBindTexture(GL_TEXTURE_2D, this->renderTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newSize.x, newSize.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -108,7 +110,7 @@ void Renderer::render(float deltaTime)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Update camera info
-	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowWidth, windowHeight));
+	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(this->windowSize.x, this->windowSize.y));
 
 	for (Entity* entity : this->entities)
 		entity->update(deltaTime);
