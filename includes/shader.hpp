@@ -8,11 +8,15 @@
 class Shader
 {
 public:
-	unsigned int ID;
+	GLuint ID;
+	std::string vertexPath;
+	std::string fragmentPath;
 
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
 	Shader* use();
+
+	bool compileShader(const char* vertexPath, const char* fragmentPath);
 	
 	// Various methods to set uniforms for the shader
 	Shader* setBool(const std::string& name, bool value);
@@ -27,9 +31,6 @@ public:
 	Shader* setMat2(const std::string& name, const glm::mat2& value);
 	Shader* setMat3(const std::string& name, const glm::mat3& value);
 	Shader* setMat4(const std::string& name, const glm::mat4& value);
-
-private:
-	void checkCompileErrors(GLuint shader, std::string type);
 };
 
 #endif
