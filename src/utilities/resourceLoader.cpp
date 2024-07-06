@@ -162,16 +162,33 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 					int len = width * height;
 					int channels = 3;
 
+					GLenum format = GL_RGB;
+
+					// Handle transparency layer for PNG data
+					if (embeddedTexture->achFormatHint[0] == 'p' && embeddedTexture->achFormatHint[1] == 'n' && embeddedTexture->achFormatHint[2] == 'g')
+					{
+						format = GL_RGBA;
+						channels = 4;
+					}
+
 					// Decompress image
-					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, 3);
+					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, channels);
 					// Create texture using image data
-					texture = new Texture(width, height, GL_RGB, data);
+					texture = new Texture(width, height, format, data);
 					stbi_image_free(data);
 				}
 				else // We have raw image data
 				{
 					Logger::logInfo(std::string("Loading embedded texture path " + path));
-					texture = new Texture(embeddedTexture->mWidth, embeddedTexture->mHeight, GL_RGB, embeddedTexture->pcData);
+
+					GLenum format = GL_RGB;
+
+					// Check the format hint for a transparency layer
+					for (int i = 0; i < 4; i++)
+						if (embeddedTexture->achFormatHint[i] == 'A' && embeddedTexture->achFormatHint[i] != '0')
+							format = GL_RGBA;
+
+					texture = new Texture(embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData);
 				}
 			}
 			else // Not an embedded texture, load it from file system
