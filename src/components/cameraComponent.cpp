@@ -26,8 +26,7 @@ void CameraComponent::start()
 
 void CameraComponent::update()
 {
-	// Update camera info
-	updateUniformBuffer(this->getViewMatrix(), this->getProjectionMatrix(windowWidth, windowHeight));
+
 }
 
 glm::mat4 CameraComponent::getViewMatrix()

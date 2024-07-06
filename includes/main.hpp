@@ -15,8 +15,6 @@ extern int windowHeight;
 extern Renderer defaultRenderer;
 extern CameraComponent* cameraComponent;
 
-void initUniformBuffer();
-void updateUniformBuffer(glm::mat4 view, glm::mat4 projection);
 int setupGlfwContext();
 int main();
 

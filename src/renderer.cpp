@@ -81,6 +81,13 @@ void Renderer::createFramebuffer(glm::vec2 windowSize)
 
 void Renderer::init(glm::vec2 windowSize)
 {
+	this->shaderManager.initUniformBuffer();
+
+	// Create the camera and set it up
+	Entity* cameraEntity = new Entity("Camera");
+	this->currentCamera = cameraEntity->addComponent<CameraComponent>();
+	this->addEntity(cameraEntity);
+
 	// Initializes the light manager if it was setup to send all required data to the shader
 	if (LightManager::getInstance().shaderProgramID != 0)
 		LightManager::getInstance().init();
@@ -100,18 +107,8 @@ void Renderer::render(float deltaTime)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Iterates over the shaderID : mesh keypair values to draw objects more efficiently
-	// Draw calls are grouped by shader
-	//for (auto& [shader, object] : shaderMap)
-	//{
-	//	// Use the current shader, then draw all objects associated with it
-	//	glUseProgram(shader);
-	//	for (RenderObject* objectPtr : object)
-	//	{
-	//		if (objectPtr->getIsVisible())
-	//			objectPtr->drawObject();
-	//	}
-	//}
+	// Update camera info
+	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowWidth, windowHeight));
 
 	for (Entity* entity : this->entities)
 		entity->update(deltaTime);

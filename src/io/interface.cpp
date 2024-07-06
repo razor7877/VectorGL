@@ -80,6 +80,7 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// Setup platform/renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -98,6 +99,10 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	ImGui::BeginMainMenuBar();
+	ImGui::Button("Test");
+	ImGui::EndMainMenuBar();
 
 	ShowViewer();
 	ShowConsole();
@@ -358,20 +363,6 @@ void ShowNodeDetails()
 
 		for (auto& [type, component] : selectedSceneNode->getComponents())
 			ShowComponentUI(component);
-
-		//ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
-		//ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-		//ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
-		//if (ImGui::Button("Delete object"))
-		//{
-		//	renderer->removeObject(selectedSceneNode);
-
-		//	delete selectedSceneNode;
-		//	selectedSceneNode = nullptr;
-		//}
-		//ImGui::PopStyleColor();
-		//ImGui::PopStyleColor();
-		//ImGui::PopStyleColor();
 	}
 
 	ImGui::End();

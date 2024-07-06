@@ -41,7 +41,6 @@ int setupGlfwContext()
 		glfwTerminate();
 		return -1;
 	}
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwMakeContextCurrent(window);
 
 	// Set callback functions for window resizing and handling input
@@ -106,7 +105,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
 	{
 		showCursor = !showCursor;
-		if (showCursor || !cameraComponent->parent->getIsEnabled()) // We only allow hiding cursor if viewer is focused
+		if (showCursor) // We only allow hiding cursor if viewer is focused
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			firstMouse = true;

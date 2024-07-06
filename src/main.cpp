@@ -43,34 +43,9 @@ int windowHeight = WINDOW_HEIGHT;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-// Uniform buffer object (global uniforms)
-unsigned int UBO;
 Renderer defaultRenderer;
 
 CameraComponent* cameraComponent;
-
-// Sets up necessary data for the uniform buffer
-void initUniformBuffer()
-{
-	glGenBuffers(1, &UBO);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	// Make sure buffer range corresponds to actual buffer size!
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4));
-}
-
-// Updates the uniform buffer's data
-void updateUniformBuffer(glm::mat4 view, glm::mat4 projection)
-{
-	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &view[0][0]);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &projection[0][0]);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
 
 int main()
 {
@@ -84,18 +59,12 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Shader* phongShader = new Shader("shaders/phong.vert", "shaders/phong.frag");
-	Shader* skyboxShader = new Shader("shaders/skybox.vert", "shaders/skybox.frag");
-	Shader* gridShader = new Shader("shaders/grid2.vert", "shaders/grid2.frag");
+	// Creates a renderer for drawing objects
+	defaultRenderer = Renderer();
 
-	// Sets up global uniforms for each shader used
-	initUniformBuffer();
-
-	unsigned int UBIphongShader = glGetUniformBlockIndex(phongShader->ID, "Matrices");
-	glUniformBlockBinding(phongShader->ID, UBIphongShader, 0);
-
-	unsigned int UBIskyboxShader = glGetUniformBlockIndex(skyboxShader->ID, "Matrices");
-	glUniformBlockBinding(skyboxShader->ID, UBIskyboxShader, 0);
+	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
+	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
+	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
 	
 	Texture* crate = new Texture("img/container2.png", "texture_diffuse", false);
 	Material* boxTex = new Material(crate);
@@ -109,14 +78,13 @@ int main()
 	// Sets up variables for the phong lighting shader
 	phongShader->use()->setInt("texture1", 0);
 
-	// Creates a renderer for drawing objects
-	defaultRenderer = Renderer();
 	LightManager::getInstance().shaderProgramID = phongShader->ID;
 
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
-	//Mesh* grid = new Mesh(gridVerts, sizeof(gridVerts), gridShader->ID);
-	//grid->setLabel("Grid");
+	Entity* grid = new Entity("Grid");
+	MeshComponent* gridMesh = grid->addComponent<MeshComponent>();
+	gridMesh->setupMesh(gridVerts, sizeof(gridVerts), gridShader->ID);
 	
 	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader->ID);
 	model->transform
@@ -125,14 +93,9 @@ int main()
 
 	defaultRenderer.addEntity(model);
 
-	Entity* cameraEntity = new Entity("Camera");
-	cameraComponent = cameraEntity->addComponent<CameraComponent>();
-
-	defaultRenderer.addEntity(cameraEntity);
-
 	// Add point light
 	Entity* pointLightEntity = new Entity("Point light");
-	PointLightComponent* pointLightComponent = cameraEntity->addComponent<PointLightComponent>();
+	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 
 	// Add mesh to the light
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
@@ -161,6 +124,7 @@ int main()
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
+	cameraComponent = defaultRenderer.currentCamera;
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
@@ -169,11 +133,6 @@ int main()
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
-
-	Logger::logDebug("Test");
-	Logger::logWarning("Test");
-	Logger::logError("Test");
-	Logger::logInfo("Test");
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
