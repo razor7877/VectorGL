@@ -53,6 +53,24 @@ Texture::Texture(std::string filename, std::string type, bool stbiFlipOnLoad)
 	stbi_image_free(data);
 }
 
+Texture::Texture(int width, int height, GLenum format, void* textureData)
+{
+	this->type = "Embedded";
+
+	// Create OpenGL texture
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
+
+	// Sets parameters for texture wrapping and scaling
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
 Texture::~Texture()
 {
 	glDeleteTextures(1, &this->texID);

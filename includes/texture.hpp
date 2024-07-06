@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "utilities/glad.h"
+
 // A helper class to easily load and use 2D textures
 class Texture
 {
@@ -15,6 +17,7 @@ public:
 	~Texture();
 
 	Texture(std::string filename, std::string type, bool stbiFlipOnLoad = false);
+	Texture(int width, int height, GLenum format, void* textureData);
 
 	void bindTexture();
 };

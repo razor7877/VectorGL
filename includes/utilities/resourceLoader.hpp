@@ -25,5 +25,5 @@ private:
 
 	void processNode(aiNode* node, const aiScene* scene, GLuint shaderProgramID, Entity* parent);
 	Entity* processMesh(aiMesh* mesh, const aiScene* scene, GLuint shaderProgramID, Entity* parent);
-	std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	std::vector<Texture*> loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName);
 };

@@ -4,6 +4,7 @@
 #include <assimp/postprocess.h>
 
 #include "utilities/resourceLoader.hpp"
+#include "utilities/stb_image.h"
 #include "components/meshComponent.hpp"
 #include "logger.hpp"
 
@@ -111,16 +112,16 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, GLuint s
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<Texture*> diffuseMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-		std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		std::vector<Texture*> specularMaps = loadMaterialTextures(scene, material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-		std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
+		std::vector<Texture*> normalMaps = loadMaterialTextures(scene, material, aiTextureType_NORMALS, "texture_normal");
 		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-		std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+		std::vector<Texture*> heightMaps = loadMaterialTextures(scene, material, aiTextureType_HEIGHT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
@@ -131,7 +132,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, GLuint s
 	return entity;
 }
 
-std::vector<Texture*> ResourceLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture*> textures;
 
@@ -148,12 +149,40 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(aiMaterial* mat, aiTe
 		// Texture has not been loaded yet
 		if (this->loadedTextures.count(path) == 0)
 		{
-			Logger::logInfo(std::string("Loading texture path " + path));
-			texture = new Texture(path, typeName, false);
-			texture->path = str.C_Str();
-			this->loadedTextures[path] = texture;
+			// If this is not null, we have an embedded texture, for example in GLB models
+			if (auto embeddedTexture = scene->GetEmbeddedTexture(str.C_Str()))
+			{
+				// This means we have a compressed texture that we need to decompress
+				if (embeddedTexture->mHeight == 0)
+				{
+					Logger::logInfo(std::string("Loadding embedded compressed texture path " + path));
+
+					int width = embeddedTexture->mWidth;
+					int height = 1;
+					int len = width * height;
+					int channels = 3;
+
+					// Decompress image
+					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, 3);
+					// Create texture using image data
+					texture = new Texture(width, height, GL_RGB, data);
+					stbi_image_free(data);
+				}
+				else // We have raw image data
+				{
+					Logger::logInfo(std::string("Loading embedded texture path " + path));
+					texture = new Texture(embeddedTexture->mWidth, embeddedTexture->mHeight, GL_RGB, embeddedTexture->pcData);
+				}
+			}
+			else // Not an embedded texture, load it from file system
+			{
+				Logger::logInfo(std::string("Loading texture path " + path));
+				texture = new Texture(path, typeName, false);
+				texture->path = str.C_Str();
+				this->loadedTextures[path] = texture;
+			}
 		}
-		else
+		else // Reuse the same texture
 		{
 			Logger::logInfo(std::string("Reusing texture path " + path));
 			texture = this->loadedTextures[path];
