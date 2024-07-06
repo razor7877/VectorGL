@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "entity.hpp"
+#include "shader.hpp"
 #include "components/component.hpp"
 
 /// <summary>
@@ -22,10 +23,10 @@ public:
 	void Component::start() override;
 	void Component::update() override;
 
-	void virtual sendToShader(unsigned int shaderProgramID, unsigned int index) = 0;
+	void virtual sendToShader(Shader* shaderProgram, unsigned int index) = 0;
 
 protected:
-	GLuint shaderProgramID;
+	Shader* shaderProgram;
 	int index;
 
 	bool isEnabled;

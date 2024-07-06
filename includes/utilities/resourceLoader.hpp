@@ -3,6 +3,7 @@
 #include <utilities/glad.h>
 #include <assimp/scene.h>
 
+#include "shader.hpp"
 #include "entity.hpp"
 #include "texture.hpp"
 
@@ -11,7 +12,7 @@ class ResourceLoader
 public:
 	static ResourceLoader& getInstance();
 
-	Entity* loadModelFromFilepath(std::string path, GLuint shaderProgramID);
+	Entity* loadModelFromFilepath(std::string path, Shader* shaderProgram);
 	
 private:
 	static ResourceLoader instance;
@@ -23,7 +24,7 @@ private:
 	ResourceLoader(ResourceLoader const&) = delete;
 	ResourceLoader& operator=(ResourceLoader const&) = delete;
 
-	void processNode(aiNode* node, const aiScene* scene, GLuint shaderProgramID, Entity* parent);
-	Entity* processMesh(aiMesh* mesh, const aiScene* scene, GLuint shaderProgramID, Entity* parent);
+	void processNode(aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent);
+	Entity* processMesh(aiMesh* mesh, const aiScene* scene, Shader* shaderProgram, Entity* parent);
 	std::vector<Texture*> loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName);
 };

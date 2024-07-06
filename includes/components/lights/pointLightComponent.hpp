@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity.hpp"
+#include "shader.hpp"
 #include "components/lights/lightComponent.hpp"
 
 class PointLightComponent : public LightComponent
@@ -12,5 +13,5 @@ public:
 
 	PointLightComponent(Entity* parent);
 
-	void LightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index) override;
+	void LightComponent::sendToShader(Shader* shaderProgram, unsigned int index) override;
 };

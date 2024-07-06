@@ -21,6 +21,11 @@ enum class ShaderType
 class ShaderManager
 {
 public:
+	/// <summary>
+	/// Contains all currently loaded shaders
+	/// </summary>
+	std::map<ShaderType, Shader*> enumToShader;
+
 	ShaderManager();
 
 	/// <summary>
@@ -42,10 +47,12 @@ public:
 	/// <returns></returns>
 	Shader* getShader(ShaderType shader);
 
+	std::string getVertexShaderContent(ShaderType shader);
+	std::string getFragmentShaderContent(ShaderType shader);
+
+	void setVertexShaderContent(ShaderType shader, std::string content);
+	void setFragmentShaderContent(ShaderType shader, std::string content);
 private:
 	// Uniform buffer object (for global uniforms between shaders)
 	GLuint UBO;
-
-	// To store loaded shaders
-	std::map<ShaderType, Shader*> enumToShader;
 };

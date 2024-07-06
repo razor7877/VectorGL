@@ -8,6 +8,7 @@
 #include "component.hpp"
 #include "transformComponent.hpp"
 #include "texture.hpp"
+#include "shader.hpp"
 
 class MeshComponent : public virtual Component
 {
@@ -18,14 +19,14 @@ public:
 	void Component::start() override;
 	void Component::update() override;
 
-	void setupMesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position = glm::vec3(0));
+	void setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position = glm::vec3(0));
 	void setupMesh(
 		std::vector<float> vertices,
 		std::vector<float> texCoords,
 		std::vector<float> normals,
 		std::vector<unsigned int> indices,
 		std::vector<Texture*> textures,
-		GLuint shaderProgramID,
+		Shader* shaderProgram,
 		glm::vec3 position = glm::vec3(1.0f));
 
 	// Generates buffers and enables correct draw calls to use given texture
@@ -36,8 +37,7 @@ public:
 	MeshComponent& addIndices(unsigned int indices[], unsigned int indicesSize);
 
 protected:
-	// The ID of the shader used to draw the object
-	GLuint shaderProgramID;
+	Shader* shaderProgram;
 
 	std::vector<float> vertices;
 	std::vector<float> texCoords;

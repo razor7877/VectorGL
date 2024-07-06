@@ -78,15 +78,15 @@ int main()
 	// Sets up variables for the phong lighting shader
 	phongShader->use()->setInt("texture1", 0);
 
-	LightManager::getInstance().shaderProgramID = phongShader->ID;
+	LightManager::getInstance().shaderProgram = phongShader;
 
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
 	Entity* grid = new Entity("Grid");
 	MeshComponent* gridMesh = grid->addComponent<MeshComponent>();
-	gridMesh->setupMesh(gridVerts, sizeof(gridVerts), gridShader->ID);
+	gridMesh->setupMesh(gridVerts, sizeof(gridVerts), gridShader);
 	
-	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader->ID);
+	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader);
 	model->transform
 		->setScale(0.075f, 0.075f, 0.075f)
 		->rotateObject(-90.0f, 0.0f, 0.0f);
@@ -101,7 +101,7 @@ int main()
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
 
 	MeshComponent* lightMesh = pointLightEntity->addComponent<MeshComponent>();
-	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), phongShader->ID);
+	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), phongShader);
 
 	defaultRenderer.addEntity(pointLightEntity);
 
@@ -118,7 +118,7 @@ int main()
 
 	Entity* skyEntity = new Entity("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
-	skyComponent->setupSkybox(skyboxShader->ID);
+	skyComponent->setupSkybox(skyboxShader);
 
 	defaultRenderer.addEntity(skyEntity);
 

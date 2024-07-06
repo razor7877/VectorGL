@@ -3,20 +3,38 @@
 
 #include <string>
 
+#include <utilities/glad.h>
+#include <glm/glm.hpp>
+
 // A class used to easily compile shaders from a given source and setup their data to be used by OpenGL
 // Also contains helper methods to easily modify the shader's uniforms
 class Shader
 {
 public:
+	/// <summary>
+	/// The OpenGL handle for this program
+	/// </summary>
 	GLuint ID;
+
+	/// <summary>
+	/// The file system path to the vertex shader
+	/// </summary>
 	std::string vertexPath;
+
+	/// <summary>
+	/// The file system path to the fragment shader
+	/// </summary>
 	std::string fragmentPath;
 
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
 	Shader* use();
 
-	bool compileShader(const char* vertexPath, const char* fragmentPath);
+	/// <summary>
+	/// Compiles the shader, can be called after modifying the files to recompile the shader during runtime
+	/// </summary>
+	/// <returns>True if the shader was successfully compiled, false otherwise</returns>
+	bool compileShader();
 	
 	// Various methods to set uniforms for the shader
 	Shader* setBool(const std::string& name, bool value);

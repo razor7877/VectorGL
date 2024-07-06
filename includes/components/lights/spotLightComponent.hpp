@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include "shader.hpp"
 #include "components/lights/lightComponent.hpp"
 
 class SpotLightComponent : public LightComponent
@@ -17,5 +18,5 @@ public:
 
 	SpotLightComponent(Entity* parent);
 
-	void LightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index) override;
+	void LightComponent::sendToShader(Shader* shaderProgram, unsigned int index) override;
 };

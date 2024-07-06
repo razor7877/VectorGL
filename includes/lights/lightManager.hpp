@@ -5,6 +5,8 @@
 
 #include <utilities/glad.h>
 
+#include "shader.hpp"
+
 // A lightmanager serves to manages multiple lights. It is used in a renderer, and serves to easily add
 // different lights to a scene and seamlessly handles sending all needed data to the shaders
 class LightManager
@@ -12,7 +14,7 @@ class LightManager
 public:
 	static LightManager& getInstance();
 
-	GLuint shaderProgramID;
+	Shader* shaderProgram;
 
 	unsigned int addDirLight();
 	unsigned int addPointLight();

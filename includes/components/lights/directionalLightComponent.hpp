@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/lights/lightComponent.hpp"
+#include "shader.hpp"
 
 class DirectionalLightComponent : public virtual LightComponent
 {
@@ -9,5 +10,5 @@ public:
 
 	DirectionalLightComponent(Entity* parent);
 
-	void LightComponent::sendToShader(unsigned int shaderProgramID, unsigned int index) override;
+	void LightComponent::sendToShader(Shader* shaderProgram, unsigned int index) override;
 };

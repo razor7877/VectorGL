@@ -1,4 +1,6 @@
-#include "utilities/glad.h"
+#include <fstream>
+
+#include <utilities/glad.h>
 
 #include "shaderManager.hpp"
 
@@ -56,4 +58,58 @@ Shader* ShaderManager::getShader(ShaderType shader)
 	glUniformBlockBinding(enumToShader[shader]->ID, UBIShader, 0);
 
 	return enumToShader[shader];
+}
+
+std::string ShaderManager::getVertexShaderContent(ShaderType shader)
+{
+	if (enumToShader.count(shader) == 0)
+		return "";
+
+	std::ifstream t(enumToShader[shader]->vertexPath);
+	if (t.good())
+	{
+		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+		return str;
+	}
+
+	return "";
+}
+
+std::string ShaderManager::getFragmentShaderContent(ShaderType shader)
+{
+	if (enumToShader.count(shader) == 0)
+		return "";
+
+	std::ifstream t(enumToShader[shader]->fragmentPath);
+	if (t.good())
+	{
+		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+		return str;
+	}
+
+	return "";
+}
+
+void ShaderManager::setVertexShaderContent(ShaderType shader, std::string content)
+{
+	if (enumToShader.count(shader) == 0)
+		return;
+
+	std::ofstream ofs(enumToShader[shader]->vertexPath, std::ofstream::out);
+
+	ofs << content;
+
+	ofs.close();
+}
+
+void ShaderManager::setFragmentShaderContent(ShaderType shader, std::string content)
+{
+	if (enumToShader.count(shader) == 0)
+		return;
+
+	std::ofstream ofs(enumToShader[shader]->fragmentPath, std::ofstream::out);
+
+	ofs << content;
+
+	ofs.close();
 }

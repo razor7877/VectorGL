@@ -22,7 +22,7 @@ public:
 	void Component::start() override;
 	void Component::update() override;
 
-	void setupSkybox(GLuint shaderProgramID);
+	void setupSkybox(Shader* shaderProgram);
 	void changeSkybox(SkyboxType sky);
 
 private:

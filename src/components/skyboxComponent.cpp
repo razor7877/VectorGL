@@ -19,7 +19,7 @@ SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Compon
 
 void SkyboxComponent::start()
 {
-	MeshComponent::setupMesh(boxVertices, sizeof(boxVertices), this->shaderProgramID);
+	MeshComponent::setupMesh(boxVertices, sizeof(boxVertices), this->shaderProgram);
 
 	MeshComponent::start();
 
@@ -29,7 +29,7 @@ void SkyboxComponent::start()
 
 void SkyboxComponent::update()
 {
-	glUseProgram(this->shaderProgramID);
+	glUseProgram(this->shaderProgram->ID);
 
 	glDepthFunc(GL_LEQUAL);
 
@@ -40,9 +40,9 @@ void SkyboxComponent::update()
 	glDepthFunc(GL_LESS);
 }
 
-void SkyboxComponent::setupSkybox(GLuint shaderProgramID)
+void SkyboxComponent::setupSkybox(Shader* shaderProgram)
 {
-	this->shaderProgramID = shaderProgramID;
+	this->shaderProgram = shaderProgram;
 }
 
 void SkyboxComponent::changeSkybox(SkyboxType sky)

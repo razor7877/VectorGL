@@ -15,7 +15,7 @@ ResourceLoader& ResourceLoader::getInstance()
 	return ResourceLoader::instance;
 }
 
-Entity* ResourceLoader::loadModelFromFilepath(std::string path, GLuint shaderProgramID)
+Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
 {
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -34,7 +34,7 @@ Entity* ResourceLoader::loadModelFromFilepath(std::string path, GLuint shaderPro
 
 	this->directory = path.substr(0, path.find_last_of('/'));
 
-	this->processNode(scene->mRootNode, scene, shaderProgramID, modelEntity);
+	this->processNode(scene->mRootNode, scene, shaderProgram, modelEntity);
 
 	return modelEntity;
 }
@@ -44,13 +44,13 @@ ResourceLoader::ResourceLoader()
 
 }
 
-void ResourceLoader::processNode(aiNode* node, const aiScene* scene, GLuint shaderProgramID, Entity* parent)
+void ResourceLoader::processNode(aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent)
 {
 	// Process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		Entity* newMesh = processMesh(mesh, scene, shaderProgramID, parent);
+		Entity* newMesh = processMesh(mesh, scene, shaderProgram, parent);
 
 		std::string nodeName = std::string(node->mName.C_Str());
 		newMesh->setLabel(nodeName);
@@ -61,11 +61,11 @@ void ResourceLoader::processNode(aiNode* node, const aiScene* scene, GLuint shad
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene, shaderProgramID, parent);
+		processNode(node->mChildren[i], scene, shaderProgram, parent);
 	}
 }
 
-Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, GLuint shaderProgramID, Entity* parent)
+Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* shaderProgram, Entity* parent)
 {
 	std::vector<float> vertices;
 	std::vector<float> texCoords;
@@ -130,7 +130,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, GLuint s
 
 	Entity* entity = new Entity();
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
-	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgramID);
+	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
 
 	return entity;
 }

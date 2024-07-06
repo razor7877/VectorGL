@@ -91,7 +91,7 @@ void Renderer::init(glm::vec2 windowSize)
 	this->addEntity(cameraEntity);
 
 	// Initializes the light manager if it was setup to send all required data to the shader
-	if (LightManager::getInstance().shaderProgramID != 0)
+	if (LightManager::getInstance().shaderProgram->ID != 0)
 		LightManager::getInstance().init();
 
 	for (Entity* entity : this->entities)

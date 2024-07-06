@@ -11,7 +11,7 @@ LightManager& LightManager::getInstance()
 
 LightManager::LightManager()
 {
-	this->shaderProgramID = {};
+	this->shaderProgram = {};
 	this->nrDirLights = {};
 	this->nrPointLights = {};
 	this->nrSpotLights = {};
@@ -24,11 +24,11 @@ void LightManager::init()
 
 void LightManager::sendToShader()
 {
-	glUseProgram(this->shaderProgramID);
+	glUseProgram(this->shaderProgram->ID);
 
-	glUniform1i(glGetUniformLocation(this->shaderProgramID, "nrDirLights"), this->nrDirLights);
-	glUniform1i(glGetUniformLocation(this->shaderProgramID, "nrPointLights"), this->nrPointLights);
-	glUniform1i(glGetUniformLocation(this->shaderProgramID, "nrSpotLights"), this->nrSpotLights);
+	glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "nrDirLights"), this->nrDirLights);
+	glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "nrPointLights"), this->nrPointLights);
+	glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "nrSpotLights"), this->nrSpotLights);
 }
 
 unsigned int LightManager::addDirLight()

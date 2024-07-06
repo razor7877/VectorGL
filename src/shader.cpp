@@ -11,7 +11,10 @@
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-	this->compileShader(vertexPath, fragmentPath);
+	this->vertexPath = vertexPath;
+	this->fragmentPath = fragmentPath;
+
+	this->compileShader();
 }
 
 Shader::~Shader()
@@ -26,7 +29,7 @@ Shader* Shader::use()
 	return this;
 }
 
-bool Shader::compileShader(const char* vertexPath, const char* fragmentPath)
+bool Shader::compileShader()
 {
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -38,8 +41,8 @@ bool Shader::compileShader(const char* vertexPath, const char* fragmentPath)
 
 	try
 	{
-		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
+		vShaderFile.open(this->vertexPath);
+		fShaderFile.open(this->fragmentPath);
 		std::stringstream vShaderStream, fShaderStream;
 
 		vShaderStream << vShaderFile.rdbuf();
@@ -104,10 +107,11 @@ bool Shader::compileShader(const char* vertexPath, const char* fragmentPath)
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
+	glDeleteProgram(this->ID);
 	// We can replace the new ID if everything succeeded
 	this->ID = newID;
-	this->vertexPath = vertexPath;
-	this->fragmentPath = fragmentPath;
+
+	Logger::logInfo("Successfully compiled shader!");
 
 	return true;
 }

@@ -9,7 +9,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->shaderProgramID = {};
+	this->shaderProgram = {};
 
 	this->VAO = {};
 	this->VBO = {};
@@ -95,7 +95,7 @@ void MeshComponent::start()
 
 void MeshComponent::update()
 {
-	glUseProgram(this->shaderProgramID);
+	glUseProgram(this->shaderProgram->ID);
 
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
@@ -139,17 +139,17 @@ void MeshComponent::update()
 					break;
 			}
 
-			glUniform1i(glGetUniformLocation(this->shaderProgramID, "use_specular_map"), useSpecularMap);
-			glUniform1i(glGetUniformLocation(this->shaderProgramID, "use_normal_map"), useNormalMap);
-			glUniform1i(glGetUniformLocation(this->shaderProgramID, "use_height_map"), useHeightMap);
+			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_specular_map"), useSpecularMap);
+			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_normal_map"), useNormalMap);
+			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_height_map"), useHeightMap);
 
-			glUniform1i(glGetUniformLocation(this->shaderProgramID, name.c_str()), i);
+			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, name.c_str()), i);
 			glBindTexture(GL_TEXTURE_2D, this->textures[i]->texID);
 		}
 	}
 
 	// Send the object's model matrix to the shader
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &this->parent->transform->getModelMatrix()[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "model"), 1, GL_FALSE, &this->parent->transform->getModelMatrix()[0][0]);
 
 	// Indexed drawing
 	if (this->hasIndices)
@@ -158,10 +158,10 @@ void MeshComponent::update()
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount * sizeof(float));
 }
 
-void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)
+void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position)
 {
 	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
-	this->shaderProgramID = shaderProgramID;
+	this->shaderProgram = shaderProgram;
 	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
 
 	this->VAO = {};
@@ -176,11 +176,11 @@ void MeshComponent::setupMesh(
 	std::vector<float> texCoords,
 	std::vector<float> normals,
 	std::vector<unsigned int> indices,
-	std::vector<Texture*> textures, GLuint shaderProgramID,
+	std::vector<Texture*> textures, Shader* shaderProgram,
 	glm::vec3 position)
 {
 	this->vertices = vertices;
-	this->shaderProgramID = shaderProgramID;
+	this->shaderProgram = shaderProgram;
 	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
 	this->texCoords = texCoords;
 	this->textures = textures;

@@ -258,15 +258,65 @@ void KeysMenu()
 	ImGui::End();
 }
 
+std::string currentEditedShaderPath;
+ShaderType currentEditedShader;
+bool isEditingVertexShader = false;
+bool editingShader = false;
+
 void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
 {
 	ImGui::Begin("Shader settings");
 
-	ImGui::ColorEdit3("Ambient", &ambient[0]);
-	ImGui::ColorEdit3("Diffuse", &diffuse[0]);
-	ImGui::ColorEdit3("Specular", &specular[0]);
+	//ImGui::ColorEdit3("Ambient", &ambient[0]);
+	//ImGui::ColorEdit3("Diffuse", &diffuse[0]);
+	//ImGui::ColorEdit3("Specular", &specular[0]);
 
-	ImGui::DragFloat("Shininess", &shininess, 1.0f, 1.0f, 512.0f);
+	//ImGui::DragFloat("Shininess", &shininess, 1.0f, 1.0f, 512.0f);
+
+	for (auto& [type, shader] : renderer->shaderManager.enumToShader)
+	{
+		std::string label;
+
+		switch (type)
+		{
+			case ShaderType::PHONG:
+				label = "Phong";
+				break;
+
+			case ShaderType::SKYBOX:
+				label = "Skybox";
+				break;
+
+			case ShaderType::GRID:
+				label = "Grid";
+				break;
+
+			case ShaderType::GRID2:
+				label = "Grid2";
+				break;
+		}
+
+		if (ImGui::CollapsingHeader(label.c_str()))
+		{
+			if (ImGui::Button("Edit vertex shader"))
+			{
+				currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->vertexPath;
+				currentEditedShader = type;
+				isEditingVertexShader = true;
+				editingShader = true;
+				editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
+			}
+
+			if (ImGui::Button("Edit fragment shader"))
+			{
+				currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->fragmentPath;
+				currentEditedShader = type;
+				isEditingVertexShader = false;
+				editingShader = true;
+				editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
+			}
+		}
+	}
 
 	ImGui::End();
 }
@@ -275,15 +325,6 @@ void SetupEditor()
 {
 	auto lang = TextEditor::LanguageDefinition::GLSL();
 	editor.SetLanguageDefinition(lang);
-
-	fileToEdit = "shaders/phong.frag";
-
-	std::ifstream t(fileToEdit);
-	if (t.good())
-	{
-		std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-		editor.SetText(str);
-	}
 }
 
 void ShowEditor()
@@ -299,7 +340,15 @@ void ShowEditor()
 			if (ImGui::MenuItem("Save"))
 			{
 				auto textToSave = editor.GetText();
-				/// save text....
+				if (editingShader)
+				{
+					if (isEditingVertexShader)
+						renderer->shaderManager.setVertexShaderContent(currentEditedShader, textToSave);
+					else
+						renderer->shaderManager.setFragmentShaderContent(currentEditedShader, textToSave);
+
+					renderer->shaderManager.enumToShader[currentEditedShader]->compileShader();
+				}
 			}
 			if (ImGui::MenuItem("Quit", "Alt-F4"))
 			{
