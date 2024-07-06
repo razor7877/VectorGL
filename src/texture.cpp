@@ -7,10 +7,10 @@
 
 Texture::Texture()
 {
-
+	this->texID = {};
 }
 
-Texture::Texture(std::string filename, std::string type, bool stbiFlipOnLoad)
+Texture::Texture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
 {
 	this->type = type;
 
@@ -53,9 +53,9 @@ Texture::Texture(std::string filename, std::string type, bool stbiFlipOnLoad)
 	stbi_image_free(data);
 }
 
-Texture::Texture(int width, int height, GLenum format, void* textureData)
+Texture::Texture(TextureType textureType, int width, int height, GLenum format, void* textureData)
 {
-	this->type = "Embedded";
+	this->type = textureType;
 
 	// Create OpenGL texture
 	glGenTextures(1, &texID);

@@ -66,7 +66,7 @@ int main()
 	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
 	
-	Texture* crate = new Texture("img/container2.png", "texture_diffuse", false);
+	Texture* crate = new Texture("img/container2.png", TextureType::TEXTURE_DIFFUSE, false);
 	Material* boxTex = new Material(crate);
 
 	// TODO : Read ambient/diffuse/specular maps

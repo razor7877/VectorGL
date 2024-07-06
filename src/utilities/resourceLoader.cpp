@@ -123,6 +123,9 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, GLuint s
 
 		std::vector<Texture*> heightMaps = loadMaterialTextures(scene, material, aiTextureType_HEIGHT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+		if (diffuseMaps.size() > 1 || specularMaps.size() > 1 || normalMaps.size() > 1 || heightMaps.size() > 1)
+			Logger::logWarning("Loading model that contains more textures than the shader allows (diffuse/specular/normal/height)");
 	}
 
 	Entity* entity = new Entity();
@@ -149,6 +152,27 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 		// Texture has not been loaded yet
 		if (this->loadedTextures.count(path) == 0)
 		{
+			// To map each value to the corresponding TextureType
+			TextureType textureType;
+			switch (type)
+			{
+				case aiTextureType_DIFFUSE:
+					textureType = TextureType::TEXTURE_DIFFUSE;
+					break;
+
+				case aiTextureType_SPECULAR:
+					textureType = TextureType::TEXTURE_SPECULAR;
+					break;
+
+				case aiTextureType_NORMALS:
+					textureType = TextureType::TEXTURE_NORMAL;
+					break;
+
+				case aiTextureType_HEIGHT:
+					textureType = TextureType::TEXTURE_HEIGHT;
+					break;
+			}
+
 			// If this is not null, we have an embedded texture, for example in GLB models
 			if (auto embeddedTexture = scene->GetEmbeddedTexture(str.C_Str()))
 			{
@@ -174,7 +198,7 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 					// Decompress image
 					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, channels);
 					// Create texture using image data
-					texture = new Texture(width, height, format, data);
+					texture = new Texture(textureType, width, height, format, data);
 					stbi_image_free(data);
 				}
 				else // We have raw image data
@@ -188,13 +212,13 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 						if (embeddedTexture->achFormatHint[i] == 'A' && embeddedTexture->achFormatHint[i] != '0')
 							format = GL_RGBA;
 
-					texture = new Texture(embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData);
+					texture = new Texture(textureType, embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData);
 				}
 			}
 			else // Not an embedded texture, load it from file system
 			{
 				Logger::logInfo(std::string("Loading texture path " + path));
-				texture = new Texture(path, typeName, false);
+				texture = new Texture(path, textureType, false);
 				texture->path = str.C_Str();
 				this->loadedTextures[path] = texture;
 			}

@@ -108,31 +108,43 @@ void MeshComponent::update()
 		unsigned int normalNr = 1;
 		unsigned int heightNr = 1;
 
+		bool useSpecularMap = false;
+		bool useNormalMap = false;
+		bool useHeightMap = false;
+
 		for (int i = 0; i < textures.size(); i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
-			std::string number;
-			std::string name = textures[i]->type;
+			std::string name;
+			
+			switch (this->textures[i]->type)
+			{
+				case TextureType::TEXTURE_DIFFUSE:
+					name = std::string("texture_diffuse") + std::to_string(diffuseNr++);
+					break;
 
-			if (name == "texture_diffuse")
-			{
-				number = std::to_string(diffuseNr++);
-			}
-			else if (name == "texture_specular")
-			{
-				number = std::to_string(specularNr++);
-			}
-			else if (name == "texture_normal")
-			{
-				number = std::to_string(normalNr++);
-			}
-			else if (name == "texture_height")
-			{
-				number = std::to_string(heightNr++);
+				case TextureType::TEXTURE_SPECULAR:
+					useSpecularMap = true;
+					name = std::string("texture_specular") + std::to_string(specularNr++);
+					break;
+
+				case TextureType::TEXTURE_NORMAL:
+					useNormalMap = true;
+					name = std::string("texture_normal") + std::to_string(normalNr++);
+					break;
+
+				case TextureType::TEXTURE_HEIGHT:
+					useHeightMap = true;
+					name = std::string("texture_height") + std::to_string(heightNr++);
+					break;
 			}
 
-			glUniform1i(glGetUniformLocation(shaderProgramID, (name + number).c_str()), i);
-			glBindTexture(GL_TEXTURE_2D, textures[i]->texID);
+			glUniform1i(glGetUniformLocation(this->shaderProgramID, "use_specular_map"), useSpecularMap);
+			glUniform1i(glGetUniformLocation(this->shaderProgramID, "use_normal_map"), useNormalMap);
+			glUniform1i(glGetUniformLocation(this->shaderProgramID, "use_height_map"), useHeightMap);
+
+			glUniform1i(glGetUniformLocation(this->shaderProgramID, name.c_str()), i);
+			glBindTexture(GL_TEXTURE_2D, this->textures[i]->texID);
 		}
 	}
 

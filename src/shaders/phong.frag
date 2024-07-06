@@ -61,13 +61,19 @@ in vec3 Normal;
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
 
-
 // DEFINING UNIFORMS
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
 uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_specular1;
+uniform sampler2D texture_normal1;
+uniform sampler2D texture_height1;
+
+uniform bool use_specular_map;
+uniform bool use_normal_map;
+uniform bool use_height_map;
 
 uniform Material material;
 
@@ -165,26 +171,24 @@ void main()
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);
 
+	vec3 normalVec;
+	if (use_normal_map)
+		normalVec = texture(texture_normal1, TexCoord).rgb;
+	else
+		normalVec = Normal;
+
 	for (int i = 0; i < nrDirLights; i++)
-	{
-		result += calcDirLight(dirLights[i], Normal, viewDir);
-	}
+		result += calcDirLight(dirLights[i], normalVec, viewDir);
 
 	for (int i = 0; i < nrPointLights; i++)
-	{
-		result += calcPointLight(pointLights[i], Normal, FragPos, viewDir);
-	}
+		result += calcPointLight(pointLights[i], normalVec, FragPos, viewDir);
 
 	for (int i = 0; i < nrSpotLights; i++)
-	{
-		result += calcSpotLight(spotLights[i], Normal, FragPos, viewDir);
-	}
+		result += calcSpotLight(spotLights[i], normalVec, FragPos, viewDir);
 
 	FragColor = vec4(result, 1.0);
 
 	// If texture coordinates are supplied, apply the texture
 	if (TexCoord != vec2(0.0, 0.0))
-	{
 		FragColor *= texture(texture_diffuse1, TexCoord);
-	}
 }
