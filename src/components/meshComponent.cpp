@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "logger.hpp"
 #include "components/meshComponent.hpp"
 #include "entity.hpp"
 
@@ -15,11 +16,15 @@ MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 	this->indicesBO = {};
 	this->texCoordBO = {};
 	this->normalBO = {};
+
+	this->verticesCount = {};
+	this->indicesCount = {};
+	this->hasIndices = false;
 }
 
 MeshComponent::~MeshComponent()
 {
-	std::cout << "Calling MeshComponent destructor" << std::endl;
+	Logger::logDebug("Calling MeshComponent destructor");
 
 	glDeleteBuffers(1, &this->VBO);
 	glDeleteBuffers(1, &this->indicesBO);
@@ -42,6 +47,8 @@ void MeshComponent::start()
 	// If the MeshComponent uses indices
 	if (indices.size() > 0)
 	{
+		this->hasIndices = true;
+
 		glGenBuffers(1, &indicesBO);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBO);
@@ -75,6 +82,15 @@ void MeshComponent::start()
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
 	}
+
+	this->verticesCount = this->vertices.size();
+	this->indicesCount = this->indices.size();
+
+	// No need to store the entire buffers in memory once they're on the GPU
+	this->vertices.clear();
+	this->texCoords.clear();
+	this->normals.clear();
+	this->indices.clear();
 }
 
 void MeshComponent::update()
@@ -84,6 +100,7 @@ void MeshComponent::update()
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
+	// Bind all necessary textures
 	if (textures.size() != 0)
 	{
 		unsigned int diffuseNr = 1;
@@ -122,15 +139,11 @@ void MeshComponent::update()
 	// Send the object's model matrix to the shader
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramID, "model"), 1, GL_FALSE, &this->parent->transform->getModelMatrix()[0][0]);
 
-	if (indices.size() == 0)
-	{
-		// Draw the object's vertices as triangles
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size() * sizeof(float));
-	}
-	else
-	{
-		glDrawElements(GL_TRIANGLES, (GLsizei)indices.size(), GL_UNSIGNED_INT, 0);
-	}
+	// Indexed drawing
+	if (this->hasIndices)
+		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
+	else // Normal drawing
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount * sizeof(float));
 }
 
 void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, GLuint shaderProgramID, glm::vec3 position)

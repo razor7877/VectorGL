@@ -44,11 +44,16 @@ protected:
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
 
+	int verticesCount;
+	int indicesCount;
+	bool hasIndices;
+
 	std::vector<Texture*> textures;
 
-	GLuint VAO; // The object's VAO
+	GLuint VAO;
 
-	GLuint VBO; // The object's VBO
+	// Identifiers for the buffers on GPU
+	GLuint VBO;
 	GLuint texCoordBO;
 	GLuint normalBO;
 	GLuint indicesBO;
