@@ -103,12 +103,13 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ImGui::NewFrame();
 
 	ImGui::BeginMainMenuBar();
+	ImVec2 mainMenuBarSize = ImGui::GetWindowSize();
 	ImGui::MenuItem("Test", NULL, &showTest);
 	ImGui::EndMainMenuBar();
 
 	// We want to create a full size window
-	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+	ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y));
+	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight - mainMenuBarSize.y));
 	ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 	ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
@@ -298,6 +299,7 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 
 		if (ImGui::CollapsingHeader(label.c_str()))
 		{
+			ImGui::PushID(shader->vertexPath.c_str());
 			if (ImGui::Button("Edit vertex shader"))
 			{
 				currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->vertexPath;
@@ -306,7 +308,9 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 				editingShader = true;
 				editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
 			}
+			ImGui::PopID();
 
+			ImGui::PushID(shader->fragmentPath.c_str());
 			if (ImGui::Button("Edit fragment shader"))
 			{
 				currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->fragmentPath;
@@ -315,6 +319,7 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 				editingShader = true;
 				editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
 			}
+			ImGui::PopID();
 		}
 	}
 
