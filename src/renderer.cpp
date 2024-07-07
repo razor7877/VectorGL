@@ -2,6 +2,8 @@
 
 #include "main.hpp"
 #include "renderer.hpp"
+#include "shaderManager.hpp"
+#include "entity.hpp"
 
 Renderer::Renderer()
 {
@@ -68,10 +70,21 @@ void Renderer::render(float deltaTime)
 	// Update camera info
 	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
 
+	// Render & update the scene
 	for (Entity* entity : this->entities)
 		entity->update(deltaTime);
 
 	this->multiSampledTarget.unbind();
+
+	// Bind the second target that will contain the mixed multisampled textures
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->multiSampledTarget.framebuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalTarget.framebuffer);
+
+	glm::vec2 framebufferSize = this->multiSampledTarget.size;
+	// Resolve the multisampled texture to the second target
+	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::end()

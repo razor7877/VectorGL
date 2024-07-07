@@ -137,8 +137,6 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
-	LightManager::getInstance().init();
-
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -163,7 +161,6 @@ int main()
 			->setFloat("material.shininess", boxTex->shininess);
 
 		defaultRenderer.render(deltaTime);
-		
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess);
