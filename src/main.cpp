@@ -57,6 +57,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Creates a renderer for drawing objects
@@ -65,7 +66,7 @@ int main()
 	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
-	
+
 	Texture* crate = new Texture("img/container2.png", TextureType::TEXTURE_DIFFUSE, false);
 	Material* boxTex = new Material(crate);
 
@@ -85,6 +86,8 @@ int main()
 	Entity* grid = new Entity("Grid");
 	MeshComponent* gridMesh = grid->addComponent<MeshComponent>();
 	gridMesh->setupMesh(gridVerts, sizeof(gridVerts), gridShader);
+
+	defaultRenderer.addEntity(grid);
 	
 	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader);
 	model->transform
@@ -134,6 +137,8 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
+	LightManager::getInstance().init();
+
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -158,7 +163,7 @@ int main()
 			->setFloat("material.shininess", boxTex->shininess);
 
 		defaultRenderer.render(deltaTime);
-		LightManager::getInstance().init();
+		
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess);

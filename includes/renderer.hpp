@@ -7,6 +7,7 @@
 #include "entity.hpp"
 #include "lights/lightManager.hpp"
 #include "shaderManager.hpp"
+#include "renderTarget.hpp"
 
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
@@ -69,14 +70,8 @@ public:
 private:
 	std::vector<Entity*> entities;
 
-	// Associates each shader used in the meshes vector with its corresponding meshes
-	//std::map<int, std::vector<RenderObject*>> shaderMap;
-
-	GLuint frameBuffer;
-	GLuint depthBuffer;
-	GLuint renderTexture;
-	GLenum drawBuffers[1];
-	glm::vec2 windowSize;
+	RenderTarget multiSampledTarget;
+	RenderTarget finalTarget;
 
 	// Creates a framebuffer with the size specified
 	void createFramebuffer(glm::vec2 windowSize);

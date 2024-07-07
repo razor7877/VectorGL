@@ -115,7 +115,7 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
 
 	// We can now show all the different dockable windows
-	ShowViewer();
+	//ShowViewer();
 	ShowConsole();
 	PerformanceMenu();
 	KeysMenu();
@@ -328,7 +328,7 @@ void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular,
 
 void SetupEditor()
 {
-	auto lang = TextEditor::LanguageDefinition::GLSL();
+	TextEditor::LanguageDefinition lang = TextEditor::LanguageDefinition::GLSL();
 	editor.SetLanguageDefinition(lang);
 }
 
