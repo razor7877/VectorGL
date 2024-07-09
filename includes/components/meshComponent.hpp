@@ -27,7 +27,7 @@ public:
 		std::vector<unsigned int> indices,
 		std::vector<Texture*> textures,
 		Shader* shaderProgram,
-		glm::vec3 position = glm::vec3(1.0f));
+		glm::vec3 position = glm::vec3(0.0f));
 
 	// Generates buffers and enables correct draw calls to use given texture
 	MeshComponent& addTexCoords(std::vector<float> texCoords);

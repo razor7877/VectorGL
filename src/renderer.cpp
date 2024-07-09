@@ -65,10 +65,11 @@ void Renderer::render(float deltaTime)
 {
 	this->multiSampledTarget.bind();
 
-	glm::vec2 windowSize = this->multiSampledTarget.size;
-
 	// Update camera info
+	glm::vec2 windowSize = this->multiSampledTarget.size;
 	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+
+	LightManager::getInstance().sendToShader();
 
 	// Render & update the scene
 	for (Entity* entity : this->entities)

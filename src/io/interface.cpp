@@ -340,26 +340,18 @@ void ShowEditor()
 	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("File"))
+		if (ImGui::Button("Save"))
 		{
-			if (ImGui::MenuItem("Save"))
+			auto textToSave = editor.GetText();
+			if (editingShader)
 			{
-				auto textToSave = editor.GetText();
-				if (editingShader)
-				{
-					if (isEditingVertexShader)
-						renderer->shaderManager.setVertexShaderContent(currentEditedShader, textToSave);
-					else
-						renderer->shaderManager.setFragmentShaderContent(currentEditedShader, textToSave);
+				if (isEditingVertexShader)
+					renderer->shaderManager.setVertexShaderContent(currentEditedShader, textToSave);
+				else
+					renderer->shaderManager.setFragmentShaderContent(currentEditedShader, textToSave);
 
-					renderer->shaderManager.enumToShader[currentEditedShader]->compileShader();
-				}
+				renderer->shaderManager.enumToShader[currentEditedShader]->compileShader();
 			}
-			if (ImGui::MenuItem("Quit", "Alt-F4"))
-			{
-
-			}
-			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
@@ -408,7 +400,7 @@ void ShowEditor()
 	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 		editor.IsOverwrite() ? "Ovr" : "Ins",
 		editor.CanUndo() ? "*" : " ",
-		editor.GetLanguageDefinition().mName.c_str(), fileToEdit);
+		editor.GetLanguageDefinition().mName.c_str(), currentEditedShaderPath);
 
 	editor.Render("TextEditor");
 	ImGui::End();
