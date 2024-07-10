@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "materials/material.hpp"
+#include "materials/pbrMaterial.hpp"
 #include "materials/phongMaterial.hpp"
 #include "component.hpp"
 #include "transformComponent.hpp"
@@ -40,14 +41,12 @@ public:
 
 	void setDiffuseColor(glm::vec3 color);
 
-	PhongMaterial& getMaterialReference();
-
-protected:
 	/// <summary>
 	/// The material of the mesh
 	/// </summary>
 	Material* material;
 
+protected:
 	/// <summary>
 	/// The shader used to draw the mesh
 	/// </summary>
@@ -88,4 +87,7 @@ protected:
 	/// A OpenGL handle for the buffer object containing the indices
 	/// </summary>
 	GLuint indicesBO = 0;
+
+	void addPBRTextures(PBRMaterial* pbrMaterial);
+	void addPhongTextures(PhongMaterial* phongMaterial);
 };

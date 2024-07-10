@@ -1,5 +1,10 @@
 #include "materials/pbrMaterial.hpp"
 
+PBRMaterial::PBRMaterial()
+{
+
+}
+
 void PBRMaterial::sendToShader(Shader* shaderProgram)
 {
 	// Send all data relevant to textures

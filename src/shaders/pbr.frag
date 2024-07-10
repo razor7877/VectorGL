@@ -45,11 +45,11 @@ struct Material
 	float roughness;
 	float ao;
 
-	sampler2D texture_albedo
+	sampler2D texture_albedo;
 	sampler2D texture_normal;
 	sampler2D texture_metallic;
 	sampler2D texture_roughness;
-    sampler2D use_ao_map;
+    sampler2D texture_ao;
 
 	bool use_albedo_map;
 	bool use_normal_map;
@@ -71,14 +71,9 @@ out vec4 FragColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
-
-uniform Material material;
-
 uniform vec3 camPos;
 
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
+uniform Material material;
 
 // There is one uniform for each light type, each being an array that contains up to
 // 32 of this light type
@@ -138,8 +133,14 @@ vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     return vec3(0);
 }
 
-vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 FragPos, vec3 F0, vec3 albedo)
+vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 FragPos, vec3 F0, vec3 albedo, float metallic)
 {
+    float roughness;
+    if (material.use_roughness_map)
+        roughness = texture(material.texture_roughness, TexCoord).r;
+    else
+        roughness = material.roughness;
+
     vec3 L = normalize(light.position - FragPos);
     vec3 H = normalize(V + L);
 
@@ -168,29 +169,69 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
     return vec3(0);
 }
 
+vec3 getNormalFromMap()
+{
+    vec3 tangentNormal = texture(material.texture_normal, TexCoord).xyz * 2.0 - 1.0;
+
+    vec3 Q1  = dFdx(FragPos);
+    vec3 Q2  = dFdy(FragPos);
+    vec2 st1 = dFdx(TexCoord);
+    vec2 st2 = dFdy(TexCoord);
+
+    vec3 N   = normalize(Normal);
+    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B  = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
+
 void main()
 {
     vec3 albedo;
-    if (material.use_diffuse_map)
-        albedo = texture(material.texture_diffuse, TexCoord).rgb;
+    if (material.use_albedo_map)
+    {
+        vec3 albedo = texture(material.texture_albedo, TexCoord).rgb;
+        float r = pow(albedo.r, 2.2);
+        float g = pow(albedo.g, 2.2);
+        float b = pow(albedo.b, 2.2);
+        albedo = vec3(r, g, b);
+    }
     else
-        albedo = material.diffuse, 1.0;
+        albedo = material.albedo, 1.0;
     
     vec3 normalVec;
+    // if (material.use_normal_map)
+    //     normalVec = texture(material.texture_normal, TexCoord).rgb;
+    // else
+    //     normalVec = Normal;
+
     if (material.use_normal_map)
-        normalVec = texture(material.texture_normal, TexCoord).rgb;
+        normalVec = getNormalFromMap();
     else
         normalVec = Normal;
     
     vec3 N = normalize(normalVec);
     vec3 V = normalize(camPos - FragPos);
 
+    float metallic;
+    if (material.use_metallic_map)
+        metallic = texture(material.texture_metallic, TexCoord).r;
+    else
+        metallic = material.metallic;
+
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo = vec3(0.0);
     for (int i = 0; i < nrPointLights; i++)
-        Lo += calcPointLight(pointLights[i], N, V, FragPos, F0, albedo);
+        Lo += calcPointLight(pointLights[i], N, V, FragPos, F0, albedo, metallic);
+
+    float ao;
+    if (material.use_ao_map)
+        ao = texture(material.texture_ao, TexCoord).r;
+    else
+        ao = material.ao;
 
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;

@@ -6,10 +6,13 @@
 #include "logger.hpp"
 #include "components/meshComponent.hpp"
 #include "entity.hpp"
+#include "materials/phongMaterial.hpp"
+#include "materials/pbrMaterial.hpp"
+#include "materials/material.hpp"
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-
+	this->material = new PBRMaterial();
 }
 
 MeshComponent::~MeshComponent()
@@ -60,28 +63,8 @@ void MeshComponent::start()
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 
-		// We sort the textures from the vector into their own members in the mesh for easier use later
-		for (int i = 0; i < textures.size(); i++)
-		{
-			switch (this->textures[i]->type)
-			{
-				case TextureType::TEXTURE_DIFFUSE:
-					this->material.addDiffuseMap(this->textures[i]);
-					break;
-
-				case TextureType::TEXTURE_SPECULAR:
-					this->material.addSpecularMap(this->textures[i]);
-					break;
-
-				case TextureType::TEXTURE_NORMAL:
-					this->material.addNormalMap(this->textures[i]);
-					break;
-
-				case TextureType::TEXTURE_HEIGHT:
-					this->material.addHeightMap(this->textures[i]);
-					break;
-			}
-		}
+		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
+		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
 	}
 
 	// If the object uses normals
@@ -114,7 +97,7 @@ void MeshComponent::update()
 	glBindVertexArray(VAO);
 
 	// Send material data
-	this->material.sendToShader(this->shaderProgram);
+	this->material->sendToShader(this->shaderProgram);
 
 	// Send the model matrix
 	this->shaderProgram
@@ -207,10 +190,71 @@ MeshComponent& MeshComponent::addIndices(unsigned int indices[], unsigned int in
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)
 {
-	this->material.diffuseColor = color;
+	PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
+
+	if (phongMaterial != nullptr)
+	{
+		phongMaterial->diffuseColor = color;
+		return;
+	}
+
+	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
+
+	if (pbrMaterial != nullptr)
+		pbrMaterial->albedoColor = color;
 }
 
-PhongMaterial& MeshComponent::getMaterialReference()
+void MeshComponent::addPBRTextures(PBRMaterial* pbrMaterial)
 {
-	return this->material;
+	for (int i = 0; i < textures.size(); i++)
+	{
+		switch (this->textures[i]->type)
+		{
+			case TextureType::TEXTURE_ALBEDO:
+				pbrMaterial->addAlbedoMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_NORMAL:
+				pbrMaterial->addNormalMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_METALLIC:
+				pbrMaterial->addMetallicMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_ROUGHNESS:
+				pbrMaterial->addRoughnessMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_AO:
+				pbrMaterial->addAoMap(this->textures[i]);
+				break;
+		}
+	}
+}
+
+void MeshComponent::addPhongTextures(PhongMaterial* phongMaterial)
+{
+	// We sort the textures from the vector into their own members in the mesh for easier use later
+	for (int i = 0; i < textures.size(); i++)
+	{
+		switch (this->textures[i]->type)
+		{
+			case TextureType::TEXTURE_DIFFUSE:
+				phongMaterial->addDiffuseMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_SPECULAR:
+				phongMaterial->addSpecularMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_NORMAL:
+				phongMaterial->addNormalMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_HEIGHT:
+				phongMaterial->addHeightMap(this->textures[i]);
+				break;
+		}
+	}
 }

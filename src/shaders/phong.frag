@@ -179,7 +179,7 @@ void main()
 			discard;
 	}
 	else
-		FragColor = vec4(material.diffuse_color, 1.0);
+		FragColor = vec4(material.diffuse, 1.0);
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);

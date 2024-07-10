@@ -620,17 +620,20 @@ void ShowComponentUI(Component* component)
 
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
 			
-			PhongMaterial& meshMaterial = meshComponent->getMaterialReference();
+			PhongMaterial* meshMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material);
 
-			ImGui::DragFloat("Shininess", &meshMaterial.shininess);
-			
-			ImGui::ColorEdit3("Ambient", &meshMaterial.ambientColor[0]);
+			if (meshMaterial != nullptr)
+			{
+				ImGui::DragFloat("Shininess", &meshMaterial->shininess);
 
-			if (!meshMaterial.useDiffuseMap)
-				ImGui::ColorEdit3("Diffuse", &meshMaterial.diffuseColor[0]);
+				ImGui::ColorEdit3("Ambient", &meshMaterial->ambientColor[0]);
 
-			if (!meshMaterial.useSpecularMap)
-				ImGui::ColorEdit3("Specular", &meshMaterial.specularColor[0]);
+				if (!meshMaterial->useDiffuseMap)
+					ImGui::ColorEdit3("Diffuse", &meshMaterial->diffuseColor[0]);
+
+				if (!meshMaterial->useSpecularMap)
+					ImGui::ColorEdit3("Specular", &meshMaterial->specularColor[0]);
+			}
 		}
 	}
 	else if (dynamic_cast<CameraComponent*>(component))
