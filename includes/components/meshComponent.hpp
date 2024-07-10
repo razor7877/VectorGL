@@ -46,7 +46,7 @@ protected:
 	/// <summary>
 	/// The material of the mesh
 	/// </summary>
-	PhongMaterial material;
+	Material* material;
 
 	/// <summary>
 	/// The shader used to draw the mesh

@@ -2,7 +2,7 @@
 
 #include "shader.hpp"
 
-class Material
+struct Material
 {
 	virtual void sendToShader(Shader* shaderProgram) = 0;
 };

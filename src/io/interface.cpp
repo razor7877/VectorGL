@@ -270,6 +270,7 @@ bool editingShader = false;
 
 float roughness = 0.0f;
 float metallic = 0.0f;
+float ao = 0.0f;
 
 void ShaderSettings()
 {
@@ -285,6 +286,11 @@ void ShaderSettings()
 	if (ImGui::DragFloat("Metallic", &metallic, 0.01f, 0.0f, 1.0f))
 	{
 		pbr->use()->setFloat("metallic", metallic);
+	}
+
+	if (ImGui::DragFloat("AO", &ao, 0.01f, 0.0f, 1.0f))
+	{
+		pbr->use()->setFloat("ao", ao);
 	}
 
 	for (auto& [type, shader] : renderer->shaderManager.enumToShader)

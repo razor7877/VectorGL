@@ -40,20 +40,22 @@ struct SpotLight
 
 struct Material
 {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	float shininess;
+	vec3 albedo;
+	float metallic;
+	float roughness;
+	float ao;
 
-	sampler2D texture_diffuse;
-	sampler2D texture_specular;
+	sampler2D texture_albedo
 	sampler2D texture_normal;
-	sampler2D texture_height;
+	sampler2D texture_metallic;
+	sampler2D texture_roughness;
+    sampler2D use_ao_map;
 
-	bool use_diffuse_map;
-	bool use_specular_map;
+	bool use_albedo_map;
 	bool use_normal_map;
-	bool use_height_map;
+	bool use_metallic_map;
+	bool use_roughness_map;
+    bool use_ao_map;
 };
 
 // DEFINING INPUT VALUES
@@ -131,6 +133,41 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+{
+    return vec3(0);
+}
+
+vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 FragPos, vec3 F0, vec3 albedo)
+{
+    vec3 L = normalize(light.position - FragPos);
+    vec3 H = normalize(V + L);
+
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    vec3 radiance = light.diffuseColor * attenuation;
+
+    float NDF = DistributionGGX(N, H, roughness);
+    float G = GeometrySmith(N, V, L, roughness);
+    vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.00001) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    float NdotL = max(dot(N, L), 0.0);
+    return (kD * albedo / PI + specular) * radiance * NdotL;
+}
+
+vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
+{
+    return vec3(0);
+}
+
 void main()
 {
     vec3 albedo;
@@ -153,29 +190,7 @@ void main()
 
     vec3 Lo = vec3(0.0);
     for (int i = 0; i < nrPointLights; i++)
-    {
-        vec3 L = normalize(pointLights[i].position - FragPos);
-        vec3 H = normalize(V + L);
-
-        float distance = length(pointLights[i].position - FragPos);
-        float attenuation = 1.0 / (pointLights[i].constant + pointLights[i].linear * distance + pointLights[i].quadratic * (distance * distance));
-        vec3 radiance = pointLights[i].diffuseColor * attenuation;
-
-        float NDF = DistributionGGX(N, H, roughness);
-        float G = GeometrySmith(N, V, L, roughness);
-        vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
-
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;
-
-        vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular = numerator / denominator;
-
-        float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-    }
+        Lo += calcPointLight(pointLights[i], N, V, FragPos, F0, albedo);
 
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;

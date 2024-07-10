@@ -78,11 +78,11 @@ int main()
 
 	defaultRenderer.addEntity(grid);
 	
-	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", pbrShader);
+	/*Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", pbrShader);
 	model->transform
 		->setScale(0.075f, 0.075f, 0.075f);
 
-	defaultRenderer.addEntity(model);
+	defaultRenderer.addEntity(model);*/
 
 	// Add point light
 	Entity* pointLightEntity = new Entity("Point light");
