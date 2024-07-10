@@ -57,7 +57,7 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir);
 in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
-in vec3 Color;
+in vec4 Color;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
@@ -185,7 +185,7 @@ void main()
 	else
 	{
 		if (use_vertex_colors)
-			FragColor = vec4(Color, 1.0);
+			FragColor = Color;
 		else
 			FragColor = vec4(diffuse_color, 1.0);
 	}

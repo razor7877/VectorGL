@@ -108,8 +108,8 @@ void MeshComponent::start()
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexColorsBO);
 		glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
-
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(3);
 	}
 

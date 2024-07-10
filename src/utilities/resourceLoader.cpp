@@ -74,7 +74,6 @@ void ResourceLoader::processNode(aiNode* node, const aiScene* scene, Shader* sha
 Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* shaderProgram, Entity* parent)
 {
 	std::vector<float> vertices;
-	std::vector<float> vertexColors;
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
@@ -86,13 +85,6 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		vertices.push_back(mesh->mVertices[i].x);
 		vertices.push_back(mesh->mVertices[i].y);
 		vertices.push_back(mesh->mVertices[i].z);
-
-		if (mesh->HasVertexColors(0))
-		{
-			vertexColors.push_back(mesh->mColors[0][i].r);
-			vertexColors.push_back(mesh->mColors[0][i].g);
-			vertexColors.push_back(mesh->mColors[0][i].b);
-		}
 
 		if (mesh->HasNormals())
 		{
@@ -122,6 +114,9 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		}
 	}
 
+	glm::vec3 diffuseColor;
+	bool useDiffuseColor = false;
+
 	// Load all the textures needed
 	if (mesh->mMaterialIndex >= 0)
 	{
@@ -144,7 +139,12 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 		if (diffuseMaps.size() == 0)
 		{
-			Logger::logInfo("No diffuse");
+			aiColor4D diffuseColorVec;
+			if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColorVec) == AI_SUCCESS)
+			{
+				diffuseColor = glm::vec3(diffuseColorVec.r, diffuseColorVec.g, diffuseColorVec.b);
+				useDiffuseColor = true;
+			}
 		}
 	}
 
@@ -152,9 +152,8 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
 	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
 
-	// Add vertex colors to the mesh
-	if (vertexColors.size() > 0)
-		meshComponent->addVertexColors(vertexColors);
+	if (useDiffuseColor)
+		meshComponent->diffuseColor = diffuseColor;
 
 	return entity;
 }
@@ -162,8 +161,6 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture*> textures;
-
-	Logger::logDebug("loadMaterialTexture()");
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
