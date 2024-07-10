@@ -65,6 +65,9 @@ void MeshComponent::start()
 
 		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
 		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
+
+		if (pbrMaterial != nullptr) this->addPBRTextures(pbrMaterial);
+		if (phongMaterial != nullptr) this->addPhongTextures(phongMaterial);
 	}
 
 	// If the object uses normals

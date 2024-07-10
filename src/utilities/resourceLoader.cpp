@@ -146,6 +146,15 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 				useDiffuseColor = true;
 			}
 		}
+
+		std::vector<Texture*> metalnessMaps = loadMaterialTextures(scene, material, aiTextureType_METALNESS, "texture_metallic");
+		textures.insert(textures.end(), metalnessMaps.begin(), metalnessMaps.end());
+
+		std::vector<Texture*> roughnessMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
+		textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+
+		std::vector<Texture*> aoMaps = loadMaterialTextures(scene, material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
+		textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 	}
 
 	Entity* entity = new Entity();
@@ -191,6 +200,18 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 
 				case aiTextureType_HEIGHT:
 					textureType = TextureType::TEXTURE_HEIGHT;
+					break;
+
+				case aiTextureType_METALNESS:
+					textureType = TextureType::TEXTURE_METALLIC;
+					break;
+
+				case aiTextureType_DIFFUSE_ROUGHNESS:
+					textureType = TextureType::TEXTURE_ROUGHNESS;
+					break;
+
+				case aiTextureType_AMBIENT_OCCLUSION:
+					textureType = TextureType::TEXTURE_AO;
 					break;
 			}
 

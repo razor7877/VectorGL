@@ -33,7 +33,7 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	if (this->useMetallicMap)
 	{
 		glActiveTexture(GL_TEXTURE2);
-		shaderProgram->setInt("material.texture_albedo", 2);
+		shaderProgram->setInt("material.texture_metallic", 2);
 		this->metallicTexture->bindTexture();
 	}
 	else

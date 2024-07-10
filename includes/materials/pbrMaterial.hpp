@@ -26,7 +26,7 @@ public:
 	/// <summary>
 	/// The metallic value of the object, used in case it doesn't have a metallic texture
 	/// </summary>
-	float metallic = 0.5f;
+	float metallic = 0.0f;
 
 	/// <summary>
 	/// The roughness value of the object, used in case it doesn't have a roughness texture
@@ -36,7 +36,7 @@ public:
 	/// <summary>
 	/// The ambient occlusion value of the object, used in case it doesn't have an AO texture
 	/// </summary>
-	float ao = 0.5f;
+	float ao = 1.0f;
 
 	/// <summary>
 	/// The albedo texture of the object responsible for the color, if it has one

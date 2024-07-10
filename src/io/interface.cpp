@@ -280,17 +280,17 @@ void ShaderSettings()
 
 	if (ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 1.0f))
 	{
-		pbr->use()->setFloat("roughness", roughness);
+		pbr->use()->setFloat("material.roughness", roughness);
 	}
 
 	if (ImGui::DragFloat("Metallic", &metallic, 0.01f, 0.0f, 1.0f))
 	{
-		pbr->use()->setFloat("metallic", metallic);
+		pbr->use()->setFloat("material.metallic", metallic);
 	}
 
 	if (ImGui::DragFloat("AO", &ao, 0.01f, 0.0f, 1.0f))
 	{
-		pbr->use()->setFloat("ao", ao);
+		pbr->use()->setFloat("material.ao", ao);
 	}
 
 	for (auto& [type, shader] : renderer->shaderManager.enumToShader)

@@ -191,10 +191,10 @@ void main()
     vec3 albedo;
     if (material.use_albedo_map)
     {
-        vec3 albedo = texture(material.texture_albedo, TexCoord).rgb;
-        float r = pow(albedo.r, 2.2);
-        float g = pow(albedo.g, 2.2);
-        float b = pow(albedo.b, 2.2);
+        vec3 albedoSRGB = texture(material.texture_albedo, TexCoord).rgb;
+        float r = pow(albedoSRGB.r, 2.2);
+        float g = pow(albedoSRGB.g, 2.2);
+        float b = pow(albedoSRGB.b, 2.2);
         albedo = vec3(r, g, b);
     }
     else
