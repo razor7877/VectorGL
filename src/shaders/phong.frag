@@ -71,6 +71,7 @@ uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
 uniform sampler2D texture_height1;
 
+uniform bool use_diffuse_map;
 uniform bool use_specular_map;
 uniform bool use_normal_map;
 uniform bool use_height_map;
@@ -168,6 +169,18 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
 
 void main()
 {
+	// If texture coordinates are supplied, apply the texture
+	if (use_diffuse_map)
+	{
+		FragColor = texture(texture_diffuse1, TexCoord);
+		
+		// Discard transparent fragments
+		if (FragColor.a < 0.25)
+			discard;
+	}
+	else
+		FragColor = vec4(1.0);
+
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);
 
@@ -186,9 +199,16 @@ void main()
 	for (int i = 0; i < nrSpotLights; i++)
 		result += calcSpotLight(spotLights[i], normalVec, FragPos, viewDir);
 
-	FragColor = vec4(result, 1.0);
-
-	// If texture coordinates are supplied, apply the texture
-	if (TexCoord != vec2(0.0, 0.0))
-		FragColor *= texture(texture_diffuse1, TexCoord);
+	FragColor = vec4(FragColor.rgb * result.rgb, FragColor.a);
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -108,6 +108,7 @@ void MeshComponent::update()
 		unsigned int normalNr = 1;
 		unsigned int heightNr = 1;
 
+		bool useDiffuseMap = false;
 		bool useSpecularMap = false;
 		bool useNormalMap = false;
 		bool useHeightMap = false;
@@ -120,6 +121,7 @@ void MeshComponent::update()
 			switch (this->textures[i]->type)
 			{
 				case TextureType::TEXTURE_DIFFUSE:
+					useDiffuseMap = true;
 					name = std::string("texture_diffuse") + std::to_string(diffuseNr++);
 					break;
 
@@ -139,6 +141,7 @@ void MeshComponent::update()
 					break;
 			}
 
+			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_diffuse_map"), useDiffuseMap);
 			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_specular_map"), useSpecularMap);
 			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_normal_map"), useNormalMap);
 			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_height_map"), useHeightMap);

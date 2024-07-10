@@ -12,7 +12,7 @@ Texture::Texture()
 
 Texture::Texture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
 {
-	this->type = type;
+	this->type = textureType;
 
 	// Create OpenGL texture
 	glGenTextures(1, &texID);
