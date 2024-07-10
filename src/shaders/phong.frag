@@ -67,7 +67,6 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir);
 in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
-in vec4 Color;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;

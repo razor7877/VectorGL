@@ -9,6 +9,11 @@ ShaderManager::ShaderManager()
 	this->UBO = {};
 }
 
+ShaderManager::~ShaderManager()
+{
+
+}
+
 void ShaderManager::initUniformBuffer()
 {
 	glGenBuffers(1, &this->UBO);
@@ -39,6 +44,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 	{
 		case ShaderType::PHONG:
 			enumToShader[shader] = new Shader("shaders/phong.vert", "shaders/phong.frag");
+			break;
+
+		case ShaderType::PBR:
+			enumToShader[shader] = new Shader("shaders/pbr.vert", "shaders/pbr.frag");
 			break;
 
 		case ShaderType::SKYBOX:

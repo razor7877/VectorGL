@@ -1,8 +1,5 @@
 #version 330 core
 
-// This is the default shader for rendering most 3D objects and apply phong lighting to them
-// Applies lighting if normals are given, applies a texture if it's given
-
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in vec3 aNormal;

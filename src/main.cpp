@@ -64,22 +64,11 @@ int main()
 	defaultRenderer = Renderer();
 
 	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
+	Shader* pbrShader = defaultRenderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
 
-	Texture* crate = new Texture("img/container2.png", TextureType::TEXTURE_DIFFUSE, false);
-	Material* boxTex = new Material(crate);
-
-	// TODO : Read ambient/diffuse/specular maps
-	glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
-	glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
-	glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
-	float shininess = 32.0f;
-
-	// Sets up variables for the phong lighting shader
-	phongShader->use()->setInt("texture1", 0);
-
-	LightManager::getInstance().shaderProgram = phongShader;
+	LightManager::getInstance().shaderProgram = pbrShader;
 
 	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
@@ -89,7 +78,7 @@ int main()
 
 	defaultRenderer.addEntity(grid);
 	
-	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader);
+	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", pbrShader);
 	model->transform
 		->setScale(0.075f, 0.075f, 0.075f);
 
@@ -103,7 +92,7 @@ int main()
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
 
 	MeshComponent* lightMesh = pointLightEntity->addComponent<MeshComponent>();
-	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), phongShader);
+	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), pbrShader);
 
 	defaultRenderer.addEntity(pointLightEntity);
 
@@ -161,19 +150,12 @@ int main()
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
+		//if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-	if (phongShader != nullptr) delete phongShader;
-	if (skyboxShader != nullptr) delete skyboxShader;
-	if (gridShader != nullptr) delete gridShader;
-
-	if (crate != nullptr) delete crate;
-	if (boxTex != nullptr) delete boxTex;
 
 	glfwTerminate();
 	return 0;

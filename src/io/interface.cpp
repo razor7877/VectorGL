@@ -282,6 +282,10 @@ void ShaderSettings()
 				label = "Phong";
 				break;
 
+			case ShaderType::PBR:
+				label = "PBR";
+				break;
+
 			case ShaderType::SKYBOX:
 				label = "Skybox";
 				break;
@@ -591,7 +595,21 @@ void ShowComponentUI(Component* component)
 	{
 		if (ImGui::CollapsingHeader("Mesh"))
 		{
+			ImGui::Text("Material:");
+
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
+			
+			Material& meshMaterial = meshComponent->getMaterialReference();
+
+			ImGui::DragFloat("Shininess", &meshMaterial.shininess);
+			
+			ImGui::ColorEdit3("Ambient", &meshMaterial.ambientColor[0]);
+
+			if (!meshMaterial.useDiffuseMap)
+				ImGui::ColorEdit3("Diffuse", &meshMaterial.diffuseColor[0]);
+
+			if (!meshMaterial.useSpecularMap)
+				ImGui::ColorEdit3("Specular", &meshMaterial.specularColor[0]);
 		}
 	}
 	else if (dynamic_cast<CameraComponent*>(component))

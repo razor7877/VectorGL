@@ -9,12 +9,12 @@
 /// <summary>
 /// Contains all the material data for a mesh
 /// </summary>
-struct Material
+struct PhongMaterial
 {
 public:
-	Material();
-	Material(Texture* texture);
-	Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture);
+	PhongMaterial();
+	PhongMaterial(Texture* texture);
+	PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture);
 
 	/// <summary>
 	/// Sends the material data to a shader, the method assumes the shader is already in use

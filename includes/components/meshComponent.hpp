@@ -39,7 +39,14 @@ public:
 
 	void setDiffuseColor(glm::vec3 color);
 
+	Material& getMaterialReference();
+
 protected:
+	/// <summary>
+	/// The material of the mesh
+	/// </summary>
+	Material material;
+
 	/// <summary>
 	/// The shader used to draw the mesh
 	/// </summary>
@@ -55,7 +62,6 @@ protected:
 	bool hasIndices = false;
 
 	std::vector<Texture*> textures;
-	Material material;
 
 	/// <summary>
 	/// A OpenGL handle for the vertex array object

@@ -9,6 +9,7 @@
 enum class ShaderType
 {
 	PHONG,
+	PBR,
 	SKYBOX,
 	GRID,
 	GRID2,
@@ -27,6 +28,7 @@ public:
 	std::map<ShaderType, Shader*> enumToShader;
 
 	ShaderManager();
+	~ShaderManager();
 
 	/// <summary>
 	/// Initializes the uniform buffer

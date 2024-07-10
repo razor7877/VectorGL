@@ -209,3 +209,8 @@ void MeshComponent::setDiffuseColor(glm::vec3 color)
 {
 	this->material.diffuseColor = color;
 }
+
+Material& MeshComponent::getMaterialReference()
+{
+	return this->material;
+}
