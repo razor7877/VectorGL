@@ -92,6 +92,8 @@ uniform int nrSpotLights;
 
 // DEFINING FUNCTIONS
 // https://learnopengl.com/PBR/Theory
+const float PI = 3.14159265359;
+
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
@@ -129,19 +131,17 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-const float PI = 3.14159265359;
-
 void main()
 {
     vec3 albedo;
     if (material.use_diffuse_map)
         albedo = texture(material.texture_diffuse, TexCoord).rgb;
     else
-        albedo = diffuse, 1.0;
+        albedo = material.diffuse, 1.0;
     
     vec3 normalVec;
     if (material.use_normal_map)
-        normalVec = texture(material.texture_normal, TexCoord);
+        normalVec = texture(material.texture_normal, TexCoord).rgb;
     else
         normalVec = Normal;
     
@@ -158,8 +158,8 @@ void main()
         vec3 H = normalize(V + L);
 
         float distance = length(pointLights[i].position - FragPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = pointLights[i].diffuse_color * attenuation;
+        float attenuation = 1.0 / (pointLights[i].constant + pointLights[i].linear * distance + pointLights[i].quadratic * (distance * distance));
+        vec3 radiance = pointLights[i].diffuseColor * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
@@ -177,7 +177,7 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    vec3 ambient = material.ambient * albedo * ao;
+    vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1.0));

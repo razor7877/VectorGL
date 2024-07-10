@@ -5,7 +5,8 @@
 #include <utilities/glad.h>
 #include <glm/glm.hpp>
 
-#include "material.hpp"
+#include "materials/material.hpp"
+#include "materials/phongMaterial.hpp"
 #include "component.hpp"
 #include "transformComponent.hpp"
 #include "texture.hpp"
@@ -39,13 +40,13 @@ public:
 
 	void setDiffuseColor(glm::vec3 color);
 
-	Material& getMaterialReference();
+	PhongMaterial& getMaterialReference();
 
 protected:
 	/// <summary>
 	/// The material of the mesh
 	/// </summary>
-	Material material;
+	PhongMaterial material;
 
 	/// <summary>
 	/// The shader used to draw the mesh

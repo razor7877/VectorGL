@@ -17,7 +17,7 @@
 #include "texture.hpp"
 #include "cubemap.hpp"
 #include "renderer.hpp"
-#include "material.hpp"
+#include "materials/material.hpp"
 #include "logger.hpp"
 
 #include "io/interface.hpp"
@@ -142,6 +142,9 @@ int main()
 		
 		phongShader->use()
 			->setVec3("viewPos", cameraComponent->getPosition());
+
+		pbrShader->use()
+			->setVec3("camPos", cameraComponent->getPosition());
 
 		defaultRenderer.render(deltaTime);
 		

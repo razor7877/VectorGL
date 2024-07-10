@@ -1,16 +1,16 @@
-#include "material.hpp"
+#include "materials/phongMaterial.hpp"
 
-Material::Material()
+PhongMaterial::PhongMaterial()
 {
 
 }
 
-Material::Material(Texture* texture)
+PhongMaterial::PhongMaterial(Texture* texture)
 {
 	this->addDiffuseMap(texture);
 }
 
-Material::Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture)
+PhongMaterial::PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture)
 {
 	this->ambientColor = ambient;
 	this->diffuseColor = diffuse;
@@ -19,7 +19,7 @@ Material::Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, flo
 	this->diffuseTexture = texture;
 }
 
-void Material::sendToShader(Shader* shaderProgram)
+void PhongMaterial::sendToShader(Shader* shaderProgram)
 {
 	// Send all data relevant to textures
 	shaderProgram->setInt("material.use_diffuse_map", this->useDiffuseMap);
@@ -66,25 +66,25 @@ void Material::sendToShader(Shader* shaderProgram)
 		->setFloat("material.shininess", this->shininess);
 }
 
-void Material::addDiffuseMap(Texture* diffuseTexture)
+void PhongMaterial::addDiffuseMap(Texture* diffuseTexture)
 {
 	this->useDiffuseMap = true;
 	this->diffuseTexture = diffuseTexture;
 }
 
-void Material::addSpecularMap(Texture* specularTexture)
+void PhongMaterial::addSpecularMap(Texture* specularTexture)
 {
 	this->useSpecularMap = true;
 	this->specularTexture = specularTexture;
 }
 
-void Material::addNormalMap(Texture* normalTexture)
+void PhongMaterial::addNormalMap(Texture* normalTexture)
 {
 	this->useNormalMap = true;
 	this->normalTexture = normalTexture;
 }
 
-void Material::addHeightMap(Texture* heightTexture)
+void PhongMaterial::addHeightMap(Texture* heightTexture)
 {
 	this->useHeightMap = true;
 	this->heightTexture = heightTexture;

@@ -268,9 +268,24 @@ ShaderType currentEditedShader;
 bool isEditingVertexShader = false;
 bool editingShader = false;
 
+float roughness = 0.0f;
+float metallic = 0.0f;
+
 void ShaderSettings()
 {
 	ImGui::Begin("Shader settings");
+
+	Shader* pbr = renderer->shaderManager.getShader(ShaderType::PBR);
+
+	if (ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 1.0f))
+	{
+		pbr->use()->setFloat("roughness", roughness);
+	}
+
+	if (ImGui::DragFloat("Metallic", &metallic, 0.01f, 0.0f, 1.0f))
+	{
+		pbr->use()->setFloat("metallic", metallic);
+	}
 
 	for (auto& [type, shader] : renderer->shaderManager.enumToShader)
 	{
@@ -599,7 +614,7 @@ void ShowComponentUI(Component* component)
 
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
 			
-			Material& meshMaterial = meshComponent->getMaterialReference();
+			PhongMaterial& meshMaterial = meshComponent->getMaterialReference();
 
 			ImGui::DragFloat("Shininess", &meshMaterial.shininess);
 			

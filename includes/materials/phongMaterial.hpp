@@ -3,13 +3,14 @@
 
 #include <glm/glm.hpp>
 
+#include "materials/material.hpp"
 #include "texture.hpp"
 #include "shader.hpp"
 
 /// <summary>
 /// Contains all the material data for a mesh
 /// </summary>
-struct PhongMaterial
+struct PhongMaterial : public virtual Material
 {
 public:
 	PhongMaterial();
@@ -20,7 +21,7 @@ public:
 	/// Sends the material data to a shader, the method assumes the shader is already in use
 	/// </summary>
 	/// <param name="shaderProgram">The shader to send the data to</param>
-	void sendToShader(Shader* shaderProgram);
+	void sendToShader(Shader* shaderProgram) override;
 
 	void addDiffuseMap(Texture* diffuseTexture);
 	void addSpecularMap(Texture* specularTexture);
