@@ -91,8 +91,7 @@ int main()
 	
 	Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", phongShader);
 	model->transform
-		->setScale(0.075f, 0.075f, 0.075f)
-		->rotateObject(-90.0f, 0.0f, 0.0f);
+		->setScale(0.075f, 0.075f, 0.075f);
 
 	defaultRenderer.addEntity(model);
 

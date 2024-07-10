@@ -18,7 +18,7 @@ ResourceLoader& ResourceLoader::getInstance()
 Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
 {
 	Assimp::Importer import;
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices);
 
 	std::string sceneName = std::string(scene->mName.C_Str());
 
