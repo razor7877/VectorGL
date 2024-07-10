@@ -100,7 +100,7 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 
 bool showTest = false;
 
-void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
+void ImGuiDrawWindows()
 {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -123,7 +123,7 @@ void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specula
 	ShowConsole();
 	PerformanceMenu();
 	KeysMenu();
-	ShaderSettings(ambient, diffuse, specular, shininess);
+	ShaderSettings();
 	ShowEditor();
 	ShowNodeDetails();
 	SceneGraph();
@@ -268,15 +268,9 @@ ShaderType currentEditedShader;
 bool isEditingVertexShader = false;
 bool editingShader = false;
 
-void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess)
+void ShaderSettings()
 {
 	ImGui::Begin("Shader settings");
-
-	//ImGui::ColorEdit3("Ambient", &ambient[0]);
-	//ImGui::ColorEdit3("Diffuse", &diffuse[0]);
-	//ImGui::ColorEdit3("Specular", &specular[0]);
-
-	//ImGui::DragFloat("Shininess", &shininess, 1.0f, 1.0f, 512.0f);
 
 	for (auto& [type, shader] : renderer->shaderManager.enumToShader)
 	{

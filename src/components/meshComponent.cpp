@@ -66,23 +66,23 @@ void MeshComponent::start()
 			switch (this->textures[i]->type)
 			{
 				case TextureType::TEXTURE_DIFFUSE:
-					this->useDiffuseMap = true;
-					this->diffuseTexture = this->textures[i];
+					this->material.useDiffuseMap = true;
+					this->material.diffuseTexture = this->textures[i];
 					break;
 
 				case TextureType::TEXTURE_SPECULAR:
-					this->useSpecularMap = true;
-					this->specularTexture = this->textures[i];
+					this->material.useSpecularMap = true;
+					this->material.specularTexture = this->textures[i];
 					break;
 
 				case TextureType::TEXTURE_NORMAL:
-					this->useNormalMap = true;
-					this->normalTexture = this->textures[i];
+					this->material.useNormalMap = true;
+					this->material.normalTexture = this->textures[i];
 					break;
 
 				case TextureType::TEXTURE_HEIGHT:
-					this->useHeightMap = true;
-					this->heightTexture = this->textures[i];
+					this->material.useHeightMap = true;
+					this->material.heightTexture = this->textures[i];
 					break;
 			}
 		}
@@ -98,19 +98,6 @@ void MeshComponent::start()
 
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
-	}
-
-	if (vertexColors.size() > 0)
-	{
-		this->useVertexColors = true;
-
-		glGenBuffers(1, &vertexColorsBO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexColorsBO);
-		glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
-		
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(3);
 	}
 
 	this->verticesCount = this->vertices.size();
@@ -132,43 +119,49 @@ void MeshComponent::update()
 
 	// Send all data relevant to textures
 	this->shaderProgram->setInt("use_vertex_colors", this->useVertexColors);
-	this->shaderProgram->setInt("use_diffuse_map", this->useDiffuseMap);
-	this->shaderProgram->setInt("use_specular_map", this->useSpecularMap);
-	this->shaderProgram->setInt("use_normal_map", this->useNormalMap);
-	this->shaderProgram->setInt("use_height_map", this->useHeightMap);
+	this->shaderProgram->setInt("use_diffuse_map", this->material.useDiffuseMap);
+	this->shaderProgram->setInt("use_specular_map", this->material.useSpecularMap);
+	this->shaderProgram->setInt("use_normal_map", this->material.useNormalMap);
+	this->shaderProgram->setInt("use_height_map", this->material.useHeightMap);
 
-	if (this->useDiffuseMap)
+	// Bind all the textures needed
+	if (this->material.useDiffuseMap)
 	{
 		glActiveTexture(GL_TEXTURE0);
 		this->shaderProgram->setInt("texture_diffuse", 0);
-		this->diffuseTexture->bindTexture();
+		this->material.diffuseTexture->bindTexture();
 	}
 	else
-		this->shaderProgram->setVec3("diffuse_color", this->diffuseColor);
+		this->shaderProgram->setVec3("diffuse_color", this->material.diffuseColor);
 
-	if (this->useSpecularMap)
+	if (this->material.useSpecularMap)
 	{
 		glActiveTexture(GL_TEXTURE1);
 		this->shaderProgram->setInt("texture_specular", 1);
-		this->specularTexture->bindTexture();
+		this->material.specularTexture->bindTexture();
 	}
 
-	if (this->useNormalMap)
+	if (this->material.useNormalMap)
 	{
 		glActiveTexture(GL_TEXTURE2);
 		this->shaderProgram->setInt("texture_normal", 2);
-		this->normalTexture->bindTexture();
+		this->material.normalTexture->bindTexture();
 	}
 
-	if (this->useHeightMap)
+	if (this->material.useHeightMap)
 	{
 		glActiveTexture(GL_TEXTURE3);
 		this->shaderProgram->setInt("texture_height", 3);
-		this->heightTexture->bindTexture();
+		this->material.heightTexture->bindTexture();
 	}
 
-	// Send the object's model matrix to the shader
-	this->shaderProgram->setMat4("model", this->parent->transform->getModelMatrix());
+	// Send the model matrix & material data
+	this->shaderProgram
+		->setMat4("model", this->parent->transform->getModelMatrix())
+		->setVec3("material.ambient", this->material.ambientColor)
+		->setVec3("material.diffuse", this->material.diffuseColor)
+		->setVec3("material.specular", this->material.specularColor)
+		->setFloat("material.shininess", this->material.shininess);
 
 	// Indexed drawing
 	if (this->hasIndices)
@@ -255,8 +248,7 @@ MeshComponent& MeshComponent::addIndices(unsigned int indices[], unsigned int in
 	return *this;
 }
 
-MeshComponent& MeshComponent::addVertexColors(std::vector<float> vertexColors)
+void MeshComponent::setDiffuseColor(glm::vec3 color)
 {
-	this->vertexColors = vertexColors;
-	return *this;
+	this->material.diffuseColor = color;
 }

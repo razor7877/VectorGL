@@ -153,7 +153,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
 
 	if (useDiffuseColor)
-		meshComponent->diffuseColor = diffuseColor;
+		meshComponent->material.diffuseColor = diffuseColor;
 
 	return entity;
 }

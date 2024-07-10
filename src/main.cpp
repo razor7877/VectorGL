@@ -151,18 +151,13 @@ int main()
 		// Processes any mouse or keyboard input for camera movement
 		processInput(window, deltaTime);
 		
-		// Models for phong lighting
 		phongShader->use()
-			->setVec3("viewPos", cameraComponent->getPosition())
-			->setVec3("material.ambient", boxTex->ambient)
-			->setVec3("material.diffuse", boxTex->diffuse)
-			->setVec3("material.specular", boxTex->specular)
-			->setFloat("material.shininess", boxTex->shininess);
+			->setVec3("viewPos", cameraComponent->getPosition());
 
 		defaultRenderer.render(deltaTime);
 		
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows(boxTex->ambient, boxTex->diffuse, boxTex->specular, boxTex->shininess);
+		ImGuiDrawWindows();
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();

@@ -8,7 +8,7 @@
 extern bool isViewerFocused;
 
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
-void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
+void ImGuiDrawWindows();
 
 // Window with 3D viewer
 void ShowViewer();
@@ -19,7 +19,7 @@ void PerformanceMenu();
 // Shows the various controls
 void KeysMenu();
 // Enables modifications of some shader values
-void ShaderSettings(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);
+void ShaderSettings();
 void SetupEditor();
 void ShowEditor();
 // Shows the details of the currently selected node in the scene graph

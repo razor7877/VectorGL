@@ -5,6 +5,7 @@
 #include <utilities/glad.h>
 #include <glm/glm.hpp>
 
+#include "material.hpp"
 #include "component.hpp"
 #include "transformComponent.hpp"
 #include "texture.hpp"
@@ -13,11 +14,6 @@
 class MeshComponent : public virtual Component
 {
 public:
-	/// <summary>
-	/// The diffuse color of the object, used in case it doesn't have a diffuse texture
-	/// </summary>
-	glm::vec3 diffuseColor = glm::vec3(1.0f);
-
 	MeshComponent(Entity* parent);
 	~MeshComponent();
 
@@ -40,7 +36,8 @@ public:
 	MeshComponent& addTexture(Texture* texture);
 	MeshComponent& addNormals(float normals[], unsigned int normalSize);
 	MeshComponent& addIndices(unsigned int indices[], unsigned int indicesSize);
-	MeshComponent& addVertexColors(std::vector<float> vertexColors);
+
+	void setDiffuseColor(glm::vec3 color);
 
 protected:
 	/// <summary>
@@ -49,7 +46,6 @@ protected:
 	Shader* shaderProgram = nullptr;
 
 	std::vector<float> vertices;
-	std::vector<float> vertexColors;
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
@@ -60,31 +56,7 @@ protected:
 	bool hasIndices = false;
 
 	std::vector<Texture*> textures;
-
-	/// <summary>
-	/// The diffuse texture of the object, if it has one
-	/// </summary>
-	Texture* diffuseTexture;
-
-	/// <summary>
-	/// The specular texture of the object, if it has one
-	/// </summary>
-	Texture* specularTexture;
-
-	/// <summary>
-	/// The normal texture of the object, if it has one
-	/// </summary>
-	Texture* normalTexture;
-
-	/// <summary>
-	/// The height texture of the object, if it has one
-	/// </summary>
-	Texture* heightTexture;
-
-	bool useDiffuseMap = false;
-	bool useSpecularMap = false;
-	bool useNormalMap = false;
-	bool useHeightMap = false;
+	Material material;
 
 	/// <summary>
 	/// A OpenGL handle for the vertex array object
@@ -95,11 +67,6 @@ protected:
 	/// A OpenGL handle for the buffer object containing the vertices
 	/// </summary>
 	GLuint VBO = 0;
-
-	/// <summary>
-	/// A OpenGL handle for the buffer object containing the vertex colors
-	/// </summary>
-	GLuint vertexColorsBO = 0;
 
 	/// <summary>
 	/// A OpenGL handle for the buffer object containing the texture coordinates
