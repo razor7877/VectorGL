@@ -13,6 +13,11 @@
 class MeshComponent : public virtual Component
 {
 public:
+	/// <summary>
+	/// The diffuse color of the object, used in case it doesn't have a diffuse texture
+	/// </summary>
+	glm::vec3 diffuseColor = glm::vec3(1.0f);
+
 	MeshComponent(Entity* parent);
 	~MeshComponent();
 
@@ -35,26 +40,79 @@ public:
 	MeshComponent& addTexture(Texture* texture);
 	MeshComponent& addNormals(float normals[], unsigned int normalSize);
 	MeshComponent& addIndices(unsigned int indices[], unsigned int indicesSize);
+	MeshComponent& addVertexColors(std::vector<float> vertexColors);
 
 protected:
-	Shader* shaderProgram;
+	/// <summary>
+	/// The shader used to draw the mesh
+	/// </summary>
+	Shader* shaderProgram = nullptr;
 
 	std::vector<float> vertices;
+	std::vector<float> vertexColors;
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
 
-	int verticesCount;
-	int indicesCount;
-	bool hasIndices;
+	int verticesCount = 0;
+	int indicesCount = 0;
+	bool useVertexColors = false;
+	bool hasIndices = false;
 
 	std::vector<Texture*> textures;
 
-	GLuint VAO;
+	/// <summary>
+	/// The diffuse texture of the object, if it has one
+	/// </summary>
+	Texture* diffuseTexture;
 
-	// Identifiers for the buffers on GPU
-	GLuint VBO;
-	GLuint texCoordBO;
-	GLuint normalBO;
-	GLuint indicesBO;
+	/// <summary>
+	/// The specular texture of the object, if it has one
+	/// </summary>
+	Texture* specularTexture;
+
+	/// <summary>
+	/// The normal texture of the object, if it has one
+	/// </summary>
+	Texture* normalTexture;
+
+	/// <summary>
+	/// The height texture of the object, if it has one
+	/// </summary>
+	Texture* heightTexture;
+
+	bool useDiffuseMap = false;
+	bool useSpecularMap = false;
+	bool useNormalMap = false;
+	bool useHeightMap = false;
+
+	/// <summary>
+	/// A OpenGL handle for the vertex array object
+	/// </summary>
+	GLuint VAO = 0;
+
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the vertices
+	/// </summary>
+	GLuint VBO = 0;
+
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the vertex colors
+	/// </summary>
+	GLuint vertexColorsBO = 0;
+
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the texture coordinates
+	/// </summary>
+	GLuint texCoordBO = 0;
+
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the normals
+	/// </summary>
+	GLuint normalBO = 0;
+
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the indices
+	/// </summary>
+	GLuint indicesBO = 0;
 };

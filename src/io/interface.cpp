@@ -334,6 +334,7 @@ void SetupEditor()
 {
 	TextEditor::LanguageDefinition lang = TextEditor::LanguageDefinition::GLSL();
 	editor.SetLanguageDefinition(lang);
+	editor.SetShowWhitespaces(false);
 }
 
 void ShowEditor()
@@ -547,9 +548,9 @@ void ShowComponentUI(Component* component)
 			if (ImGui::DragFloat3("Rotation", &rotation[0]))
 				transformComponent->setRotation(rotation);
 
-			glm::vec3 scale = transformComponent->getScale();
-			if (ImGui::DragFloat3("Scale", &scale[0], 0.01f))
-				transformComponent->setScale(scale);
+			float scale = transformComponent->getScale()[0];
+			if (ImGui::DragFloat("Scale", &scale, 0.001f))
+				transformComponent->setScale(glm::vec3(scale));
 		}
 	}
 	else if (dynamic_cast<SkyboxComponent*>(component))

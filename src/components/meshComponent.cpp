@@ -9,17 +9,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->shaderProgram = {};
 
-	this->VAO = {};
-	this->VBO = {};
-	this->indicesBO = {};
-	this->texCoordBO = {};
-	this->normalBO = {};
-
-	this->verticesCount = {};
-	this->indicesCount = {};
-	this->hasIndices = false;
 }
 
 MeshComponent::~MeshComponent()
@@ -69,6 +59,33 @@ void MeshComponent::start()
 
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
+
+		// We sort the textures from the vector into their own members in the mesh for easier use later
+		for (int i = 0; i < textures.size(); i++)
+		{
+			switch (this->textures[i]->type)
+			{
+				case TextureType::TEXTURE_DIFFUSE:
+					this->useDiffuseMap = true;
+					this->diffuseTexture = this->textures[i];
+					break;
+
+				case TextureType::TEXTURE_SPECULAR:
+					this->useSpecularMap = true;
+					this->specularTexture = this->textures[i];
+					break;
+
+				case TextureType::TEXTURE_NORMAL:
+					this->useNormalMap = true;
+					this->normalTexture = this->textures[i];
+					break;
+
+				case TextureType::TEXTURE_HEIGHT:
+					this->useHeightMap = true;
+					this->heightTexture = this->textures[i];
+					break;
+			}
+		}
 	}
 
 	// If the object uses normals
@@ -83,6 +100,19 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(2);
 	}
 
+	if (vertexColors.size() > 0)
+	{
+		this->useVertexColors = true;
+
+		glGenBuffers(1, &vertexColorsBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexColorsBO);
+		glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
+
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(3);
+	}
+
 	this->verticesCount = this->vertices.size();
 	this->indicesCount = this->indices.size();
 
@@ -95,64 +125,50 @@ void MeshComponent::start()
 
 void MeshComponent::update()
 {
-	glUseProgram(this->shaderProgram->ID);
+	this->shaderProgram->use();
 
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
-	// Bind all necessary textures
-	if (textures.size() != 0)
+	// Send all data relevant to textures
+	this->shaderProgram->setInt("use_vertex_colors", this->useVertexColors);
+	this->shaderProgram->setInt("use_diffuse_map", this->useDiffuseMap);
+	this->shaderProgram->setInt("use_specular_map", this->useSpecularMap);
+	this->shaderProgram->setInt("use_normal_map", this->useNormalMap);
+	this->shaderProgram->setInt("use_height_map", this->useHeightMap);
+
+	if (this->useDiffuseMap)
 	{
-		unsigned int diffuseNr = 1;
-		unsigned int specularNr = 1;
-		unsigned int normalNr = 1;
-		unsigned int heightNr = 1;
+		glActiveTexture(GL_TEXTURE0);
+		this->shaderProgram->setInt("texture_diffuse", 0);
+		this->diffuseTexture->bindTexture();
+	}
+	else
+		this->shaderProgram->setVec3("diffuse_color", this->diffuseColor);
 
-		bool useDiffuseMap = false;
-		bool useSpecularMap = false;
-		bool useNormalMap = false;
-		bool useHeightMap = false;
+	if (this->useSpecularMap)
+	{
+		glActiveTexture(GL_TEXTURE1);
+		this->shaderProgram->setInt("texture_specular", 1);
+		this->specularTexture->bindTexture();
+	}
 
-		for (int i = 0; i < textures.size(); i++)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			std::string name;
-			
-			switch (this->textures[i]->type)
-			{
-				case TextureType::TEXTURE_DIFFUSE:
-					useDiffuseMap = true;
-					name = std::string("texture_diffuse") + std::to_string(diffuseNr++);
-					break;
+	if (this->useNormalMap)
+	{
+		glActiveTexture(GL_TEXTURE2);
+		this->shaderProgram->setInt("texture_normal", 2);
+		this->normalTexture->bindTexture();
+	}
 
-				case TextureType::TEXTURE_SPECULAR:
-					useSpecularMap = true;
-					name = std::string("texture_specular") + std::to_string(specularNr++);
-					break;
-
-				case TextureType::TEXTURE_NORMAL:
-					useNormalMap = true;
-					name = std::string("texture_normal") + std::to_string(normalNr++);
-					break;
-
-				case TextureType::TEXTURE_HEIGHT:
-					useHeightMap = true;
-					name = std::string("texture_height") + std::to_string(heightNr++);
-					break;
-			}
-
-			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_diffuse_map"), useDiffuseMap);
-			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_specular_map"), useSpecularMap);
-			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_normal_map"), useNormalMap);
-			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "use_height_map"), useHeightMap);
-
-			glUniform1i(glGetUniformLocation(this->shaderProgram->ID, name.c_str()), i);
-			glBindTexture(GL_TEXTURE_2D, this->textures[i]->texID);
-		}
+	if (this->useHeightMap)
+	{
+		glActiveTexture(GL_TEXTURE3);
+		this->shaderProgram->setInt("texture_height", 3);
+		this->heightTexture->bindTexture();
 	}
 
 	// Send the object's model matrix to the shader
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "model"), 1, GL_FALSE, &this->parent->transform->getModelMatrix()[0][0]);
+	this->shaderProgram->setMat4("model", this->parent->transform->getModelMatrix());
 
 	// Indexed drawing
 	if (this->hasIndices)
@@ -160,11 +176,13 @@ void MeshComponent::update()
 	else // Normal drawing
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount * sizeof(float));
 
-	for (int i = 0; i < textures.size(); i++)
+	for (int i = 0; i < 4; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position)
@@ -234,5 +252,11 @@ MeshComponent& MeshComponent::addNormals(float normals[], unsigned int normalSiz
 MeshComponent& MeshComponent::addIndices(unsigned int indices[], unsigned int indicesSize)
 {
 	this->indices.insert(this->indices.end(), &indices[0], &indices[indicesSize / sizeof(unsigned int)]);
+	return *this;
+}
+
+MeshComponent& MeshComponent::addVertexColors(std::vector<float> vertexColors)
+{
+	this->vertexColors = vertexColors;
 	return *this;
 }

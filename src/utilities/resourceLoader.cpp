@@ -20,6 +20,12 @@ Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderPr
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices);
 
+	if (scene == nullptr)
+	{
+		Logger::logError("Error while trying to load file path " + path + " - Extension might be incorrect");
+		return nullptr;
+	}
+
 	std::string sceneName = std::string(scene->mName.C_Str());
 
 	// We create an entity that will contains all the necessary data
@@ -68,6 +74,7 @@ void ResourceLoader::processNode(aiNode* node, const aiScene* scene, Shader* sha
 Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* shaderProgram, Entity* parent)
 {
 	std::vector<float> vertices;
+	std::vector<float> vertexColors;
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
@@ -80,6 +87,13 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		vertices.push_back(mesh->mVertices[i].y);
 		vertices.push_back(mesh->mVertices[i].z);
 
+		if (mesh->HasVertexColors(0))
+		{
+			vertexColors.push_back(mesh->mColors[0][i].r);
+			vertexColors.push_back(mesh->mColors[0][i].g);
+			vertexColors.push_back(mesh->mColors[0][i].b);
+		}
+
 		if (mesh->HasNormals())
 		{
 			normals.push_back(mesh->mNormals[i].x);
@@ -87,7 +101,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 			normals.push_back(mesh->mNormals[i].z);
 		}
 
-		if (mesh->mTextureCoords[0])
+		if (mesh->HasTextureCoords(0))
 		{
 			texCoords.push_back(mesh->mTextureCoords[0][i].x);
 			texCoords.push_back(mesh->mTextureCoords[0][i].y);
@@ -108,6 +122,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		}
 	}
 
+	// Load all the textures needed
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -126,11 +141,20 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 		if (diffuseMaps.size() > 1 || specularMaps.size() > 1 || normalMaps.size() > 1 || heightMaps.size() > 1)
 			Logger::logWarning("Loading model that contains more textures than the shader allows (diffuse/specular/normal/height)");
+
+		if (diffuseMaps.size() == 0)
+		{
+			Logger::logInfo("No diffuse");
+		}
 	}
 
 	Entity* entity = new Entity();
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
 	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
+
+	// Add vertex colors to the mesh
+	if (vertexColors.size() > 0)
+		meshComponent->addVertexColors(vertexColors);
 
 	return entity;
 }

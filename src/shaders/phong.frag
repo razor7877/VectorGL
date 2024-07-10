@@ -57,6 +57,7 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir);
 in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
+in vec3 Color;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
@@ -66,15 +67,18 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
-uniform sampler2D texture_normal1;
-uniform sampler2D texture_height1;
+uniform sampler2D texture_diffuse;
+uniform sampler2D texture_specular;
+uniform sampler2D texture_normal;
+uniform sampler2D texture_height;
 
+uniform bool use_vertex_colors;
 uniform bool use_diffuse_map;
 uniform bool use_specular_map;
 uniform bool use_normal_map;
 uniform bool use_height_map;
+
+uniform vec3 diffuse_color;
 
 uniform Material material;
 
@@ -169,24 +173,29 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
 
 void main()
 {
-	// If texture coordinates are supplied, apply the texture
+	// If we have a diffuse texture, use it
 	if (use_diffuse_map)
 	{
-		FragColor = texture(texture_diffuse1, TexCoord);
+		FragColor = texture(texture_diffuse, TexCoord);
 		
 		// Discard transparent fragments
 		if (FragColor.a < 0.25)
 			discard;
 	}
 	else
-		FragColor = vec4(1.0);
+	{
+		if (use_vertex_colors)
+			FragColor = vec4(Color, 1.0);
+		else
+			FragColor = vec4(diffuse_color, 1.0);
+	}
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);
 
 	vec3 normalVec;
 	if (use_normal_map)
-		normalVec = texture(texture_normal1, TexCoord).rgb;
+		normalVec = texture(texture_normal, TexCoord).rgb;
 	else
 		normalVec = Normal;
 
@@ -201,14 +210,3 @@ void main()
 
 	FragColor = vec4(FragColor.rgb * result.rgb, FragColor.a);
 }
-
-
-
-
-
-
-
-
-
-
-
