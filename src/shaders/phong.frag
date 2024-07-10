@@ -44,6 +44,16 @@ struct Material
 	vec3 diffuse;
 	vec3 specular;
 	float shininess;
+
+	sampler2D texture_diffuse;
+	sampler2D texture_specular;
+	sampler2D texture_normal;
+	sampler2D texture_height;
+
+	bool use_diffuse_map;
+	bool use_specular_map;
+	bool use_normal_map;
+	bool use_height_map;
 };
 
 // DEFINING FUNCTION PROTOTYPES
@@ -66,19 +76,6 @@ out vec4 FragColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
-
-uniform sampler2D texture_diffuse;
-uniform sampler2D texture_specular;
-uniform sampler2D texture_normal;
-uniform sampler2D texture_height;
-
-uniform bool use_vertex_colors;
-uniform bool use_diffuse_map;
-uniform bool use_specular_map;
-uniform bool use_normal_map;
-uniform bool use_height_map;
-
-uniform vec3 diffuse_color;
 
 uniform Material material;
 
@@ -174,28 +171,23 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
 void main()
 {
 	// If we have a diffuse texture, use it
-	if (use_diffuse_map)
+	if (material.use_diffuse_map)
 	{
-		FragColor = texture(texture_diffuse, TexCoord);
+		FragColor = texture(material.texture_diffuse, TexCoord);
 		
 		// Discard transparent fragments
 		if (FragColor.a < 0.25)
 			discard;
 	}
 	else
-	{
-		if (use_vertex_colors)
-			FragColor = Color;
-		else
-			FragColor = vec4(diffuse_color, 1.0);
-	}
+		FragColor = vec4(material.diffuse_color, 1.0);
 
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = vec3(0.0);
 
 	vec3 normalVec;
-	if (use_normal_map)
-		normalVec = texture(texture_normal, TexCoord).rgb;
+	if (material.use_normal_map)
+		normalVec = texture(material.texture_normal, TexCoord).rgb;
 	else
 		normalVec = Normal;
 

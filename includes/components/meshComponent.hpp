@@ -52,7 +52,6 @@ protected:
 
 	int verticesCount = 0;
 	int indicesCount = 0;
-	bool useVertexColors = false;
 	bool hasIndices = false;
 
 	std::vector<Texture*> textures;

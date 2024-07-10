@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "texture.hpp"
+#include "shader.hpp"
 
 /// <summary>
 /// Contains all the material data for a mesh
@@ -14,6 +15,12 @@ public:
 	Material();
 	Material(Texture* texture);
 	Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture);
+
+	/// <summary>
+	/// Sends the material data to a shader, the method assumes the shader is already in use
+	/// </summary>
+	/// <param name="shaderProgram">The shader to send the data to</param>
+	void sendToShader(Shader* shaderProgram);
 
 	void addDiffuseMap(Texture* diffuseTexture);
 	void addSpecularMap(Texture* specularTexture);

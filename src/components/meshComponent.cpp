@@ -66,23 +66,19 @@ void MeshComponent::start()
 			switch (this->textures[i]->type)
 			{
 				case TextureType::TEXTURE_DIFFUSE:
-					this->material.useDiffuseMap = true;
-					this->material.diffuseTexture = this->textures[i];
+					this->material.addDiffuseMap(this->textures[i]);
 					break;
 
 				case TextureType::TEXTURE_SPECULAR:
-					this->material.useSpecularMap = true;
-					this->material.specularTexture = this->textures[i];
+					this->material.addSpecularMap(this->textures[i]);
 					break;
 
 				case TextureType::TEXTURE_NORMAL:
-					this->material.useNormalMap = true;
-					this->material.normalTexture = this->textures[i];
+					this->material.addNormalMap(this->textures[i]);
 					break;
 
 				case TextureType::TEXTURE_HEIGHT:
-					this->material.useHeightMap = true;
-					this->material.heightTexture = this->textures[i];
+					this->material.addHeightMap(this->textures[i]);
 					break;
 			}
 		}
@@ -117,51 +113,12 @@ void MeshComponent::update()
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
-	// Send all data relevant to textures
-	this->shaderProgram->setInt("use_vertex_colors", this->useVertexColors);
-	this->shaderProgram->setInt("use_diffuse_map", this->material.useDiffuseMap);
-	this->shaderProgram->setInt("use_specular_map", this->material.useSpecularMap);
-	this->shaderProgram->setInt("use_normal_map", this->material.useNormalMap);
-	this->shaderProgram->setInt("use_height_map", this->material.useHeightMap);
+	// Send material data
+	this->material.sendToShader(this->shaderProgram);
 
-	// Bind all the textures needed
-	if (this->material.useDiffuseMap)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		this->shaderProgram->setInt("texture_diffuse", 0);
-		this->material.diffuseTexture->bindTexture();
-	}
-	else
-		this->shaderProgram->setVec3("diffuse_color", this->material.diffuseColor);
-
-	if (this->material.useSpecularMap)
-	{
-		glActiveTexture(GL_TEXTURE1);
-		this->shaderProgram->setInt("texture_specular", 1);
-		this->material.specularTexture->bindTexture();
-	}
-
-	if (this->material.useNormalMap)
-	{
-		glActiveTexture(GL_TEXTURE2);
-		this->shaderProgram->setInt("texture_normal", 2);
-		this->material.normalTexture->bindTexture();
-	}
-
-	if (this->material.useHeightMap)
-	{
-		glActiveTexture(GL_TEXTURE3);
-		this->shaderProgram->setInt("texture_height", 3);
-		this->material.heightTexture->bindTexture();
-	}
-
-	// Send the model matrix & material data
+	// Send the model matrix
 	this->shaderProgram
-		->setMat4("model", this->parent->transform->getModelMatrix())
-		->setVec3("material.ambient", this->material.ambientColor)
-		->setVec3("material.diffuse", this->material.diffuseColor)
-		->setVec3("material.specular", this->material.specularColor)
-		->setFloat("material.shininess", this->material.shininess);
+		->setMat4("model", this->parent->transform->getModelMatrix());
 
 	// Indexed drawing
 	if (this->hasIndices)
