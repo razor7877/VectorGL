@@ -69,6 +69,10 @@ int current_log_filter_id = 0;
 TextEditor editor;
 static const char* fileToEdit;
 
+bool isViewerFocused = false;
+
+extern float deltaTime;
+
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 {
 	// OpenGL context needs to be initalized beforehand to call glGetString()
@@ -134,9 +138,9 @@ void ShowViewer()
 {
 	ImGui::Begin("Viewer");
 
-	bool isViewerActive = ImGui::IsWindowFocused();
+	isViewerFocused = ImGui::IsWindowFocused();
 
-	if (isViewerActive)
+	if (isViewerFocused)
 		cameraComponent->parent->setIsEnabled(true);
 	else
 		cameraComponent->parent->setIsEnabled(false);

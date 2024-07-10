@@ -159,6 +159,12 @@ void MeshComponent::update()
 		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
 	else // Normal drawing
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount * sizeof(float));
+
+	for (int i = 0; i < textures.size(); i++)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }
 
 void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position)

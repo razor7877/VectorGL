@@ -5,7 +5,7 @@
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library
 
-extern float deltaTime;
+extern bool isViewerFocused;
 
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
 void ImGuiDrawWindows(glm::vec3& ambient, glm::vec3& diffuse, glm::vec3& specular, float& shininess);

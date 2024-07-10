@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "main.hpp"
+#include "io/interface.hpp"
 #include "io/input.hpp"
 #include "components/cameraComponent.hpp"
 #include "utilities/resourceLoader.hpp"
@@ -103,7 +104,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 
 	// Toggle to show/hide mouse cursor
-	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
+	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && isViewerFocused)
 	{
 		showCursor = !showCursor;
 		if (showCursor) // We only allow hiding cursor if viewer is focused
