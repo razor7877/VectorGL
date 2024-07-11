@@ -11,7 +11,7 @@ GLFWwindow* window;
 float lastX = (float)windowWidth / 2;
 float lastY = (float)windowHeight / 2;
 
-bool showCursor = false;
+bool showCursor = true;
 bool wireframeMode = false;
 bool firstMouse = true;
 bool toggleFullscreen = false;

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <set>
+#include <algorithm>
 
 #include "main.hpp"
 #include "renderer.hpp"
@@ -71,8 +73,21 @@ void Renderer::render(float deltaTime)
 
 	LightManager::getInstance().sendToShader();
 
-	// Render & update the scene
+	std::vector<std::pair<float, Entity*>> sortedEntities;
+	// We start by storing all the entities in a pair with their distance from the camera
 	for (Entity* entity : this->entities)
+	{
+		glm::mat4 model = entity->transform->getModelMatrix();
+		glm::vec3 position = glm::vec3(model[3][0], model[3][1], model[3][2]);
+
+		float distance = glm::length(this->currentCamera->getPosition() - position);
+		sortedEntities.push_back(std::pair(distance, entity));
+	}
+
+	std::sort(sortedEntities.begin(), sortedEntities.end(), [](const std::pair<float, Entity*>& a, const std::pair<float, Entity*>& b) { return a.second < b.second; });
+
+	// Render & update the scene
+	for (auto& [distance, entity] : sortedEntities)
 		entity->update(deltaTime);
 
 	this->multiSampledTarget.unbind();

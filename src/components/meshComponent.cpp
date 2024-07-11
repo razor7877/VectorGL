@@ -112,7 +112,7 @@ void MeshComponent::update()
 	else // Normal drawing
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount * sizeof(float));
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -231,6 +231,10 @@ void MeshComponent::addPBRTextures(PBRMaterial* pbrMaterial)
 
 			case TextureType::TEXTURE_AO:
 				pbrMaterial->addAoMap(this->textures[i]);
+				break;
+
+			case TextureType::TEXTURE_OPACITY:
+				pbrMaterial->addOpacityMap(this->textures[i]);
 				break;
 		}
 	}

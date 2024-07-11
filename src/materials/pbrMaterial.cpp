@@ -57,7 +57,14 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	else
 		shaderProgram->setFloat("material.ao", this->ao);
 
-	shaderProgram->setFloat("material.opacity", this->opacity);
+	if (this->useOpacityMap)
+	{
+		glActiveTexture(GL_TEXTURE5);
+		shaderProgram->setInt("material.texture_opacity", 5);
+		this->opacityTexture->bindTexture();
+	}
+	else
+		shaderProgram->setFloat("material.opacity", this->opacity);
 }
 
 void PBRMaterial::addAlbedoMap(Texture* albedoTexture)
@@ -88,4 +95,10 @@ void PBRMaterial::addAoMap(Texture* aoTexture)
 {
 	this->aoTexture = aoTexture;
 	this->useAoMap = true;
+}
+
+void PBRMaterial::addOpacityMap(Texture* opacityTexture)
+{
+	this->opacityTexture = opacityTexture;
+	this->useOpacityMap = true;
 }

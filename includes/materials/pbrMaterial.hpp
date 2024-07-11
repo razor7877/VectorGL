@@ -17,6 +17,7 @@ public:
 	void addMetallicMap(Texture* metallicTexture);
 	void addRoughnessMap(Texture* roughnessTexture);
 	void addAoMap(Texture* aoTexture);
+	void addOpacityMap(Texture* opacityTexture);
 
 	/// <summary>
 	/// The albedo color of the object, used in case it doesn't have an albedo texture
@@ -39,7 +40,7 @@ public:
 	float ao = 1.0f;
 
 	/// <summary>
-	/// The opacity value of the object
+	/// The opacity value of the object, used in case it doesn't have an opacity texture
 	/// </summary>
 	float opacity = 1.0f;
 
@@ -68,9 +69,15 @@ public:
 	/// </summary>
 	Texture* aoTexture = nullptr;
 
+	/// <summary>
+	/// The opacity texture of the object, if it has one
+	/// </summary>
+	Texture* opacityTexture = nullptr;
+
 	bool useAlbedoMap = false;
 	bool useNormalMap = false;
 	bool useMetallicMap = false;
 	bool useRoughnessMap = false;
 	bool useAoMap = false;
+	bool useOpacityMap = false;
 };

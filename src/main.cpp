@@ -56,8 +56,8 @@ int main()
 	// Depth test for depth buffering, face culling for performance, blending for transparency
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
 	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Creates a renderer for drawing objects

@@ -154,6 +154,9 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		std::vector<Texture*> aoMaps = loadMaterialTextures(scene, material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
 		textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 
+		std::vector<Texture*> opacityMaps = loadMaterialTextures(scene, material, aiTextureType_OPACITY, "texture_opacity");
+		textures.insert(textures.end(), opacityMaps.begin(), opacityMaps.end());
+
 		// Get metalness value if we have one
 		aiColor4D metalVec;
 		if (aiGetMaterialColor(material, AI_MATKEY_METALLIC_FACTOR, &metalVec) == AI_SUCCESS)
@@ -231,6 +234,10 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 
 				case aiTextureType_AMBIENT_OCCLUSION:
 					textureType = TextureType::TEXTURE_AO;
+					break;
+
+				case aiTextureType_OPACITY:
+					textureType = TextureType::TEXTURE_OPACITY;
 					break;
 			}
 
