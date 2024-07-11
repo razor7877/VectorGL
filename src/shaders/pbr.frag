@@ -128,19 +128,32 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-vec3 calcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+vec3 calcDirLight(DirectionalLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metallic, float roughness)
 {
-    return vec3(0);
+	light.direction = vec3(0.0, -1.0, 0.0);
+	vec3 L = -light.direction;
+    vec3 H = normalize(V + L);
+
+    vec3 radiance = light.diffuseColor;
+
+    float NDF = DistributionGGX(N, H, roughness);
+    float G = GeometrySmith(N, V, L, roughness);
+    vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.00001) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    float NdotL = max(dot(N, L), 0.0);
+    return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
-vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 FragPos, vec3 F0, vec3 albedo, float metallic)
+vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metallic, float roughness)
 {
-    float roughness;
-    if (material.use_roughness_map)
-        roughness = texture(material.texture_roughness, TexCoord).r;
-    else
-        roughness = material.roughness;
-
     vec3 L = normalize(light.position - FragPos);
     vec3 H = normalize(V + L);
 
@@ -164,9 +177,33 @@ vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 FragPos, vec3 F0, vec
     return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
-vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir)
+vec3 calcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metallic, float roughness)
 {
-    return vec3(0);
+    vec3 L = normalize(light.position - FragPos);
+    vec3 H = normalize(V + L);
+
+    float theta = dot(L, normalize(-light.direction));
+	float epsilon = light.cutOff - light.outerCutOff;
+	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    vec3 radiance = light.diffuseColor * attenuation * intensity;
+
+    float NDF = DistributionGGX(N, H, roughness);
+    float G = GeometrySmith(N, V, L, roughness);
+    vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.00001) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    float NdotL = max(dot(N, L), 0.0);
+    return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
 vec3 getNormalFromMap()
@@ -188,6 +225,7 @@ vec3 getNormalFromMap()
 
 void main()
 {
+    // We start by sampling all the values we need from textures or uniforms
     vec3 albedo;
     if (material.use_albedo_map)
     {
@@ -201,31 +239,41 @@ void main()
         albedo = material.albedo, 1.0;
     
     vec3 normalVec;
-    // if (material.use_normal_map)
-    //     normalVec = texture(material.texture_normal, TexCoord).rgb;
-    // else
-    //     normalVec = Normal;
-
     if (material.use_normal_map)
         normalVec = getNormalFromMap();
     else
         normalVec = Normal;
     
-    vec3 N = normalize(normalVec);
-    vec3 V = normalize(camPos - FragPos);
-
     float metallic;
     if (material.use_metallic_map)
         metallic = texture(material.texture_metallic, TexCoord).r;
     else
         metallic = material.metallic;
 
+    float roughness;
+    if (material.use_roughness_map)
+        roughness = texture(material.texture_roughness, TexCoord).r;
+    else
+        roughness = material.roughness;
+    
+    // Normal
+    vec3 N = normalize(normalVec);
+    // View direction
+    vec3 V = normalize(camPos - FragPos);
+
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
+    // We can start calculating the influence of every light source
     vec3 Lo = vec3(0.0);
+    for (int i = 0; i < nrDirLights; i++)
+        Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
+
     for (int i = 0; i < nrPointLights; i++)
-        Lo += calcPointLight(pointLights[i], N, V, FragPos, F0, albedo, metallic);
+        Lo += calcPointLight(pointLights[i], N, V, F0, albedo, metallic, roughness);
+
+    for (int i = 0; i < nrSpotLights; i++)
+        Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
 
     float ao;
     if (material.use_ao_map)
