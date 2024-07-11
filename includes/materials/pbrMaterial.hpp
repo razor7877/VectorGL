@@ -39,6 +39,11 @@ public:
 	float ao = 1.0f;
 
 	/// <summary>
+	/// The opacity value of the object
+	/// </summary>
+	float opacity = 1.0f;
+
+	/// <summary>
 	/// The albedo texture of the object responsible for the color, if it has one
 	/// </summary>
 	Texture* albedoTexture = nullptr;

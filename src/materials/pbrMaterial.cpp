@@ -56,6 +56,8 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	}
 	else
 		shaderProgram->setFloat("material.ao", this->ao);
+
+	shaderProgram->setFloat("material.opacity", this->opacity);
 }
 
 void PBRMaterial::addAlbedoMap(Texture* albedoTexture)

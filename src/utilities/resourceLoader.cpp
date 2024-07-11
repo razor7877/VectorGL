@@ -114,14 +114,17 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		}
 	}
 
-	glm::vec3 diffuseColor;
-	bool useDiffuseColor = false;
+	glm::vec3 diffuseColor = glm::vec3(1.0f);
+	float metalness = 0.0f;
+	float roughness = 0.5f;
+	float opacity = 1.0f;
 
 	// Load all the textures needed
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+		// Phong textures
 		std::vector<Texture*> diffuseMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
@@ -137,16 +140,11 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		if (diffuseMaps.size() > 1 || specularMaps.size() > 1 || normalMaps.size() > 1 || heightMaps.size() > 1)
 			Logger::logWarning("Loading model that contains more textures than the shader allows (diffuse/specular/normal/height)");
 
-		if (diffuseMaps.size() == 0)
-		{
-			aiColor4D diffuseColorVec;
-			if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColorVec) == AI_SUCCESS)
-			{
-				diffuseColor = glm::vec3(diffuseColorVec.r, diffuseColorVec.g, diffuseColorVec.b);
-				useDiffuseColor = true;
-			}
-		}
+		aiColor4D diffuseColorVec;
+		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColorVec) == AI_SUCCESS)
+			diffuseColor = glm::vec3(diffuseColorVec.r, diffuseColorVec.g, diffuseColorVec.b);
 
+		// PBR textures
 		std::vector<Texture*> metalnessMaps = loadMaterialTextures(scene, material, aiTextureType_METALNESS, "texture_metallic");
 		textures.insert(textures.end(), metalnessMaps.begin(), metalnessMaps.end());
 
@@ -155,14 +153,35 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 		std::vector<Texture*> aoMaps = loadMaterialTextures(scene, material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
 		textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
+
+		// Get metalness value if we have one
+		aiColor4D metalVec;
+		if (aiGetMaterialColor(material, AI_MATKEY_METALLIC_FACTOR, &metalVec) == AI_SUCCESS)
+			metalness = metalVec.r;
+
+		// Get roughness value if we have one
+		aiColor4D roughnessVec;
+		if (aiGetMaterialColor(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughnessVec) == AI_SUCCESS)
+			roughness = roughnessVec.r;
+
+		aiColor4D opacityVec;
+		if (aiGetMaterialColor(material, AI_MATKEY_OPACITY, &opacityVec) == AI_SUCCESS)
+			opacity = opacityVec.r;
 	}
 
 	Entity* entity = new Entity();
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
 	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
 
-	if (useDiffuseColor)
-		meshComponent->setDiffuseColor(diffuseColor);
+	meshComponent->setDiffuseColor(diffuseColor);
+
+	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material);
+	if (pbrMaterial != nullptr)
+	{
+		pbrMaterial->metallic = metalness;
+		pbrMaterial->roughness = roughness;
+		pbrMaterial->opacity = opacity;
+	}
 
 	return entity;
 }

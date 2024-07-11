@@ -44,6 +44,7 @@ struct Material
 	float metallic;
 	float roughness;
 	float ao;
+    float opacity;
 
 	sampler2D texture_albedo;
 	sampler2D texture_normal;
@@ -287,5 +288,5 @@ void main()
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, material.opacity);
 }

@@ -86,6 +86,8 @@ int main()
 
 	// Add point light
 	Entity* pointLightEntity = new Entity("Point light");
+	pointLightEntity->transform->setScale(glm::vec3(0.1f));
+	pointLightEntity->transform->setPosition(0.0f, 5.0f, 0.0f);
 	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 
 	// Add mesh to the light
