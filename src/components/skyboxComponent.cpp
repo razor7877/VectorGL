@@ -34,7 +34,7 @@ void SkyboxComponent::update()
 	glDepthFunc(GL_LEQUAL);
 
 	glBindVertexArray(this->VAO);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->texID);
+	this->cubemap->bind();
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	glDepthFunc(GL_LESS);

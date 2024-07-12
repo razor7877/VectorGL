@@ -88,11 +88,18 @@ int main()
 	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), hdrToCubemapShader);
 	lightMesh->addTexture(hdrMap);
 
-	defaultRenderer.addEntity(cubemapEntity);
-	cubemapEntity->start(); // Manually start since we already started renderer before
+	cubemapEntity->start();
 
 	// We create a render target for rendering the HDR map to a cubemap
-	RenderTarget cubemapTarget = RenderTarget(glm::vec2(512), false);
+	GLuint captureFBO;
+	GLuint captureRBO;
+	glGenFramebuffers(1, &captureFBO);
+	glGenRenderbuffers(1, &captureRBO);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 2048, 2048);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
 	GLuint envCubemap;
 	glGenTextures(1, &envCubemap);
@@ -101,7 +108,7 @@ int main()
 	{
 		// note that we store each face with 16 bit floating point values
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
-			512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+			2048, 2048, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -121,20 +128,23 @@ int main()
 	};
 
 	hdrToCubemapShader->use()
-		->setInt("equirectangularMap", 0);
+		->setInt("equirectangularMap", 0)
+		->setMat4("projection", captureProjection);
 
 	glActiveTexture(GL_TEXTURE0);
 	hdrMap->bindTexture();
 
-	cubemapTarget.bind();
+	glViewport(0, 0, 2048, 2048);
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		defaultRenderer.shaderManager.updateUniformBuffer(captureProjection, captureViews[i]);
+		//defaultRenderer.shaderManager.updateUniformBuffer(captureProjection, captureViews[i]);
+		hdrToCubemapShader->setMat4("view", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		cubemapEntity->update(0);
 	}
-	cubemapTarget.unbind();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Cubemap* hdrCubemap = new Cubemap(envCubemap);
 	skyComponent->setCubemap(hdrCubemap);
