@@ -322,6 +322,10 @@ void ShaderSettings()
 			case ShaderType::HDRTOCUBEMAP:
 				label = "HDR to Cubemap";
 				break;
+
+			case ShaderType::IRRADIANCE:
+				label = "Irradiance";
+				break;
 		}
 
 		if (ImGui::CollapsingHeader(label.c_str()))

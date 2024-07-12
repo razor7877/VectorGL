@@ -63,7 +63,11 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			break;
 
 		case ShaderType::HDRTOCUBEMAP:
-			enumToShader[shader] = new Shader("shaders/equirectangularToCubeMap.vert", "shaders/equirectangularToCubeMap.frag");
+			enumToShader[shader] = new Shader("shaders/cubemap.vert", "shaders/equirectangularToCubeMap.frag");
+			break;
+
+		case ShaderType::IRRADIANCE:
+			enumToShader[shader] = new Shader("shaders/cubemap.vert", "shaders/irradiance.frag");
 			break;
 	}
 

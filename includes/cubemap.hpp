@@ -36,6 +36,8 @@ public:
 	/// <param name="cubemap">An OpenGL handle for a cubemap</param>
 	Cubemap(GLuint cubemap);
 
+	Cubemap(GLenum format, int width, int height);
+
 	~Cubemap();
 
 	void bind();

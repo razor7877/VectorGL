@@ -58,6 +58,7 @@ int main()
 	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
 	Shader* hdrToCubemapShader = defaultRenderer.shaderManager.getShader(ShaderType::HDRTOCUBEMAP);
+	Shader* irradianceShader = defaultRenderer.shaderManager.getShader(ShaderType::IRRADIANCE);
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
@@ -101,20 +102,8 @@ int main()
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 2048, 2048);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
-	GLuint envCubemap;
-	glGenTextures(1, &envCubemap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
-	for (unsigned int i = 0; i < 6; ++i)
-	{
-		// note that we store each face with 16 bit floating point values
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
-			2048, 2048, 0, GL_RGB, GL_FLOAT, nullptr);
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	Cubemap* envCubemap = new Cubemap(GL_RGB16F, 2048, 2048);
+	envCubemap->bind();
 
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
@@ -134,20 +123,48 @@ int main()
 	glActiveTexture(GL_TEXTURE0);
 	hdrMap->bindTexture();
 
+	// Convert the 2D map to a cubemap
 	glViewport(0, 0, 2048, 2048);
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
 		//defaultRenderer.shaderManager.updateUniformBuffer(captureProjection, captureViews[i]);
 		hdrToCubemapShader->setMat4("view", captureViews[i]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap->texID, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		cubemapEntity->update(0);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Cubemap* hdrCubemap = new Cubemap(envCubemap);
-	skyComponent->setCubemap(hdrCubemap);
+	// Set the sky to use the new cubemap
+	skyComponent->setCubemap(envCubemap);
+
+	// Create a new cubemap to store the irradiance when we calculate it
+	Cubemap* irradianceMap = new Cubemap(GL_RGB16F, 32, 32);
+
+	// Resize FBO to cubemap size
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+
+	irradianceShader->use();
+	irradianceShader->setInt("environmentMap", 0);
+	irradianceShader->setMat4("projection", captureProjection);
+	glActiveTexture(GL_TEXTURE0);
+	envCubemap->bind();
+
+	glViewport(0, 0, 32, 32);
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	for (unsigned int i = 0; i < 6; i++)
+	{
+		hdrToCubemapShader->setMat4("view", captureViews[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap->texID, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		cubemapEntity->update(0);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	skyComponent->setCubemap(irradianceMap);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
