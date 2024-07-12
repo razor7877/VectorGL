@@ -13,6 +13,7 @@ public:
 	void Component::start() override;
 	void Component::update() override;
 
+	glm::mat4 getGlobalModelMatrix();
 	glm::mat4 getModelMatrix();
 	glm::vec3 getPosition();
 	glm::vec3 getRotation();

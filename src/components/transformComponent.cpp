@@ -20,6 +20,11 @@ void TransformComponent::start() { }
 
 void TransformComponent::update() { }
 
+glm::mat4 TransformComponent::getGlobalModelMatrix()
+{
+	return this->parent->getParent()->transform->getModelMatrix() * this->modelMatrix;
+}
+
 glm::mat4 TransformComponent::getModelMatrix()
 {
 	return this->modelMatrix;

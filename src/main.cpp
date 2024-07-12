@@ -2,35 +2,23 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <iostream>
-
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <utilities/glad.h>
+#include <GLFW/glfw3.h>
 #include <utilities/stb_image.h>
 
 #include "main.hpp"
-#include "shader.hpp"
-#include "texture.hpp"
-#include "cubemap.hpp"
 #include "renderer.hpp"
-#include "materials/material.hpp"
+#include "entity.hpp"
+#include "shader.hpp"
 #include "logger.hpp"
-
 #include "io/interface.hpp"
 #include "io/input.hpp"
-
-#include "components/meshComponent.hpp"
-#include "components/transformComponent.hpp"
-#include "components/lights/pointLightComponent.hpp"
-#include "components/lights/spotLightComponent.hpp"
-#include "components/lights/directionalLightComponent.hpp"
 #include "components/skyboxComponent.hpp"
-
-#include "utilities/resourceLoader.hpp"
+#include "components/meshComponent.hpp"
+#include "components/cameraComponent.hpp"
+#include "components/lights/pointLightComponent.hpp"
+#include "components/lights/directionalLightComponent.hpp"
+#include "components/lights/spotLightComponent.hpp"
 
 extern GLFWwindow* window;
 
@@ -55,7 +43,7 @@ int main()
 	// Sets up some parameters for the OpenGL context
 	// Depth test for depth buffering, face culling for performance, blending for transparency
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -70,13 +58,13 @@ int main()
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
-	float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
+	/*float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
 		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
 	Entity* grid = new Entity("Grid");
 	MeshComponent* gridMesh = grid->addComponent<MeshComponent>();
 	gridMesh->setupMesh(gridVerts, sizeof(gridVerts), gridShader);
 
-	defaultRenderer.addEntity(grid);
+	defaultRenderer.addEntity(grid);*/
 	
 	/*Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", pbrShader);
 	model->transform
@@ -86,8 +74,6 @@ int main()
 
 	// Add point light
 	Entity* pointLightEntity = new Entity("Point light");
-	pointLightEntity->transform->setScale(glm::vec3(0.1f));
-	pointLightEntity->transform->setPosition(0.0f, 5.0f, 0.0f);
 	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 
 	// Add mesh to the light
@@ -95,6 +81,8 @@ int main()
 
 	MeshComponent* lightMesh = pointLightEntity->addComponent<MeshComponent>();
 	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), pbrShader);
+	pointLightEntity->transform->setScale(glm::vec3(0.1f));
+	pointLightEntity->transform->setPosition(0.0f, 5.0f, 0.0f);
 
 	defaultRenderer.addEntity(pointLightEntity);
 
@@ -155,7 +143,7 @@ int main()
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		//if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
+		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
