@@ -318,6 +318,10 @@ void ShaderSettings()
 			case ShaderType::GRID2:
 				label = "Grid2";
 				break;
+
+			case ShaderType::HDRTOCUBEMAP:
+				label = "HDR to Cubemap";
+				break;
 		}
 
 		if (ImGui::CollapsingHeader(label.c_str()))

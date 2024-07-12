@@ -49,3 +49,8 @@ void SkyboxComponent::changeSkybox(SkyboxType sky)
 {
 	this->cubemap = skyboxes[sky];
 }
+
+void SkyboxComponent::setCubemap(Cubemap* cubemap)
+{
+	this->cubemap = cubemap;
+}

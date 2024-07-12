@@ -24,6 +24,7 @@ public:
 
 	void setupSkybox(Shader* shaderProgram);
 	void changeSkybox(SkyboxType sky);
+	void setCubemap(Cubemap* cubemap);
 
 private:
 	Cubemap* cubemap;

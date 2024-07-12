@@ -50,7 +50,7 @@ void Texture::bindTexture()
 	glBindTexture(GL_TEXTURE_2D, texID);
 }
 
-void Texture::createTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad = false)
+void Texture::createTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
 {
 	int width, height, nrChannels;
 
@@ -89,7 +89,7 @@ void Texture::createTexture(std::string filename, TextureType textureType, bool 
 		Logger::logError(std::string("Failed to load texture: ") + filename);
 }
 
-void Texture::createHDRTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad = false)
+void Texture::createHDRTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
 {
 	int width, height, nrChannels;
 

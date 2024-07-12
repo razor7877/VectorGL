@@ -4,13 +4,15 @@
 
 #include <utilities/glad.h>
 #include <GLFW/glfw3.h>
-#include <utilities/stb_image.h>
+#include <glm/glm/ext/matrix_transform.hpp>
+#include <glm/glm/ext/matrix_clip_space.hpp>
 
 #include "main.hpp"
 #include "renderer.hpp"
 #include "entity.hpp"
 #include "shader.hpp"
 #include "logger.hpp"
+#include "renderTarget.hpp"
 #include "io/interface.hpp"
 #include "io/input.hpp"
 #include "components/skyboxComponent.hpp"
@@ -55,57 +57,87 @@ int main()
 	Shader* pbrShader = defaultRenderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
+	Shader* hdrToCubemapShader = defaultRenderer.shaderManager.getShader(ShaderType::HDRTOCUBEMAP);
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
-	/*float gridVerts[18] = { 1, 1, 0, -1, -1, 0, -1, 1, 0,
-		-1, -1, 0, 1, 1, 0, 1, -1, 0 };
-	Entity* grid = new Entity("Grid");
-	MeshComponent* gridMesh = grid->addComponent<MeshComponent>();
-	gridMesh->setupMesh(gridVerts, sizeof(gridVerts), gridShader);
-
-	defaultRenderer.addEntity(grid);*/
-	
-	/*Entity* model = ResourceLoader::getInstance().loadModelFromFilepath("models/sea_keep/scene.gltf", pbrShader);
-	model->transform
-		->setScale(0.075f, 0.075f, 0.075f);
-
-	defaultRenderer.addEntity(model);*/
-
-	// Add point light
-	Entity* pointLightEntity = new Entity("Point light");
-	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
-
-	// Add mesh to the light
-	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
-
-	MeshComponent* lightMesh = pointLightEntity->addComponent<MeshComponent>();
-	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), pbrShader);
-	pointLightEntity->transform->setScale(glm::vec3(0.1f));
-	pointLightEntity->transform->setPosition(0.0f, 5.0f, 0.0f);
-
-	defaultRenderer.addEntity(pointLightEntity);
-
-	// Add spot light
-	Entity* spotLightEntity = new Entity("Spot light");
-	SpotLightComponent* spotLightComponent = spotLightEntity->addComponent<SpotLightComponent>();
-
-	defaultRenderer.addEntity(spotLightEntity);
-
+	// Directional light
 	Entity* dirLightEntity = new Entity("Directional light");
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
-
 	defaultRenderer.addEntity(dirLightEntity);
 
+	// Skybox
 	Entity* skyEntity = new Entity("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader);
-
 	defaultRenderer.addEntity(skyEntity);
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 	cameraComponent = defaultRenderer.currentCamera;
+
+	// IBL
+
+	// Add mesh to the light
+	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
+	Texture* hdrMap = new Texture("img/dry_meadow_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
+
+	// Add point light
+	Entity* cubemapEntity = new Entity("HDR Cubemap");
+	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
+	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), hdrToCubemapShader);
+	lightMesh->addTexture(hdrMap);
+
+	defaultRenderer.addEntity(cubemapEntity);
+	cubemapEntity->start(); // Manually start since we already started renderer before
+
+	// We create a render target for rendering the HDR map to a cubemap
+	RenderTarget cubemapTarget = RenderTarget(glm::vec2(512), false);
+
+	GLuint envCubemap;
+	glGenTextures(1, &envCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+	for (unsigned int i = 0; i < 6; ++i)
+	{
+		// note that we store each face with 16 bit floating point values
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
+			512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+	glm::mat4 captureViews[] =
+	{
+	   glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+	   glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+	   glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+	   glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+	   glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+	   glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+	};
+
+	hdrToCubemapShader->use()
+		->setInt("equirectangularMap", 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	hdrMap->bindTexture();
+
+	cubemapTarget.bind();
+	for (unsigned int i = 0; i < 6; ++i)
+	{
+		defaultRenderer.shaderManager.updateUniformBuffer(captureProjection, captureViews[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		cubemapEntity->update(0);
+	}
+	cubemapTarget.unbind();
+
+	Cubemap* hdrCubemap = new Cubemap(envCubemap);
+	skyComponent->setCubemap(hdrCubemap);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
@@ -143,7 +175,7 @@ int main()
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
+		//if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

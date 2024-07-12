@@ -61,6 +61,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 		case ShaderType::GRID2:
 			enumToShader[shader] = new Shader("shaders/grid2.vert", "shaders/grid2.frag");
 			break;
+
+		case ShaderType::HDRTOCUBEMAP:
+			enumToShader[shader] = new Shader("shaders/equirectangularToCubeMap.vert", "shaders/equirectangularToCubeMap.frag");
+			break;
 	}
 
 	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->ID, "Matrices");

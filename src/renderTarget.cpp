@@ -99,6 +99,8 @@ void RenderTarget::createRenderTarget()
 	this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		Logger::logError("Error while attempting to create framebuffer!");
 }
@@ -124,6 +126,8 @@ void RenderTarget::createMultiSampledRenderTarget()
 
 	this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		Logger::logError("Error while attempting to create multisampled framebuffer!");

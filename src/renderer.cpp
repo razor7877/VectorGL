@@ -63,26 +63,6 @@ void Renderer::init(glm::vec2 windowSize)
 	this->createFramebuffer(windowSize);
 }
 
-//void collectAllEntities(Entity* entity, std::vector<Entity*>& allEntities)
-//{
-//	if (entity == nullptr) return;
-//	allEntities.push_back(entity);
-//	for (Entity* child : entity->getChildren())
-//	{
-//		collectAllEntities(child, allEntities);
-//	}
-//}
-//
-//std::vector<Entity*> collectAllFromRoots(const std::vector<Entity*>& rootEntities)
-//{
-//	std::vector<Entity*> allEntities;
-//	for (Entity* root : rootEntities)
-//	{
-//		collectAllEntities(root, allEntities);
-//	}
-//	return allEntities;
-//}
-
 void Renderer::render(float deltaTime)
 {
 	// We want to draw to the MSAA framebuffer
@@ -94,22 +74,6 @@ void Renderer::render(float deltaTime)
 
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
-
-	//std::vector<Entity*> recursiveEntities = collectAllFromRoots(this->entities);
-
-	//std::vector<std::pair<float, Entity*>> sortedEntities;
-	//// We start by storing all the entities in a pair with their distance from the camera
-	//for (Entity* entity : recursiveEntities)
-	//{
-	//	glm::mat4 model = entity->transform->getModelMatrix();
-	//	glm::vec3 position = glm::vec3(model[3][0], model[3][1], model[3][2]);
-
-	//	float distance = glm::length(this->currentCamera->getPosition() - position);
-	//	sortedEntities.push_back(std::pair(distance, entity));
-	//}
-
-	//// Sort the entities by their distance to the camera, to get correct blending
-	//std::sort(sortedEntities.begin(), sortedEntities.end(), [](const std::pair<float, Entity*>& a, const std::pair<float, Entity*>& b) { return a.second < b.second; });
 
 	// Render & update the scene
 	for (Entity* entity : this->entities)

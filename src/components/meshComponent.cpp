@@ -54,14 +54,19 @@ void MeshComponent::start()
 	// If the MeshComponent uses textures
 	if (textures.size() > 0)
 	{
-		// Generates a buffer to store texture coordinates data
-		glGenBuffers(1, &texCoordBO);
+		if (texCoords.size() > 0)
+		{
+			// Generates a buffer to store texture coordinates data
+			glGenBuffers(1, &texCoordBO);
 
-		glBindBuffer(GL_ARRAY_BUFFER, texCoordBO);
-		glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, texCoordBO);
+			glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
 
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+		}
+		else
+			Logger::logWarning("MeshComponent has texture but no associated texture coordinates!");
 
 		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
 		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);

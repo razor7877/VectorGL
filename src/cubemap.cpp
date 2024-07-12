@@ -13,8 +13,6 @@ Cubemap::Cubemap()
 
 Cubemap::Cubemap(std::string facesPath)
 {
-	this->texID = {};
-
 	faces.push_back(facesPath + "right.png");
 	faces.push_back(facesPath + "left.png");
 	faces.push_back(facesPath + "top.png");
@@ -25,8 +23,13 @@ Cubemap::Cubemap(std::string facesPath)
 
 Cubemap::Cubemap(std::vector<std::string> faces)
 {
-	this->texID = {};
 	this->faces = faces;
+}
+
+Cubemap::Cubemap(GLuint cubemap)
+{
+	this->texID = cubemap;
+	this->isSetUp = true;
 }
 
 Cubemap::~Cubemap()
@@ -34,7 +37,18 @@ Cubemap::~Cubemap()
 	glDeleteTextures(1, &this->texID);
 }
 
+void Cubemap::bind()
+{
+	glBindTexture(GL_TEXTURE_CUBE_MAP, this->texID);
+}
+
 void Cubemap::setupObject()
+{
+	if (!this->isSetUp)
+		this->createCubemapFromFaces();
+}
+
+void Cubemap::createCubemapFromFaces()
 {
 	glGenTextures(1, &texID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texID);

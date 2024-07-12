@@ -35,6 +35,7 @@ public:
 	/// </summary>
 	/// <param name="filename">A path to the file to load</param>
 	/// <param name="textureType">The type of texture to create</param>
+	/// <param name="isHDR">Whether this is an HDR texture</param>
 	/// <param name="stbiFlipOnLoad">Whether the image should be flipped on load</param>
 	Texture(std::string filename, TextureType textureType, bool isHDR = false, bool stbiFlipOnLoad = false);
 

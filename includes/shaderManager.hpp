@@ -13,6 +13,7 @@ enum class ShaderType
 	SKYBOX,
 	GRID,
 	GRID2,
+	HDRTOCUBEMAP,
 };
 
 /// <summary>
