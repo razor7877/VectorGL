@@ -74,6 +74,8 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 camPos;
 
+uniform samplerCube irradianceMap;
+
 uniform Material material;
 
 // There is one uniform for each light type, each being an array that contains up to
@@ -282,7 +284,14 @@ void main()
     else
         ao = material.ao;
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse = irradiance * albedo;
+    vec3 ambient = (kD * diffuse) * ao;
+
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1.0));

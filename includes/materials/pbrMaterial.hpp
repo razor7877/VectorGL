@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "materials/material.hpp"
+#include "cubemap.hpp"
 #include "texture.hpp"
 
 struct PBRMaterial : public virtual Material
@@ -73,6 +74,11 @@ public:
 	/// The opacity texture of the object, if it has one
 	/// </summary>
 	Texture* opacityTexture = nullptr;
+
+	/// <summary>
+	/// The irradiance texture of the sky for IBL
+	/// </summary>
+	Cubemap* irradianceMap = nullptr;
 
 	bool useAlbedoMap = false;
 	bool useNormalMap = false;
