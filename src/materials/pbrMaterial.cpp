@@ -1,8 +1,9 @@
 #include "materials/pbrMaterial.hpp"
+#include "main.hpp"
 
 PBRMaterial::PBRMaterial()
 {
-
+	this->irradianceMap = irradianceCubemap;
 }
 
 void PBRMaterial::sendToShader(Shader* shaderProgram)
@@ -65,6 +66,10 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	}
 	else
 		shaderProgram->setFloat("material.opacity", this->opacity);
+
+	glActiveTexture(GL_TEXTURE6);
+	shaderProgram->setInt("material.irradianceMap", 6);
+	this->irradianceMap->bind();
 }
 
 void PBRMaterial::addAlbedoMap(Texture* albedoTexture)

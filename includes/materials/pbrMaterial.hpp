@@ -5,6 +5,7 @@
 #include "materials/material.hpp"
 #include "cubemap.hpp"
 #include "texture.hpp"
+#include "cubemap.hpp"
 
 struct PBRMaterial : public virtual Material
 {

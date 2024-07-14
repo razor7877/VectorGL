@@ -34,8 +34,10 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 Renderer defaultRenderer;
-
 CameraComponent* cameraComponent;
+
+// Create a new cubemap to store the irradiance when we calculate it
+Cubemap* irradianceCubemap;
 
 int main()
 {
@@ -49,6 +51,8 @@ int main()
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	irradianceCubemap = new Cubemap(GL_RGB16F, 32, 32);
 
 	// Creates a renderer for drawing objects
 	defaultRenderer = Renderer();
@@ -72,6 +76,14 @@ int main()
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader);
 	defaultRenderer.addEntity(skyEntity);
+
+	// Add point light
+	Entity* pointLightEntity = new Entity("Point light");
+	pointLightEntity->transform->setScale(glm::vec3(0.1f));
+	pointLightEntity->transform->setPosition(0.0f, 5.0f, 0.0f);
+	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
+
+	defaultRenderer.addEntity(pointLightEntity);
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
@@ -139,9 +151,6 @@ int main()
 	// Set the sky to use the new cubemap
 	skyComponent->setCubemap(envCubemap);
 
-	// Create a new cubemap to store the irradiance when we calculate it
-	Cubemap* irradianceMap = new Cubemap(GL_RGB16F, 32, 32);
-
 	// Resize FBO to cubemap size
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
@@ -158,13 +167,13 @@ int main()
 	for (unsigned int i = 0; i < 6; i++)
 	{
 		hdrToCubemapShader->setMat4("view", captureViews[i]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap->texID, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceCubemap->texID, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		cubemapEntity->update(0);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	skyComponent->setCubemap(irradianceMap);
+	//skyComponent->setCubemap(irradianceCubemap);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);

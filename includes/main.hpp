@@ -8,12 +8,15 @@
 
 #include "components/cameraComponent.hpp"
 #include "renderer.hpp"
+#include "cubemap.hpp"
 
 extern int windowWidth;
 extern int windowHeight;
 
 extern Renderer defaultRenderer;
 extern CameraComponent* cameraComponent;
+
+extern Cubemap* irradianceCubemap;
 
 int setupGlfwContext();
 int main();

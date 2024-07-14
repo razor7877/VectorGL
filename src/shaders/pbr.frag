@@ -57,6 +57,8 @@ struct Material
 	bool use_metallic_map;
 	bool use_roughness_map;
     bool use_ao_map;
+
+    samplerCube irradianceMap;
 };
 
 // DEFINING INPUT VALUES
@@ -73,8 +75,6 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 camPos;
-
-uniform samplerCube irradianceMap;
 
 uniform Material material;
 
@@ -288,7 +288,7 @@ void main()
     vec3 kD = vec3(1.0) - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 irradiance = texture(material.irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (kD * diffuse) * ao;
 
