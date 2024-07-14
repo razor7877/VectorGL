@@ -28,7 +28,6 @@ public:
 	std::string path;
 
 	Texture();
-	~Texture();
 
 	/// <summary>
 	/// Creates a new texture from a file path
@@ -48,6 +47,14 @@ public:
 	/// <param name="format">The format of the texture</param>
 	/// <param name="textureData">A pointer to the texture data, which must correspond in size to the width/height/format specified</param>
 	Texture::Texture(TextureType textureType, int width, int height, GLenum format, void* textureData);
+
+	/// <summary>
+	/// Creates a new texture using an existing OpenGL texture handle
+	/// </summary>
+	/// <param name="texture">The OpenGL texture handle</param>
+	Texture(GLuint texture, TextureType textureType);
+
+	~Texture();
 
 	void bindTexture();
 

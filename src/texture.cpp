@@ -40,6 +40,12 @@ Texture::Texture(TextureType textureType, int width, int height, GLenum format, 
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
+Texture::Texture(GLuint texture, TextureType textureType)
+{
+	this->texID = texture;
+	this->type = textureType;
+}
+
 Texture::~Texture()
 {
 	glDeleteTextures(1, &this->texID);

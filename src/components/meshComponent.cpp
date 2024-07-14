@@ -12,7 +12,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	//this->material = new PBRMaterial();
+	this->material = new PBRMaterial();
 }
 
 MeshComponent::~MeshComponent()
@@ -52,7 +52,7 @@ void MeshComponent::start()
 	glEnableVertexAttribArray(0);
 
 	// If the MeshComponent uses textures
-	if (textures.size() > 0 && this->material)
+	if (textures.size() > 0 && this->material != nullptr)
 	{
 		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
 		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
@@ -105,7 +105,7 @@ void MeshComponent::update()
 	glBindVertexArray(VAO);
 
 	// Send material data
-	if (this->material)
+	if (this->material != nullptr)
 		this->material->sendToShader(this->shaderProgram);
 
 	// Send the model matrix

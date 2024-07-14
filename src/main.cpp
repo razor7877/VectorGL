@@ -39,6 +39,35 @@ CameraComponent* cameraComponent;
 // Create a new cubemap to store the irradiance when we calculate it
 Cubemap* irradianceCubemap;
 
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
 int main()
 {
 	if (setupGlfwContext() != 0)
@@ -214,7 +243,15 @@ int main()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	skyComponent->setCubemap(envCubemap);
+
 	// Create BRDF map
+	
+	unsigned int brdfLUTTexture;
+	glGenTextures(1, &brdfLUTTexture);
+
+	Texture* brdfTexture = new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+
 	float quad_verts[] = {
 	-1.0f, 1.0f, 0.0f, // Top left
 	1.0f, 1.0f, 0.0f, // Top right
@@ -237,16 +274,14 @@ int main()
 
 	Entity* quadEntity = new Entity("Quad");
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
-	quadMesh->setupMesh(quad_verts, sizeof(quad_verts), brdfShader);
+	quadMesh->setupMesh(quad_verts, sizeof(quad_verts), phongShader);
 	quadMesh->addTexCoords(quad_tex_coords, sizeof(quad_tex_coords));
+	quadMesh->addTexture(hdrMap);
 
 	defaultRenderer.addEntity(quadEntity);
 	quadMesh->start();
 
-	unsigned int brdfLUTTexture;
-	
-
-	skyComponent->setCubemap(prefilteredMap);
+	//skyComponent->setCubemap(envCubemap);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
@@ -279,7 +314,7 @@ int main()
 
 		defaultRenderer.render(deltaTime);
 
-		glGenTextures(1, &brdfLUTTexture);
+		glActiveTexture(GL_TEXTURE0);
 
 		glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
@@ -294,12 +329,10 @@ int main()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
 		glViewport(0, 0, 512, 512);
+		brdfShader->use();
+		glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//quadEntity->update(0);
-		quadMesh->setupMesh(quad_verts, sizeof(quad_verts), prefilterShader);
-		quadMesh->addTexCoords(quad_tex_coords, sizeof(quad_tex_coords));
-		quadMesh->start();
-		quadEntity->update(0);
+		renderQuad();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		// Draws the ImGui interface windows
