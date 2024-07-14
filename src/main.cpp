@@ -88,35 +88,6 @@ int main()
 
 	defaultRenderer.addEntity(pointLightEntity);
 
-	// Quad
-	/*float quadVertices[] = {
-		-1.0f,  1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f,
-	};
-
-	float quadTexCoords[] = {
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-	};
-
-	unsigned int quadIndices[] = {
-		0, 1, 2,
-		2, 1, 3
-	};
-
-	Entity* quadEntity = new Entity("Quad");
-	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
-	quadMesh->setupMesh(quadVertices, sizeof(quadVertices), brdfShader);
-	quadMesh->addTexCoords(quadTexCoords, sizeof(quadTexCoords));
-	quadMesh->addIndices(quadIndices, sizeof(quadIndices));
-
-	defaultRenderer.addEntity(quadEntity);*/
-	//quadEntity->start();
-
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 	cameraComponent = defaultRenderer.currentCamera;
@@ -266,31 +237,14 @@ int main()
 
 	Entity* quadEntity = new Entity("Quad");
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
-	quadMesh->setupMesh(quad_verts, sizeof(quad_verts), pbrShader);
+	quadMesh->setupMesh(quad_verts, sizeof(quad_verts), brdfShader);
 	quadMesh->addTexCoords(quad_tex_coords, sizeof(quad_tex_coords));
 
 	defaultRenderer.addEntity(quadEntity);
 	quadMesh->start();
 
-	//unsigned int brdfLUTTexture;
-	//glGenTextures(1, &brdfLUTTexture);
-
-	//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-	//glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
-
-	//glViewport(0, 0, 512, 512);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//quadEntity->update(0);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	unsigned int brdfLUTTexture;
+	
 
 	skyComponent->setCubemap(prefilteredMap);
 
@@ -325,8 +279,28 @@ int main()
 
 		defaultRenderer.render(deltaTime);
 
-		//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-		//glBindTexture(GL_TEXTURE_2D, 0);
+		glGenTextures(1, &brdfLUTTexture);
+
+		glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
+
+		glViewport(0, 0, 512, 512);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//quadEntity->update(0);
+		quadMesh->setupMesh(quad_verts, sizeof(quad_verts), prefilterShader);
+		quadMesh->addTexCoords(quad_tex_coords, sizeof(quad_tex_coords));
+		quadMesh->start();
+		quadEntity->update(0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

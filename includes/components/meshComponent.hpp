@@ -44,7 +44,7 @@ public:
 	/// <summary>
 	/// The material of the mesh
 	/// </summary>
-	Material* material;
+	Material* material = nullptr;
 
 protected:
 	/// <summary>

@@ -12,7 +12,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->material = new PBRMaterial();
+	//this->material = new PBRMaterial();
 }
 
 MeshComponent::~MeshComponent()
@@ -52,28 +52,28 @@ void MeshComponent::start()
 	glEnableVertexAttribArray(0);
 
 	// If the MeshComponent uses textures
-	if (textures.size() > 0)
+	if (textures.size() > 0 && this->material)
 	{
-		if (texCoords.size() > 0)
-		{
-			// Generates a buffer to store texture coordinates data
-			glGenBuffers(1, &texCoordBO);
-
-			glBindBuffer(GL_ARRAY_BUFFER, texCoordBO);
-			glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
-
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1);
-		}
-		else
-			Logger::logWarning("MeshComponent has texture but no associated texture coordinates!");
-
 		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
 		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
 
 		if (pbrMaterial != nullptr) this->addPBRTextures(pbrMaterial);
 		if (phongMaterial != nullptr) this->addPhongTextures(phongMaterial);
 	}
+
+	if (texCoords.size() > 0)
+	{
+		// Generates a buffer to store texture coordinates data
+		glGenBuffers(1, &texCoordBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, texCoordBO);
+		glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
+
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+	}
+	else
+		Logger::logWarning("MeshComponent has texture but no associated texture coordinates!");
 
 	// If the object uses normals
 	if (normals.size() > 0)
@@ -105,7 +105,8 @@ void MeshComponent::update()
 	glBindVertexArray(VAO);
 
 	// Send material data
-	this->material->sendToShader(this->shaderProgram);
+	if (this->material)
+		this->material->sendToShader(this->shaderProgram);
 
 	// Send the model matrix
 	this->shaderProgram
@@ -115,7 +116,7 @@ void MeshComponent::update()
 	if (this->hasIndices)
 		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
 	else // Normal drawing
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount * sizeof(float));
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 
 	for (int i = 0; i < 6; i++)
 	{
