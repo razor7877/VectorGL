@@ -50,6 +50,7 @@ int main()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	irradianceCubemap = new Cubemap(GL_RGB16F, 32, 32);
@@ -63,6 +64,7 @@ int main()
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
 	Shader* hdrToCubemapShader = defaultRenderer.shaderManager.getShader(ShaderType::HDRTOCUBEMAP);
 	Shader* irradianceShader = defaultRenderer.shaderManager.getShader(ShaderType::IRRADIANCE);
+	Shader* prefilterShader = defaultRenderer.shaderManager.getShader(ShaderType::PREFILTER);
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
@@ -166,14 +168,50 @@ int main()
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (unsigned int i = 0; i < 6; i++)
 	{
-		hdrToCubemapShader->setMat4("view", captureViews[i]);
+		irradianceShader->setMat4("view", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceCubemap->texID, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		lightMesh->setupMesh(boxVertices, sizeof(boxVertices), irradianceShader);
+		lightMesh->start();
 		cubemapEntity->update(0);
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//skyComponent->setCubemap(irradianceCubemap);
+	Cubemap* prefilteredMap = new Cubemap(GL_RGB16F, 128, 128, true);
+	
+	prefilterShader->use();
+	prefilterShader->setInt("environmentMap", 0);
+	prefilterShader->setMat4("projection", captureProjection);
+	glActiveTexture(GL_TEXTURE0);
+	envCubemap->bind();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	unsigned int maxMipLevels = 5;
+	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+	{
+		// Resize framebuffer according to mip-level size
+		unsigned int mipWidth = 128 * std::pow(0.5, mip);
+		unsigned int mipHeight = 128 * std::pow(0.5, mip);
+		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+		glViewport(0, 0, mipWidth, mipHeight);
+
+		float roughness = (float)mip / (float)(maxMipLevels - 1);
+		prefilterShader->setFloat("roughness", 1);
+
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			prefilterShader->setMat4("view", captureViews[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilteredMap->texID, mip);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			lightMesh->setupMesh(boxVertices, sizeof(boxVertices), prefilterShader);
+			lightMesh->start();
+			cubemapEntity->update(0);
+		}
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	skyComponent->setCubemap(prefilteredMap);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
@@ -211,7 +249,7 @@ int main()
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		//if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
+		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

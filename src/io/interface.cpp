@@ -324,7 +324,11 @@ void ShaderSettings()
 				break;
 
 			case ShaderType::IRRADIANCE:
-				label = "Irradiance";
+				label = "IBL Irradiance";
+				break;
+
+			case ShaderType::PREFILTER:
+				label = "IBL Prefilter";
 				break;
 		}
 

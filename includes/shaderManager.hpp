@@ -15,6 +15,7 @@ enum class ShaderType
 	GRID2,
 	HDRTOCUBEMAP,
 	IRRADIANCE,
+	PREFILTER,
 };
 
 /// <summary>

@@ -32,7 +32,7 @@ Cubemap::Cubemap(GLuint cubemap)
 	this->isSetUp = true;
 }
 
-Cubemap::Cubemap(GLenum format, int width, int height)
+Cubemap::Cubemap(GLenum format, int width, int height, bool mipMapFiltering)
 {
 	glGenTextures(1, &this->texID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, this->texID);
@@ -46,8 +46,14 @@ Cubemap::Cubemap(GLenum format, int width, int height)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	if (mipMapFiltering)
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	else
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	if (mipMapFiltering)
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
 Cubemap::~Cubemap()

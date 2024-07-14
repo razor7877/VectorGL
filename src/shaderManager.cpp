@@ -69,6 +69,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 		case ShaderType::IRRADIANCE:
 			enumToShader[shader] = new Shader("shaders/cubemap.vert", "shaders/irradiance.frag");
 			break;
+
+		case ShaderType::PREFILTER:
+			enumToShader[shader] = new Shader("shaders/cubemap.vert", "shaders/prefilter.frag");
+			break;
 	}
 
 	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->ID, "Matrices");
