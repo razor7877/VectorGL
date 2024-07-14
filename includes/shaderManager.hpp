@@ -16,6 +16,7 @@ enum class ShaderType
 	HDRTOCUBEMAP,
 	IRRADIANCE,
 	PREFILTER,
+	BRDF,
 };
 
 /// <summary>

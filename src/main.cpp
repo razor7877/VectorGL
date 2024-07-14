@@ -65,6 +65,7 @@ int main()
 	Shader* hdrToCubemapShader = defaultRenderer.shaderManager.getShader(ShaderType::HDRTOCUBEMAP);
 	Shader* irradianceShader = defaultRenderer.shaderManager.getShader(ShaderType::IRRADIANCE);
 	Shader* prefilterShader = defaultRenderer.shaderManager.getShader(ShaderType::PREFILTER);
+	Shader* brdfShader = defaultRenderer.shaderManager.getShader(ShaderType::BRDF);
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
@@ -86,6 +87,35 @@ int main()
 	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 
 	defaultRenderer.addEntity(pointLightEntity);
+
+	// Quad
+	/*float quadVertices[] = {
+		-1.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,
+	};
+
+	float quadTexCoords[] = {
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+	};
+
+	unsigned int quadIndices[] = {
+		0, 1, 2,
+		2, 1, 3
+	};
+
+	Entity* quadEntity = new Entity("Quad");
+	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
+	quadMesh->setupMesh(quadVertices, sizeof(quadVertices), brdfShader);
+	quadMesh->addTexCoords(quadTexCoords, sizeof(quadTexCoords));
+	quadMesh->addIndices(quadIndices, sizeof(quadIndices));
+
+	defaultRenderer.addEntity(quadEntity);*/
+	//quadEntity->start();
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
@@ -158,6 +188,7 @@ int main()
 	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
 
+	// Create irradiance map
 	irradianceShader->use();
 	irradianceShader->setInt("environmentMap", 0);
 	irradianceShader->setMat4("projection", captureProjection);
@@ -177,6 +208,7 @@ int main()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	// Create pre filtered map
 	Cubemap* prefilteredMap = new Cubemap(GL_RGB16F, 128, 128, true);
 	
 	prefilterShader->use();
@@ -211,6 +243,55 @@ int main()
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	// Create BRDF map
+	float quad_verts[] = {
+	-1.0f, 1.0f, 0.0f, // Top left
+	1.0f, 1.0f, 0.0f, // Top right
+	-1.0f, -1.0f, 0.0f, // Bottom left
+
+	1.0f, 1.0f, 0.0f, // Top right
+	1.0f, -1.0f, 0.0f, // Bottom right
+	-1.0f, -1.0f, 0.0f, // Bottom left
+	};
+
+	float quad_tex_coords[] = {
+		0.0f, 0.0f, // Top left
+		1.0f, 0.0f, // Top right
+		0.0f, 1.0f, // Bottom left
+
+		1.0f, 0.0f, // Top right
+		1.0f, 1.0f, // Bottom right
+		0.0f, 1.0f, // Bottom left
+	};
+
+	Entity* quadEntity = new Entity("Quad");
+	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
+	quadMesh->setupMesh(quad_verts, sizeof(quad_verts), pbrShader);
+	quadMesh->addTexCoords(quad_tex_coords, sizeof(quad_tex_coords));
+
+	defaultRenderer.addEntity(quadEntity);
+	quadMesh->start();
+
+	//unsigned int brdfLUTTexture;
+	//glGenTextures(1, &brdfLUTTexture);
+
+	//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	//glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
+
+	//glViewport(0, 0, 512, 512);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//quadEntity->update(0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	skyComponent->setCubemap(prefilteredMap);
 
 	// Initializes the ImGui UI system
@@ -243,6 +324,9 @@ int main()
 			->setVec3("camPos", cameraComponent->getPosition());
 
 		defaultRenderer.render(deltaTime);
+
+		//glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+		//glBindTexture(GL_TEXTURE_2D, 0);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

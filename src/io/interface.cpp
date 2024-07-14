@@ -330,6 +330,14 @@ void ShaderSettings()
 			case ShaderType::PREFILTER:
 				label = "IBL Prefilter";
 				break;
+
+			case ShaderType::BRDF:
+				label = "BRDF";
+				break;
+
+			default:
+				label = "Unnamed";
+				break;
 		}
 
 		if (ImGui::CollapsingHeader(label.c_str()))
