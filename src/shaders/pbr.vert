@@ -9,6 +9,7 @@ out vec2 TexCoord;
 out vec3 Normal;
 
 uniform mat4 model;
+uniform mat3 normalMatrix;
 
 layout (std140) uniform Matrices
 {
@@ -22,5 +23,5 @@ void main()
 
 	FragPos = vec3(model * vec4(aPos, 1.0));
 	TexCoord = aTexCoord;
-	Normal = aNormal;
+	Normal = normalMatrix * aNormal;
 }

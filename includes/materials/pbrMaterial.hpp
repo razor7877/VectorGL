@@ -5,21 +5,24 @@
 #include "materials/material.hpp"
 #include "cubemap.hpp"
 #include "texture.hpp"
-#include "cubemap.hpp"
 
 struct PBRMaterial : public virtual Material
 {
 public:
-	PBRMaterial();
+	/// <summary>
+	/// The irradiance texture of the sky for diffuse IBL
+	/// </summary>
+	static Cubemap* irradianceMap;
 
-	void sendToShader(Shader* shaderProgram) override;
+	/// <summary>
+	/// The prefiltered map of the sky for specular IBL
+	/// </summary>
+	static Cubemap* prefilterMap;
 
-	void addAlbedoMap(Texture* albedoTexture);
-	void addNormalMap(Texture* normalTexture);
-	void addMetallicMap(Texture* metallicTexture);
-	void addRoughnessMap(Texture* roughnessTexture);
-	void addAoMap(Texture* aoTexture);
-	void addOpacityMap(Texture* opacityTexture);
+	/// <summary>
+	/// The BRDF look up table for specular IBL
+	/// </summary>
+	static Texture* brdfLut;
 
 	/// <summary>
 	/// The albedo color of the object, used in case it doesn't have an albedo texture
@@ -76,15 +79,21 @@ public:
 	/// </summary>
 	Texture* opacityTexture = nullptr;
 
-	/// <summary>
-	/// The irradiance texture of the sky for IBL
-	/// </summary>
-	Cubemap* irradianceMap = nullptr;
-
 	bool useAlbedoMap = false;
 	bool useNormalMap = false;
 	bool useMetallicMap = false;
 	bool useRoughnessMap = false;
 	bool useAoMap = false;
 	bool useOpacityMap = false;
+
+	PBRMaterial();
+
+	void sendToShader(Shader* shaderProgram) override;
+
+	void addAlbedoMap(Texture* albedoTexture);
+	void addNormalMap(Texture* normalTexture);
+	void addMetallicMap(Texture* metallicTexture);
+	void addRoughnessMap(Texture* roughnessTexture);
+	void addAoMap(Texture* aoTexture);
+	void addOpacityMap(Texture* opacityTexture);
 };

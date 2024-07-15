@@ -57,8 +57,6 @@ struct Material
 	bool use_metallic_map;
 	bool use_roughness_map;
     bool use_ao_map;
-
-    samplerCube irradianceMap;
 };
 
 // DEFINING INPUT VALUES
@@ -75,6 +73,11 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 camPos;
+
+// IBL
+uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
 
 uniform Material material;
 
@@ -130,6 +133,11 @@ vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}   
 
 vec3 calcDirLight(DirectionalLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metallic, float roughness)
 {
@@ -240,6 +248,8 @@ void main()
     }
     else
         albedo = material.albedo, 1.0;
+        
+    albedo = vec3(1.0, 0.0, 0.0);
     
     vec3 normalVec;
     if (material.use_normal_map)
@@ -259,10 +269,14 @@ void main()
     else
         roughness = material.roughness;
     
+    roughness *= roughness;
+    
+    // Now we can start lighting calculations
     // Normal
     vec3 N = normalize(normalVec);
     // View direction
     vec3 V = normalize(camPos - FragPos);
+    vec3 R = reflect(-V, N);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -284,13 +298,22 @@ void main()
     else
         ao = material.ao;
 
-    vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0);
-    vec3 kD = vec3(1.0) - kS;
+    vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(material.irradianceMap, N).rgb;
+    vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
+
+    // Sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 ambient = (kD * diffuse + specular) * ao;
 
     vec3 color = ambient + Lo;
 
@@ -298,4 +321,5 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, material.opacity);
+    FragColor = vec4(brdf, 0.0, 1.0);
 }
