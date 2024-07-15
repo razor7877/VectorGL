@@ -8,6 +8,7 @@
 #include "renderer.hpp"
 #include "shaderManager.hpp"
 #include "entity.hpp"
+#include "materials/pbrMaterial.hpp"
 
 unsigned int sphereVAO = 0;
 unsigned int indexCount;
@@ -190,6 +191,29 @@ void Renderer::render(float deltaTime)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (PBRMaterial::irradianceMap != nullptr)
+	{
+		glActiveTexture(GL_TEXTURE6);
+		pbrShader->setInt("irradianceMap", 6);
+		PBRMaterial::irradianceMap->bind();
+	}
+
+	if (PBRMaterial::prefilterMap != nullptr)
+	{
+		glActiveTexture(GL_TEXTURE7);
+		pbrShader->setInt("prefilterMap", 7);
+		PBRMaterial::prefilterMap->bind();
+	}
+
+	if (PBRMaterial::brdfLut != nullptr)
+	{
+		glActiveTexture(GL_TEXTURE8);
+		pbrShader->setInt("brdfLUT", 8);
+		PBRMaterial::brdfLut->bindTexture();
+	}
+
+	pbrShader->setFloat("material.ao", 1.0f);
 
 	glm::mat4 model = glm::mat4(1.0f);
 	for (int row = 0; row < nrRows; ++row)

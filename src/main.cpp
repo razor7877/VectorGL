@@ -52,7 +52,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -84,13 +84,30 @@ int main()
 	skyComponent->setupSkybox(skyboxShader);
 	defaultRenderer.addEntity(skyEntity);
 
-	// Add point light
-	Entity* pointLightEntity = new Entity("Point light");
-	pointLightEntity->transform->setScale(glm::vec3(0.1f));
-	pointLightEntity->transform->setPosition(0.0f, 5.0f, 0.0f);
-	PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
+	glm::vec3 lightPositions[] = {
+		glm::vec3(-10.0f,  10.0f, 10.0f),
+		glm::vec3(10.0f,  10.0f, 10.0f),
+		glm::vec3(-10.0f, -10.0f, 10.0f),
+		glm::vec3(10.0f, -10.0f, 10.0f),
+	};
+	glm::vec3 lightColors[] = {
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f),
+		glm::vec3(300.0f, 300.0f, 300.0f)
+	};
 
-	defaultRenderer.addEntity(pointLightEntity);
+	for (int i = 0; i < 4; i++)
+	{
+		// Add point light
+		Entity* pointLightEntity = new Entity("Point light");
+		pointLightEntity->transform->setScale(glm::vec3(0.1f));
+		pointLightEntity->transform->setPosition(lightPositions[i]);
+		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
+		pointLightComponent->diffuseColor = lightColors[i];
+
+		defaultRenderer.addEntity(pointLightEntity);
+	}
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
@@ -100,7 +117,7 @@ int main()
 
 	// Add mesh to the light
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
-	Texture* hdrMap = new Texture("img/dry_meadow_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
+	Texture* hdrMap = new Texture("img/fouriesburg_mountain_lookout_2_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
 
 	// Add point light
 	Entity* cubemapEntity = new Entity("HDR Cubemap");
@@ -268,7 +285,7 @@ int main()
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
 	glViewport(0, 0, 512, 512);
-	glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	quadEntity->update(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

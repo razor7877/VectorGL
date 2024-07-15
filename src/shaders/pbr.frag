@@ -170,6 +170,7 @@ vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, floa
 
     float distance = length(light.position - FragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    attenuation = 1.0 / (distance * distance);
     vec3 radiance = light.diffuseColor * attenuation;
 
     float NDF = DistributionGGX(N, H, roughness);
@@ -249,7 +250,7 @@ void main()
     else
         albedo = material.albedo, 1.0;
         
-    albedo = vec3(1.0, 0.0, 0.0);
+    albedo = vec3(0.5, 0.0, 0.0);
     
     vec3 normalVec;
     if (material.use_normal_map)
@@ -262,7 +263,7 @@ void main()
         metallic = texture(material.texture_metallic, TexCoord).r;
     else
         metallic = material.metallic;
-
+        
     float roughness;
     if (material.use_roughness_map)
         roughness = texture(material.texture_roughness, TexCoord).r;
@@ -270,6 +271,12 @@ void main()
         roughness = material.roughness;
     
     roughness *= roughness;
+    
+    float ao;
+    if (material.use_ao_map)
+        ao = texture(material.texture_ao, TexCoord).r;
+    else
+        ao = material.ao;
     
     // Now we can start lighting calculations
     // Normal
@@ -283,20 +290,14 @@ void main()
 
     // We can start calculating the influence of every light source
     vec3 Lo = vec3(0.0);
-    for (int i = 0; i < nrDirLights; i++)
-        Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
+    //for (int i = 0; i < nrDirLights; i++)
+    //    Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
 
     for (int i = 0; i < nrPointLights; i++)
         Lo += calcPointLight(pointLights[i], N, V, F0, albedo, metallic, roughness);
 
-    for (int i = 0; i < nrSpotLights; i++)
-        Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
-
-    float ao;
-    if (material.use_ao_map)
-        ao = texture(material.texture_ao, TexCoord).r;
-    else
-        ao = material.ao;
+    //for (int i = 0; i < nrSpotLights; i++)
+    //    Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
 
     vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
@@ -323,3 +324,11 @@ void main()
     FragColor = vec4(color, material.opacity);
     FragColor = vec4(brdf, 0.0, 1.0);
 }
+
+
+
+
+
+
+
+
