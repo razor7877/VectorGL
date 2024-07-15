@@ -18,6 +18,7 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	shaderProgram->setInt("material.use_metallic_map", this->useMetallicMap);
 	shaderProgram->setInt("material.use_roughness_map", this->useRoughnessMap);
 	shaderProgram->setInt("material.use_ao_map", this->useAoMap);
+	shaderProgram->setInt("material.use_emissive_map", this->useEmissiveMap);
 
 	if (this->useAlbedoMap)
 	{
@@ -71,24 +72,31 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	else
 		shaderProgram->setFloat("material.opacity", this->opacity);
 
-	if (this->irradianceMap != nullptr)
+	if (this->useEmissiveMap)
 	{
 		glActiveTexture(GL_TEXTURE6);
-		shaderProgram->setInt("irradianceMap", 6);
+		shaderProgram->setInt("material.texture_emissive", 6);
+		this->emissiveTexture->bindTexture();
+	}
+
+	if (this->irradianceMap != nullptr)
+	{
+		glActiveTexture(GL_TEXTURE7);
+		shaderProgram->setInt("irradianceMap", 7);
 		this->irradianceMap->bind();
 	}
 
 	if (this->prefilterMap != nullptr)
 	{
-		glActiveTexture(GL_TEXTURE7);
-		shaderProgram->setInt("prefilterMap", 7);
+		glActiveTexture(GL_TEXTURE8);
+		shaderProgram->setInt("prefilterMap", 8);
 		this->prefilterMap->bind();
 	}
 
 	if (this->brdfLut != nullptr)
 	{
-		glActiveTexture(GL_TEXTURE8);
-		shaderProgram->setInt("brdfLUT", 8);
+		glActiveTexture(GL_TEXTURE9);
+		shaderProgram->setInt("brdfLUT", 9);
 		this->brdfLut->bindTexture();
 	}
 }
@@ -127,4 +135,10 @@ void PBRMaterial::addOpacityMap(Texture* opacityTexture)
 {
 	this->opacityTexture = opacityTexture;
 	this->useOpacityMap = true;
+}
+
+void PBRMaterial::addEmissiveMap(Texture* emissiveTexture)
+{
+	this->emissiveTexture = emissiveTexture;
+	this->useEmissiveMap = true;
 }

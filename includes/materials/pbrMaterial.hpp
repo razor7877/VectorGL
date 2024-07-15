@@ -32,12 +32,12 @@ public:
 	/// <summary>
 	/// The metallic value of the object, used in case it doesn't have a metallic texture
 	/// </summary>
-	float metallic = 0.0f;
+	float metallic = 0.025f;
 
 	/// <summary>
 	/// The roughness value of the object, used in case it doesn't have a roughness texture
 	/// </summary>
-	float roughness = 0.5f;
+	float roughness = 0.8f;
 
 	/// <summary>
 	/// The ambient occlusion value of the object, used in case it doesn't have an AO texture
@@ -79,12 +79,18 @@ public:
 	/// </summary>
 	Texture* opacityTexture = nullptr;
 
+	/// <summary>
+	/// The emissive texture of the object, if it has one
+	/// </summary>
+	Texture* emissiveTexture = nullptr;
+
 	bool useAlbedoMap = false;
 	bool useNormalMap = false;
 	bool useMetallicMap = false;
 	bool useRoughnessMap = false;
 	bool useAoMap = false;
 	bool useOpacityMap = false;
+	bool useEmissiveMap = false;
 
 	PBRMaterial();
 
@@ -96,4 +102,5 @@ public:
 	void addRoughnessMap(Texture* roughnessTexture);
 	void addAoMap(Texture* aoTexture);
 	void addOpacityMap(Texture* opacityTexture);
+	void addEmissiveMap(Texture* emissiveTexture);
 };

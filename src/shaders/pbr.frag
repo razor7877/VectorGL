@@ -51,12 +51,14 @@ struct Material
 	sampler2D texture_metallic;
 	sampler2D texture_roughness;
     sampler2D texture_ao;
+    sampler2D texture_emissive;
 
 	bool use_albedo_map;
 	bool use_normal_map;
 	bool use_metallic_map;
 	bool use_roughness_map;
     bool use_ao_map;
+    bool use_emissive_map;
 };
 
 // DEFINING INPUT VALUES
@@ -169,21 +171,21 @@ vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, floa
     vec3 H = normalize(V + L);
 
     float distance = length(light.position - FragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-    attenuation = 1.0 / (distance * distance);
+    float attenuation = 1.0 / (distance * distance);
     vec3 radiance = light.diffuseColor * attenuation;
 
     float NDF = DistributionGGX(N, H, roughness);
     float G = GeometrySmith(N, V, L, roughness);
-    vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+    vec3 F = FresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
     vec3 kS = F;
     vec3 kD = vec3(1.0) - kS;
     kD *= 1.0 - metallic;
 
     vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.00001) * max(dot(N, L), 0.0) + 0.0001;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
     vec3 specular = numerator / denominator;
+    //specular = max(specular, 0.0);
 
     float NdotL = max(dot(N, L), 0.0);
     return (kD * albedo / PI + specular) * radiance * NdotL;
@@ -291,14 +293,14 @@ void main()
 
     // We can start calculating the influence of every light source
     vec3 Lo = vec3(0.0);
-    for (int i = 0; i < nrDirLights; i++)
-        Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
+    //for (int i = 0; i < nrDirLights; i++)
+    //    Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
 
     for (int i = 0; i < nrPointLights; i++)
         Lo += calcPointLight(pointLights[i], N, V, F0, albedo, metallic, roughness);
 
-    for (int i = 0; i < nrSpotLights; i++)
-        Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
+    //for (int i = 0; i < nrSpotLights; i++)
+    //    Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
 
     vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
@@ -319,10 +321,14 @@ void main()
 
     vec3 color = ambient + Lo;
 
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0 / 2.2));
+    if (material.use_emissive_map)
+        color += texture(material.texture_emissive, TexCoord).rgb;
+        
+    //color = color / (color + vec3(1.0));
+    //color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(vec3(roughness), opacity);
+    FragColor = vec4(color, opacity);
     //FragColor = vec4(vec3(roughness, 0.0, 0.0), 1.0);
 }
+
 

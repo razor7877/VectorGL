@@ -242,6 +242,10 @@ void MeshComponent::addPBRTextures(PBRMaterial* pbrMaterial)
 			case TextureType::TEXTURE_OPACITY:
 				pbrMaterial->addOpacityMap(this->textures[i]);
 				break;
+
+			case TextureType::TEXTURE_EMISSIVE:
+				pbrMaterial->addEmissiveMap(this->textures[i]);
+				break;
 		}
 	}
 }

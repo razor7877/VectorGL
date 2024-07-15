@@ -16,6 +16,7 @@ enum class TextureType
 	TEXTURE_ROUGHNESS = 5,
 	TEXTURE_AO = 6,
 	TEXTURE_OPACITY = 7,
+	TEXTURE_EMISSIVE = 8,
 };
 
 // A helper class to easily load and use 2D textures
