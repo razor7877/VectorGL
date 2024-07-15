@@ -263,6 +263,8 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 						channels = 4;
 					}
 
+					stbi_set_flip_vertically_on_load(false);
+
 					// Decompress image
 					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, channels);
 					// Create texture using image data

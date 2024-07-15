@@ -237,21 +237,22 @@ vec3 getNormalFromMap()
 
 void main()
 {
+	float opacity = material.opacity;
+	
     // We start by sampling all the values we need from textures or uniforms
     vec3 albedo;
     if (material.use_albedo_map)
     {
-        vec3 albedoSRGB = texture(material.texture_albedo, TexCoord).rgb;
+        vec4 albedoSRGB = texture(material.texture_albedo, TexCoord);
         float r = pow(albedoSRGB.r, 2.2);
         float g = pow(albedoSRGB.g, 2.2);
         float b = pow(albedoSRGB.b, 2.2);
+        opacity = pow(albedoSRGB.a, 2.2);
         albedo = vec3(r, g, b);
     }
     else
         albedo = material.albedo, 1.0;
         
-    albedo = vec3(0.5, 0.0, 0.0);
-    
     vec3 normalVec;
     if (material.use_normal_map)
         normalVec = getNormalFromMap();
@@ -290,14 +291,14 @@ void main()
 
     // We can start calculating the influence of every light source
     vec3 Lo = vec3(0.0);
-    //for (int i = 0; i < nrDirLights; i++)
-    //    Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
+    for (int i = 0; i < nrDirLights; i++)
+        Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
 
     for (int i = 0; i < nrPointLights; i++)
         Lo += calcPointLight(pointLights[i], N, V, F0, albedo, metallic, roughness);
 
-    //for (int i = 0; i < nrSpotLights; i++)
-    //    Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
+    for (int i = 0; i < nrSpotLights; i++)
+        Lo += calcSpotLight(spotLights[i], N, V, F0, albedo, metallic, roughness);
 
     vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
@@ -321,14 +322,7 @@ void main()
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, material.opacity);
-    FragColor = vec4(brdf, 0.0, 1.0);
+    FragColor = vec4(vec3(roughness), opacity);
+    //FragColor = vec4(vec3(roughness, 0.0, 0.0), 1.0);
 }
-
-
-
-
-
-
-
 

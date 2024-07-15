@@ -52,7 +52,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
-	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

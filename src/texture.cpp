@@ -17,9 +17,9 @@ Texture::Texture(std::string filename, TextureType textureType, bool isHDR, bool
 	this->isHDR = isHDR;
 
 	if (isHDR)
-		this->createTexture(filename, textureType, stbiFlipOnLoad);
-	else
 		this->createHDRTexture(filename, textureType, stbiFlipOnLoad);
+	else
+		this->createTexture(filename, textureType, stbiFlipOnLoad);
 }
 
 Texture::Texture(TextureType textureType, int width, int height, GLenum format, void* textureData)
