@@ -222,7 +222,7 @@ int main()
 		glViewport(0, 0, mipWidth, mipHeight);
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
-		prefilterShader->setFloat("roughness", 1);
+		prefilterShader->setFloat("roughness", roughness);
 
 		for (unsigned int i = 0; i < 6; ++i)
 		{
