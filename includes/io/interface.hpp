@@ -7,28 +7,79 @@
 
 extern bool isViewerFocused;
 
+/// <summary>
+/// Initializes ImGui
+/// </summary>
+/// <param name="window">A pointer to the application window</param>
+/// <param name="rendererArg">The renderer used to render the scene</param>
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
+
+/// <summary>
+/// Draws all the ImGui windows
+/// </summary>
 void ImGuiDrawWindows();
 
-// Window with 3D viewer
+/// <summary>
+/// The window with the 3D viewer
+/// </summary>
 void ShowViewer();
-// Log console
+
+/// <summary>
+/// Log console
+/// </summary>
 void ShowConsole();
-// Performance info : framerate etc.
+
+/// <summary>
+/// Performance info : framerate etc.
+/// </summary>
 void PerformanceMenu();
-// Shows the various controls
+
+/// <summary>
+/// Shows the various controls
+/// </summary>
 void KeysMenu();
-// Enables modifications of some shader values
+
+/// <summary>
+/// The window that allows selecting a shader to edit as well as changing some shader parameters directly
+/// </summary>
 void ShaderSettings();
+
+/// <summary>
+/// Called to setup the code editor
+/// </summary>
 void SetupEditor();
+
+/// <summary>
+/// The window that displays the code editor to edit shaders
+/// </summary>
 void ShowEditor();
-// Shows the details of the currently selected node in the scene graph
+
+/// <summary>
+/// Shows the details of the currently selected node in the scene graph
+/// </summary>
 void ShowNodeDetails();
-// Displays the scene graph
+
+/// <summary>
+/// Displays the scene graph
+/// </summary>
 void SceneGraph();
+
+/// <summary>
+/// Called to recursively get and display the children of a node
+/// </summary>
+/// <param name="children">The list of children of a node</param>
 void SceneGraphRecurse(std::vector<Entity*> children);
+
+/// <summary>
+/// Handles selection and right-clicking menus on scene nodes in scene graph
+/// </summary>
+/// <param name="object">The object that was interacted with</param>
 void HandleSceneGraphClick(Entity* object);
 
+/// <summary>
+/// Shows the UI for any given component
+/// </summary>
+/// <param name="component">The component for which the UI should be displayed</param>
 void ShowComponentUI(Component* component);
 
 #endif

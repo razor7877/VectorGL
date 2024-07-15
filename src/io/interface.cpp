@@ -28,18 +28,6 @@
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 
-// NVIDIA GPU only, serves to query the amount of total and available VRAM
-int total_mem_kb = 0;
-int cur_avail_mem_kb = 0;
-const char* gpuVendor{};
-std::string gpuVendorStr{};
-bool isNvidiaGpu = false;
-
-// For calculating the FPS, the time taken to render the last 100 frames is used
-float lastFrames[100];
-int frameIndex{};
-float timeToFrame = 1;
-
 // Used for dynamically showing existing lights and enabling their realtime modification
 Renderer* renderer;
 
@@ -47,23 +35,6 @@ Renderer* renderer;
 Entity* selectedSceneNode{};
 
 std::string editLabel{};
-
-// An array containing the choice names for the different skyboxes
-const char* comboSkyboxes[] = { "Grass", "Night", "Sky" };
-static int current_skybox_id = (int)SkyboxComponent::DEFAULT_SKY;
-
-// A map to determine text color depending on log type
-std::map<LogLevel, ImVec4> logToColor =
-{
-	{ LogLevel::LOG_INFO, ImVec4(0.8f, 0.8f, 0.8f, 1.0f) },
-	{ LogLevel::LOG_WARNING, ImVec4(1.0f, 1.0f, 0.0f, 1.0f) },
-	{ LogLevel::LOG_ERROR, ImVec4(1.0f, 0.1f, 0.1f, 1.0f) },
-	{ LogLevel::LOG_DEBUG, ImVec4(0.1f, 0.1f, 1.0f, 1.0f) },
-};
-
-// An array for the log filter choices
-const char* comboLogLevels[] = { "All", "Info", "Warning", "Error", "Debug" };
-int current_log_filter_id = 0;
 
 // For the shader editor
 TextEditor editor;
@@ -73,12 +44,56 @@ bool isViewerFocused = false;
 
 extern float deltaTime;
 
+struct
+{
+	// For calculating the FPS, the time taken to render the last 100 frames is used
+	float lastFrames[100];
+	int frameIndex{};
+	float timeToFrame = 1;
+
+	// NVIDIA GPU only, serves to query the amount of total and available VRAM
+	int total_mem_kb = 0;
+	int cur_avail_mem_kb = 0;
+	const char* gpuVendor{};
+	std::string gpuVendorStr{};
+	bool isNvidiaGpu = false;
+} performanceParams;
+
+struct
+{
+	// A map to determine text color depending on log type
+	std::map<LogLevel, ImVec4> logToColor =
+	{
+		{ LogLevel::LOG_INFO, ImVec4(0.8f, 0.8f, 0.8f, 1.0f) },
+		{ LogLevel::LOG_WARNING, ImVec4(1.0f, 1.0f, 0.0f, 1.0f) },
+		{ LogLevel::LOG_ERROR, ImVec4(1.0f, 0.1f, 0.1f, 1.0f) },
+		{ LogLevel::LOG_DEBUG, ImVec4(0.1f, 0.1f, 1.0f, 1.0f) },
+	};
+	// An array for the log filter choices
+	const char* comboLogLevels[5] = { "All", "Info", "Warning", "Error", "Debug" };
+	// The currently selected log filter
+	int current_log_filter_id = 0;
+} consoleParams;
+
+struct
+{
+	std::string currentEditedShaderPath;
+	ShaderType currentEditedShaderType;
+	bool isEditingShader = false;
+	bool isEditingVertexShader = false;
+
+	float roughness = 0.0f;
+	float metallic = 0.0f;
+	float ao = 0.0f;
+} shaderSettingsParams;
+
+
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 {
 	// OpenGL context needs to be initalized beforehand to call glGetString()
-	gpuVendor = (char*)glGetString(GL_VENDOR);
-	gpuVendorStr = std::string(gpuVendor);
-	isNvidiaGpu = gpuVendorStr == "Nvidia";
+	performanceParams.gpuVendor = (char*)glGetString(GL_VENDOR);
+	performanceParams.gpuVendorStr = std::string(performanceParams.gpuVendor);
+	performanceParams.isNvidiaGpu = performanceParams.gpuVendorStr == "Nvidia";
 
 	// Setup Dear ImgGui context
 	IMGUI_CHECKVERSION();
@@ -168,20 +183,20 @@ void ShowConsole()
 
 	std::vector<Log> logs;
 
-	if (current_log_filter_id == 0)
+	if (consoleParams.current_log_filter_id == 0)
 		logs = Logger::getLogs();
-	else if (current_log_filter_id == 1)
+	else if (consoleParams.current_log_filter_id == 1)
 		logs = Logger::getLogs(LogLevel::LOG_INFO);
-	else if (current_log_filter_id == 2)
+	else if (consoleParams.current_log_filter_id == 2)
 		logs = Logger::getLogs(LogLevel::LOG_WARNING);
-	else if (current_log_filter_id == 3)
+	else if (consoleParams.current_log_filter_id == 3)
 		logs = Logger::getLogs(LogLevel::LOG_ERROR);
-	else if (current_log_filter_id == 4)
+	else if (consoleParams.current_log_filter_id == 4)
 		logs = Logger::getLogs(LogLevel::LOG_DEBUG);
 
 	for (int i = logs.size() - 1; i > 0; i--)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, logToColor[logs[i].logLevel]);
+		ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.logToColor[logs[i].logLevel]);
 		ImGui::Text(logs[i].logMessage.c_str());
 		ImGui::PopStyleColor();
 	}
@@ -195,13 +210,13 @@ void ShowConsole()
 	ImGui::SameLine();
 	ImGui::PushItemWidth(200);
 
-	if (ImGui::BeginCombo("##logFilterCombo", comboLogLevels[current_log_filter_id]))
+	if (ImGui::BeginCombo("##logFilterCombo", consoleParams.comboLogLevels[consoleParams.current_log_filter_id]))
 	{
-		for (int i = 0; i < IM_ARRAYSIZE(comboLogLevels); i++)
+		for (int i = 0; i < IM_ARRAYSIZE(consoleParams.comboLogLevels); i++)
 		{
-			bool is_selected = (current_log_filter_id == i);
-			if (ImGui::Selectable(comboLogLevels[i], is_selected))
-				current_log_filter_id = i;
+			bool is_selected = (consoleParams.current_log_filter_id == i);
+			if (ImGui::Selectable(consoleParams.comboLogLevels[i], is_selected))
+				consoleParams.current_log_filter_id = i;
 				if (is_selected)
 					ImGui::SetItemDefaultFocus();
 		}
@@ -217,32 +232,32 @@ void PerformanceMenu()
 {
 	ImGui::Begin("Performance");
 
-	ImGui::Text("Frame render time: %.2f ms", timeToFrame * 1000);;
+	ImGui::Text("Frame render time: %.2f ms", performanceParams.timeToFrame * 1000);;
 
-	lastFrames[frameIndex] = deltaTime;
-	frameIndex++;
+	performanceParams.lastFrames[performanceParams.frameIndex] = deltaTime;
+	performanceParams.frameIndex++;
 
-	if (frameIndex == 100)
+	if (performanceParams.frameIndex == 100)
 	{
-		frameIndex = 0;
+		performanceParams.frameIndex = 0;
 		float frameTimeSum{};
 		for (int i = 0; i < 100; i++)
 		{
-			frameTimeSum += lastFrames[i];
+			frameTimeSum += performanceParams.lastFrames[i];
 		}
-		timeToFrame = frameTimeSum / 100;
+		performanceParams.timeToFrame = frameTimeSum / 100;
 	}
 
-	ImGui::Text("Framerate: %i", (int)(1 / timeToFrame));
+	ImGui::Text("Framerate: %i", (int)(1 / performanceParams.timeToFrame));
 
-	if (isNvidiaGpu)
+	if (performanceParams.isNvidiaGpu)
 	{
-		glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb);
-		glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb);
+		glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.total_mem_kb);
+		glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.cur_avail_mem_kb);
 
-		ImGui::Text("Total VRAM (MB): %i", total_mem_kb / 1000);
-		ImGui::Text("Available VRAM (MB): %i", cur_avail_mem_kb / 1000);
-		ImGui::Text("Used VRAM (MB): %i", (total_mem_kb - cur_avail_mem_kb) / 1000);
+		ImGui::Text("Total VRAM (MB): %i", performanceParams.total_mem_kb / 1000);
+		ImGui::Text("Available VRAM (MB): %i", performanceParams.cur_avail_mem_kb / 1000);
+		ImGui::Text("Used VRAM (MB): %i", (performanceParams.total_mem_kb - performanceParams.cur_avail_mem_kb) / 1000);
 	}
 
 	ImGui::End();
@@ -263,35 +278,20 @@ void KeysMenu()
 	ImGui::End();
 }
 
-std::string currentEditedShaderPath;
-ShaderType currentEditedShader;
-bool isEditingVertexShader = false;
-bool editingShader = false;
-
-float roughness = 0.0f;
-float metallic = 0.0f;
-float ao = 0.0f;
-
 void ShaderSettings()
 {
 	ImGui::Begin("Shader settings");
 
 	Shader* pbr = renderer->shaderManager.getShader(ShaderType::PBR);
 
-	if (ImGui::DragFloat("Roughness", &roughness, 0.01f, 0.0f, 1.0f))
-	{
-		pbr->use()->setFloat("material.roughness", roughness);
-	}
+	if (ImGui::DragFloat("Roughness", &shaderSettingsParams.roughness, 0.01f, 0.0f, 1.0f))
+		pbr->use()->setFloat("material.roughness", shaderSettingsParams.roughness);
 
-	if (ImGui::DragFloat("Metallic", &metallic, 0.01f, 0.0f, 1.0f))
-	{
-		pbr->use()->setFloat("material.metallic", metallic);
-	}
+	if (ImGui::DragFloat("Metallic", &shaderSettingsParams.metallic, 0.01f, 0.0f, 1.0f))
+		pbr->use()->setFloat("material.metallic", shaderSettingsParams.metallic);
 
-	if (ImGui::DragFloat("AO", &ao, 0.01f, 0.0f, 1.0f))
-	{
-		pbr->use()->setFloat("material.ao", ao);
-	}
+	if (ImGui::DragFloat("AO", &shaderSettingsParams.ao, 0.01f, 0.0f, 1.0f))
+		pbr->use()->setFloat("material.ao", shaderSettingsParams.ao);
 
 	for (auto& [type, shader] : renderer->shaderManager.enumToShader)
 	{
@@ -345,10 +345,10 @@ void ShaderSettings()
 			ImGui::PushID(shader->vertexPath.c_str());
 			if (ImGui::Button("Edit vertex shader"))
 			{
-				currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->vertexPath;
-				currentEditedShader = type;
-				isEditingVertexShader = true;
-				editingShader = true;
+				shaderSettingsParams.currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->vertexPath;
+				shaderSettingsParams.currentEditedShaderType = type;
+				shaderSettingsParams.isEditingVertexShader = true;
+				shaderSettingsParams.isEditingShader = true;
 				editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
 			}
 			ImGui::PopID();
@@ -356,10 +356,10 @@ void ShaderSettings()
 			ImGui::PushID(shader->fragmentPath.c_str());
 			if (ImGui::Button("Edit fragment shader"))
 			{
-				currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->fragmentPath;
-				currentEditedShader = type;
-				isEditingVertexShader = false;
-				editingShader = true;
+				shaderSettingsParams.currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->fragmentPath;
+				shaderSettingsParams.currentEditedShaderType = type;
+				shaderSettingsParams.isEditingVertexShader = false;
+				shaderSettingsParams.isEditingShader = true;
 				editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
 			}
 			ImGui::PopID();
@@ -387,14 +387,14 @@ void ShowEditor()
 		if (ImGui::Button("Save"))
 		{
 			auto textToSave = editor.GetText();
-			if (editingShader)
+			if (shaderSettingsParams.isEditingShader)
 			{
-				if (isEditingVertexShader)
-					renderer->shaderManager.setVertexShaderContent(currentEditedShader, textToSave);
+				if (shaderSettingsParams.isEditingVertexShader)
+					renderer->shaderManager.setVertexShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
 				else
-					renderer->shaderManager.setFragmentShaderContent(currentEditedShader, textToSave);
+					renderer->shaderManager.setFragmentShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
 
-				renderer->shaderManager.enumToShader[currentEditedShader]->compileShader();
+				renderer->shaderManager.enumToShader[shaderSettingsParams.currentEditedShaderType]->compileShader();
 			}
 		}
 		if (ImGui::BeginMenu("Edit"))
@@ -444,13 +444,12 @@ void ShowEditor()
 	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
 		editor.IsOverwrite() ? "Ovr" : "Ins",
 		editor.CanUndo() ? "*" : " ",
-		editor.GetLanguageDefinition().mName.c_str(), currentEditedShaderPath);
+		editor.GetLanguageDefinition().mName.c_str(), shaderSettingsParams.currentEditedShaderPath);
 
 	editor.Render("TextEditor");
 	ImGui::End();
 }
 
-// TODO : Add rotation
 void ShowNodeDetails()
 {
 	ImGui::Begin("Node details");
