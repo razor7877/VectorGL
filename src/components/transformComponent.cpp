@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <glm/ext/matrix_transform.hpp>
 
 #include "components/transformComponent.hpp"
@@ -48,7 +50,14 @@ glm::vec3 TransformComponent::getScale()
 void TransformComponent::updateModelMatrix()
 {
 	this->modelMatrix = glm::mat4(1.0f);
-	this->modelMatrix = glm::translate(this->modelMatrix, this->position); // Apply position
+	// Apply position
+	this->modelMatrix = glm::translate(this->modelMatrix, this->position);
+
+	this->rotation = glm::vec3(
+		fmod(this->rotation.x, 360.0f),
+		fmod(this->rotation.y, 360.0f),
+		fmod(this->rotation.z, 360.0f)
+	);
 
 	const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
 		glm::radians(this->rotation.x),
