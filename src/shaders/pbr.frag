@@ -66,6 +66,7 @@ struct Material
 in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
+in mat3 TBN;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
@@ -237,7 +238,11 @@ void main()
         
     vec3 normalVec;
     if (material.use_normal_map)
+    {
         normalVec = texture(material.texture_normal, TexCoord).rgb;
+        normalVec = normalVec * 2.0 - 1.0;
+        normalVec = normalize(TBN * normalVec);
+    }
     else
         normalVec = Normal;
     

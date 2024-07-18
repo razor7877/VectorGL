@@ -87,6 +87,28 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(2);
 	}
 
+	if (tangents.size() > 0)
+	{
+		glGenBuffers(1, &tangentsBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, tangentsBO);
+		glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(float), &tangents[0], GL_STATIC_DRAW);
+
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(3);
+	}
+
+	if (bitangents.size() > 0)
+	{
+		glGenBuffers(1, &bitangentsBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, bitangentsBO);
+		glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(float), &bitangents[0], GL_STATIC_DRAW);
+
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(4);
+	}
+
 	this->verticesCount = this->vertices.size();
 	this->indicesCount = this->indices.size();
 
@@ -195,6 +217,18 @@ MeshComponent& MeshComponent::addNormals(float normals[], unsigned int normalSiz
 MeshComponent& MeshComponent::addIndices(unsigned int indices[], unsigned int indicesSize)
 {
 	this->indices.insert(this->indices.end(), &indices[0], &indices[indicesSize / sizeof(unsigned int)]);
+	return *this;
+}
+
+MeshComponent& MeshComponent::addTangents(std::vector<float> tangents)
+{
+	this->tangents = tangents;
+	return *this;
+}
+
+MeshComponent& MeshComponent::addBitangents(std::vector<float> bitangents)
+{
+	this->bitangents = bitangents;
 	return *this;
 }
 

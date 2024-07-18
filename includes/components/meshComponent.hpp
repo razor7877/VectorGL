@@ -38,6 +38,8 @@ public:
 	MeshComponent& addTexture(Texture* texture);
 	MeshComponent& addNormals(float normals[], unsigned int normalSize);
 	MeshComponent& addIndices(unsigned int indices[], unsigned int indicesSize);
+	MeshComponent& addTangents(std::vector<float> tangents);
+	MeshComponent& addBitangents(std::vector<float> bitangents);
 
 	void setDiffuseColor(glm::vec3 color);
 
@@ -56,6 +58,8 @@ protected:
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
+	std::vector<float> tangents;
+	std::vector<float> bitangents;
 
 	int verticesCount = 0;
 	int indicesCount = 0;
@@ -87,6 +91,10 @@ protected:
 	/// A OpenGL handle for the buffer object containing the indices
 	/// </summary>
 	GLuint indicesBO = 0;
+
+	GLuint tangentsBO = 0;
+
+	GLuint bitangentsBO = 0;
 
 	void addPBRTextures(PBRMaterial* pbrMaterial);
 	void addPhongTextures(PhongMaterial* phongMaterial);

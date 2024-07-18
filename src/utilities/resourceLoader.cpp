@@ -18,7 +18,7 @@ ResourceLoader& ResourceLoader::getInstance()
 Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
 {
 	Assimp::Importer import;
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace);
 
 	if (scene == nullptr)
 	{
@@ -77,6 +77,8 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	std::vector<float> texCoords;
 	std::vector<float> normals;
 	std::vector<unsigned int> indices;
+	std::vector<float> tangents;
+	std::vector<float> bitangents;
 
 	std::vector<Texture*> textures;
 
@@ -91,6 +93,17 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 			normals.push_back(mesh->mNormals[i].x);
 			normals.push_back(mesh->mNormals[i].y);
 			normals.push_back(mesh->mNormals[i].z);
+		}
+
+		if (mesh->HasTangentsAndBitangents())
+		{
+			tangents.push_back(mesh->mTangents[i].x);
+			tangents.push_back(mesh->mTangents[i].y);
+			tangents.push_back(mesh->mTangents[i].z);
+
+			bitangents.push_back(mesh->mBitangents[i].x);
+			bitangents.push_back(mesh->mBitangents[i].y);
+			bitangents.push_back(mesh->mBitangents[i].z);
 		}
 
 		if (mesh->HasTextureCoords(0))
@@ -178,6 +191,8 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	Entity* entity = new Entity();
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
 	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
+	meshComponent->addTangents(tangents);
+	meshComponent->addBitangents(bitangents);
 
 	meshComponent->setDiffuseColor(diffuseColor);
 
