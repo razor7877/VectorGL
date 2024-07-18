@@ -3,9 +3,9 @@
 
 DirectionalLightComponent::DirectionalLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
 {
-	this->ambientColor = glm::vec3(0.2f);
-	this->diffuseColor = glm::vec3(0.2f);
-	this->specularColor = glm::vec3(0.2f);
+	this->ambientColor = glm::vec3(200.0f);
+	this->diffuseColor = glm::vec3(200.0f);
+	this->specularColor = glm::vec3(200.0f);
 	this->direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
 	this->index = LightManager::getInstance().addDirLight();

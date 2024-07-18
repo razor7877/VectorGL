@@ -46,6 +46,13 @@ extern float deltaTime;
 
 struct
 {
+	// An array containing the choice names for the different skyboxes
+	const char* comboSkyboxes[3] = { "Grass", "Night", "Sky" };
+	int current_skybox_id = (int)SkyboxComponent::DEFAULT_SKY;
+} skyboxParams;
+
+struct
+{
 	// For calculating the FPS, the time taken to render the last 100 frames is used
 	float lastFrames[100];
 	int frameIndex{};
@@ -597,17 +604,17 @@ void ShowComponentUI(Component* component)
 		{
 			SkyboxComponent* skyboxComponent = dynamic_cast<SkyboxComponent*>(component);
 
-			const char* combo_preview_value = comboSkyboxes[current_skybox_id];
+			const char* combo_preview_value = skyboxParams.comboSkyboxes[skyboxParams.current_skybox_id];
 			if (ImGui::BeginCombo("##skySelector", combo_preview_value))
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					const bool is_selected = (current_skybox_id == i);
-					if (ImGui::Selectable(comboSkyboxes[i], is_selected))
+					const bool is_selected = (skyboxParams.current_skybox_id == i);
+					if (ImGui::Selectable(skyboxParams.comboSkyboxes[i], is_selected))
 					{
-						current_skybox_id = i;
+						skyboxParams.current_skybox_id = i;
 
-						switch (current_skybox_id)
+						switch (skyboxParams.current_skybox_id)
 						{
 							case (int)SkyboxType::GRASS:
 								skyboxComponent->changeSkybox(SkyboxType::GRASS);

@@ -71,9 +71,6 @@ in vec3 Normal;
 out vec4 FragColor;
 
 // DEFINING UNIFORMS
-uniform vec3 lightColor;
-uniform vec3 lightPos;
-uniform vec3 viewPos;
 uniform vec3 camPos;
 
 // IBL
@@ -185,7 +182,7 @@ vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, floa
     vec3 numerator = NDF * G * F;
     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
     vec3 specular = numerator / denominator;
-    //specular = max(specular, 0.0);
+    specular = min(specular, vec3(0.0));
 
     float NdotL = max(dot(N, L), 0.0);
     return (kD * albedo / PI + specular) * radiance * NdotL;
@@ -220,23 +217,6 @@ vec3 calcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float 
     return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
-vec3 getNormalFromMap()
-{
-    vec3 tangentNormal = texture(material.texture_normal, TexCoord).xyz * 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(FragPos);
-    vec3 Q2  = dFdy(FragPos);
-    vec2 st1 = dFdx(TexCoord);
-    vec2 st2 = dFdy(TexCoord);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
-}
-
 void main()
 {
 	float opacity = material.opacity;
@@ -253,11 +233,11 @@ void main()
         albedo = vec3(r, g, b);
     }
     else
-        albedo = material.albedo, 1.0;
+        albedo = material.albedo;
         
     vec3 normalVec;
     if (material.use_normal_map)
-        normalVec = getNormalFromMap();
+        normalVec = texture(material.texture_normal, TexCoord).rgb;
     else
         normalVec = Normal;
     
@@ -318,7 +298,7 @@ void main()
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     vec3 ambient = (kD * diffuse + specular) * ao;
-
+	
     vec3 color = ambient + Lo;
 
     if (material.use_emissive_map)
@@ -327,8 +307,5 @@ void main()
     //color = color / (color + vec3(1.0));
     //color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, opacity);
-    //FragColor = vec4(vec3(roughness, 0.0, 0.0), 1.0);
+    FragColor = vec4(color, 1.0);
 }
-
-

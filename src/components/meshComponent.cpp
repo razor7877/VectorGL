@@ -118,6 +118,7 @@ void MeshComponent::update()
 	else // Normal drawing
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 
+	// Unbind textures
 	for (int i = 0; i < 8; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
