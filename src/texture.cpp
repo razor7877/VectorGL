@@ -25,6 +25,8 @@ Texture::Texture(std::string filename, TextureType textureType, bool isHDR, bool
 Texture::Texture(TextureType textureType, int width, int height, GLenum format, void* textureData)
 {
 	this->type = textureType;
+	this->width = width;
+	this->height = height;
 
 	// Create OpenGL texture
 	glGenTextures(1, &texID);
@@ -93,6 +95,9 @@ void Texture::createTexture(std::string filename, TextureType textureType, bool 
 	}
 	else
 		Logger::logError(std::string("Failed to load texture: ") + filename);
+
+	this->width = width;
+	this->height = height;
 }
 
 void Texture::createHDRTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
@@ -120,4 +125,7 @@ void Texture::createHDRTexture(std::string filename, TextureType textureType, bo
 	}
 	else
 		Logger::logError(std::string("Failed to load HDR texture: ") + filename);
+
+	this->width = width;
+	this->height = height;
 }

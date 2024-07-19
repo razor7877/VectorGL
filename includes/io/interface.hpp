@@ -82,4 +82,6 @@ void HandleSceneGraphClick(Entity* object);
 /// <param name="component">The component for which the UI should be displayed</param>
 void ShowComponentUI(Component* component);
 
+void TextureViewer();
+
 #endif

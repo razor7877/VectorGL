@@ -28,6 +28,9 @@ public:
 	TextureType type;
 	std::string path;
 
+	float width = 0;
+	float height = 0;
+
 	Texture();
 
 	/// <summary>

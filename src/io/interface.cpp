@@ -95,6 +95,13 @@ struct
 } shaderSettingsParams;
 
 
+struct
+{
+	Texture* currentTexture = nullptr;
+	bool showTexture = false;
+} textureViewerParams;
+
+
 void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 {
 	// OpenGL context needs to be initalized beforehand to call glGetString()
@@ -149,6 +156,7 @@ void ImGuiDrawWindows()
 	ShowEditor();
 	ShowNodeDetails();
 	SceneGraph();
+	TextureViewer();
 
 	ImGui::End();
 
@@ -642,23 +650,157 @@ void ShowComponentUI(Component* component)
 	{
 		if (ImGui::CollapsingHeader("Mesh"))
 		{
-			ImGui::Text("Material:");
-
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
 			
-			PhongMaterial* meshMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material);
+			PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material);
+			PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material);
 
-			if (meshMaterial != nullptr)
+			if (phongMaterial != nullptr)
 			{
-				ImGui::DragFloat("Shininess", &meshMaterial->shininess);
+				ImGui::Text("Phong material:");
 
-				ImGui::ColorEdit3("Ambient", &meshMaterial->ambientColor[0]);
+				ImGui::DragFloat("Shininess", &phongMaterial->shininess);
 
-				if (!meshMaterial->useDiffuseMap)
-					ImGui::ColorEdit3("Diffuse", &meshMaterial->diffuseColor[0]);
+				ImGui::ColorEdit3("Ambient", &phongMaterial->ambientColor[0]);
 
-				if (!meshMaterial->useSpecularMap)
-					ImGui::ColorEdit3("Specular", &meshMaterial->specularColor[0]);
+				if (!phongMaterial->useDiffuseMap)
+					ImGui::ColorEdit3("Diffuse", &phongMaterial->diffuseColor[0]);
+
+				if (!phongMaterial->useSpecularMap)
+					ImGui::ColorEdit3("Specular", &phongMaterial->specularColor[0]);
+			}
+			else if (pbrMaterial != nullptr)
+			{
+				ImGui::Text("PBR Material:");
+
+				if (pbrMaterial->useAlbedoMap)
+				{
+					ImGui::Text("Albedo");
+
+					float width = 128;
+					float height = pbrMaterial->albedoTexture->height / pbrMaterial->albedoTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->albedoTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View albedo"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->albedoTexture;
+					}
+				}
+				else
+				{
+					ImGui::ColorEdit3("Albedo color:", &pbrMaterial->albedoColor[0]);
+				}
+
+				if (pbrMaterial->useNormalMap)
+				{
+					ImGui::Text("Normal map");
+
+					float width = 128;
+					float height = pbrMaterial->normalTexture->height / pbrMaterial->normalTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->normalTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View normal map"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->normalTexture;
+					}
+				}
+				else
+				{
+
+				}
+
+				if (pbrMaterial->useMetallicMap)
+				{
+					ImGui::Text("Metallic map");
+
+					float width = 128;
+					float height = pbrMaterial->metallicTexture->height / pbrMaterial->metallicTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->metallicTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View metallic map"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->metallicTexture;
+					}
+				}
+				else
+				{
+					ImGui::DragFloat("Metallic:", &pbrMaterial->metallic, 0.01f, 0.0f, 1.0f);
+				}
+
+				if (pbrMaterial->useRoughnessMap)
+				{
+					ImGui::Text("Roughness map");
+
+					float width = 128;
+					float height = pbrMaterial->roughnessTexture->height / pbrMaterial->roughnessTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->roughnessTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View roughness map"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->roughnessTexture;
+					}
+				}
+				else
+				{
+					ImGui::DragFloat("Roughness:", &pbrMaterial->roughness, 0.01f, 0.0f, 1.0f);
+				}
+
+				if (pbrMaterial->useAoMap)
+				{
+					ImGui::Text("Ambient occlusion map");
+
+					float width = 128;
+					float height = pbrMaterial->aoTexture->height / pbrMaterial->aoTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->aoTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View ambient occlusion map"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->aoTexture;
+					}
+				}
+				else
+				{
+					ImGui::DragFloat("Ambient occlusion:", &pbrMaterial->ao, 0.01f, 0.0f, 1.0f);
+				}
+
+				if (pbrMaterial->useOpacityMap)
+				{
+					ImGui::Text("Opacity map");
+
+					float width = 128;
+					float height = pbrMaterial->opacityTexture->height / pbrMaterial->opacityTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->opacityTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View opacity map"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->opacityTexture;
+					}
+				}
+				else
+				{
+					ImGui::DragFloat("Opacity:", &pbrMaterial->opacity, 0.01f, 0.0f, 1.0f);
+				}
+
+				if (pbrMaterial->useEmissiveMap)
+				{
+					ImGui::Text("Emissive map");
+
+					float width = 128;
+					float height = pbrMaterial->emissiveTexture->height / pbrMaterial->emissiveTexture->width * width;
+					ImGui::Image((ImTextureID)pbrMaterial->emissiveTexture->texID, ImVec2(width, height));
+
+					if (ImGui::Button("View emissive map"))
+					{
+						textureViewerParams.showTexture = true;
+						textureViewerParams.currentTexture = pbrMaterial->emissiveTexture;
+					}
+				}
 			}
 		}
 	}
@@ -755,4 +897,18 @@ void ShowComponentUI(Component* component)
 			ImGui::DragFloat3("Direction", &(directionalLightComponent->direction[0]), 0.002f);
 		}
 	}
+}
+
+void TextureViewer()
+{
+	ImGui::Begin("Texture viewer");
+
+	if (textureViewerParams.showTexture)
+	{
+		float width = 512;
+		float height = textureViewerParams.currentTexture->height / textureViewerParams.currentTexture->width * width;
+		ImGui::Image((ImTextureID)textureViewerParams.currentTexture->texID, ImVec2(width, height));
+	}
+
+	ImGui::End();
 }
