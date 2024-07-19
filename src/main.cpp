@@ -34,7 +34,8 @@ int windowHeight = WINDOW_HEIGHT;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Renderer defaultRenderer;
+// Creates a renderer for storing & drawing objects
+Renderer defaultRenderer = Renderer();
 CameraComponent* cameraComponent;
 
 // Create a new cubemap to store the irradiance when we calculate it
@@ -59,9 +60,6 @@ int main()
 	irradianceCubemap = new Cubemap(GL_RGB16F, 32, 32);
 	PBRMaterial::irradianceMap = irradianceCubemap;
 
-	// Creates a renderer for drawing objects
-	defaultRenderer = Renderer();
-
 	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = defaultRenderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
@@ -74,15 +72,15 @@ int main()
 	LightManager::getInstance().shaderProgram = pbrShader;
 
 	// Directional light
-	Entity* dirLightEntity = new Entity("Directional light");
+	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
-	defaultRenderer.addEntity(dirLightEntity);
+	defaultRenderer.addEntity(std::move(dirLightEntity));
 
 	// Skybox
-	Entity* skyEntity = new Entity("Skybox");
+	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader);
-	defaultRenderer.addEntity(skyEntity);
+	defaultRenderer.addEntity(std::move(skyEntity));
 
 	glm::vec3 lightPositions[] = {
 		glm::vec3(-10.0f,  10.0f, 10.0f),
@@ -100,13 +98,13 @@ int main()
 	for (int i = 0; i < 4; i++)
 	{
 		// Add point light
-		Entity* pointLightEntity = new Entity("Point light");
+		std::unique_ptr<Entity> pointLightEntity = std::unique_ptr<Entity>(new Entity("Point light"));
 		pointLightEntity->transform->setScale(glm::vec3(0.1f));
 		pointLightEntity->transform->setPosition(lightPositions[i]);
 		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 		pointLightComponent->diffuseColor = lightColors[i];
 
-		defaultRenderer.addEntity(pointLightEntity);
+		defaultRenderer.addEntity(std::move(pointLightEntity));
 	}
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
@@ -117,10 +115,10 @@ int main()
 
 	// Add mesh to the light
 	float boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
-	Texture* hdrMap = new Texture("img/vestibule_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
+	Texture* hdrMap = new Texture("img/fouriesburg_mountain_lookout_2_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
 
 	// Add point light
-	Entity* cubemapEntity = new Entity("HDR Cubemap");
+	std::unique_ptr<Entity> cubemapEntity = std::unique_ptr<Entity>(new Entity("HDR Cubemap"));
 	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
 	lightMesh->setupMesh(boxVertices, sizeof(boxVertices), hdrToCubemapShader);
 	lightMesh->addTexture(hdrMap);
@@ -201,7 +199,7 @@ int main()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Create pre filtered map
-	prefilteredMap = new Cubemap(GL_RGB16F, 128, 128, true);
+	prefilteredMap = new Cubemap(GL_RGB16F, 1024, 1024, true);
 	PBRMaterial::prefilterMap = prefilteredMap;
 	
 	prefilterShader->use();
@@ -215,8 +213,8 @@ int main()
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// Resize framebuffer according to mip-level size
-		unsigned int mipWidth = 128 * std::pow(0.5, mip);
-		unsigned int mipHeight = 128 * std::pow(0.5, mip);
+		unsigned int mipWidth = 1024 * std::pow(0.5, mip);
+		unsigned int mipHeight = 1024 * std::pow(0.5, mip);
 		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 		glViewport(0, 0, mipWidth, mipHeight);
@@ -259,7 +257,7 @@ int main()
 		0.0f, 1.0f, // Bottom left
 	};
 
-	Entity* quadEntity = new Entity("Quad");
+	std::unique_ptr<Entity> quadEntity = std::unique_ptr<Entity>(new Entity("Quad"));
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
 	quadMesh->setupMesh(quad_verts, sizeof(quad_verts), brdfShader);
 	quadMesh->addTexCoords(quad_tex_coords, sizeof(quad_tex_coords));
@@ -329,7 +327,7 @@ int main()
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
-		//if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
+		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent)); }
 
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);

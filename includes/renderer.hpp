@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include "entity.hpp"
 #include "lights/lightManager.hpp"
@@ -21,9 +22,9 @@ public:
 	Renderer();
 
 	/// <summary>
-	/// Returns the list of entities in the renderer
+	/// Returns a list of raw pointers to the entities in the renderer
 	/// </summary>
-	/// <returns>A vector containing all the entities in the renderer</returns>
+	/// <returns>A vector containing all the raw entities pointers in the renderer</returns>
 	std::vector<Entity*> GetEntities();
 
 	/// <summary>
@@ -36,13 +37,13 @@ public:
 	/// Adds an entity to the renderer
 	/// </summary>
 	/// <param name="objectPtr">The entity to be added</param>
-	void addEntity(Entity* objectPtr);
+	void addEntity(std::unique_ptr<Entity> objectPtr);
 
 	/// <summary>
 	/// Removes an entity from the renderer
 	/// </summary>
 	/// <param name="objectPtr">The entity to be removed</param>
-	void removeEntity(Entity* objectPtr);
+	void removeEntity(std::unique_ptr<Entity> objectPtr);
 
 	/// <summary>
 	/// Initializes the renderer data, this needs to be done once before the render loop
@@ -68,7 +69,7 @@ public:
 	void resizeFramebuffer(glm::vec2 newSize);
 
 private:
-	std::vector<Entity*> entities;
+	std::vector<std::unique_ptr<Entity>> entities;
 
 	RenderTarget multiSampledTarget;
 	RenderTarget finalTarget;

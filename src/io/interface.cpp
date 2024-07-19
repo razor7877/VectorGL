@@ -505,13 +505,9 @@ void SceneGraphRecurse(std::vector<Entity*> children)
 
 		// Different flags for tree and leaf nodes
 		if (child->getChildren().size() == 0)
-		{
 			flags |= ImGuiTreeNodeFlags_Leaf;
-		}
 		else
-		{
 			flags |= ImGuiTreeNodeFlags_OpenOnArrow;
-		}
 
 		// Highlight selected node
 		if (selectedSceneNode == child)
@@ -685,12 +681,11 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->albedoTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
 				}
 				else
-				{
 					ImGui::ColorEdit3("Albedo color:", &pbrMaterial->albedoColor[0]);
-				}
 
 				if (pbrMaterial->useNormalMap)
 				{
@@ -704,11 +699,8 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->normalTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
-				}
-				else
-				{
-
 				}
 
 				if (pbrMaterial->useMetallicMap)
@@ -723,12 +715,11 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->metallicTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
 				}
 				else
-				{
 					ImGui::DragFloat("Metallic:", &pbrMaterial->metallic, 0.01f, 0.0f, 1.0f);
-				}
 
 				if (pbrMaterial->useRoughnessMap)
 				{
@@ -742,12 +733,11 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->roughnessTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
 				}
 				else
-				{
 					ImGui::DragFloat("Roughness:", &pbrMaterial->roughness, 0.01f, 0.0f, 1.0f);
-				}
 
 				if (pbrMaterial->useAoMap)
 				{
@@ -761,12 +751,11 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->aoTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
 				}
 				else
-				{
 					ImGui::DragFloat("Ambient occlusion:", &pbrMaterial->ao, 0.01f, 0.0f, 1.0f);
-				}
 
 				if (pbrMaterial->useOpacityMap)
 				{
@@ -780,12 +769,11 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->opacityTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
 				}
 				else
-				{
 					ImGui::DragFloat("Opacity:", &pbrMaterial->opacity, 0.01f, 0.0f, 1.0f);
-				}
 
 				if (pbrMaterial->useEmissiveMap)
 				{
@@ -799,6 +787,7 @@ void ShowComponentUI(Component* component)
 					{
 						textureViewerParams.showTexture = true;
 						textureViewerParams.currentTexture = pbrMaterial->emissiveTexture;
+						ImGui::SetWindowFocus("Texture viewer");
 					}
 				}
 			}
@@ -905,9 +894,15 @@ void TextureViewer()
 
 	if (textureViewerParams.showTexture)
 	{
-		float width = 512;
+		ImVec2 contentRegionSize = ImGui::GetContentRegionAvail();
+
+		// We want the image to always fit in the space of the window
+		float width = contentRegionSize.x;
 		float height = textureViewerParams.currentTexture->height / textureViewerParams.currentTexture->width * width;
 		ImGui::Image((ImTextureID)textureViewerParams.currentTexture->texID, ImVec2(width, height));
+
+		std::string dimensions = "Size: " + std::to_string((int)textureViewerParams.currentTexture->width) + "x" + std::to_string((int)textureViewerParams.currentTexture->height) + " px";
+		ImGui::Text(dimensions.c_str());
 	}
 
 	ImGui::End();

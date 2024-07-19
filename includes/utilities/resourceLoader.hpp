@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <utilities/glad.h>
 #include <assimp/scene.h>
 
@@ -12,7 +14,7 @@ class ResourceLoader
 public:
 	static ResourceLoader& getInstance();
 
-	Entity* loadModelFromFilepath(std::string path, Shader* shaderProgram);
+	std::unique_ptr<Entity> loadModelFromFilepath(std::string path, Shader* shaderProgram);
 	
 private:
 	static ResourceLoader instance;

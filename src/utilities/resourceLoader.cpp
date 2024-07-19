@@ -15,7 +15,7 @@ ResourceLoader& ResourceLoader::getInstance()
 	return ResourceLoader::instance;
 }
 
-Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
+std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
 {
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
@@ -29,8 +29,7 @@ Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderPr
 	std::string sceneName = std::string(scene->mName.C_Str());
 
 	// We create an entity that will contains all the necessary data
-	Entity* modelEntity = new Entity();
-	modelEntity->setLabel(sceneName);
+	Entity* modelEntity = new Entity(sceneName);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -42,7 +41,7 @@ Entity* ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderPr
 
 	this->processNode(scene->mRootNode, scene, shaderProgram, modelEntity);
 
-	return modelEntity;
+	return std::unique_ptr<Entity>(modelEntity);
 }
 
 ResourceLoader::ResourceLoader()

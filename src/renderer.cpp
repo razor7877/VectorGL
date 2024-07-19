@@ -13,14 +13,19 @@
 Renderer::Renderer()
 {
 	// Create the camera and set it up
-	Entity* cameraEntity = new Entity("Camera");
+	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
 	this->currentCamera = cameraEntity->addComponent<CameraComponent>();
-	this->addEntity(cameraEntity);
+	this->addEntity(std::move(cameraEntity));
 }
 
 std::vector<Entity*> Renderer::GetEntities()
 {
-	return this->entities;
+	std::vector<Entity*> rawPointers;
+
+	for (auto&& entity : this->entities)
+		rawPointers.push_back(entity.get());
+
+	return rawPointers;
 }
 
 GLuint Renderer::GetRenderTexture()
@@ -28,14 +33,15 @@ GLuint Renderer::GetRenderTexture()
 	return this->finalTarget.renderTexture;
 }
 
-void Renderer::addEntity(Entity* objectPtr)
+void Renderer::addEntity(std::unique_ptr<Entity> objectPtr)
 {
-	this->entities.push_back(objectPtr);
+	this->entities.push_back(std::move(objectPtr));
 }
 
-void Renderer::removeEntity(Entity* objectPtr)
+void Renderer::removeEntity(std::unique_ptr<Entity> objectPtr)
 {
 	this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), objectPtr), this->entities.end());
+	objectPtr.reset();
 }
 
 void Renderer::resizeFramebuffer(glm::vec2 newSize)
@@ -58,7 +64,7 @@ void Renderer::init(glm::vec2 windowSize)
 	if (LightManager::getInstance().shaderProgram->ID != 0)
 		LightManager::getInstance().init();
 
-	for (Entity* entity : this->entities)
+	for (auto&& entity : this->entities)
 		entity->start();
 
 	this->createFramebuffer(windowSize);
@@ -77,7 +83,7 @@ void Renderer::render(float deltaTime)
 	LightManager::getInstance().sendToShader();
 
 	// Render & update the scene
-	for (Entity* entity : this->entities)
+	for (auto&& entity : this->entities)
 		entity->update(deltaTime);
 
 	this->multiSampledTarget.unbind();
@@ -95,5 +101,7 @@ void Renderer::render(float deltaTime)
 
 void Renderer::end()
 {
-	
+	// Delete all the objects contained in the renderer
+	for (auto&& entity : this->entities)
+		entity.reset();
 }

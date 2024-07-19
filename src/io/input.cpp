@@ -192,11 +192,11 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
 		}
 		std::cout << "Drop callback path: " << newPath << std::endl;
 
-		Entity* newEntity = ResourceLoader::getInstance().loadModelFromFilepath(newPath, LightManager::getInstance().shaderProgram);
+		std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath(newPath, LightManager::getInstance().shaderProgram);
 		if (newEntity != nullptr)
 		{
-			defaultRenderer.addEntity(newEntity);
 			newEntity->start();
+			defaultRenderer.addEntity(std::move(newEntity));
 		}
 	}
 }
