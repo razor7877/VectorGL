@@ -23,6 +23,8 @@
 #include "components/lights/directionalLightComponent.hpp"
 #include "components/lights/spotLightComponent.hpp"
 
+#include "utilities/resourceLoader.hpp"
+
 extern GLFWwindow* window;
 
 const int WINDOW_WIDTH = 1920;
@@ -321,6 +323,12 @@ int main()
 			->setVec3("camPos", cameraComponent->getPosition());
 
 		defaultRenderer.render(deltaTime);
+
+		std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", LightManager::getInstance().shaderProgram);
+		if (newEntity != nullptr)
+		{
+			newEntity->start();
+		}
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

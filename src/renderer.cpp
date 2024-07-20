@@ -44,6 +44,20 @@ void Renderer::removeEntity(std::unique_ptr<Entity> objectPtr)
 	objectPtr.reset();
 }
 
+void Renderer::removeEntity(Entity* rawObjectPtr)
+{
+	/*for (auto&& entity : this->entities)
+	{
+		if (entity.get() == rawObjectPtr)
+		{
+			this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), entity), this->entities.end());
+			entity.reset();
+		}
+	}*/
+	std::vector<std::unique_ptr<Entity>>::iterator entity = std::find_if(this->entities.begin(), this->entities.end(), [&](std::unique_ptr<Entity>& entity) { return entity.get() == rawObjectPtr; });
+	this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), *entity));
+}
+
 void Renderer::resizeFramebuffer(glm::vec2 newSize)
 {
 	this->multiSampledTarget.resize(newSize);

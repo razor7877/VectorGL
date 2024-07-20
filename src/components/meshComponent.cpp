@@ -25,6 +25,9 @@ MeshComponent::~MeshComponent()
 	glDeleteBuffers(1, &this->normalBO);
 
 	glDeleteVertexArrays(1, &this->VAO);
+
+	for (Texture* texture : this->textures)
+		delete texture;
 }
 
 void MeshComponent::start()
@@ -87,6 +90,7 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(2);
 	}
 
+	// Send tangents for normal mapping
 	if (tangents.size() > 0)
 	{
 		glGenBuffers(1, &tangentsBO);
@@ -98,6 +102,7 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(3);
 	}
 
+	// Send bitangents for normal mapping
 	if (bitangents.size() > 0)
 	{
 		glGenBuffers(1, &bitangentsBO);
@@ -117,6 +122,8 @@ void MeshComponent::start()
 	this->texCoords.clear();
 	this->normals.clear();
 	this->indices.clear();
+	this->tangents.clear();
+	this->bitangents.clear();
 }
 
 void MeshComponent::update()

@@ -570,10 +570,8 @@ void HandleSceneGraphClick(Entity* object)
 			if (object == selectedSceneNode)
 				selectedSceneNode = nullptr;
 
-			//renderer->removeObject(object);
-			//delete object;
+			renderer->removeEntity(object);
 		}
-			
 
 		ImGui::EndPopup();
 	}

@@ -16,17 +16,17 @@ Entity::Entity(std::string label)
 Entity::~Entity()
 {
 	for (auto& [type, component] : this->components)
-	{
 		delete component;
-	}
+
+	// Delete all the children as well
+	for (Entity* child : this->children)
+		delete child;
 }
 
 void Entity::start()
 {
 	for (auto& [type, component] : this->components)
-	{
 		component->start();
-	}
 
 	for (Entity* child : this->children)
 		child->start();

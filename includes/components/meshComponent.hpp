@@ -17,7 +17,7 @@ class MeshComponent : public virtual Component
 {
 public:
 	MeshComponent(Entity* parent);
-	~MeshComponent();
+	~MeshComponent() override;
 
 	void Component::start() override;
 	void Component::update() override;
