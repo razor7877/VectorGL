@@ -50,9 +50,6 @@ bool Renderer::removeEntity(std::unique_ptr<Entity> objectPtr)
 
 bool Renderer::removeEntity(Entity* rawObjectPtr)
 {
-	//std::vector<std::unique_ptr<Entity>>::iterator entity = std::find_if(this->entities.begin(), this->entities.end(), [&](std::unique_ptr<Entity>& entity) { return entity.get() == rawObjectPtr; });
-	//this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), *entity));
-
 	for (auto&& entity : this->entities)
 	{
 		if (entity.get() == rawObjectPtr)
@@ -73,8 +70,8 @@ void Renderer::resizeFramebuffer(glm::vec2 newSize)
 
 void Renderer::createFramebuffer(glm::vec2 windowSize)
 {
-	this->multiSampledTarget = RenderTarget(windowSize, true);
-	this->finalTarget = RenderTarget(windowSize, false);
+	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
+	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
 }
 
 void Renderer::init(glm::vec2 windowSize)
@@ -95,6 +92,7 @@ void Renderer::render(float deltaTime)
 {
 	// We want to draw to the MSAA framebuffer
 	this->multiSampledTarget.bind();
+	this->multiSampledTarget.clear();
 
 	// Update camera info
 	glm::vec2 windowSize = this->multiSampledTarget.size;

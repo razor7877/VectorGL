@@ -141,6 +141,8 @@ int main()
 		pbrShader->use()
 			->setVec3("camPos", cameraComponent->getPosition());
 
+		//IBLData skyIBL = IBLData(defaultRenderer, hdrMap);
+
 		defaultRenderer.render(deltaTime);
 
 		/*std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", LightManager::getInstance().shaderProgram);

@@ -6,30 +6,37 @@ RenderTarget::RenderTarget()
 
 }
 
-RenderTarget::RenderTarget(glm::vec2 size, bool useMultiSampling)
+RenderTarget::RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum format)
 {
 	this->size = size;
-	this->isMultiSampled = useMultiSampling;
-	
-	if (useMultiSampling)
-		this->createMultiSampledRenderTarget();
-	else
-		this->createRenderTarget();
+	this->format = format;
+	this->targetTextureType = targetTextureType;
+
+	this->attachTexture(targetTextureType, size);
+}
+
+RenderTarget::~RenderTarget()
+{
+	glDeleteFramebuffers(1, &this->framebuffer);
 }
 
 void RenderTarget::bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, this->framebuffer);
 	glViewport(0, 0, this->size.x, this->size.y);
-
-	// Clear the buffers
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RenderTarget::unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderTarget::clear()
+{
+	if (this->targetTextureType == TargetType::TEXTURE_CUBEMAP)
+		glClear(GL_DEPTH_BUFFER_BIT);
+	else
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RenderTarget::resize(glm::vec2 newSize)
@@ -39,94 +46,105 @@ void RenderTarget::resize(glm::vec2 newSize)
 
 	this->size = newSize;
 
-	if (this->isMultiSampled)
+	switch (this->targetTextureType)
 	{
-		// Bind the texture
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture);
-		// Create a 2D multisampled texture
-		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, this->size.x, this->size.y, GL_TRUE);
+		case TargetType::TEXTURE_2D:
+			// Bind the texture
+			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
+			// Create a 2D texture
+			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			// Attach it to the FBO
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->renderTexture, 0);
 
-		// Attach it to the FBO
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture, 0);
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			break;
 
-		glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
-	}
-	else
-	{
-		// Bind the texture
-		glBindTexture(GL_TEXTURE_2D, this->renderTexture);
-		// Create a 2D texture
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->size.x, this->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// Attach it to the FBO
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->renderTexture, 0);
+		case TargetType::TEXTURE_2D_MULTISAMPLE:
+			// Bind the texture
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture);
+			// Create a 2D multisampled texture
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, this->format, this->size.x, this->size.y, GL_TRUE);
 
-		glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			// Attach it to the FBO
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture, 0);
+
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			break;
+
+		case TargetType::TEXTURE_CUBEMAP:
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, this->size.x, this->size.y);
+			break;
 	}
 
 	glViewport(0, 0, this->size.x, this->size.y);
 }
 
-void RenderTarget::createRenderTarget()
+void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 {
 	glGenFramebuffers(1, &this->framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, this->framebuffer);
 
-	// Render texture for the FBO
-	glGenTextures(1, &this->renderTexture);
-	glBindTexture(GL_TEXTURE_2D, this->renderTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->size.x, this->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	switch (this->targetTextureType)
+	{
+		case TargetType::TEXTURE_2D:
+			// Depth buffer for the FBO
+			glGenRenderbuffers(1, &this->depthbuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			// Render texture
+			glGenTextures(1, &this->renderTexture);
+			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, 0);
 
-	// Depth buffer for the FBO
-	glGenRenderbuffers(1, &this->depthbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	// Set texture as color attachment 0
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
+			// Set texture as color attachment 0
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
 
-	this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
+			this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
+			glDrawBuffers(1, drawBuffers);
+			break;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		case TargetType::TEXTURE_2D_MULTISAMPLE:
+			// Depth buffer for the FBO
+			glGenRenderbuffers(1, &this->depthbuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+
+			// Render texture
+			glGenTextures(1, &this->renderTexture);
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, this->format, this->size.x, this->size.y, GL_TRUE);
+
+			// Set texture as color attachment 0
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
+
+			this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
+			glDrawBuffers(1, drawBuffers);
+			break;
+
+		case TargetType::TEXTURE_CUBEMAP:
+			// Depth buffer for the FBO
+			glGenRenderbuffers(1, &this->depthbuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			break;
+	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		Logger::logError("Error while attempting to create framebuffer!");
-}
-
-void RenderTarget::createMultiSampledRenderTarget()
-{
-	glGenFramebuffers(1, &this->framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-	// Render texture for the FBO
-	glGenTextures(1, &this->renderTexture);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, this->size.x, this->size.y, GL_TRUE);
-
-	// Depth buffer for the FBO
-	glGenRenderbuffers(1, &this->depthbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
-
-	// Set texture as color attachment 0
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
-
-	this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, drawBuffers);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		Logger::logError("Error while attempting to create multisampled framebuffer!");
 }

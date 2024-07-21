@@ -26,7 +26,7 @@ IBLData::IBLData(Renderer& renderer, Texture* hdrMap)
 	cubemapEntity->start();
 
 	// We create a render target for rendering the HDR map to a cubemap
-	RenderTarget captureRT = RenderTarget(glm::vec2(2048, 2048), false);
+	RenderTarget captureRT = RenderTarget(TargetType::TEXTURE_CUBEMAP, glm::vec2(512, 512), GL_RGB16F);
 	captureRT.bind();
 
 	this->environmentMap->bind();

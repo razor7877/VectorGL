@@ -3,6 +3,13 @@
 #include <utilities/glad.h>
 #include <glm/glm.hpp>
 
+enum class TargetType
+{
+	TEXTURE_2D,
+	TEXTURE_2D_MULTISAMPLE,
+	TEXTURE_CUBEMAP,
+};
+
 /// <summary>
 /// Represents a render target that can be drawn into
 /// </summary>
@@ -30,15 +37,20 @@ public:
 	GLenum drawBuffers[1]{};
 
 	/// <summary>
-	/// The size of the render target in pixels
+	/// The pixel format of the framebuffer
 	/// </summary>
-	glm::vec2 size;
+	GLenum format = GL_RGB;
 
 	/// <summary>
-	/// Whether the render target uses multisampling
+	/// The size of the render target in pixels
 	/// </summary>
-	bool isMultiSampled;
-	
+	glm::vec2 size = glm::vec2(0);
+
+	/// <summary>
+	/// The type of the target texture attached to the framebuffer
+	/// </summary>
+	TargetType targetTextureType = TargetType::TEXTURE_2D;
+
 	RenderTarget();
 
 	/// <summary>
@@ -46,7 +58,9 @@ public:
 	/// </summary>
 	/// <param name="size">The size of the render target in pixels</param>
 	/// <param name="useMultiSampling">Whether the render target is multisampled or not</param>
-	RenderTarget(glm::vec2 size, bool useMultiSampling);
+	RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum format = GL_RGB);
+
+	~RenderTarget();
 
 	/// <summary>
 	/// Binds the render target
@@ -59,12 +73,16 @@ public:
 	void unbind();
 
 	/// <summary>
+	/// Clears the render target buffers
+	/// </summary>
+	void clear();
+
+	/// <summary>
 	/// Resizes the render target
 	/// </summary>
 	/// <param name="newSize">The new size of the render target</param>
 	void resize(glm::vec2 newSize);
 
 private:
-	void createRenderTarget();
-	void createMultiSampledRenderTarget();
+	void attachTexture(TargetType targetTextureType, glm::vec2 size);
 };

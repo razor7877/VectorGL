@@ -12,7 +12,7 @@ struct IBLData
 	/// <summary>
 	/// The environment map (skybox)
 	/// </summary>
-	Cubemap* const environmentMap = new Cubemap(GL_RGB16F, 2048, 2048);
+	Cubemap* const environmentMap = new Cubemap(GL_RGB16F, 512, 512);
 
 	/// <summary>
 	/// The irradiance map for diffuse lighting
