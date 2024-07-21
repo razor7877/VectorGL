@@ -15,7 +15,7 @@
 class Entity
 {
 public:
-	TransformComponent* transform;
+	TransformComponent* transform = nullptr;
 
 	Entity();
 	Entity(std::string label);

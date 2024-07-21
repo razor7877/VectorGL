@@ -15,10 +15,6 @@ Entity::Entity(std::string label)
 
 Entity::~Entity()
 {
-	// Remove itself from any parent to not keep a dangling pointer
-	if (this->parent != nullptr)
-		this->parent->removeChild(this);
-
 	for (auto& [type, component] : this->components)
 		delete component;
 

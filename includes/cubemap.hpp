@@ -41,7 +41,6 @@ public:
 	~Cubemap();
 
 	void bind();
-	void setupObject();
 	void generateMipMaps();
 
 private:

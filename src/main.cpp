@@ -70,7 +70,7 @@ int main()
 	// Skybox
 	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
-	skyComponent->setupSkybox(skyboxShader);
+	skyComponent->setupSkybox(skyboxShader, defaultRenderer);
 	defaultRenderer.addEntity(std::move(skyEntity));
 
 	glm::vec3 lightPositions[] = {
@@ -102,13 +102,8 @@ int main()
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 	cameraComponent = defaultRenderer.currentCamera;
 
-	Texture* hdrMap = new Texture("img/fouriesburg_mountain_lookout_2_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
-	IBLData skyIBL = IBLData(defaultRenderer, hdrMap);
-
-	skyComponent->setCubemap(skyIBL.environmentMap);
-	PBRMaterial::irradianceMap = skyIBL.irradianceMap;
-	PBRMaterial::prefilterMap = skyIBL.prefilterMap;
-	PBRMaterial::brdfLut = skyIBL.brdfLut;
+	//Texture* hdrMap = new Texture("img/fouriesburg_mountain_lookout_2_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
+	//IBLData skyIBL = IBLData(defaultRenderer, hdrMap);
 
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
@@ -117,8 +112,6 @@ int main()
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
-
-	int framecounter = 0;
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -141,8 +134,6 @@ int main()
 		pbrShader->use()
 			->setVec3("camPos", cameraComponent->getPosition());
 
-		//IBLData skyIBL = IBLData(defaultRenderer, hdrMap);
-
 		defaultRenderer.render(deltaTime);
 
 		/*std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", LightManager::getInstance().shaderProgram);
@@ -161,7 +152,6 @@ int main()
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		framecounter++;
 	}
 
 	glfwTerminate();

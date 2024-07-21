@@ -2,35 +2,25 @@
 
 #include "components/skyboxComponent.hpp"
 #include "shaderManager.hpp"
-
-// A list of vertices that represent a box used to draw any skybox
-float SkyboxComponent::boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
-
-std::map<SkyboxType, Cubemap*> SkyboxComponent::skyboxes =
-{
-	{ SkyboxType::GRASS, new Cubemap("img/skybox/grass/") },
-	{ SkyboxType::NIGHT, new Cubemap("img/skybox/night/") },
-	{ SkyboxType::SKY, new Cubemap("img/skybox/sky/") },
-};
+#include "utilities/geometry.hpp"
+#include "components/IBLData.hpp"
 
 SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Component(parent)
 {
-	this->skyCubemap = this->skyboxes[SkyboxComponent::DEFAULT_SKY];
+
 }
 
 SkyboxComponent::~SkyboxComponent()
 {
-	this->iblData.release();
+
 }
 
 void SkyboxComponent::start()
 {
-	MeshComponent::setupMesh(boxVertices, sizeof(boxVertices), this->shaderProgram);
+	std::vector<float> boxVertices = Geometry::getCubeVertices();
 
+	MeshComponent::setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), this->shaderProgram);
 	MeshComponent::start();
-
-	for (auto& [skyType, cubemap] : this->skyboxes)
-		cubemap->setupObject();
 }
 
 void SkyboxComponent::update()
@@ -40,23 +30,42 @@ void SkyboxComponent::update()
 	glDepthFunc(GL_LEQUAL);
 
 	glBindVertexArray(this->VAO);
-	this->skyCubemap->bind();
+
+	if (this->useIBL)
+		this->currentSky->environmentMap->bind();
+	else
+		this->currentCubemap->bind();
+
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	glDepthFunc(GL_LESS);
 }
 
-void SkyboxComponent::setupSkybox(Shader* shaderProgram)
+void SkyboxComponent::setupSkybox(Shader* shaderProgram, Renderer& renderer)
 {
 	this->shaderProgram = shaderProgram;
+
+	this->skyboxes = {
+		{ SkyboxType::GRASS, new IBLData(renderer, new Cubemap("img/skybox/grass/")) },
+		{ SkyboxType::NIGHT, new IBLData(renderer, new Cubemap("img/skybox/night/")) },
+		{ SkyboxType::SKY, new IBLData(renderer, new Cubemap("img/skybox/sky/")) },
+	};
+
+	this->changeSkybox(SkyboxComponent::DEFAULT_SKY);
 }
 
 void SkyboxComponent::changeSkybox(SkyboxType sky)
 {
-	this->skyCubemap = this->skyboxes[sky];
+	this->currentSky = this->skyboxes[sky];
+	this->useIBL = true;
+
+	PBRMaterial::irradianceMap = this->currentSky->irradianceMap;
+	PBRMaterial::prefilterMap = this->currentSky->prefilterMap;
+	PBRMaterial::brdfLut = this->currentSky->brdfLut;
 }
 
 void SkyboxComponent::setCubemap(Cubemap* cubemap)
 {
-	this->skyCubemap = cubemap;
+	this->currentCubemap = cubemap;
+	this->useIBL = false;
 }

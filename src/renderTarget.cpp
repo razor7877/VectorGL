@@ -17,7 +17,7 @@ RenderTarget::RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum 
 
 RenderTarget::~RenderTarget()
 {
-	glDeleteFramebuffers(1, &this->framebuffer);
+	//glDeleteFramebuffers(1, &this->framebuffer);
 }
 
 void RenderTarget::bind()

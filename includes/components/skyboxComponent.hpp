@@ -4,6 +4,7 @@
 
 #include "components/meshComponent.hpp"
 #include "cubemap.hpp"
+#include "shader.hpp"
 #include "components/IBLData.hpp"
 
 enum class SkyboxType
@@ -28,7 +29,7 @@ public:
 	/// Sets up the component before it can be used
 	/// </summary>
 	/// <param name="shaderProgram">Assigns the shader the component should use to be drawn</param>
-	void setupSkybox(Shader* shaderProgram);
+	void setupSkybox(Shader* shaderProgram, Renderer& renderer);
 
 	/// <summary>
 	/// Changes the skybox cubemap using a SkyboxType
@@ -43,9 +44,9 @@ public:
 	void setCubemap(Cubemap* cubemap);
 
 private:
-	static std::map<SkyboxType, Cubemap*> skyboxes;
-	static float boxVertices[];
+	std::map<SkyboxType, IBLData*> skyboxes;
+	bool useIBL = true;
 
-	Cubemap* skyCubemap = nullptr;
-	std::unique_ptr<IBLData> iblData;
+	Cubemap* currentCubemap = nullptr;
+	IBLData* currentSky = nullptr;
 };

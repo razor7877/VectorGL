@@ -29,6 +29,19 @@ struct IBLData
 	/// </summary>
 	Texture* brdfLut = nullptr;
 
+	/// <summary>
+	/// Generates an environment map and IBL data from a 2D HDR map
+	/// </summary>
+	/// <param name="renderer">A reference to the renderer</param>
+	/// <param name="hdrMap">The HDR map for the sky</param>
 	IBLData(Renderer& renderer, Texture* hdrMap);
+
+	/// <summary>
+	/// Generates IBL data for an existing cubemap
+	/// </summary>
+	/// <param name="renderer">A reference to the renderer</param>
+	/// <param name="cubemap">The cubemap for the sky</param>
+	IBLData(Renderer& renderer, Cubemap* cubemap);
+
 	~IBLData();
 };
