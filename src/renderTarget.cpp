@@ -39,8 +39,6 @@ void RenderTarget::resize(glm::vec2 newSize)
 
 	this->size = newSize;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, this->framebuffer);
-
 	if (this->isMultiSampled)
 	{
 		// Bind the texture
@@ -71,7 +69,7 @@ void RenderTarget::resize(glm::vec2 newSize)
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, this->size.x, this->size.y);
 }
 
 void RenderTarget::createRenderTarget()

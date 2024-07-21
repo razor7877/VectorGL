@@ -22,6 +22,7 @@
 #include "components/lights/pointLightComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
 #include "components/lights/spotLightComponent.hpp"
+#include "components/IBLData.hpp"
 
 #include "utilities/resourceLoader.hpp"
 
@@ -101,6 +102,14 @@ int main()
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 	cameraComponent = defaultRenderer.currentCamera;
 
+	Texture* hdrMap = new Texture("img/fouriesburg_mountain_lookout_2_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
+	IBLData skyIBL = IBLData(defaultRenderer, hdrMap);
+
+	skyComponent->setCubemap(skyIBL.environmentMap);
+	PBRMaterial::irradianceMap = skyIBL.irradianceMap;
+	PBRMaterial::prefilterMap = skyIBL.prefilterMap;
+	PBRMaterial::brdfLut = skyIBL.brdfLut;
+
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
 	
@@ -108,6 +117,8 @@ int main()
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
+
+	int framecounter = 0;
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -132,11 +143,11 @@ int main()
 
 		defaultRenderer.render(deltaTime);
 
-		std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", LightManager::getInstance().shaderProgram);
+		/*std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", LightManager::getInstance().shaderProgram);
 		if (newEntity != nullptr)
 		{
 			newEntity->start();
-		}
+		}*/
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();
@@ -148,6 +159,7 @@ int main()
 		// Swaps buffers to screen to show the rendered frame
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		framecounter++;
 	}
 
 	glfwTerminate();

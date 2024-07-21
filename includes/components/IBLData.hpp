@@ -3,7 +3,6 @@
 #include "cubemap.hpp"
 #include "texture.hpp"
 #include "renderer.hpp"
-#include "components/skyboxComponent.hpp"
 
 /// <summary>
 /// Represents a sky and its associated IBL data for PBR rendering
@@ -30,6 +29,6 @@ struct IBLData
 	/// </summary>
 	Texture* brdfLut = nullptr;
 
-	IBLData(Renderer& renderer, SkyboxComponent* skyComponent, Texture* hdrMap);
+	IBLData(Renderer& renderer, Texture* hdrMap);
 	~IBLData();
 };

@@ -18,6 +18,11 @@ SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Compon
 	this->skyCubemap = this->skyboxes[SkyboxComponent::DEFAULT_SKY];
 }
 
+SkyboxComponent::~SkyboxComponent()
+{
+	this->iblData.release();
+}
+
 void SkyboxComponent::start()
 {
 	MeshComponent::setupMesh(boxVertices, sizeof(boxVertices), this->shaderProgram);

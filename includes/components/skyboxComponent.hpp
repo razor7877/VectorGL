@@ -4,6 +4,7 @@
 
 #include "components/meshComponent.hpp"
 #include "cubemap.hpp"
+#include "components/IBLData.hpp"
 
 enum class SkyboxType
 {
@@ -18,6 +19,7 @@ public:
 	static const SkyboxType DEFAULT_SKY = SkyboxType::NIGHT;
 	
 	SkyboxComponent(Entity* parent);
+	~SkyboxComponent();
 
 	void Component::start() override;
 	void Component::update() override;
@@ -45,5 +47,5 @@ private:
 	static float boxVertices[];
 
 	Cubemap* skyCubemap = nullptr;
-	//std::unique_ptr<IBLData> iblData;
+	std::unique_ptr<IBLData> iblData;
 };

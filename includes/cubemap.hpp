@@ -42,6 +42,7 @@ public:
 
 	void bind();
 	void setupObject();
+	void generateMipMaps();
 
 private:
 	void createCubemapFromFaces();
