@@ -1,11 +1,12 @@
 #include <map>
 
 #include "components/skyboxComponent.hpp"
+#include "shaderManager.hpp"
 
 // A list of vertices that represent a box used to draw any skybox
 float SkyboxComponent::boxVertices[] = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
 
-std::map<SkyboxType, Cubemap*> skyboxes =
+std::map<SkyboxType, Cubemap*> SkyboxComponent::skyboxes =
 {
 	{ SkyboxType::GRASS, new Cubemap("img/skybox/grass/") },
 	{ SkyboxType::NIGHT, new Cubemap("img/skybox/night/") },
@@ -14,7 +15,7 @@ std::map<SkyboxType, Cubemap*> skyboxes =
 
 SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Component(parent)
 {
-	this->cubemap = skyboxes[SkyboxComponent::DEFAULT_SKY];
+	this->skyCubemap = this->skyboxes[SkyboxComponent::DEFAULT_SKY];
 }
 
 void SkyboxComponent::start()
@@ -23,7 +24,7 @@ void SkyboxComponent::start()
 
 	MeshComponent::start();
 
-	for (auto& [skyType, cubemap] : skyboxes)
+	for (auto& [skyType, cubemap] : this->skyboxes)
 		cubemap->setupObject();
 }
 
@@ -34,7 +35,7 @@ void SkyboxComponent::update()
 	glDepthFunc(GL_LEQUAL);
 
 	glBindVertexArray(this->VAO);
-	this->cubemap->bind();
+	this->skyCubemap->bind();
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	glDepthFunc(GL_LESS);
@@ -47,10 +48,10 @@ void SkyboxComponent::setupSkybox(Shader* shaderProgram)
 
 void SkyboxComponent::changeSkybox(SkyboxType sky)
 {
-	this->cubemap = skyboxes[sky];
+	this->skyCubemap = this->skyboxes[sky];
 }
 
 void SkyboxComponent::setCubemap(Cubemap* cubemap)
 {
-	this->cubemap = cubemap;
+	this->skyCubemap = cubemap;
 }

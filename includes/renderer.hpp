@@ -9,6 +9,7 @@
 #include "lights/lightManager.hpp"
 #include "shaderManager.hpp"
 #include "renderTarget.hpp"
+#include "components/cameraComponent.hpp"
 
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer

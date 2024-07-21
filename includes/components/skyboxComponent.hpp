@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "components/meshComponent.hpp"
 #include "cubemap.hpp"
 
@@ -14,18 +16,34 @@ class SkyboxComponent : public MeshComponent
 {
 public:
 	static const SkyboxType DEFAULT_SKY = SkyboxType::NIGHT;
-
-	static float boxVertices[];
 	
 	SkyboxComponent(Entity* parent);
 
 	void Component::start() override;
 	void Component::update() override;
 
+	/// <summary>
+	/// Sets up the component before it can be used
+	/// </summary>
+	/// <param name="shaderProgram">Assigns the shader the component should use to be drawn</param>
 	void setupSkybox(Shader* shaderProgram);
+
+	/// <summary>
+	/// Changes the skybox cubemap using a SkyboxType
+	/// </summary>
+	/// <param name="sky">A value of the SkyboxType enum</param>
 	void changeSkybox(SkyboxType sky);
+
+	/// <summary>
+	/// Manually sets the cubemap used by the skybox
+	/// </summary>
+	/// <param name="cubemap">A pointer to the cubemap to be used</param>
 	void setCubemap(Cubemap* cubemap);
 
 private:
-	Cubemap* cubemap;
+	static std::map<SkyboxType, Cubemap*> skyboxes;
+	static float boxVertices[];
+
+	Cubemap* skyCubemap = nullptr;
+	//std::unique_ptr<IBLData> iblData;
 };
