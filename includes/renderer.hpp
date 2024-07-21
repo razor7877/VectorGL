@@ -43,9 +43,15 @@ public:
 	/// Removes an entity from the renderer
 	/// </summary>
 	/// <param name="objectPtr">The entity to be removed</param>
-	void removeEntity(std::unique_ptr<Entity> objectPtr);
+	/// <returns>True if the entity was successfully removed, false otherwise</return>
+	bool removeEntity(std::unique_ptr<Entity> objectPtr);
 
-	void removeEntity(Entity* rawObjectPtr);
+	/// <summary>
+	/// Removes an entity from the renderer using a raw pointer
+	/// </summary>
+	/// <param name="rawObjectPtr">The raw pointer to the object</param>
+	/// <returns>True if the entity was successfully removed, false otherwise</returns>
+	bool removeEntity(Entity* rawObjectPtr);
 
 	/// <summary>
 	/// Initializes the renderer data, this needs to be done once before the render loop

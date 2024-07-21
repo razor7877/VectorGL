@@ -26,8 +26,9 @@ MeshComponent::~MeshComponent()
 
 	glDeleteVertexArrays(1, &this->VAO);
 
-	for (Texture* texture : this->textures)
-		delete texture;
+	// TODO : Manage texture deletion correctly since they can be shared between multiple meshes
+	/*for (Texture* texture : this->textures)
+		delete texture;*/
 }
 
 void MeshComponent::start()

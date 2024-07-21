@@ -38,24 +38,31 @@ void Renderer::addEntity(std::unique_ptr<Entity> objectPtr)
 	this->entities.push_back(std::move(objectPtr));
 }
 
-void Renderer::removeEntity(std::unique_ptr<Entity> objectPtr)
+bool Renderer::removeEntity(std::unique_ptr<Entity> objectPtr)
 {
+	const int startSize = this->entities.size();
+
 	this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), objectPtr), this->entities.end());
-	objectPtr.reset();
+
+	// Delete was successful if the size of the vector is different
+	return this->entities.size() != startSize;
 }
 
-void Renderer::removeEntity(Entity* rawObjectPtr)
+bool Renderer::removeEntity(Entity* rawObjectPtr)
 {
-	/*for (auto&& entity : this->entities)
+	//std::vector<std::unique_ptr<Entity>>::iterator entity = std::find_if(this->entities.begin(), this->entities.end(), [&](std::unique_ptr<Entity>& entity) { return entity.get() == rawObjectPtr; });
+	//this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), *entity));
+
+	for (auto&& entity : this->entities)
 	{
 		if (entity.get() == rawObjectPtr)
 		{
 			this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), entity), this->entities.end());
-			entity.reset();
+			return true;
 		}
-	}*/
-	std::vector<std::unique_ptr<Entity>>::iterator entity = std::find_if(this->entities.begin(), this->entities.end(), [&](std::unique_ptr<Entity>& entity) { return entity.get() == rawObjectPtr; });
-	this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), *entity));
+	}
+
+	return false;
 }
 
 void Renderer::resizeFramebuffer(glm::vec2 newSize)
