@@ -14,3 +14,6 @@
 [submodule "libs/ImGuiColorTextEdit"]
 	path = libs/ImGuiColorTextEdit
 	url = https://github.com/BalazsJako/ImGuiColorTextEdit
+[submodule "libs/bullet3"]
+	path = libs/bullet3
+	url = https://github.com/bulletphysics/bullet3.git
