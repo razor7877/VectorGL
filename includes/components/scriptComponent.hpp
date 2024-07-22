@@ -19,7 +19,7 @@ public:
 	~ScriptComponent() override;
 
 	void Component::start() override;
-	void Component::update() override;
+	void Component::update(float deltaTime) override;
 
 private:
 	lua_State* L;

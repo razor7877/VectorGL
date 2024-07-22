@@ -12,5 +12,5 @@ public:
 	virtual ~Component() = default;
 
 	virtual void start() = 0;
-	virtual void update() = 0;
+	virtual void update(float deltaTime) = 0;
 };

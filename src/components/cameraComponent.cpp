@@ -24,7 +24,7 @@ void CameraComponent::start()
 
 }
 
-void CameraComponent::update()
+void CameraComponent::update(float deltaTime)
 {
 
 }

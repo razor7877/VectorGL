@@ -23,7 +23,7 @@ void SkyboxComponent::start()
 	MeshComponent::start();
 }
 
-void SkyboxComponent::update()
+void SkyboxComponent::update(float deltaTime)
 {
 	glUseProgram(this->shaderProgram->ID);
 

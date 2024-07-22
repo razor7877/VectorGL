@@ -23,7 +23,7 @@ public:
 	~SkyboxComponent();
 
 	void Component::start() override;
-	void Component::update() override;
+	void Component::update(float deltaTime) override;
 
 	/// <summary>
 	/// Sets up the component before it can be used

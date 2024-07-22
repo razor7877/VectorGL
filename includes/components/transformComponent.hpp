@@ -11,7 +11,7 @@ public:
 	~TransformComponent();
 
 	void Component::start() override;
-	void Component::update() override;
+	void Component::update(float deltaTime) override;
 
 	glm::mat4 getGlobalModelMatrix();
 	glm::mat4 getModelMatrix();

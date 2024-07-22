@@ -27,7 +27,7 @@ public:
 	CameraComponent(Entity* parent);
 
 	void Component::start() override;
-	void Component::update() override;
+	void Component::update(float deltaTime) override;
 
 	// Returns the view matrix calculated using Euler angles and the lookAt matrix
 	glm::mat4 getViewMatrix();

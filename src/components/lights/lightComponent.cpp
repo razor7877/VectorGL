@@ -17,7 +17,7 @@ void LightComponent::start()
 
 }
 
-void LightComponent::update()
+void LightComponent::update(float deltaTime)
 {
 	this->sendToShader(this->shaderProgram, this->index);
 }

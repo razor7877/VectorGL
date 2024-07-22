@@ -127,7 +127,7 @@ void MeshComponent::start()
 	this->bitangents.clear();
 }
 
-void MeshComponent::update()
+void MeshComponent::update(float deltaTime)
 {
 	this->shaderProgram->use();
 

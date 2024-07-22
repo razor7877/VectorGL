@@ -20,7 +20,7 @@ TransformComponent::~TransformComponent()
 
 void TransformComponent::start() { }
 
-void TransformComponent::update() { }
+void TransformComponent::update(float deltaTime) { }
 
 glm::mat4 TransformComponent::getGlobalModelMatrix()
 {

@@ -38,7 +38,7 @@ void Entity::update(float deltaTime)
 		return;
 
 	for (auto& [type, component] : this->components)
-		component->update();
+		component->update(deltaTime);
 
 	for (Entity* child : this->children)
 		child->update(deltaTime);
