@@ -101,6 +101,9 @@ target_link_libraries(VectorGL PUBLIC
 	assimp
 	glfw
 	lua
+	BulletCollision
+	BulletDynamics
+	LinearMath
 	OpenGL::GL)
 
 # Copy all assets to build folder

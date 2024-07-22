@@ -6,26 +6,19 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm/ext/matrix_transform.hpp>
 #include <glm/glm/ext/matrix_clip_space.hpp>
+#include <btBulletDynamicsCommon.h>
 
-#include "main.hpp"
 #include "renderer.hpp"
-#include "entity.hpp"
 #include "shader.hpp"
-#include "logger.hpp"
-#include "renderTarget.hpp"
-#include "materials/pbrMaterial.hpp"
-#include "io/interface.hpp"
 #include "io/input.hpp"
-#include "components/skyboxComponent.hpp"
-#include "components/meshComponent.hpp"
-#include "components/cameraComponent.hpp"
-#include "components/scriptComponent.hpp"
-#include "components/lights/pointLightComponent.hpp"
+#include "io/interface.hpp"
 #include "components/lights/directionalLightComponent.hpp"
-#include "components/lights/spotLightComponent.hpp"
-#include "components/IBLData.hpp"
-
+#include "components/lights/pointLightComponent.hpp"
+#include "components/skyboxComponent.hpp"
+#include "components/scriptComponent.hpp"
 #include "utilities/resourceLoader.hpp"
+#include "logger.hpp"
+#include "utilities/geometry.hpp"
 
 extern GLFWwindow* window;
 
@@ -58,10 +51,46 @@ int main()
 
 	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = defaultRenderer.shaderManager.getShader(ShaderType::PBR);
-	Shader* gridShader = defaultRenderer.shaderManager.getShader(ShaderType::GRID);
 	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
 
 	LightManager::getInstance().shaderProgram = pbrShader;
+
+	constexpr float gravity = -9.81f;
+
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
+	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+	btDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(collisionDispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+	dynamicsWorld->setGravity(btVector3(0.0f, gravity, 0.0f));
+
+	btCollisionShape* planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 1.0f);
+	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, -1.0f, 0.0f)));
+	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, planeShape, btVector3(0.0f, 0.0f, 0.0f));
+	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
+	dynamicsWorld->addRigidBody(groundRigidBody);
+
+	btCollisionShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 50.0f, 0.0f)));
+	btScalar mass = 1.0f;
+	btVector3 boxInertia(0.0f, 0.0f, 0.0f);
+	boxShape->calculateLocalInertia(mass, boxInertia);
+	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, boxInertia);
+	btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
+	dynamicsWorld->addRigidBody(boxRigidBody);
+
+	// Simulate the dynamics world
+	for (int i = 0; i < 300; i++)
+	{
+		dynamicsWorld->stepSimulation(1 / 60.f, 10);
+
+		// Print positions of the box
+		btTransform trans;
+		boxRigidBody->getMotionState()->getWorldTransform(trans);
+		std::string output = "Box height: " + std::to_string(trans.getOrigin().getY());
+		Logger::logDebug(output);
+	}
 
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
@@ -102,6 +131,15 @@ int main()
 	std::unique_ptr<Entity> modelEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", pbrShader);
 	ScriptComponent* scriptComponent = modelEntity->addComponent<ScriptComponent>();
 	defaultRenderer.addEntity(std::move(modelEntity));
+
+	std::vector<float> quadVertices = Geometry::getQuadVertices();
+	std::unique_ptr<Entity> planeEntity = std::make_unique<Entity>("Plane");
+	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
+	planeMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), pbrShader);
+	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
+	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
+	planeEntity->transform->setScale(glm::vec3(20.0f));
+	defaultRenderer.addEntity(std::move(planeEntity));
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
