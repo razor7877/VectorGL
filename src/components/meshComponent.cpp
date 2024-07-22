@@ -12,7 +12,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->material = new PBRMaterial();
+	this->material = std::make_unique<PBRMaterial>();
 }
 
 MeshComponent::~MeshComponent()
@@ -26,9 +26,7 @@ MeshComponent::~MeshComponent()
 
 	glDeleteVertexArrays(1, &this->VAO);
 
-	// TODO : Manage texture deletion correctly since they can be shared between multiple meshes
-	/*for (Texture* texture : this->textures)
-		delete texture;*/
+	this->material.release();
 }
 
 void MeshComponent::start()
@@ -58,8 +56,8 @@ void MeshComponent::start()
 	// If the MeshComponent uses textures
 	if (textures.size() > 0 && this->material != nullptr)
 	{
-		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
-		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
+		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material.get());
+		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
 
 		if (pbrMaterial != nullptr) this->addPBRTextures(pbrMaterial);
 		if (phongMaterial != nullptr) this->addPhongTextures(phongMaterial);
@@ -176,7 +174,8 @@ void MeshComponent::setupMesh(
 	std::vector<float> texCoords,
 	std::vector<float> normals,
 	std::vector<unsigned int> indices,
-	std::vector<Texture*> textures, Shader* shaderProgram,
+	std::vector<std::shared_ptr<Texture>> textures,
+	Shader* shaderProgram,
 	glm::vec3 position)
 {
 	this->vertices = vertices;
@@ -208,9 +207,9 @@ MeshComponent& MeshComponent::addTexCoords(float texCoords[], unsigned int texSi
 	return *this;
 }
 
-MeshComponent& MeshComponent::addTexture(Texture* texture)
+MeshComponent& MeshComponent::addTexture(std::shared_ptr<Texture> texture)
 {
-	textures.insert(textures.end(), texture);
+	this->textures.insert(textures.end(), texture);
 	return *this;
 }
 
@@ -242,7 +241,7 @@ MeshComponent& MeshComponent::addBitangents(std::vector<float> bitangents)
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)
 {
-	PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material);
+	PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
 
 	if (phongMaterial != nullptr)
 	{
@@ -250,7 +249,7 @@ void MeshComponent::setDiffuseColor(glm::vec3 color)
 		return;
 	}
 
-	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material);
+	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material.get());
 
 	if (pbrMaterial != nullptr)
 		pbrMaterial->albedoColor = color;

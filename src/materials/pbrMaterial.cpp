@@ -3,7 +3,7 @@
 
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
-Texture* PBRMaterial::brdfLut = nullptr;
+std::shared_ptr<Texture> PBRMaterial::brdfLut = nullptr;
 
 PBRMaterial::PBRMaterial()
 {
@@ -101,43 +101,43 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	}
 }
 
-void PBRMaterial::addAlbedoMap(Texture* albedoTexture)
+void PBRMaterial::addAlbedoMap(std::shared_ptr<Texture> albedoTexture)
 {
 	this->albedoTexture = albedoTexture;
 	this->useAlbedoMap = true;
 }
 
-void PBRMaterial::addNormalMap(Texture* normalTexture)
+void PBRMaterial::addNormalMap(std::shared_ptr<Texture> normalTexture)
 {
 	this->normalTexture = normalTexture;
 	this->useNormalMap = true;
 }
 
-void PBRMaterial::addMetallicMap(Texture* metallicTexture)
+void PBRMaterial::addMetallicMap(std::shared_ptr<Texture> metallicTexture)
 {
 	this->metallicTexture = metallicTexture;
 	this->useMetallicMap = true;
 }
 
-void PBRMaterial::addRoughnessMap(Texture* roughnessTexture)
+void PBRMaterial::addRoughnessMap(std::shared_ptr<Texture> roughnessTexture)
 {
 	this->roughnessTexture = roughnessTexture;
 	this->useRoughnessMap = true;
 }
 
-void PBRMaterial::addAoMap(Texture* aoTexture)
+void PBRMaterial::addAoMap(std::shared_ptr<Texture> aoTexture)
 {
 	this->aoTexture = aoTexture;
 	this->useAoMap = true;
 }
 
-void PBRMaterial::addOpacityMap(Texture* opacityTexture)
+void PBRMaterial::addOpacityMap(std::shared_ptr<Texture> opacityTexture)
 {
 	this->opacityTexture = opacityTexture;
 	this->useOpacityMap = true;
 }
 
-void PBRMaterial::addEmissiveMap(Texture* emissiveTexture)
+void PBRMaterial::addEmissiveMap(std::shared_ptr<Texture> emissiveTexture)
 {
 	this->emissiveTexture = emissiveTexture;
 	this->useEmissiveMap = true;

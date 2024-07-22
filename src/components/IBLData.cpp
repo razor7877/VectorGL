@@ -7,7 +7,7 @@
 #include "renderTarget.hpp"
 #include "utilities/geometry.hpp"
 
-IBLData::IBLData(Renderer& renderer, Texture* hdrMap)
+IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 {
 	// We start by querying all the necessary shaders
 	Shader* hdrToCubemapShader = renderer.shaderManager.getShader(ShaderType::HDRTOCUBEMAP);
@@ -152,7 +152,7 @@ IBLData::IBLData(Renderer& renderer, Texture* hdrMap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+	this->brdfLut = std::shared_ptr<Texture>(new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO));
 
 	cubemapEntity.release();
 }
@@ -273,14 +273,14 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+	this->brdfLut = std::shared_ptr<Texture>(new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO));
 
 	cubemapEntity.release();
 }
 
 IBLData::~IBLData()
 {
-	delete irradianceMap;
-	delete prefilterMap;
-	delete brdfLut;
+	delete this->irradianceMap;
+	delete this->prefilterMap;
+	this->brdfLut.reset();
 }

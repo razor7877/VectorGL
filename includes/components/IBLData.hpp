@@ -27,14 +27,14 @@ struct IBLData
 	/// <summary>
 	/// The BRDF lookup texture for specular lighting
 	/// </summary>
-	Texture* brdfLut = nullptr;
+	std::shared_ptr<Texture> brdfLut = nullptr;
 
 	/// <summary>
 	/// Generates an environment map and IBL data from a 2D HDR map
 	/// </summary>
 	/// <param name="renderer">A reference to the renderer</param>
 	/// <param name="hdrMap">The HDR map for the sky</param>
-	IBLData(Renderer& renderer, Texture* hdrMap);
+	IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap);
 
 	/// <summary>
 	/// Generates IBL data for an existing cubemap

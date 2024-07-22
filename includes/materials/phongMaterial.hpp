@@ -14,8 +14,8 @@ struct PhongMaterial : public virtual Material
 {
 public:
 	PhongMaterial();
-	PhongMaterial(Texture* texture);
-	PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture);
+	PhongMaterial(std::shared_ptr<Texture> texture);
+	PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture);
 
 	/// <summary>
 	/// Sends the material data to a shader, the method assumes the shader is already in use
@@ -23,10 +23,10 @@ public:
 	/// <param name="shaderProgram">The shader to send the data to</param>
 	void sendToShader(Shader* shaderProgram) override;
 
-	void addDiffuseMap(Texture* diffuseTexture);
-	void addSpecularMap(Texture* specularTexture);
-	void addNormalMap(Texture* normalTexture);
-	void addHeightMap(Texture* heightTexture);
+	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);
+	void addSpecularMap(std::shared_ptr<Texture> specularTexture);
+	void addNormalMap(std::shared_ptr<Texture> normalTexture);
+	void addHeightMap(std::shared_ptr<Texture> heightTexture);
 
 	/// <summary>
 	/// The ambient color of the object
@@ -48,22 +48,22 @@ public:
 	/// <summary>
 	/// The diffuse texture of the object, if it has one
 	/// </summary>
-	Texture* diffuseTexture = nullptr;
+	std::shared_ptr<Texture> diffuseTexture = nullptr;
 
 	/// <summary>
 	/// The specular texture of the object, if it has one
 	/// </summary>
-	Texture* specularTexture = nullptr;
+	std::shared_ptr<Texture> specularTexture = nullptr;
 
 	/// <summary>
 	/// The normal texture of the object, if it has one
 	/// </summary>
-	Texture* normalTexture = nullptr;
+	std::shared_ptr<Texture> normalTexture = nullptr;
 
 	/// <summary>
 	/// The height texture of the object, if it has one
 	/// </summary>
-	Texture* heightTexture = nullptr;
+	std::shared_ptr<Texture> heightTexture = nullptr;
 
 	bool useDiffuseMap = false;
 	bool useSpecularMap = false;

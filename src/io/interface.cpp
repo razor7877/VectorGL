@@ -106,7 +106,7 @@ struct
 
 struct
 {
-	Texture* currentTexture = nullptr;
+	std::shared_ptr<Texture> currentTexture = nullptr;
 	bool showTexture = false;
 } textureViewerParams;
 
@@ -737,8 +737,8 @@ void ShowComponentUI(Component* component)
 		{
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
 
-			PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material);
-			PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material);
+			PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
+			PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
 
 			if (phongMaterial != nullptr)
 			{

@@ -79,7 +79,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	std::vector<float> tangents;
 	std::vector<float> bitangents;
 
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -137,16 +137,16 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 		// Phong textures
-		std::vector<Texture*> diffuseMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<std::shared_ptr<Texture>> diffuseMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-		std::vector<Texture*> specularMaps = loadMaterialTextures(scene, material, aiTextureType_SPECULAR, "texture_specular");
+		std::vector<std::shared_ptr<Texture>> specularMaps = loadMaterialTextures(scene, material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-		std::vector<Texture*> normalMaps = loadMaterialTextures(scene, material, aiTextureType_NORMALS, "texture_normal");
+		std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(scene, material, aiTextureType_NORMALS, "texture_normal");
 		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-		std::vector<Texture*> heightMaps = loadMaterialTextures(scene, material, aiTextureType_HEIGHT, "texture_height");
+		std::vector<std::shared_ptr<Texture>> heightMaps = loadMaterialTextures(scene, material, aiTextureType_HEIGHT, "texture_height");
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 		if (diffuseMaps.size() > 1 || specularMaps.size() > 1 || normalMaps.size() > 1 || heightMaps.size() > 1)
@@ -157,19 +157,19 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 			diffuseColor = glm::vec3(diffuseColorVec.r, diffuseColorVec.g, diffuseColorVec.b);
 
 		// PBR textures
-		std::vector<Texture*> metalnessMaps = loadMaterialTextures(scene, material, aiTextureType_METALNESS, "texture_metallic");
+		std::vector<std::shared_ptr<Texture>> metalnessMaps = loadMaterialTextures(scene, material, aiTextureType_METALNESS, "texture_metallic");
 		textures.insert(textures.end(), metalnessMaps.begin(), metalnessMaps.end());
 
-		std::vector<Texture*> roughnessMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
+		std::vector<std::shared_ptr<Texture>> roughnessMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
 		textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
-		std::vector<Texture*> aoMaps = loadMaterialTextures(scene, material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
+		std::vector<std::shared_ptr<Texture>> aoMaps = loadMaterialTextures(scene, material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
 		textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 
-		std::vector<Texture*> opacityMaps = loadMaterialTextures(scene, material, aiTextureType_OPACITY, "texture_opacity");
+		std::vector<std::shared_ptr<Texture>> opacityMaps = loadMaterialTextures(scene, material, aiTextureType_OPACITY, "texture_opacity");
 		textures.insert(textures.end(), opacityMaps.begin(), opacityMaps.end());
 
-		std::vector<Texture*> emissiveMaps = loadMaterialTextures(scene, material, aiTextureType_EMISSIVE, "texture_emissive");
+		std::vector<std::shared_ptr<Texture>> emissiveMaps = loadMaterialTextures(scene, material, aiTextureType_EMISSIVE, "texture_emissive");
 		textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 
 		// Get metalness value if we have one
@@ -195,7 +195,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 	meshComponent->setDiffuseColor(diffuseColor);
 
-	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material);
+	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
 	if (pbrMaterial != nullptr)
 	{
 		pbrMaterial->metallic = metalness;
@@ -206,9 +206,9 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	return entity;
 }
 
-std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
 	{
@@ -216,7 +216,7 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 		mat->GetTexture(type, i, &str);
 		std::string path = directory + '/' + std::string(str.C_Str());
 
-		Texture* texture;
+		std::shared_ptr<Texture> texture;
 
 		// Texture has not been loaded yet
 		if (this->loadedTextures.count(path) == 0)
@@ -289,7 +289,7 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 					// Decompress image
 					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, channels);
 					// Create texture using image data
-					texture = new Texture(textureType, width, height, format, data);
+					texture = std::shared_ptr<Texture>(new Texture(textureType, width, height, format, data));
 					stbi_image_free(data);
 				}
 				else // We have raw image data
@@ -303,13 +303,13 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 						if (embeddedTexture->achFormatHint[i] == 'A' && embeddedTexture->achFormatHint[i] != '0')
 							format = GL_RGBA;
 
-					texture = new Texture(textureType, embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData);
+					texture = std::shared_ptr<Texture>(new Texture(textureType, embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData));
 				}
 			}
 			else // Not an embedded texture, load it from file system
 			{
 				Logger::logInfo(std::string("Loading texture path " + path));
-				texture = new Texture(path, textureType, false);
+				texture = std::shared_ptr<Texture>(new Texture(path, textureType, false));
 				texture->path = str.C_Str();
 				this->loadedTextures[path] = texture;
 			}
@@ -317,7 +317,7 @@ std::vector<Texture*> ResourceLoader::loadMaterialTextures(const aiScene* scene,
 		else // Reuse the same texture
 		{
 			Logger::logInfo(std::string("Reusing texture path " + path));
-			texture = this->loadedTextures[path];
+			texture = std::shared_ptr<Texture>(this->loadedTextures[path]);
 		}
 
 		textures.push_back(texture);

@@ -5,12 +5,12 @@ PhongMaterial::PhongMaterial()
 
 }
 
-PhongMaterial::PhongMaterial(Texture* texture)
+PhongMaterial::PhongMaterial(std::shared_ptr<Texture> texture)
 {
 	this->addDiffuseMap(texture);
 }
 
-PhongMaterial::PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, Texture* texture)
+PhongMaterial::PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture)
 {
 	this->ambientColor = ambient;
 	this->diffuseColor = diffuse;
@@ -66,25 +66,25 @@ void PhongMaterial::sendToShader(Shader* shaderProgram)
 		->setFloat("material.shininess", this->shininess);
 }
 
-void PhongMaterial::addDiffuseMap(Texture* diffuseTexture)
+void PhongMaterial::addDiffuseMap(std::shared_ptr<Texture> diffuseTexture)
 {
 	this->useDiffuseMap = true;
 	this->diffuseTexture = diffuseTexture;
 }
 
-void PhongMaterial::addSpecularMap(Texture* specularTexture)
+void PhongMaterial::addSpecularMap(std::shared_ptr<Texture> specularTexture)
 {
 	this->useSpecularMap = true;
 	this->specularTexture = specularTexture;
 }
 
-void PhongMaterial::addNormalMap(Texture* normalTexture)
+void PhongMaterial::addNormalMap(std::shared_ptr<Texture> normalTexture)
 {
 	this->useNormalMap = true;
 	this->normalTexture = normalTexture;
 }
 
-void PhongMaterial::addHeightMap(Texture* heightTexture)
+void PhongMaterial::addHeightMap(std::shared_ptr<Texture> heightTexture)
 {
 	this->useHeightMap = true;
 	this->heightTexture = heightTexture;

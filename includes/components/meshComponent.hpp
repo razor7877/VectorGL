@@ -28,14 +28,14 @@ public:
 		std::vector<float> texCoords,
 		std::vector<float> normals,
 		std::vector<unsigned int> indices,
-		std::vector<Texture*> textures,
+		std::vector<std::shared_ptr<Texture>> textures,
 		Shader* shaderProgram,
 		glm::vec3 position = glm::vec3(0.0f));
 
 	// Generates buffers and enables correct draw calls to use given texture
 	MeshComponent& addTexCoords(std::vector<float> texCoords);
 	MeshComponent& addTexCoords(float texCoords[], unsigned int texSize);
-	MeshComponent& addTexture(Texture* texture);
+	MeshComponent& addTexture(std::shared_ptr<Texture> texture);
 	MeshComponent& addNormals(float normals[], unsigned int normalSize);
 	MeshComponent& addIndices(unsigned int indices[], unsigned int indicesSize);
 	MeshComponent& addTangents(std::vector<float> tangents);
@@ -46,7 +46,7 @@ public:
 	/// <summary>
 	/// The material of the mesh
 	/// </summary>
-	Material* material = nullptr;
+	std::unique_ptr<Material> material = nullptr;
 
 protected:
 	/// <summary>
@@ -65,7 +65,7 @@ protected:
 	int indicesCount = 0;
 	bool hasIndices = false;
 
-	std::vector<Texture*> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	/// <summary>
 	/// A OpenGL handle for the vertex array object

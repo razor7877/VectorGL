@@ -20,7 +20,7 @@ private:
 	static ResourceLoader instance;
 
 	std::string directory;
-	std::map<std::string, Texture*> loadedTextures;
+	std::map<std::string, std::shared_ptr<Texture>> loadedTextures;
 
 	ResourceLoader();
 	ResourceLoader(ResourceLoader const&) = delete;
@@ -28,5 +28,5 @@ private:
 
 	void processNode(aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent);
 	Entity* processMesh(aiMesh* mesh, const aiScene* scene, Shader* shaderProgram, Entity* parent);
-	std::vector<Texture*> loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName);
+	std::vector<std::shared_ptr<Texture>> loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName);
 };

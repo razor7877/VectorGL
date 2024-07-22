@@ -22,7 +22,7 @@ public:
 	/// <summary>
 	/// The BRDF look up table for specular IBL
 	/// </summary>
-	static Texture* brdfLut;
+	static std::shared_ptr<Texture> brdfLut;
 
 	/// <summary>
 	/// The albedo color of the object, used in case it doesn't have an albedo texture
@@ -52,37 +52,37 @@ public:
 	/// <summary>
 	/// The albedo texture of the object responsible for the color, if it has one
 	/// </summary>
-	Texture* albedoTexture = nullptr;
+	std::shared_ptr<Texture> albedoTexture = nullptr;
 
 	/// <summary>
 	/// The normal texture of the object for lighting calculations, if it has one
 	/// </summary>
-	Texture* normalTexture = nullptr;
+	std::shared_ptr<Texture> normalTexture = nullptr;
 
 	/// <summary>
 	/// The metallic texture of the object, if it has one
 	/// </summary>
-	Texture* metallicTexture = nullptr;
+	std::shared_ptr<Texture> metallicTexture = nullptr;
 
 	/// <summary>
 	/// The roughness texture of the object, if it has one
 	/// </summary>
-	Texture* roughnessTexture = nullptr;
+	std::shared_ptr<Texture> roughnessTexture = nullptr;
 
 	/// <summary>
 	/// The ambient occlusion texture of the object, if it has one
 	/// </summary>
-	Texture* aoTexture = nullptr;
+	std::shared_ptr<Texture> aoTexture = nullptr;
 
 	/// <summary>
 	/// The opacity texture of the object, if it has one
 	/// </summary>
-	Texture* opacityTexture = nullptr;
+	std::shared_ptr<Texture> opacityTexture = nullptr;
 
 	/// <summary>
 	/// The emissive texture of the object, if it has one
 	/// </summary>
-	Texture* emissiveTexture = nullptr;
+	std::shared_ptr<Texture> emissiveTexture = nullptr;
 
 	bool useAlbedoMap = false;
 	bool useNormalMap = false;
@@ -96,11 +96,11 @@ public:
 
 	void sendToShader(Shader* shaderProgram) override;
 
-	void addAlbedoMap(Texture* albedoTexture);
-	void addNormalMap(Texture* normalTexture);
-	void addMetallicMap(Texture* metallicTexture);
-	void addRoughnessMap(Texture* roughnessTexture);
-	void addAoMap(Texture* aoTexture);
-	void addOpacityMap(Texture* opacityTexture);
-	void addEmissiveMap(Texture* emissiveTexture);
+	void addAlbedoMap(std::shared_ptr<Texture> albedoTexture);
+	void addNormalMap(std::shared_ptr<Texture> normalTexture);
+	void addMetallicMap(std::shared_ptr<Texture> metallicTexture);
+	void addRoughnessMap(std::shared_ptr<Texture> roughnessTexture);
+	void addAoMap(std::shared_ptr<Texture> aoTexture);
+	void addOpacityMap(std::shared_ptr<Texture> opacityTexture);
+	void addEmissiveMap(std::shared_ptr<Texture> emissiveTexture);
 };
