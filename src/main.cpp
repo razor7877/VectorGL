@@ -65,8 +65,8 @@ int main()
 
 	dynamicsWorld->setGravity(btVector3(0.0f, gravity, 0.0f));
 
-	btCollisionShape* planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), 1.0f);
-	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, -1.0f, 0.0f)));
+	btCollisionShape* planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -5.0f);
+	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 0.0f, 0.0f)));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, planeShape, btVector3(0.0f, 0.0f, 0.0f));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 	dynamicsWorld->addRigidBody(groundRigidBody);
@@ -80,17 +80,18 @@ int main()
 	btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
 	dynamicsWorld->addRigidBody(boxRigidBody);
 
-	// Simulate the dynamics world
-	for (int i = 0; i < 300; i++)
-	{
-		dynamicsWorld->stepSimulation(1 / 60.f, 10);
+	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
+	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
+	std::vector<float> cubeVertices = Geometry::getCubeVertices();
+	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
 
-		// Print positions of the box
-		btTransform trans;
-		boxRigidBody->getMotionState()->getWorldTransform(trans);
-		std::string output = "Box height: " + std::to_string(trans.getOrigin().getY());
-		Logger::logDebug(output);
+	PBRMaterial* cubeMaterial = dynamic_cast<PBRMaterial*>(cubeMesh->material.get());
+	if (cubeMaterial != nullptr)
+	{
+		cubeMaterial->albedoColor = glm::vec3(0.0f, 1.0f, 0.0f);
 	}
+
+	defaultRenderer.addEntity(std::move(cubeEntity));
 
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
@@ -138,7 +139,7 @@ int main()
 	planeMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), pbrShader);
 	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
 	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(20.0f));
+	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 	defaultRenderer.addEntity(std::move(planeEntity));
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
@@ -179,11 +180,21 @@ int main()
 
 		defaultRenderer.render(deltaTime);
 
-		/*std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", LightManager::getInstance().shaderProgram);
-		if (newEntity != nullptr)
+		dynamicsWorld->stepSimulation(1 / 165.f, 10);
+
+		// Print positions of the box
+		btTransform trans;
+		boxRigidBody->getMotionState()->getWorldTransform(trans);
+		cubeMesh->parent->transform->setPosition(glm::vec3(trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()));
+		std::string output = "Box height: " + std::to_string(trans.getOrigin().getY());
+		Logger::logDebug(output);
+
+		if (trans.getOrigin().y() < -3.9f)
 		{
-			newEntity->start();
-		}*/
+			btVector3 upwardForce(0.0f, 300.0f, 0.0f);
+
+			boxRigidBody->applyCentralForce(upwardForce);
+		}
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();
