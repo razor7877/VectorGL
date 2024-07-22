@@ -2,13 +2,15 @@ cmake_minimum_required(VERSION 3.24)
 project(VectorGL)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 find_package(OpenGL REQUIRED)
 
-# Add library subfolders
+# Add CMake library subfolders
 add_subdirectory(libs/assimp EXCLUDE_FROM_ALL)
 add_subdirectory(libs/glfw EXCLUDE_FROM_ALL)
 add_subdirectory(libs/glm EXCLUDE_FROM_ALL)
+add_subdirectory(libs/lua-5.4.7 EXCLUDE_FROM_ALL)
 
 # Find all source files
 file(GLOB MAIN_SRC "src/*.c" "src/*.cpp")
@@ -30,8 +32,6 @@ file(GLOB LIGHTS_INCLUDES "includes/lights/*.h" "includes/lights/*.hpp")
 file(GLOB MATERIALS_INCLUDES "includes/materials/*.h" "includes/materials/*.hpp")
 file(GLOB UTILITIES_INCLUDES "includes/utilities/*.h" "includes/utilities/*.hpp")
 
-message(STATUS "C files: ${COMPONENTS_INCLUDES}")
-
 # Add sources to target
 add_executable(VectorGL
 	${MAIN_SRC}
@@ -51,6 +51,8 @@ add_executable(VectorGL
 	${LIGHTS_INCLUDES}
 	${MATERIALS_INCLUDES}
 	${UTILITIES_INCLUDES}
+
+	${LUA_SRC_INCLUDES}
 
 	libs/ImGuiColorTextEdit/TextEditor.cpp
 	libs/ImGuiColorTextEdit/TextEditor.h
@@ -90,11 +92,13 @@ target_include_directories(VectorGL PUBLIC
 	libs
 	libs/glm
 	libs/ImGui
+	libs/lua-5.4.7/src
 )
 
 target_link_libraries(VectorGL PUBLIC
 	assimp
 	glfw
+	lua
 	OpenGL::GL)
 
 # Copy all assets to build folder
