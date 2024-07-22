@@ -11,7 +11,9 @@ add_subdirectory(libs/assimp EXCLUDE_FROM_ALL)
 add_subdirectory(libs/glfw EXCLUDE_FROM_ALL)
 add_subdirectory(libs/glm EXCLUDE_FROM_ALL)
 add_subdirectory(libs/lua-5.4.7 EXCLUDE_FROM_ALL)
-add_subdirectory(libs/bullet3 EXCLUDE_FROM_ALL)
+
+set(BULLET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3/build")
+find_package(Bullet REQUIRED)
 
 # Find all source files
 file(GLOB MAIN_SRC "src/*.c" "src/*.cpp")
@@ -94,16 +96,16 @@ target_include_directories(VectorGL PUBLIC
 	libs/glm
 	libs/ImGui
 	libs/lua-5.4.7/src
-	libs/bullet3/src
+	${BULLET_INCLUDE_DIR}
 )
+
+MESSAGE(${BULLET_INCLUDE_DIR})
 
 target_link_libraries(VectorGL PUBLIC
 	assimp
 	glfw
 	lua
-	BulletCollision
-	BulletDynamics
-	LinearMath
+	${BULLET_LIBRARIES}
 	OpenGL::GL)
 
 # Copy all assets to build folder
