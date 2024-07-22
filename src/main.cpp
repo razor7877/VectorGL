@@ -19,6 +19,7 @@
 #include "components/skyboxComponent.hpp"
 #include "components/meshComponent.hpp"
 #include "components/cameraComponent.hpp"
+#include "components/scriptComponent.hpp"
 #include "components/lights/pointLightComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
 #include "components/lights/spotLightComponent.hpp"
@@ -97,6 +98,10 @@ int main()
 
 		defaultRenderer.addEntity(std::move(pointLightEntity));
 	}
+
+	std::unique_ptr<Entity> modelEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", pbrShader);
+	ScriptComponent* scriptComponent = modelEntity->addComponent<ScriptComponent>();
+	defaultRenderer.addEntity(std::move(modelEntity));
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));

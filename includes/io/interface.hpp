@@ -45,14 +45,24 @@ void KeysMenu();
 void ShaderSettings();
 
 /// <summary>
-/// Called to setup the code editor
+/// Called to setup the shader editor
 /// </summary>
-void SetupEditor();
+void SetupShaderEditor();
 
 /// <summary>
 /// The window that displays the code editor to edit shaders
 /// </summary>
-void ShowEditor();
+void ShowShaderEditor();
+
+/// <summary>
+/// Called to setup the script editor
+/// </summary>
+void SetupScriptEditor();
+
+/// <summary>
+/// The window that displays the code editor to edit scripts
+/// </summary>
+void ShowScriptEditor();
 
 /// <summary>
 /// Shows the details of the currently selected node in the scene graph

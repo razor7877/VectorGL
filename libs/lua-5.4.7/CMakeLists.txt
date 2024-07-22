@@ -3,4 +3,4 @@ project(lua)
 
 file(GLOB LUA_SRC_INCLUDES "src/*.c" "src/*.h")
 
-add_library(lua ${LUA_SRC_INCLUDES})
+add_library(lua STATIC ${LUA_SRC_INCLUDES})

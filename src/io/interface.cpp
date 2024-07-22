@@ -24,6 +24,7 @@
 #include "components/lights/spotLightComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
 #include "components/skyboxComponent.hpp"
+#include "components/scriptComponent.hpp"
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
@@ -35,10 +36,6 @@ Renderer* renderer;
 Entity* selectedSceneNode{};
 
 std::string editLabel{};
-
-// For the shader editor
-TextEditor editor;
-static const char* fileToEdit;
 
 bool isViewerFocused = false;
 
@@ -84,6 +81,9 @@ struct
 
 struct
 {
+	// For the shader editor
+	TextEditor editor;
+
 	std::string currentEditedShaderPath;
 	ShaderType currentEditedShaderType;
 	bool isEditingShader = false;
@@ -94,6 +94,15 @@ struct
 	float ao = 0.0f;
 } shaderSettingsParams;
 
+struct
+{
+	// For the script editor
+	TextEditor editor;
+
+	ScriptComponent* currentEditedScript = nullptr;
+	std::string currrentEditedScriptName = "";
+	bool isEditingScript = false;
+} scriptEditorParams;
 
 struct
 {
@@ -122,7 +131,8 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 	// Setup Dear ImgUi style
 	ImGui::StyleColorsDark();
 
-	SetupEditor();
+	SetupShaderEditor();
+	SetupScriptEditor();
 
 	renderer = rendererArg;
 }
@@ -153,7 +163,8 @@ void ImGuiDrawWindows()
 	PerformanceMenu();
 	KeysMenu();
 	ShaderSettings();
-	ShowEditor();
+	ShowShaderEditor();
+	ShowScriptEditor();
 	ShowNodeDetails();
 	SceneGraph();
 	TextureViewer();
@@ -193,7 +204,9 @@ void ShowConsole()
 {
 	ImGui::Begin("Console");
 
-	ImGui::BeginChild("Logs", ImVec2(0, 150), 0, ImGuiWindowFlags_HorizontalScrollbar);
+	ImVec2 windowSize = ImGui::GetContentRegionAvail();
+
+	ImGui::BeginChild("Logs", ImVec2(0, windowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
 
 	std::vector<Log> logs;
@@ -364,7 +377,8 @@ void ShaderSettings()
 				shaderSettingsParams.currentEditedShaderType = type;
 				shaderSettingsParams.isEditingVertexShader = true;
 				shaderSettingsParams.isEditingShader = true;
-				editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
+				shaderSettingsParams.editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
+				ImGui::SetWindowFocus("Shader editor");
 			}
 			ImGui::PopID();
 
@@ -375,7 +389,8 @@ void ShaderSettings()
 				shaderSettingsParams.currentEditedShaderType = type;
 				shaderSettingsParams.isEditingVertexShader = false;
 				shaderSettingsParams.isEditingShader = true;
-				editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
+				shaderSettingsParams.editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
+				ImGui::SetWindowFocus("Shader editor");
 			}
 			ImGui::PopID();
 		}
@@ -384,16 +399,16 @@ void ShaderSettings()
 	ImGui::End();
 }
 
-void SetupEditor()
+void SetupShaderEditor()
 {
 	TextEditor::LanguageDefinition lang = TextEditor::LanguageDefinition::GLSL();
-	editor.SetLanguageDefinition(lang);
-	editor.SetShowWhitespaces(false);
+	shaderSettingsParams.editor.SetLanguageDefinition(lang);
+	shaderSettingsParams.editor.SetShowWhitespaces(false);
 }
 
-void ShowEditor()
+void ShowShaderEditor()
 {
-	auto cpos = editor.GetCursorPosition();
+	auto cpos = shaderSettingsParams.editor.GetCursorPosition();
 
 	ImGui::Begin("Shader editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
 	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
@@ -401,7 +416,7 @@ void ShowEditor()
 	{
 		if (ImGui::Button("Save"))
 		{
-			auto textToSave = editor.GetText();
+			auto textToSave = shaderSettingsParams.editor.GetText();
 			if (shaderSettingsParams.isEditingShader)
 			{
 				if (shaderSettingsParams.isEditingVertexShader)
@@ -414,31 +429,31 @@ void ShowEditor()
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
-			bool ro = editor.IsReadOnly();
+			bool ro = shaderSettingsParams.editor.IsReadOnly();
 			if (ImGui::MenuItem("Read-only mode", nullptr, &ro))
-				editor.SetReadOnly(ro);
+				shaderSettingsParams.editor.SetReadOnly(ro);
 			ImGui::Separator();
 
-			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && editor.CanUndo()))
-				editor.Undo();
-			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && editor.CanRedo()))
-				editor.Redo();
+			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && shaderSettingsParams.editor.CanUndo()))
+				shaderSettingsParams.editor.Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && shaderSettingsParams.editor.CanRedo()))
+				shaderSettingsParams.editor.Redo();
 
 			ImGui::Separator();
 
-			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, editor.HasSelection()))
-				editor.Copy();
-			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && editor.HasSelection()))
-				editor.Cut();
-			if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && editor.HasSelection()))
-				editor.Delete();
+			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, shaderSettingsParams.editor.HasSelection()))
+				shaderSettingsParams.editor.Copy();
+			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && shaderSettingsParams.editor.HasSelection()))
+				shaderSettingsParams.editor.Cut();
+			if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && shaderSettingsParams.editor.HasSelection()))
+				shaderSettingsParams.editor.Delete();
 			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr, !ro && ImGui::GetClipboardText() != nullptr))
-				editor.Paste();
+				shaderSettingsParams.editor.Paste();
 
 			ImGui::Separator();
 
 			if (ImGui::MenuItem("Select all", nullptr, nullptr))
-				editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(editor.GetTotalLines(), 0));
+				shaderSettingsParams.editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(shaderSettingsParams.editor.GetTotalLines(), 0));
 
 			ImGui::EndMenu();
 		}
@@ -446,22 +461,96 @@ void ShowEditor()
 		if (ImGui::BeginMenu("View"))
 		{
 			if (ImGui::MenuItem("Dark palette"))
-				editor.SetPalette(TextEditor::GetDarkPalette());
+				shaderSettingsParams.editor.SetPalette(TextEditor::GetDarkPalette());
 			if (ImGui::MenuItem("Light palette"))
-				editor.SetPalette(TextEditor::GetLightPalette());
+				shaderSettingsParams.editor.SetPalette(TextEditor::GetLightPalette());
 			if (ImGui::MenuItem("Retro blue palette"))
-				editor.SetPalette(TextEditor::GetRetroBluePalette());
+				shaderSettingsParams.editor.SetPalette(TextEditor::GetRetroBluePalette());
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
 	}
 
-	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, editor.GetTotalLines(),
-		editor.IsOverwrite() ? "Ovr" : "Ins",
-		editor.CanUndo() ? "*" : " ",
-		editor.GetLanguageDefinition().mName.c_str(), shaderSettingsParams.currentEditedShaderPath);
+	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, shaderSettingsParams.editor.GetTotalLines(),
+		shaderSettingsParams.editor.IsOverwrite() ? "Ovr" : "Ins",
+		shaderSettingsParams.editor.CanUndo() ? "*" : " ",
+		shaderSettingsParams.editor.GetLanguageDefinition().mName.c_str(), shaderSettingsParams.currentEditedShaderPath);
 
-	editor.Render("TextEditor");
+	shaderSettingsParams.editor.Render("Shader Editor");
+	ImGui::End();
+}
+
+void SetupScriptEditor()
+{
+	TextEditor::LanguageDefinition lang = TextEditor::LanguageDefinition::Lua();
+	scriptEditorParams.editor.SetLanguageDefinition(lang);
+	scriptEditorParams.editor.SetShowWhitespaces(false);
+}
+
+void ShowScriptEditor()
+{
+	auto cpos = scriptEditorParams.editor.GetCursorPosition();
+
+	ImGui::Begin("Script editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::Button("Save"))
+		{
+			auto textToSave = scriptEditorParams.editor.GetText();
+			if (scriptEditorParams.isEditingScript)
+				scriptEditorParams.currentEditedScript->scriptCode = textToSave;
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			bool ro = scriptEditorParams.editor.IsReadOnly();
+			if (ImGui::MenuItem("Read-only mode", nullptr, &ro))
+				scriptEditorParams.editor.SetReadOnly(ro);
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && scriptEditorParams.editor.CanUndo()))
+				scriptEditorParams.editor.Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && scriptEditorParams.editor.CanRedo()))
+				scriptEditorParams.editor.Redo();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, scriptEditorParams.editor.HasSelection()))
+				scriptEditorParams.editor.Copy();
+			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && scriptEditorParams.editor.HasSelection()))
+				scriptEditorParams.editor.Cut();
+			if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && scriptEditorParams.editor.HasSelection()))
+				scriptEditorParams.editor.Delete();
+			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr, !ro && ImGui::GetClipboardText() != nullptr))
+				scriptEditorParams.editor.Paste();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Select all", nullptr, nullptr))
+				scriptEditorParams.editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(scriptEditorParams.editor.GetTotalLines(), 0));
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::MenuItem("Dark palette"))
+				scriptEditorParams.editor.SetPalette(TextEditor::GetDarkPalette());
+			if (ImGui::MenuItem("Light palette"))
+				scriptEditorParams.editor.SetPalette(TextEditor::GetLightPalette());
+			if (ImGui::MenuItem("Retro blue palette"))
+				scriptEditorParams.editor.SetPalette(TextEditor::GetRetroBluePalette());
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, scriptEditorParams.editor.GetTotalLines(),
+		scriptEditorParams.editor.IsOverwrite() ? "Ovr" : "Ins",
+		scriptEditorParams.editor.CanUndo() ? "*" : " ",
+		scriptEditorParams.editor.GetLanguageDefinition().mName.c_str(), scriptEditorParams.currrentEditedScriptName);
+
+	scriptEditorParams.editor.Render("Script Editor");
 	ImGui::End();
 }
 
@@ -583,8 +672,6 @@ void HandleSceneGraphClick(Entity* object)
 
 void ShowComponentUI(Component* component)
 {
-	const std::type_index& componentType = typeid(component);
-
 	if (dynamic_cast<TransformComponent*>(component))
 	{
 		if (ImGui::CollapsingHeader("Transform"))
@@ -649,7 +736,7 @@ void ShowComponentUI(Component* component)
 		if (ImGui::CollapsingHeader("Mesh"))
 		{
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
-			
+
 			PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material);
 			PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material);
 
@@ -886,6 +973,20 @@ void ShowComponentUI(Component* component)
 			ImGui::ColorEdit3("Specular", &(directionalLightComponent->specularColor[0]));
 
 			ImGui::DragFloat3("Direction", &(directionalLightComponent->direction[0]), 0.002f);
+		}
+	}
+	else if (dynamic_cast<ScriptComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Script"))
+		{
+			ScriptComponent* scriptComponent = dynamic_cast<ScriptComponent*>(component);
+
+			if (ImGui::Button("Edit script"))
+			{
+				scriptEditorParams.currentEditedScript = scriptComponent;
+				scriptEditorParams.isEditingScript = true;
+				scriptEditorParams.editor.SetText(scriptComponent->scriptCode);
+			}
 		}
 	}
 }

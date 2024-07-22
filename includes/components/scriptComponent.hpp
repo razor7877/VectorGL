@@ -1,0 +1,26 @@
+#pragma once
+
+#include <string>
+
+extern "C" {
+	#include <lua.h>
+	#include <lauxlib.h>
+	#include <lualib.h>
+}
+
+#include "components/component.hpp"
+
+class ScriptComponent : public virtual Component
+{
+public:
+	std::string scriptCode = "print(\"Lua Hello world!\")";
+
+	ScriptComponent(Entity* parent);
+	~ScriptComponent() override;
+
+	void Component::start() override;
+	void Component::update() override;
+
+private:
+	lua_State* L;
+};
