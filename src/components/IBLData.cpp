@@ -18,7 +18,7 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	std::vector<float> boxVertices = Geometry::getCubeVertices();
 
 	// Create an entity that will contain a box mesh to display the HDR map
-	std::unique_ptr<Entity> cubemapEntity = std::unique_ptr<Entity>(new Entity("HDR Cubemap"));
+	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
 	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
 	lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), hdrToCubemapShader);
 	lightMesh->addTexture(hdrMap);
@@ -124,7 +124,7 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
-	std::unique_ptr<Entity> quadEntity = std::unique_ptr<Entity>(new Entity("Quad"));
+	std::unique_ptr<Entity> quadEntity = std::make_unique<Entity>("Quad");
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
 	quadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), brdfShader);
 	quadMesh->addTexCoords(quadTexCoords);
@@ -152,9 +152,9 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = std::shared_ptr<Texture>(new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO));
+	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 
-	cubemapEntity.release();
+	cubemapEntity.reset();
 }
 
 IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
@@ -167,7 +167,7 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	std::vector<float> boxVertices = Geometry::getCubeVertices();
 
 	// Create an entity that will contain a box mesh to display the HDR map
-	std::unique_ptr<Entity> cubemapEntity = std::unique_ptr<Entity>(new Entity("HDR Cubemap"));
+	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
 	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
 	lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), irradianceShader);
 
@@ -246,7 +246,7 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
-	std::unique_ptr<Entity> quadEntity = std::unique_ptr<Entity>(new Entity("Quad"));
+	std::unique_ptr<Entity> quadEntity = std::make_unique<Entity>("Quad");
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
 	quadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), brdfShader);
 	quadMesh->addTexCoords(quadTexCoords);
@@ -273,9 +273,7 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = std::shared_ptr<Texture>(new Texture(brdfLUTTexture, TextureType::TEXTURE_ALBEDO));
-
-	cubemapEntity.release();
+	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 }
 
 IBLData::~IBLData()

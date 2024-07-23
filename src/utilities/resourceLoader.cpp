@@ -10,6 +10,18 @@
 
 ResourceLoader ResourceLoader::instance;
 
+std::map<aiTextureType, TextureType> ResourceLoader::aiMatToTextureType = {
+	{ aiTextureType_DIFFUSE, TextureType::TEXTURE_DIFFUSE },
+	{ aiTextureType_SPECULAR, TextureType::TEXTURE_SPECULAR },
+	{ aiTextureType_NORMALS, TextureType::TEXTURE_NORMAL },
+	{ aiTextureType_HEIGHT, TextureType::TEXTURE_HEIGHT },
+	{ aiTextureType_METALNESS, TextureType::TEXTURE_METALLIC },
+	{ aiTextureType_DIFFUSE_ROUGHNESS, TextureType::TEXTURE_ROUGHNESS },
+	{ aiTextureType_AMBIENT_OCCLUSION, TextureType::TEXTURE_AO },
+	{ aiTextureType_OPACITY, TextureType::TEXTURE_OPACITY },
+	{ aiTextureType_EMISSIVE, TextureType::TEXTURE_EMISSIVE },
+};
+
 ResourceLoader& ResourceLoader::getInstance()
 {
 	return ResourceLoader::instance;
@@ -218,49 +230,16 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 
 		std::shared_ptr<Texture> texture;
 
-		// Texture has not been loaded yet
-		if (this->loadedTextures.count(path) == 0)
+		// Texture is already cached in memory, reuse it
+		if (this->loadedTextures.count(path) != 0 && !this->loadedTextures[path].expired())
+		{
+			Logger::logInfo(std::string("Reusing texture path " + path), "resourceLoader.cpp");
+			texture = std::shared_ptr<Texture>(this->loadedTextures[path]);
+		}
+		else // Texture has not been loaded yet or weak_ptr is expired
 		{
 			// To map each value to the corresponding TextureType
-			TextureType textureType;
-			switch (type)
-			{
-				case aiTextureType_DIFFUSE:
-					textureType = TextureType::TEXTURE_DIFFUSE;
-					break;
-
-				case aiTextureType_SPECULAR:
-					textureType = TextureType::TEXTURE_SPECULAR;
-					break;
-
-				case aiTextureType_NORMALS:
-					textureType = TextureType::TEXTURE_NORMAL;
-					break;
-
-				case aiTextureType_HEIGHT:
-					textureType = TextureType::TEXTURE_HEIGHT;
-					break;
-
-				case aiTextureType_METALNESS:
-					textureType = TextureType::TEXTURE_METALLIC;
-					break;
-
-				case aiTextureType_DIFFUSE_ROUGHNESS:
-					textureType = TextureType::TEXTURE_ROUGHNESS;
-					break;
-
-				case aiTextureType_AMBIENT_OCCLUSION:
-					textureType = TextureType::TEXTURE_AO;
-					break;
-
-				case aiTextureType_OPACITY:
-					textureType = TextureType::TEXTURE_OPACITY;
-					break;
-
-				case aiTextureType_EMISSIVE:
-					textureType = TextureType::TEXTURE_EMISSIVE;
-					break;
-			}
+			TextureType textureType = ResourceLoader::aiMatToTextureType[type];
 
 			// If this is not null, we have an embedded texture, for example in GLB models
 			if (auto embeddedTexture = scene->GetEmbeddedTexture(str.C_Str()))
@@ -313,11 +292,6 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 				texture->path = str.C_Str();
 				this->loadedTextures[path] = texture;
 			}
-		}
-		else // Reuse the same texture
-		{
-			Logger::logInfo(std::string("Reusing texture path " + path), "resourceLoader.cpp");
-			texture = std::shared_ptr<Texture>(this->loadedTextures[path]);
 		}
 
 		textures.push_back(texture);

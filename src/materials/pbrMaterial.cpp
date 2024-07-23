@@ -10,6 +10,11 @@ PBRMaterial::PBRMaterial()
 
 }
 
+PBRMaterial::~PBRMaterial()
+{
+
+}
+
 void PBRMaterial::sendToShader(Shader* shaderProgram)
 {
 	// Send all data relevant to textures

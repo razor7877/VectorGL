@@ -18,9 +18,10 @@ public:
 	
 private:
 	static ResourceLoader instance;
+	static std::map<aiTextureType, TextureType> aiMatToTextureType;
 
 	std::string directory;
-	std::map<std::string, std::shared_ptr<Texture>> loadedTextures;
+	std::map<std::string, std::weak_ptr<Texture>> loadedTextures;
 
 	ResourceLoader();
 	ResourceLoader(ResourceLoader const&) = delete;

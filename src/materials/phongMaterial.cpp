@@ -19,6 +19,11 @@ PhongMaterial::PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spe
 	this->diffuseTexture = texture;
 }
 
+PhongMaterial::~PhongMaterial()
+{
+
+}
+
 void PhongMaterial::sendToShader(Shader* shaderProgram)
 {
 	// Send all data relevant to textures

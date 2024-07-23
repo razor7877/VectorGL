@@ -93,6 +93,7 @@ public:
 	bool useEmissiveMap = false;
 
 	PBRMaterial();
+	~PBRMaterial() override;
 
 	void sendToShader(Shader* shaderProgram) override;
 

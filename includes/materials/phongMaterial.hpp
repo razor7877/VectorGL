@@ -16,6 +16,7 @@ public:
 	PhongMaterial();
 	PhongMaterial(std::shared_ptr<Texture> texture);
 	PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture);
+	~PhongMaterial() override;
 
 	/// <summary>
 	/// Sends the material data to a shader, the method assumes the shader is already in use
