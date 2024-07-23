@@ -140,7 +140,7 @@ void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
 	// OpenGL context needs to be initalized beforehand to call glGetString()
 	performanceParams.gpuVendor = (char*)glGetString(GL_VENDOR);
 	performanceParams.gpuVendorStr = std::string(performanceParams.gpuVendor);
-	performanceParams.isNvidiaGpu = performanceParams.gpuVendorStr == "Nvidia";
+	performanceParams.isNvidiaGpu = performanceParams.gpuVendorStr.find("NVIDIA") != std::string::npos;
 
 	// Setup Dear ImgGui context
 	IMGUI_CHECKVERSION();
@@ -227,9 +227,14 @@ void ShowViewer()
 		glm::vec2 relativeMousePos = mousePos - imagePos;
 
 		float ndcX = relativeMousePos.x / viewerSize.x * 2.0f - 1.0f;
-		float ndcY = relativeMousePos.y / viewerSize.y * 2.0f - 1.0f;
-		std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
-		Logger::logInfo(hitMessage, "interface.cpp");
+		float ndcY = 1.0f - relativeMousePos.y / viewerSize.y * 2.0f;
+
+		// This is a click inside of the window
+		if (ndcX > -1.0f && ndcX < 1.0f && ndcY > -1.0f && ndcY < 1.0f)
+		{
+			std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
+			Logger::logInfo(hitMessage, "interface.cpp");
+		}
 	}
 
 	ImGui::End();
