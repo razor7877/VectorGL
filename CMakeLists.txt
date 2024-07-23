@@ -108,6 +108,8 @@ target_link_libraries(VectorGL PUBLIC
 	${BULLET_LIBRARIES}
 	OpenGL::GL)
 
+add_compile_definitions(IMGUI_USER_CONFIG="io/imguiConfig.hpp")
+
 # Copy all assets to build folder
 file(COPY src/shaders DESTINATION ${VectorGL_BINARY_DIR})
 file(COPY img DESTINATION ${VectorGL_BINARY_DIR})
