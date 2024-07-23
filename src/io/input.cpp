@@ -5,6 +5,7 @@
 #include "io/input.hpp"
 #include "components/cameraComponent.hpp"
 #include "utilities/resourceLoader.hpp"
+#include "logger.hpp"
 
 GLFWwindow* window;
 
@@ -65,9 +66,7 @@ int setupGlfwContext()
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (showCursor)
-	{
 		return;
-	}
 
 	if (firstMouse)
 	{
@@ -104,7 +103,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 
 	// Toggle to show/hide mouse cursor
-	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && isViewerFocused)
+	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && (isViewerFocused || !showCursor))
 	{
 		showCursor = !showCursor;
 		if (showCursor) // We only allow hiding cursor if viewer is focused
@@ -113,9 +112,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			firstMouse = true;
 		}
 		else
-		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		}
 	}
 
 	// Toggle to enable/disable wireframe drawing
@@ -123,13 +120,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		wireframeMode = !wireframeMode;
 		if (wireframeMode)
-		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
 		else
-		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
 	}
 
 	// Toggle to go in or out of fullscreen mode
@@ -149,7 +142,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 			// Sets window to fullscreen mode and updates viewport
 			glfwSetWindowMonitor(window, monitor, 50, 50, mode->width, mode->height, mode->refreshRate);
-			glViewport(0, 0, mode->width, mode->height);
 
 			// Sets window resolution values to monitor resolution
 			windowWidth = mode->width;
@@ -159,19 +151,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		{
 			// Sets window to windowed mode and updates viewport
 			glfwSetWindowMonitor(window, nullptr, lastXPos, lastYPos, lastWidth, lastHeight, mode->refreshRate);
-			glViewport(0, 0, lastWidth, lastHeight);
-
-			std::cout << lastXPos << " " << lastYPos << std::endl;
 
 			// Sets window resolution values to last saved windowed values
 			windowWidth = lastWidth;
 			windowHeight = lastHeight;
 		}
-	}
-
-	if (key == GLFW_KEY_P && action == GLFW_PRESS)
-	{
-
 	}
 }
 

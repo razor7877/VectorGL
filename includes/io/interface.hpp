@@ -1,7 +1,6 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include <glm/glm.hpp>
 #include <imgui.h>
 
 #include "renderer.hpp"

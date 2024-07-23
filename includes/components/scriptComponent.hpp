@@ -13,7 +13,7 @@ extern "C" {
 class ScriptComponent : public virtual Component
 {
 public:
-	std::string scriptCode = "print(\"Lua Hello world!\")";
+	std::string scriptCode = "";
 
 	ScriptComponent(Entity* parent);
 	~ScriptComponent() override;
