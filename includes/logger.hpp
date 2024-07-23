@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <set>
 
 /// <summary>
 /// An enum that stores the various log levels
@@ -91,8 +92,25 @@ public:
 	/// <summary>
 	/// Returns all the logs filtered by the given log level
 	/// </summary>
-	/// <param name="logLevel">The log level to filter the messages with</param>
-	static std::vector<Log> getLogs(LogLevel logLevel);
+	/// <param name="logLevel">The selected log level</param>
+	static std::vector<Log> getLogsByLevel(LogLevel logLevel);
+
+	/// <summary>
+	/// Returns all the logs filtered by the files that created them
+	/// </summary>
+	/// <param name="files">The selected source files</param>
+	/// <returns>A list of logs that were created by these files</returns>
+	static std::vector<Log> getLogsFromFiles(std::vector<std::string> files);
+
+	/// <summary>
+	/// Returns a list of logs filtered by log levels 
+	/// </summary>
+	/// <param name="logLevels">The selected log levels</param>
+	/// <param name="files">The selected source files</param>
+	/// <returns></returns>
+	static std::vector<Log> getFilteredLogs(std::set<LogLevel> logLevels, std::set<std::string> files = Logger::sourceFiles);
+
+	static std::vector<std::string> getSourceFiles();
 
 	/// <summary>
 	/// Clears the list of log messages
@@ -100,7 +118,19 @@ public:
 	static void clearLogs();
 
 private:
+	/// <summary>
+	/// The list of all stored logs
+	/// </summary>
 	static std::vector<Log> logMessages;
 
+	/// <summary>
+	/// A set that contains the list of source files from which logs have been created, used for filters
+	/// </summary>
+	static std::set<std::string> sourceFiles;
+
+	/// <summary>
+	/// Adds a log message, clears old messages if needed etc.
+	/// </summary>
+	/// <param name="log">The log to be added</param>
 	static void addLog(Log log);
 };

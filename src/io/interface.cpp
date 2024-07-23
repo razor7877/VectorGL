@@ -65,18 +65,42 @@ struct
 
 struct
 {
-	// A map to determine text color depending on log type
-	std::map<LogLevel, ImVec4> logToColor =
+	// The corresponding enums
+	LogLevel logLevelsEnums[4] = { LogLevel::LOG_INFO, LogLevel::LOG_WARNING, LogLevel::LOG_ERROR, LogLevel::LOG_DEBUG };
+
+	// The colors for each log level
+	std::map<LogLevel, ImVec4> levelToColor =
 	{
 		{ LogLevel::LOG_INFO, ImVec4(0.8f, 0.8f, 0.8f, 1.0f) },
 		{ LogLevel::LOG_WARNING, ImVec4(1.0f, 1.0f, 0.0f, 1.0f) },
 		{ LogLevel::LOG_ERROR, ImVec4(1.0f, 0.1f, 0.1f, 1.0f) },
 		{ LogLevel::LOG_DEBUG, ImVec4(0.1f, 0.1f, 1.0f, 1.0f) },
 	};
-	// An array for the log filter choices
-	const char* comboLogLevels[5] = { "All", "Info", "Warning", "Error", "Debug" };
-	// The currently selected log filter
-	int current_log_filter_id = 0;
+
+	// The labels for the log levels
+	std::map<LogLevel, const char*> levelToLabel = {
+		{ LogLevel::LOG_INFO, "Info" },
+		{ LogLevel::LOG_WARNING, "Warning" },
+		{ LogLevel::LOG_ERROR, "Error" },
+		{ LogLevel::LOG_DEBUG, "Debug" },
+	};
+
+	// The toggles for the checkboxes
+	std::map<LogLevel, bool> logLevelsToggles = {
+		{ LogLevel::LOG_INFO, true },
+		{ LogLevel::LOG_WARNING, true },
+		{ LogLevel::LOG_ERROR, true },
+		{ LogLevel::LOG_DEBUG, true },
+	};
+
+	// Currently selected log levels
+	std::set<LogLevel> selectedLogLevels = { LogLevel::LOG_INFO, LogLevel::LOG_WARNING, LogLevel::LOG_ERROR, LogLevel::LOG_DEBUG };
+
+	// Contains whether a source file's logs should be shown or not
+	std::map<std::string, bool> sourceFileToggle;
+
+	// Currently selected source files
+	std::set<std::string> selectedSourceFiles;
 } consoleParams;
 
 struct
@@ -179,23 +203,34 @@ void ShowViewer()
 {
 	ImGui::Begin("Viewer");
 
-	isViewerFocused = ImGui::IsWindowFocused();
+	ImVec2 viewerSize = ImGui::GetContentRegionAvail();
 
-	if (isViewerFocused)
-		cameraComponent->parent->setIsEnabled(true);
-	else
-		cameraComponent->parent->setIsEnabled(false);
+	defaultRenderer.resizeFramebuffer(glm::vec2(viewerSize.x, viewerSize.y));
 
-	ImVec2 contentRegionSize = ImGui::GetContentRegionAvail();
-
-	defaultRenderer.resizeFramebuffer(glm::vec2(contentRegionSize.x, contentRegionSize.y));
+	// Since we are about to draw the image, this returns the top left corner of the image
+	glm::vec2 imagePos = ImGui::GetCursorScreenPos();
 
 	ImGui::Image(
 		(ImTextureID)renderer->GetRenderTexture(),
-		contentRegionSize,
+		viewerSize,
 		ImVec2(0, 1),
 		ImVec2(1, 0)
 	);
+
+	isViewerFocused = ImGui::IsWindowFocused();
+
+	// If we have a click inside the viewer window
+	if (isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+	{
+		glm::vec2 mousePos = ImGui::GetMousePos();
+
+		glm::vec2 relativeMousePos = mousePos - imagePos;
+
+		float ndcX = relativeMousePos.x / viewerSize.x * 2.0f - 1.0f;
+		float ndcY = relativeMousePos.y / viewerSize.y * 2.0f - 1.0f;
+		std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
+		Logger::logInfo(hitMessage, "interface.cpp");
+	}
 
 	ImGui::End();
 }
@@ -206,25 +241,18 @@ void ShowConsole()
 
 	ImVec2 windowSize = ImGui::GetContentRegionAvail();
 
+	// We keep 20px at the bottom for the buttons
 	ImGui::BeginChild("Logs", ImVec2(0, windowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
 
 	std::vector<Log> logs;
 
-	if (consoleParams.current_log_filter_id == 0)
-		logs = Logger::getLogs();
-	else if (consoleParams.current_log_filter_id == 1)
-		logs = Logger::getLogs(LogLevel::LOG_INFO);
-	else if (consoleParams.current_log_filter_id == 2)
-		logs = Logger::getLogs(LogLevel::LOG_WARNING);
-	else if (consoleParams.current_log_filter_id == 3)
-		logs = Logger::getLogs(LogLevel::LOG_ERROR);
-	else if (consoleParams.current_log_filter_id == 4)
-		logs = Logger::getLogs(LogLevel::LOG_DEBUG);
+	logs = Logger::getFilteredLogs(consoleParams.selectedLogLevels, consoleParams.selectedSourceFiles);
 
+	// Display all the logs with their corresponding colors, with the earliest first
 	for (int i = logs.size() - 1; i > 0; i--)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.logToColor[logs[i].logLevel]);
+		ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.levelToColor[logs[i].logLevel]);
 		ImGui::Text(logs[i].logMessage.c_str());
 		ImGui::PopStyleColor();
 	}
@@ -236,17 +264,59 @@ void ShowConsole()
 		Logger::clearLogs();
 
 	ImGui::SameLine();
-	ImGui::PushItemWidth(200);
+	ImGui::Text("Filters:");
 
-	if (ImGui::BeginCombo("##logFilterCombo", consoleParams.comboLogLevels[consoleParams.current_log_filter_id]))
+	ImGui::PushItemWidth(100);
+	
+	ImGui::SameLine();
+	if (ImGui::BeginCombo("##logLevelsFilterCombo", "Levels"))
 	{
-		for (int i = 0; i < IM_ARRAYSIZE(consoleParams.comboLogLevels); i++)
+		for (LogLevel level : consoleParams.logLevelsEnums)
 		{
-			bool is_selected = (consoleParams.current_log_filter_id == i);
-			if (ImGui::Selectable(consoleParams.comboLogLevels[i], is_selected))
-				consoleParams.current_log_filter_id = i;
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
+			if (ImGui::Checkbox(consoleParams.levelToLabel[level], &consoleParams.logLevelsToggles[level]))
+			{
+				if (consoleParams.logLevelsToggles[level])
+					consoleParams.selectedLogLevels.insert(level);
+				else
+					consoleParams.selectedLogLevels.erase(level);
+			}
+		}
+
+		ImGui::EndCombo();
+	}
+
+	std::vector<std::string> sourceFiles = Logger::getSourceFiles();
+
+	// Refresh if there are any new source files
+	for (std::string file : sourceFiles)
+	{
+		if (consoleParams.sourceFileToggle.count(file) == 0)
+		{
+			// Any new source file starts as toggled on
+			consoleParams.selectedSourceFiles.insert(file);
+			consoleParams.sourceFileToggle[file] = true;
+		}
+	}
+
+	ImGui::SameLine();
+	if (ImGui::BeginCombo("##logFilesFilterCombo", "Sources"))
+	{
+		for (std::string file : sourceFiles)
+		{
+			if (consoleParams.sourceFileToggle.count(file) == 0)
+			{
+				// Any new source file starts as toggled on
+				consoleParams.selectedSourceFiles.insert(file);
+				consoleParams.sourceFileToggle[file] = true;
+			}
+
+			if (ImGui::Checkbox(file.c_str(), &consoleParams.sourceFileToggle[file]))
+			{
+				if (consoleParams.sourceFileToggle[file])
+					consoleParams.selectedSourceFiles.insert(file);
+				else
+					consoleParams.selectedSourceFiles.erase(file);
+			}
 		}
 
 		ImGui::EndCombo();
