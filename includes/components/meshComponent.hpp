@@ -92,10 +92,13 @@ protected:
 	/// </summary>
 	GLuint indicesBO = 0;
 
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the tangents
+	/// </summary>
 	GLuint tangentsBO = 0;
 
+	/// <summary>
+	/// A OpenGL handle for the buffer object containing the bitangents
+	/// </summary>
 	GLuint bitangentsBO = 0;
-
-	void addPBRTextures(PBRMaterial* pbrMaterial);
-	void addPhongTextures(PhongMaterial* phongMaterial);
 };

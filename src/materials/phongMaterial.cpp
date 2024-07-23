@@ -71,6 +71,32 @@ void PhongMaterial::sendToShader(Shader* shaderProgram)
 		->setFloat("material.shininess", this->shininess);
 }
 
+void PhongMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
+{
+	// We sort the textures from the vector into their own members in the mesh for easier use later
+	for (int i = 0; i < textures.size(); i++)
+	{
+		switch (textures[i]->type)
+		{
+			case TextureType::TEXTURE_DIFFUSE:
+				addDiffuseMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_SPECULAR:
+				addSpecularMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_NORMAL:
+				addNormalMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_HEIGHT:
+				addHeightMap(textures[i]);
+				break;
+		}
+	}
+}
+
 void PhongMaterial::addDiffuseMap(std::shared_ptr<Texture> diffuseTexture)
 {
 	this->useDiffuseMap = true;

@@ -24,6 +24,8 @@ public:
 	/// <param name="shaderProgram">The shader to send the data to</param>
 	void sendToShader(Shader* shaderProgram) override;
 
+	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
+
 	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);
 	void addSpecularMap(std::shared_ptr<Texture> specularTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);

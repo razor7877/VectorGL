@@ -106,6 +106,43 @@ void PBRMaterial::sendToShader(Shader* shaderProgram)
 	}
 }
 
+void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
+{
+	for (int i = 0; i < textures.size(); i++)
+	{
+		switch (textures[i]->type)
+		{
+			case TextureType::TEXTURE_ALBEDO:
+				this->addAlbedoMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_NORMAL:
+				this->addNormalMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_METALLIC:
+				this->addMetallicMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_ROUGHNESS:
+				this->addRoughnessMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_AO:
+				this->addAoMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_OPACITY:
+				this->addOpacityMap(textures[i]);
+				break;
+
+			case TextureType::TEXTURE_EMISSIVE:
+				this->addEmissiveMap(textures[i]);
+				break;
+		}
+	}
+}
+
 void PBRMaterial::addAlbedoMap(std::shared_ptr<Texture> albedoTexture)
 {
 	this->albedoTexture = albedoTexture;

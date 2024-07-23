@@ -96,6 +96,7 @@ public:
 	~PBRMaterial() override;
 
 	void sendToShader(Shader* shaderProgram) override;
+	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
 
 	void addAlbedoMap(std::shared_ptr<Texture> albedoTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);

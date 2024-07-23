@@ -12,7 +12,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->material = std::make_unique<PBRMaterial>();
+	this->material = std::make_unique<PhongMaterial>();
 }
 
 MeshComponent::~MeshComponent()
@@ -55,13 +55,7 @@ void MeshComponent::start()
 
 	// If the MeshComponent uses textures
 	if (textures.size() > 0 && this->material != nullptr)
-	{
-		PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material.get());
-		PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
-
-		if (pbrMaterial != nullptr) this->addPBRTextures(pbrMaterial);
-		if (phongMaterial != nullptr) this->addPhongTextures(phongMaterial);
-	}
+		this->material->addTextures(this->textures);
 
 	if (texCoords.size() > 0)
 	{
@@ -127,8 +121,6 @@ void MeshComponent::start()
 
 void MeshComponent::update(float deltaTime)
 {
-	this->shaderProgram->use();
-
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
@@ -253,67 +245,4 @@ void MeshComponent::setDiffuseColor(glm::vec3 color)
 
 	if (pbrMaterial != nullptr)
 		pbrMaterial->albedoColor = color;
-}
-
-void MeshComponent::addPBRTextures(PBRMaterial* pbrMaterial)
-{
-	for (int i = 0; i < textures.size(); i++)
-	{
-		switch (this->textures[i]->type)
-		{
-			case TextureType::TEXTURE_ALBEDO:
-				pbrMaterial->addAlbedoMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_NORMAL:
-				pbrMaterial->addNormalMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_METALLIC:
-				pbrMaterial->addMetallicMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_ROUGHNESS:
-				pbrMaterial->addRoughnessMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_AO:
-				pbrMaterial->addAoMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_OPACITY:
-				pbrMaterial->addOpacityMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_EMISSIVE:
-				pbrMaterial->addEmissiveMap(this->textures[i]);
-				break;
-		}
-	}
-}
-
-void MeshComponent::addPhongTextures(PhongMaterial* phongMaterial)
-{
-	// We sort the textures from the vector into their own members in the mesh for easier use later
-	for (int i = 0; i < textures.size(); i++)
-	{
-		switch (this->textures[i]->type)
-		{
-			case TextureType::TEXTURE_DIFFUSE:
-				phongMaterial->addDiffuseMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_SPECULAR:
-				phongMaterial->addSpecularMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_NORMAL:
-				phongMaterial->addNormalMap(this->textures[i]);
-				break;
-
-			case TextureType::TEXTURE_HEIGHT:
-				phongMaterial->addHeightMap(this->textures[i]);
-				break;
-		}
-	}
 }
