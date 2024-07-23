@@ -30,6 +30,7 @@ public:
 	void addSpecularMap(std::shared_ptr<Texture> specularTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);
 	void addHeightMap(std::shared_ptr<Texture> heightTexture);
+	void addEmissiveMap(std::shared_ptr<Texture> emissiveTexture);
 
 	/// <summary>
 	/// The ambient color of the object
@@ -68,10 +69,16 @@ public:
 	/// </summary>
 	std::shared_ptr<Texture> heightTexture = nullptr;
 
+	/// <summary>
+	/// The emissive texture of the object, if it has one
+	/// </summary>
+	std::shared_ptr<Texture> emissiveTexture = nullptr;
+
 	bool useDiffuseMap = false;
 	bool useSpecularMap = false;
 	bool useNormalMap = false;
 	bool useHeightMap = false;
+	bool useEmissiveMap = false;
 };
 
 #endif

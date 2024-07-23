@@ -49,11 +49,13 @@ struct Material
 	sampler2D texture_specular;
 	sampler2D texture_normal;
 	sampler2D texture_height;
+	sampler2D texture_emissive;
 
 	bool use_diffuse_map;
 	bool use_specular_map;
 	bool use_normal_map;
 	bool use_height_map;
+	bool use_emissive_map;
 };
 
 // DEFINING FUNCTION PROTOTYPES
@@ -67,6 +69,7 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 FragPos, vec3 viewDir);
 in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
+in mat3 TBN;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
@@ -186,7 +189,11 @@ void main()
 
 	vec3 normalVec;
 	if (material.use_normal_map)
+	{
 		normalVec = texture(material.texture_normal, TexCoord).rgb;
+		normalVec = normalVec * 2.0 - 1.0;
+        normalVec = normalize(TBN * normalVec);
+	}
 	else
 		normalVec = Normal;
 
@@ -200,4 +207,7 @@ void main()
 		result += calcSpotLight(spotLights[i], normalVec, FragPos, viewDir);
 
 	FragColor = vec4(FragColor.rgb * result.rgb, FragColor.a);
+
+	if (material.use_emissive_map)
+		FragColor += texture(material.texture_emissive, TexCoord);
 }
