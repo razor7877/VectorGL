@@ -438,6 +438,10 @@ void ShaderSettings()
 				label = "BRDF";
 				break;
 
+			case ShaderType::SOLID:
+				label = "Solid";
+				break;
+
 			default:
 				label = "Unnamed";
 				break;

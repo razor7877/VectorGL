@@ -17,6 +17,7 @@ enum class ShaderType
 	IRRADIANCE,
 	PREFILTER,
 	BRDF,
+	SOLID,
 };
 
 /// <summary>

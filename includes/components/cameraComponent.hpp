@@ -47,6 +47,9 @@ public:
 	float getSensitivity();
 	glm::vec3 getPosition();
 
+	// Returns the camera's forward vector
+	glm::vec3 getForward();
+
 	// Setters
 	void setZoom(float zoom);
 	void setSpeed(float speed);

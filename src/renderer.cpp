@@ -105,6 +105,31 @@ void Renderer::render(float deltaTime)
 	for (auto&& entity : this->entities)
 		entity->update(deltaTime);
 
+	glm::vec3 camPos = glm::vec3(0.0f);
+	glm::vec3 front = cameraComponent->getForward();
+	glm::vec3 forwardPos = camPos + front * 3.0f;
+
+	float line_vertices[6] = {
+		camPos.x, camPos.y, camPos.z,
+		forwardPos.x, forwardPos.y, forwardPos.z,
+	};
+
+	GLuint lineVAO;
+	GLuint lineVBO;
+
+	glGenVertexArrays(1, &lineVAO);
+	glGenBuffers(1, &lineVBO);
+	glBindVertexArray(lineVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(line_vertices), line_vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	this->shaderManager.getShader(ShaderType::SOLID)->use();
+	glBindVertexArray(lineVAO);
+	glLineWidth(25.0f);
+	glDrawArrays(GL_LINES, 0, 2);
+
 	this->multiSampledTarget.unbind();
 
 	// Bind the second target that will contain the mixed multisampled textures

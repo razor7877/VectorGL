@@ -121,6 +121,11 @@ glm::vec3 CameraComponent::getPosition()
 	return this->parent->transform->getPosition();
 }
 
+glm::vec3 CameraComponent::getForward()
+{
+	return this->front;
+}
+
 void CameraComponent::setZoom(float zoom)
 {
 	this->zoom = zoom;

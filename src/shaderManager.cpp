@@ -58,10 +58,6 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			enumToShader[shader] = new Shader("shaders/grid.vert", "shaders/grid.frag");
 			break;
 
-		case ShaderType::GRID2:
-			enumToShader[shader] = new Shader("shaders/grid2.vert", "shaders/grid2.frag");
-			break;
-
 		case ShaderType::HDRTOCUBEMAP:
 			enumToShader[shader] = new Shader("shaders/cubemap.vert", "shaders/equirectangularToCubeMap.frag");
 			break;
@@ -76,6 +72,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 
 		case ShaderType::BRDF:
 			enumToShader[shader] = new Shader("shaders/brdf.vert", "shaders/brdf.frag");
+			break;
+
+		case ShaderType::SOLID:
+			enumToShader[shader] = new Shader("shaders/solid.vert", "shaders/solid.frag");
 			break;
 	}
 
