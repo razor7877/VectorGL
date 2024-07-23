@@ -17,7 +17,7 @@ MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 
 MeshComponent::~MeshComponent()
 {
-	Logger::logDebug("Calling MeshComponent destructor");
+	Logger::logDebug("Calling MeshComponent destructor", "meshComponent.cpp");
 
 	glDeleteBuffers(1, &this->VBO);
 	glDeleteBuffers(1, &this->indicesBO);
@@ -75,7 +75,7 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(1);
 	}
 	else
-		Logger::logWarning("MeshComponent has texture but no associated texture coordinates!");
+		Logger::logWarning("MeshComponent has texture but no associated texture coordinates!", "meshComponent.cpp");
 
 	// If the object uses normals
 	if (normals.size() > 0)

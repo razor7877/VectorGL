@@ -144,7 +144,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		Logger::logError("Error while attempting to create framebuffer!");
+		Logger::logError("Error while attempting to create framebuffer!", "renderTarget.cpp");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

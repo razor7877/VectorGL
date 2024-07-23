@@ -94,7 +94,7 @@ void Texture::createTexture(std::string filename, TextureType textureType, bool 
 		stbi_image_free(data);
 	}
 	else
-		Logger::logError(std::string("Failed to load texture: ") + filename);
+		Logger::logError(std::string("Failed to load texture: ") + filename, "texture.cpp");
 
 	this->width = width;
 	this->height = height;
@@ -124,7 +124,7 @@ void Texture::createHDRTexture(std::string filename, TextureType textureType, bo
 		stbi_image_free(data);
 	}
 	else
-		Logger::logError(std::string("Failed to load HDR texture: ") + filename);
+		Logger::logError(std::string("Failed to load HDR texture: ") + filename, "texture.cpp");
 
 	this->width = width;
 	this->height = height;

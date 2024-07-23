@@ -32,7 +32,7 @@ void ScriptComponent::update(float deltaTime)
 	if (error)
 	{
 		std::string errorMessage = lua_tostring(this->L, -1);
-		Logger::logError("Lua error: " + errorMessage);
+		Logger::logError("Lua error: " + errorMessage, "scriptComponent.cpp");
 		// Pop error from stack
 		lua_pop(this->L, 1);
 	}

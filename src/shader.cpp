@@ -19,7 +19,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 
 Shader::~Shader()
 {
-	Logger::logDebug(std::string("Deleting shader with ID ") + std::to_string(this->ID));
+	Logger::logDebug(std::string("Deleting shader with ID ") + std::to_string(this->ID), "shader.cpp");
 	glDeleteProgram(this->ID);
 }
 
@@ -56,7 +56,7 @@ bool Shader::compileShader()
 	}
 	catch (std::ifstream::failure e)
 	{
-		Logger::logError("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ");
+		Logger::logError("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ", "shader.cpp");
 		return false;
 	}
 
@@ -75,7 +75,7 @@ bool Shader::compileShader()
 	if (!success)
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-		Logger::logError(std::string("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n") + infoLog);
+		Logger::logError(std::string("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
 		return false;
 	}
 
@@ -87,7 +87,7 @@ bool Shader::compileShader()
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-		Logger::logError(std::string("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n") + infoLog);
+		Logger::logError(std::string("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
 		return false;
 	}
 
@@ -100,7 +100,7 @@ bool Shader::compileShader()
 	if (!success)
 	{
 		glGetProgramInfoLog(newID, 512, NULL, infoLog);
-		Logger::logError(std::string("ERROR::SHADER::PROGRAM::LINKING_FAILED\n") + infoLog);
+		Logger::logError(std::string("ERROR::SHADER::PROGRAM::LINKING_FAILED\n") + infoLog, "shader.cpp");
 		return false;
 	}
 
@@ -111,7 +111,7 @@ bool Shader::compileShader()
 	// We can replace the new ID if everything succeeded
 	this->ID = newID;
 
-	Logger::logInfo("Successfully compiled shader!");
+	Logger::logInfo("Successfully compiled shader!", "shader.cpp");
 
 	return true;
 }

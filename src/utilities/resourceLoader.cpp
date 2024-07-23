@@ -22,7 +22,7 @@ std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(std::string path, 
 
 	if (scene == nullptr)
 	{
-		Logger::logError("Error while trying to load file path " + path + " - Extension might be incorrect");
+		Logger::logError("Error while trying to load file path " + path + " - Extension might be incorrect", "resourceLoader.cpp");
 		return nullptr;
 	}
 
@@ -150,7 +150,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 		if (diffuseMaps.size() > 1 || specularMaps.size() > 1 || normalMaps.size() > 1 || heightMaps.size() > 1)
-			Logger::logWarning("Loading model that contains more textures than the shader allows (diffuse/specular/normal/height)");
+			Logger::logWarning("Loading model that contains more textures than the shader allows (diffuse/specular/normal/height)", "resourceLoader.cpp");
 
 		aiColor4D diffuseColorVec;
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColorVec) == AI_SUCCESS)
@@ -268,7 +268,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 				// This means we have a compressed texture that we need to decompress
 				if (embeddedTexture->mHeight == 0)
 				{
-					Logger::logInfo(std::string("Loadding embedded compressed texture path " + path));
+					Logger::logInfo(std::string("Loadding embedded compressed texture path " + path), "resourceLoader.cpp");
 
 					int width = embeddedTexture->mWidth;
 					int height = 1;
@@ -294,7 +294,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 				}
 				else // We have raw image data
 				{
-					Logger::logInfo(std::string("Loading embedded texture path " + path));
+					Logger::logInfo(std::string("Loading embedded texture path " + path), "resourceLoader.cpp");
 
 					GLenum format = GL_RGB;
 
@@ -308,7 +308,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 			}
 			else // Not an embedded texture, load it from file system
 			{
-				Logger::logInfo(std::string("Loading texture path " + path));
+				Logger::logInfo(std::string("Loading texture path " + path), "resourceLoader.cpp");
 				texture = std::shared_ptr<Texture>(new Texture(path, textureType, false));
 				texture->path = str.C_Str();
 				this->loadedTextures[path] = texture;
@@ -316,7 +316,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 		}
 		else // Reuse the same texture
 		{
-			Logger::logInfo(std::string("Reusing texture path " + path));
+			Logger::logInfo(std::string("Reusing texture path " + path), "resourceLoader.cpp");
 			texture = std::shared_ptr<Texture>(this->loadedTextures[path]);
 		}
 
