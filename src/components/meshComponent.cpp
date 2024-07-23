@@ -12,7 +12,7 @@
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->material = std::make_unique<PhongMaterial>();
+	this->material = std::make_unique<PBRMaterial>();
 }
 
 MeshComponent::~MeshComponent()
@@ -121,6 +121,8 @@ void MeshComponent::start()
 
 void MeshComponent::update(float deltaTime)
 {
+	this->shaderProgram->use();
+	
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 

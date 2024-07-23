@@ -72,7 +72,7 @@ int main()
 	dynamicsWorld->addRigidBody(groundRigidBody);
 
 	btCollisionShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
-	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 50.0f, 0.0f)));
+	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 5.0f, 0.0f)));
 	btScalar mass = 1.0f;
 	btVector3 boxInertia(0.0f, 0.0f, 0.0f);
 	boxShape->calculateLocalInertia(mass, boxInertia);
@@ -146,9 +146,6 @@ int main()
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
 	cameraComponent = defaultRenderer.currentCamera;
 
-	//Texture* hdrMap = new Texture("img/fouriesburg_mountain_lookout_2_8k.hdr", TextureType::TEXTURE_DIFFUSE, true, true);
-	//IBLData skyIBL = IBLData(defaultRenderer, hdrMap);
-
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
 	
@@ -180,14 +177,12 @@ int main()
 
 		defaultRenderer.render(deltaTime);
 
-		dynamicsWorld->stepSimulation(1 / 165.f, 10);
+		dynamicsWorld->stepSimulation(deltaTime, 10);
 
 		// Print positions of the box
 		btTransform trans;
 		boxRigidBody->getMotionState()->getWorldTransform(trans);
 		cubeMesh->parent->transform->setPosition(glm::vec3(trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()));
-		std::string output = "Box height: " + std::to_string(trans.getOrigin().getY());
-		Logger::logDebug(output, "main.cpp");
 
 		if (trans.getOrigin().y() < -3.9f)
 		{
