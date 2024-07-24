@@ -88,22 +88,20 @@ void raycastLine(glm::vec3 rayFrom, glm::vec3 rayTo)
 	{
 		btVector3 hitPoint = rayCallback.m_hitPointWorld;
 		btCollisionObject* hitObject = const_cast<btCollisionObject*>(rayCallback.m_collisionObject);
-		//btVector3 upwardForce(0.0f, 3.0f, 0.0f);
-		
 		btRigidBody* hitRigidBody = btRigidBody::upcast(hitObject);
 
-		btVector3 force(250.0f, 0.0f, 0.0f);
 		if (hitRigidBody && !hitRigidBody->isStaticObject() && !hitRigidBody->isKinematicObject())
 		{
-			// Apply force at the hit point
-			//hitRigidBody->applyCentralImpulse(force);
-			hitRigidBody->setActivationState(ACTIVE_TAG);
-			//hitRigidBody->applyCentralForce(force);
-			hitRigidBody->applyForce(force, hitPoint);
+			btVector3 hitToCenter = hitRigidBody->getWorldTransform().getOrigin() - hitPoint;
+			hitToCenter.normalize();
 
-			// Print hit information
-			printf("Hit point: (%f, %f, %f)\n", hitPoint.getX(), hitPoint.getY(), hitPoint.getZ());
-			printf("Applied force: (%f, %f, %f)\n", force.getX(), force.getY(), force.getZ());
+			constexpr float FORCE = 250.0f;
+
+			btVector3 force = hitToCenter * FORCE;
+
+			// Make sure rigid body is in active state then apply force at the hit point
+			hitRigidBody->setActivationState(ACTIVE_TAG);
+			hitRigidBody->applyForce(force, hitPoint);
 		}
 	}
 }
@@ -160,33 +158,6 @@ int main()
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
-
-	std::vector<float> perFaceNormal;
-	for (int i = 0; i < cubeVertices.size(); i += 9)
-	{
-		glm::vec3 v1 = glm::vec3(cubeVertices[i], cubeVertices[i + 1], cubeVertices[i + 2]);
-		glm::vec3 v2 = glm::vec3(cubeVertices[i + 3], cubeVertices[i + 4], cubeVertices[i + 5]);
-		glm::vec3 v3 = glm::vec3(cubeVertices[i + 6], cubeVertices[i + 7], cubeVertices[i + 8]);
-
-		glm::vec3 edge1 = v2 - v1;
-		glm::vec3 edge2 = v3 - v1;
-
-		glm::vec3 normal = glm::normalize(glm::cross(edge2, edge1));
-		// Same normal for each vertice
-		perFaceNormal.push_back(normal.x);
-		perFaceNormal.push_back(normal.y);
-		perFaceNormal.push_back(normal.z);
-
-		perFaceNormal.push_back(normal.x);
-		perFaceNormal.push_back(normal.y);
-		perFaceNormal.push_back(normal.z);
-
-		perFaceNormal.push_back(normal.x);
-		perFaceNormal.push_back(normal.y);
-		perFaceNormal.push_back(normal.z);
-	}
-
-	cubeMesh->addNormals(perFaceNormal);
 
 	PBRMaterial* cubeMaterial = dynamic_cast<PBRMaterial*>(cubeMesh->material.get());
 	if (cubeMaterial != nullptr)

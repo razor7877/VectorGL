@@ -9,6 +9,7 @@
 #include "materials/phongMaterial.hpp"
 #include "materials/pbrMaterial.hpp"
 #include "materials/material.hpp"
+#include "utilities/geometry.hpp"
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
@@ -71,17 +72,22 @@ void MeshComponent::start()
 	else
 		Logger::logWarning("MeshComponent has texture but no associated texture coordinates!", "meshComponent.cpp");
 
-	// If the object uses normals
-	if (normals.size() > 0)
+	// We calculate the normals if none are provided
+	if (normals.size() == 0)
 	{
-		glGenBuffers(1, &normalBO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, normalBO);
-		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), &normals[0], GL_STATIC_DRAW);
-
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(2);
+		if (indices.size() > 0)
+			this->normals = Geometry::calculateVerticesNormals(this->vertices, this->indices);
+		else
+			this->normals = Geometry::calculateVerticesNormals(this->vertices);
 	}
+
+	glGenBuffers(1, &normalBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, normalBO);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), &normals[0], GL_STATIC_DRAW);
+
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(2);
 
 	// Send tangents for normal mapping
 	if (tangents.size() > 0)

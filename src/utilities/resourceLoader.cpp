@@ -30,7 +30,7 @@ ResourceLoader& ResourceLoader::getInstance()
 std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
 {
 	Assimp::Importer import;
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace);
 
 	if (scene == nullptr)
 	{
