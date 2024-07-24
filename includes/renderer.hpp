@@ -11,6 +11,8 @@
 #include "renderTarget.hpp"
 #include "components/cameraComponent.hpp"
 
+extern std::vector<float> lineVerts;
+
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
 /// </summary>
@@ -60,7 +62,7 @@ public:
 	/// <param name="windowSize">The window size in pixels</param>
 	void init(glm::vec2 windowSize);
 
-	void addLine(glm::vec3 startPos, glm::vec3 endPos);
+	void addLine(glm::vec3 startPos, glm::vec3 endPos, bool store);
 
 	/// <summary>
 	/// Draws the scene and updates all the entities

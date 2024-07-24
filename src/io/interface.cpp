@@ -254,7 +254,10 @@ void ShowViewer()
 
 			glm::vec3 rayDirection = rayStartPosWorld - rayEndPosWorld;
 
-			defaultRenderer.addLine(cameraComponent->getPosition(), rayDirection);
+			defaultRenderer.addLine(cameraComponent->getPosition(), rayDirection, true);
+			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
+
+			raycastLine(rayStartPosWorld, rayDirection);
 		}
 	}
 

@@ -35,6 +35,78 @@ float lastFrame = 0.0f;
 Renderer defaultRenderer = Renderer();
 CameraComponent* cameraComponent;
 
+btDynamicsWorld* dynamicsWorld;
+btRigidBody* boxRigidBody;
+
+class MyDebugDrawer : public btIDebugDraw
+{
+	int m_debugMode;
+
+public:
+	MyDebugDrawer() : m_debugMode(DBG_DrawWireframe) {}
+
+	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+	{
+		defaultRenderer.addLine(glm::vec3(from.x(), from.y(), from.z()), glm::vec3(to.x(), to.y(), to.z()), false);
+	}
+
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	{
+		// Optionally implement this to draw contact points
+	}
+
+	virtual void reportErrorWarning(const char* warningString)
+	{
+		printf("%s\n", warningString);
+	}
+
+	virtual void draw3dText(const btVector3& location, const char* textString)
+	{
+		// Optionally implement this to draw 3D text
+	}
+
+	virtual void setDebugMode(int debugMode)
+	{
+		m_debugMode = debugMode;
+	}
+
+	virtual int getDebugMode() const
+	{
+		return m_debugMode;
+	}
+};
+
+void raycastLine(glm::vec3 rayFrom, glm::vec3 rayTo)
+{
+	btVector3 btRayTo(rayFrom.x, rayFrom.y, rayFrom.z);
+	btVector3 btRayFrom(rayTo.x, rayTo.y, rayTo.z);
+	
+	btCollisionWorld::ClosestRayResultCallback rayCallback(btRayFrom, btRayTo);
+	dynamicsWorld->rayTest(btRayFrom, btRayTo, rayCallback);
+
+	if (rayCallback.hasHit())
+	{
+		btVector3 hitPoint = rayCallback.m_hitPointWorld;
+		btCollisionObject* hitObject = const_cast<btCollisionObject*>(rayCallback.m_collisionObject);
+		//btVector3 upwardForce(0.0f, 3.0f, 0.0f);
+		
+		btRigidBody* hitRigidBody = btRigidBody::upcast(hitObject);
+
+		btVector3 force(250.0f, 0.0f, 0.0f);
+		if (hitRigidBody && !hitRigidBody->isStaticObject() && !hitRigidBody->isKinematicObject())
+		{
+			// Apply force at the hit point
+			//hitRigidBody->applyCentralImpulse(force);
+			hitRigidBody->setActivationState(ACTIVE_TAG);
+			hitRigidBody->applyCentralForce(force);
+
+			// Print hit information
+			printf("Hit point: (%f, %f, %f)\n", hitPoint.getX(), hitPoint.getY(), hitPoint.getZ());
+			printf("Applied force: (%f, %f, %f)\n", force.getX(), force.getY(), force.getZ());
+		}
+	}
+}
+
 int main()
 {
 	if (setupGlfwContext() != 0)
@@ -61,7 +133,10 @@ int main()
 	btCollisionDispatcher* collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
 	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-	btDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(collisionDispatcher, overlappingPairCache, solver, collisionConfiguration);
+	dynamicsWorld = new btDiscreteDynamicsWorld(collisionDispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+	MyDebugDrawer* debugDrawer = new MyDebugDrawer();
+	dynamicsWorld->setDebugDrawer(debugDrawer);
 
 	dynamicsWorld->setGravity(btVector3(0.0f, gravity, 0.0f));
 
@@ -72,18 +147,19 @@ int main()
 	dynamicsWorld->addRigidBody(groundRigidBody);
 
 	btCollisionShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
-	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 5.0f, 0.0f)));
+	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 25.0f, 0.0f)));
 	btScalar mass = 1.0f;
 	btVector3 boxInertia(0.0f, 0.0f, 0.0f);
 	boxShape->calculateLocalInertia(mass, boxInertia);
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, boxInertia);
-	btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
+	boxRigidBody = new btRigidBody(boxRigidBodyCI);
 	dynamicsWorld->addRigidBody(boxRigidBody);
 
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
+	//cubeEntity->transform->setScale(glm::vec3(0.5f));
 
 	PBRMaterial* cubeMaterial = dynamic_cast<PBRMaterial*>(cubeMesh->material.get());
 	if (cubeMaterial != nullptr)
@@ -178,18 +254,12 @@ int main()
 		defaultRenderer.render(deltaTime);
 
 		dynamicsWorld->stepSimulation(deltaTime, 10);
+		dynamicsWorld->debugDrawWorld();
 
 		// Print positions of the box
 		btTransform trans;
 		boxRigidBody->getMotionState()->getWorldTransform(trans);
 		cubeMesh->parent->transform->setPosition(glm::vec3(trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()));
-
-		if (trans.getOrigin().y() < -3.9f)
-		{
-			btVector3 upwardForce(0.0f, 300.0f, 0.0f);
-
-			boxRigidBody->applyCentralForce(upwardForce);
-		}
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

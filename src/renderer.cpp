@@ -89,9 +89,20 @@ void Renderer::init(glm::vec2 windowSize)
 }
 
 std::vector<float> lineVerts;
+std::vector<float> storedLineVerts;
 
-void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos)
+void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 {
+	if (store)
+	{
+		storedLineVerts.push_back(startPos.x);
+		storedLineVerts.push_back(startPos.y);
+		storedLineVerts.push_back(startPos.z);
+		storedLineVerts.push_back(endPos.x);
+		storedLineVerts.push_back(endPos.y);
+		storedLineVerts.push_back(endPos.z);
+	}
+
 	lineVerts.push_back(startPos.x);
 	lineVerts.push_back(startPos.y);
 	lineVerts.push_back(startPos.z);
@@ -102,6 +113,8 @@ void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos)
 
 void Renderer::render(float deltaTime)
 {
+	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
+
 	// We want to draw to the MSAA framebuffer
 	this->multiSampledTarget.bind();
 	this->multiSampledTarget.clear();
@@ -147,6 +160,8 @@ void Renderer::render(float deltaTime)
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	lineVerts.clear();
 }
 
 void Renderer::end()
