@@ -36,7 +36,9 @@ public:
 	MeshComponent& addTexCoords(std::vector<float> texCoords);
 	MeshComponent& addTexCoords(float texCoords[], unsigned int texSize);
 	MeshComponent& addTexture(std::shared_ptr<Texture> texture);
+	MeshComponent& addNormals(std::vector<float> normals);
 	MeshComponent& addNormals(float normals[], unsigned int normalSize);
+	MeshComponent& addIndices(std::vector<unsigned int> indices);
 	MeshComponent& addIndices(unsigned int indices[], unsigned int indicesSize);
 	MeshComponent& addTangents(std::vector<float> tangents);
 	MeshComponent& addBitangents(std::vector<float> bitangents);

@@ -98,7 +98,8 @@ void raycastLine(glm::vec3 rayFrom, glm::vec3 rayTo)
 			// Apply force at the hit point
 			//hitRigidBody->applyCentralImpulse(force);
 			hitRigidBody->setActivationState(ACTIVE_TAG);
-			hitRigidBody->applyCentralForce(force);
+			//hitRigidBody->applyCentralForce(force);
+			hitRigidBody->applyForce(force, hitPoint);
 
 			// Print hit information
 			printf("Hit point: (%f, %f, %f)\n", hitPoint.getX(), hitPoint.getY(), hitPoint.getZ());
@@ -159,7 +160,33 @@ int main()
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
-	//cubeEntity->transform->setScale(glm::vec3(0.5f));
+
+	std::vector<float> perFaceNormal;
+	for (int i = 0; i < cubeVertices.size(); i += 9)
+	{
+		glm::vec3 v1 = glm::vec3(cubeVertices[i], cubeVertices[i + 1], cubeVertices[i + 2]);
+		glm::vec3 v2 = glm::vec3(cubeVertices[i + 3], cubeVertices[i + 4], cubeVertices[i + 5]);
+		glm::vec3 v3 = glm::vec3(cubeVertices[i + 6], cubeVertices[i + 7], cubeVertices[i + 8]);
+
+		glm::vec3 edge1 = v2 - v1;
+		glm::vec3 edge2 = v3 - v1;
+
+		glm::vec3 normal = glm::normalize(glm::cross(edge2, edge1));
+		// Same normal for each vertice
+		perFaceNormal.push_back(normal.x);
+		perFaceNormal.push_back(normal.y);
+		perFaceNormal.push_back(normal.z);
+
+		perFaceNormal.push_back(normal.x);
+		perFaceNormal.push_back(normal.y);
+		perFaceNormal.push_back(normal.z);
+
+		perFaceNormal.push_back(normal.x);
+		perFaceNormal.push_back(normal.y);
+		perFaceNormal.push_back(normal.z);
+	}
+
+	cubeMesh->addNormals(perFaceNormal);
 
 	PBRMaterial* cubeMaterial = dynamic_cast<PBRMaterial*>(cubeMesh->material.get());
 	if (cubeMaterial != nullptr)
@@ -259,7 +286,30 @@ int main()
 		// Print positions of the box
 		btTransform trans;
 		boxRigidBody->getMotionState()->getWorldTransform(trans);
-		cubeMesh->parent->transform->setPosition(glm::vec3(trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()));
+
+		glm::mat4 glmMat(1.0f);  // Initialize to identity matrix
+
+		// Extract basis (rotation) and origin (translation) from btTransform
+		const btMatrix3x3& basis = trans.getBasis();
+		const btVector3& origin = trans.getOrigin();
+
+		// Set rotation part
+		glmMat[0][0] = basis[0][0];
+		glmMat[1][0] = basis[0][1];
+		glmMat[2][0] = basis[0][2];
+		glmMat[0][1] = basis[1][0];
+		glmMat[1][1] = basis[1][1];
+		glmMat[2][1] = basis[1][2];
+		glmMat[0][2] = basis[2][0];
+		glmMat[1][2] = basis[2][1];
+		glmMat[2][2] = basis[2][2];
+
+		// Set translation part
+		glmMat[3][0] = origin.getX();
+		glmMat[3][1] = origin.getY();
+		glmMat[3][2] = origin.getZ();
+
+		cubeMesh->parent->transform->setModelMatrix(glmMat);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

@@ -7,10 +7,7 @@
 
 TransformComponent::TransformComponent(Entity* parent) : Component(parent)
 {
-	this->position = glm::vec3(0);
-	this->rotation = glm::vec3(0);
-	this->scale = glm::vec3(1.0f);
-	this->modelMatrix = glm::mat4(1.0f);
+
 }
 
 TransformComponent::~TransformComponent()
@@ -32,6 +29,11 @@ glm::mat4 TransformComponent::getModelMatrix()
 	return this->modelMatrix;
 }
 
+glm::mat3 TransformComponent::getNormalMatrix()
+{
+	return this->normalMatrix;
+}
+
 glm::vec3 TransformComponent::getPosition()
 {
 	return this->position;
@@ -49,36 +51,44 @@ glm::vec3 TransformComponent::getScale()
 
 void TransformComponent::updateModelMatrix()
 {
-	this->modelMatrix = glm::mat4(1.0f);
-	// Apply position
-	this->modelMatrix = glm::translate(this->modelMatrix, this->position);
+	if (!this->useRawModelMatrix)
+	{
+		this->modelMatrix = glm::mat4(1.0f);
 
-	this->rotation = glm::vec3(
-		fmod(this->rotation.x, 360.0f),
-		fmod(this->rotation.y, 360.0f),
-		fmod(this->rotation.z, 360.0f)
-	);
+		// Apply position
+		this->modelMatrix = glm::translate(this->modelMatrix, this->position);
 
-	const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
-		glm::radians(this->rotation.x),
-		glm::vec3(1.0f, 0.0f, 0.0f));
-	const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f),
-		glm::radians(this->rotation.y),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-	const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f),
-		glm::radians(this->rotation.z),
-		glm::vec3(0.0f, 0.0f, 1.0f));
+		this->rotation = glm::vec3(
+			fmod(this->rotation.x, 360.0f),
+			fmod(this->rotation.y, 360.0f),
+			fmod(this->rotation.z, 360.0f)
+		);
 
-	// Y * X * Z
-	const glm::mat4 rotationMatrix = transformY * transformX * transformZ;
-	this->modelMatrix *= rotationMatrix; // Apply rotation
+		const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
+			glm::radians(this->rotation.x),
+			glm::vec3(1.0f, 0.0f, 0.0f));
+		const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f),
+			glm::radians(this->rotation.y),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+		const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f),
+			glm::radians(this->rotation.z),
+			glm::vec3(0.0f, 0.0f, 1.0f));
 
-	this->modelMatrix = glm::scale(this->modelMatrix, this->scale); // Apply scaling
+		// Y * X * Z
+		const glm::mat4 rotationMatrix = transformY * transformX * transformZ;
+		this->modelMatrix *= rotationMatrix; // Apply rotation
+
+		this->modelMatrix = glm::scale(this->modelMatrix, this->scale); // Apply scaling
+	}
+	else
+		this->modelMatrix = this->manualModelMatrix;
 
 	// A node should inherit the transform of the parent entity
 	// The parent is the entity that contains this component, we want the entity above
 	if (this->parent->getParent() != nullptr)
 		this->modelMatrix = this->parent->getParent()->transform->getModelMatrix() * this->modelMatrix;
+
+	this->normalMatrix = glm::mat3(glm::transpose(glm::inverse(this->modelMatrix)));
 
 	// Since children inherit of the parent transform, they need to be updated too
 	for (Entity* child : this->parent->getChildren())
@@ -90,6 +100,14 @@ void TransformComponent::setModelMatrix(glm::vec3 position, glm::vec3 rotation, 
 	this->position = position;
 	this->rotation = rotation;
 	this->scale = scale;
+
+	this->updateModelMatrix();
+}
+
+void TransformComponent::setModelMatrix(glm::mat4 modelMatrix)
+{
+	this->manualModelMatrix = modelMatrix;
+	this->useRawModelMatrix = true;
 
 	this->updateModelMatrix();
 }

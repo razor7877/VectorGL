@@ -132,7 +132,8 @@ void MeshComponent::update(float deltaTime)
 
 	// Send the model matrix
 	this->shaderProgram
-		->setMat4("model", this->parent->transform->getModelMatrix());
+		->setMat4("model", this->parent->transform->getModelMatrix())
+		->setMat3("normalMatrix", this->parent->transform->getNormalMatrix());
 
 	// Indexed drawing
 	if (this->hasIndices)
@@ -207,10 +208,22 @@ MeshComponent& MeshComponent::addTexture(std::shared_ptr<Texture> texture)
 	return *this;
 }
 
+MeshComponent& MeshComponent::addNormals(std::vector<float> normals)
+{
+	this->normals = normals;
+	return *this;
+}
+
 // Add normals data to the MeshComponent
 MeshComponent& MeshComponent::addNormals(float normals[], unsigned int normalSize)
 {
 	this->normals.insert(this->normals.end(), &normals[0], &normals[normalSize / sizeof(float)]);
+	return *this;
+}
+
+MeshComponent& MeshComponent::addIndices(std::vector<unsigned int> indices)
+{
+	this->indices = indices;
 	return *this;
 }
 
