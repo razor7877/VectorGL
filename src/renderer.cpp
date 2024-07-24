@@ -64,8 +64,13 @@ bool Renderer::removeEntity(Entity* rawObjectPtr)
 
 void Renderer::resizeFramebuffer(glm::vec2 newSize)
 {
+	this->multiSampledTarget.bind();
 	this->multiSampledTarget.resize(newSize);
+
+	this->finalTarget.bind();
 	this->finalTarget.resize(newSize);
+
+	this->finalTarget.unbind();
 }
 
 void Renderer::createFramebuffer(glm::vec2 windowSize)
