@@ -226,7 +226,11 @@ void ShowViewer()
 
 		glm::vec2 relativeMousePos = mousePos - imagePos;
 
+		// Inspired from https://www.mvps.org/directx/articles/rayproj.htm
+		
+		// Calculate X click position on range -1 to 1
 		float ndcX = relativeMousePos.x / viewerSize.x * 2.0f - 1.0f;
+		// Calculate Y click position on range -1 to 1
 		float ndcY = 1.0f - relativeMousePos.y / viewerSize.y * 2.0f;
 
 		// This is a click inside of the window
@@ -234,6 +238,23 @@ void ShowViewer()
 		{
 			std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
 			Logger::logInfo(hitMessage, "interface.cpp");
+			
+			float cameraFov = glm::radians(cameraComponent->getZoom());
+
+			float dx = tanf(cameraFov * 0.5f) * -ndcX;
+			float dy = tanf(cameraFov * 0.5f) * -ndcY;
+
+			glm::vec4 rayStartPosView = glm::vec4(dx * CameraComponent::NEAR, dy * CameraComponent::NEAR, CameraComponent::NEAR, 1.0f);
+			glm::vec4 rayEndPosView = glm::vec4(dx * CameraComponent::FAR, dy * CameraComponent::FAR, CameraComponent::FAR, 1.0f);
+
+			glm::mat4 cameraViewInv = glm::inverse(cameraComponent->getViewMatrix());
+
+			glm::vec3 rayStartPosWorld = cameraViewInv * rayStartPosView;
+			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
+
+			glm::vec3 rayDirection = rayStartPosWorld - rayEndPosWorld;
+
+			defaultRenderer.addLine(cameraComponent->getPosition(), rayDirection);
 		}
 	}
 

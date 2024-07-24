@@ -60,6 +60,8 @@ public:
 	/// <param name="windowSize">The window size in pixels</param>
 	void init(glm::vec2 windowSize);
 
+	void addLine(glm::vec3 startPos, glm::vec3 endPos);
+
 	/// <summary>
 	/// Draws the scene and updates all the entities
 	/// </summary>

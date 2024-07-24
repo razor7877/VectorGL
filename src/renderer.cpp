@@ -88,6 +88,18 @@ void Renderer::init(glm::vec2 windowSize)
 	this->createFramebuffer(windowSize);
 }
 
+std::vector<float> lineVerts;
+
+void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos)
+{
+	lineVerts.push_back(startPos.x);
+	lineVerts.push_back(startPos.y);
+	lineVerts.push_back(startPos.z);
+	lineVerts.push_back(endPos.x);
+	lineVerts.push_back(endPos.y);
+	lineVerts.push_back(endPos.z);
+}
+
 void Renderer::render(float deltaTime)
 {
 	// We want to draw to the MSAA framebuffer
@@ -105,30 +117,24 @@ void Renderer::render(float deltaTime)
 	for (auto&& entity : this->entities)
 		entity->update(deltaTime);
 
-	glm::vec3 camPos = glm::vec3(0.0f);
-	glm::vec3 front = cameraComponent->getForward();
-	glm::vec3 forwardPos = camPos + front * 3.0f;
+	if (lineVerts.size() > 0)
+	{
+		GLuint lineVAO;
+		GLuint lineVBO;
 
-	float line_vertices[6] = {
-		camPos.x, camPos.y, camPos.z,
-		forwardPos.x, forwardPos.y, forwardPos.z,
-	};
+		glGenVertexArrays(1, &lineVAO);
+		glGenBuffers(1, &lineVBO);
+		glBindVertexArray(lineVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+		glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
-	GLuint lineVAO;
-	GLuint lineVBO;
-
-	glGenVertexArrays(1, &lineVAO);
-	glGenBuffers(1, &lineVBO);
-	glBindVertexArray(lineVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(line_vertices), line_vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	this->shaderManager.getShader(ShaderType::SOLID)->use();
-	glBindVertexArray(lineVAO);
-	glLineWidth(25.0f);
-	glDrawArrays(GL_LINES, 0, 2);
+		this->shaderManager.getShader(ShaderType::SOLID)->use();
+		glBindVertexArray(lineVAO);
+		glLineWidth(25.0f);
+		glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
+	}
 
 	this->multiSampledTarget.unbind();
 

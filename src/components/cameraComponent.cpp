@@ -38,7 +38,7 @@ glm::mat4 CameraComponent::getViewMatrix()
 
 glm::mat4 CameraComponent::getProjectionMatrix(float width, float height)
 {
-	return glm::perspective(glm::radians(this->zoom), width / height, 0.01f, 100.0f);
+	return glm::perspective(glm::radians(this->zoom), width / height, NEAR, FAR);
 }
 
 void CameraComponent::processKeyboard(CameraMovement direction, float deltaTime)

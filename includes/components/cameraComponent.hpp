@@ -23,6 +23,8 @@ public:
 	static constexpr float SPEED = 7.5f;
 	static constexpr float SENSITIVITY = 0.1f;
 	static constexpr float ZOOM = 45.0f;
+	static constexpr float NEAR = 0.01f;
+	static constexpr float FAR = 100.0f;
 
 	CameraComponent(Entity* parent);
 
