@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <unordered_map>
 
 #include <glm/glm/ext/scalar_constants.hpp>
@@ -18,6 +18,7 @@ struct VertexDataIndices
 {
 	std::vector<float> vertices;
 	std::vector<unsigned int> indices;
+	std::vector<float> normals;
 };
 
 /// <summary>
@@ -203,15 +204,26 @@ public:
 	{
 		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
 
-		std::set<glm::vec3> uniqueVertices;
+		// We can't use std::set with a glm::vec3 since it lacks the "<" operator
+		// Therefore, we use an unordered set to keep track of what vertices are already present
+		// and a vector to keep them in the order of insertion
+		std::vector<glm::vec3> uniqueVertices;
+		std::unordered_set<glm::vec3> existingVertices;
+
 		std::unordered_map<glm::vec3, unsigned int> vertexToIndex;
+
+		int lastIndex = 0;
 
 		// We start by storing each unique vertex in the vector, and keeping track of it's corresponding index
 		for (int i = 0; i < vertices.size(); i += 3)
 		{
 			glm::vec3 vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
-			uniqueVertices.insert(vertex);
-			vertexToIndex[vertex] = i / 3;
+			if (existingVertices.count(vertex) == 0)
+			{
+				existingVertices.insert(vertex);
+				uniqueVertices.push_back(vertex);
+				vertexToIndex[vertex] = lastIndex++;
+			}
 		}
 
 		VertexDataIndices vertexData;
@@ -231,7 +243,66 @@ public:
 			vertexData.vertices.push_back(uniqueVertex.z);
 		}
 
-		return VertexDataIndices();
+		return vertexData;
+	}
+
+	/// <summary>
+	/// Optimizes a vector of vertices by using indexed drawing to keep only unique vertices
+	/// </summary>
+	/// <param name="vertices"></param>
+	/// <returns></returns>
+	static VertexDataIndices optimizeVertices(std::vector<float> vertices, std::vector<float> normals)
+	{
+		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
+
+		// We can't use std::set with a glm::vec3 since it lacks the "<" operator
+		// Therefore, we use an unordered set to keep track of what vertices are already present
+		// and a vector to keep them in the order of insertion
+		std::vector<glm::vec3> uniqueVertices;
+		std::vector<glm::vec3> uniqueNormals;
+		std::unordered_set<glm::vec3> existingVertices;
+
+		std::unordered_map<glm::vec3, unsigned int> vertexToIndex;
+
+		int lastIndex = 0;
+
+		// We start by storing each unique vertex in the vector, and keeping track of it's corresponding index
+		for (int i = 0; i < vertices.size(); i += 3)
+		{
+			glm::vec3 vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+			if (existingVertices.count(vertex) == 0)
+			{
+				glm::vec3 normal = glm::vec3(normals[i], normals[i + 1], normals[i + 2]);
+
+				existingVertices.insert(vertex);
+				uniqueVertices.push_back(vertex);
+				uniqueNormals.push_back(normal);
+				vertexToIndex[vertex] = lastIndex++;
+			}
+		}
+
+		VertexDataIndices vertexData;
+
+		// Second pass to generate the list of indices
+		for (int i = 0; i < vertices.size(); i += 3)
+		{
+			glm::vec3 vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+			vertexData.indices.push_back(vertexToIndex[vertex]);
+		}
+
+		// Add the vertices to the struct
+		for (int i = 0; i < uniqueVertices.size(); i++)
+		{
+			vertexData.vertices.push_back(uniqueVertices[i].x);
+			vertexData.vertices.push_back(uniqueVertices[i].y);
+			vertexData.vertices.push_back(uniqueVertices[i].z);
+
+			vertexData.normals.push_back(uniqueNormals[i].x);
+			vertexData.normals.push_back(uniqueNormals[i].y);
+			vertexData.normals.push_back(uniqueNormals[i].z);
+		}
+
+		return vertexData;
 	}
 
 	/// <summary>
@@ -277,9 +348,9 @@ public:
 	}
 
 	/// <summary>
-	/// Calculates the per-vertex normals for an array of vertices without indices
+	/// Calculates the per-vertex normals for an array of vertices with indices
 	/// </summary>
-	/// <param name="vertices"></param>
+	/// <param name="vertices">The vertices for which normals should be calculated</param>
 	/// <param name="indices"></param>
 	/// <returns></returns>
 	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices, std::vector<unsigned int> indices)
@@ -317,6 +388,7 @@ public:
 		for (int i = 0; i < normals.size(); i++)
 		{
 			glm::vec3 normalized = glm::normalize(normals[i]);
+
 			normalsAsFloats.push_back(normalized.x);
 			normalsAsFloats.push_back(normalized.y);
 			normalsAsFloats.push_back(normalized.z);

@@ -169,12 +169,14 @@ int main()
 	btRigidBody* sphereRigidBody = new btRigidBody(rigidBodyCI);
 	dynamicsWorld->addRigidBody(sphereRigidBody);
 
+	// Cube
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
 	defaultRenderer.addEntity(std::move(cubeEntity));
 
+	// Sphere
 	std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 	MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
@@ -199,6 +201,7 @@ int main()
 		glm::vec3(-10.0f, -10.0f, 10.0f),
 		glm::vec3(10.0f, -10.0f, 10.0f),
 	};
+
 	glm::vec3 lightColors[] = {
 		glm::vec3(300.0f, 300.0f, 300.0f),
 		glm::vec3(300.0f, 300.0f, 300.0f),
@@ -222,13 +225,14 @@ int main()
 	ScriptComponent* scriptComponent = modelEntity->addComponent<ScriptComponent>();
 	defaultRenderer.addEntity(std::move(modelEntity));
 
+	// Plane
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::unique_ptr<Entity> planeEntity = std::make_unique<Entity>("Plane");
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), pbrShader);
 	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
 	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(200.0f, 200.0f, 1.0f));
+	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 	defaultRenderer.addEntity(std::move(planeEntity));
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data

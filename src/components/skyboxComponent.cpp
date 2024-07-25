@@ -36,7 +36,11 @@ void SkyboxComponent::update(float deltaTime)
 	else
 		this->currentCubemap->bind();
 
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	// Indexed drawing
+	if (this->hasIndices)
+		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
+	else // Normal drawing
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 
 	glDepthFunc(GL_LESS);
 }

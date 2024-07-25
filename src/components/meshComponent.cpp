@@ -32,6 +32,35 @@ MeshComponent::~MeshComponent()
 
 void MeshComponent::start()
 {
+	// We optimize the vertices using indexed drawing if the mesh doesn't use indices
+	if (indices.size() == 0)
+	{
+		if (normals.size() == 0)
+		{
+			VertexDataIndices optimizedVertexData = Geometry::optimizeVertices(this->vertices);
+
+			this->vertices = optimizedVertexData.vertices;
+			this->indices = optimizedVertexData.indices;
+		}
+		else
+		{
+			VertexDataIndices optimizedVertexData = Geometry::optimizeVertices(this->vertices, this->normals);
+
+			this->vertices = optimizedVertexData.vertices;
+			this->indices = optimizedVertexData.indices;
+			this->normals = optimizedVertexData.normals;
+		}
+	}
+
+	// We calculate the normals if none are provided
+	if (normals.size() == 0)
+	{
+		if (indices.size() > 0)
+			this->normals = Geometry::calculateVerticesNormals(this->vertices, this->indices);
+		else
+			this->normals = Geometry::calculateVerticesNormals(this->vertices);
+	}
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
@@ -40,15 +69,7 @@ void MeshComponent::start()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
-	if (indices.size() == 0)
-	{
-		VertexDataIndices optimizedVertexData = Geometry::optimizeVertices(this->vertices);
-
-		this->vertices = optimizedVertexData.vertices;
-		this->indices = optimizedVertexData.indices;
-	}
-
-	// If the MeshComponent uses indices
+	// Send the indices
 	if (indices.size() > 0)
 	{
 		this->hasIndices = true;
@@ -62,10 +83,11 @@ void MeshComponent::start()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// If the MeshComponent uses textures
+	// If the MeshComponent uses textures, send them to the material
 	if (textures.size() > 0 && this->material != nullptr)
 		this->material->addTextures(this->textures);
 
+	// Send texture coordinates if present
 	if (texCoords.size() > 0)
 	{
 		// Generates a buffer to store texture coordinates data
@@ -77,25 +99,20 @@ void MeshComponent::start()
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 	}
-	else
+	else if (textures.size() > 0)
 		Logger::logWarning("MeshComponent has texture but no associated texture coordinates!", "meshComponent.cpp");
 
-	// We calculate the normals if none are provided
-	if (normals.size() == 0)
+	// Send normals for lighting calculations
+	if (normals.size() > 0)
 	{
-		if (indices.size() > 0)
-			this->normals = Geometry::calculateVerticesNormals(this->vertices, this->indices);
-		else
-			this->normals = Geometry::calculateVerticesNormals(this->vertices);
+		glGenBuffers(1, &normalBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, normalBO);
+		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), &normals[0], GL_STATIC_DRAW);
+
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(2);
 	}
-
-	glGenBuffers(1, &normalBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, normalBO);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), &normals[0], GL_STATIC_DRAW);
-
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(2);
 
 	// Send tangents for normal mapping
 	if (tangents.size() > 0)
