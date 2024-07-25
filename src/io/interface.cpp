@@ -840,6 +840,12 @@ void ShowComponentUI(Component* component)
 		{
 			MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
 
+			std::string verticesText = "Vertices: " + std::to_string(meshComponent->getVerticesCount());
+			std::string indicesText = "Indices: " + std::to_string(meshComponent->getIndicesCount());
+
+			ImGui::Text(verticesText.c_str());
+			ImGui::Text(indicesText.c_str());
+
 			PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
 			PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
 

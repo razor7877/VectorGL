@@ -43,6 +43,9 @@ public:
 	MeshComponent& addTangents(std::vector<float> tangents);
 	MeshComponent& addBitangents(std::vector<float> bitangents);
 
+	int getVerticesCount();
+	int getIndicesCount();
+
 	void setDiffuseColor(glm::vec3 color);
 
 	/// <summary>

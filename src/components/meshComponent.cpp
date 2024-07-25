@@ -40,6 +40,14 @@ void MeshComponent::start()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
+	if (indices.size() == 0)
+	{
+		VertexDataIndices optimizedVertexData = Geometry::optimizeVertices(this->vertices);
+
+		this->vertices = optimizedVertexData.vertices;
+		this->indices = optimizedVertexData.indices;
+	}
+
 	// If the MeshComponent uses indices
 	if (indices.size() > 0)
 	{
@@ -250,6 +258,16 @@ MeshComponent& MeshComponent::addBitangents(std::vector<float> bitangents)
 {
 	this->bitangents = bitangents;
 	return *this;
+}
+
+int MeshComponent::getIndicesCount()
+{
+	return this->indicesCount;
+}
+
+int MeshComponent::getVerticesCount()
+{
+	return this->verticesCount;
 }
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)

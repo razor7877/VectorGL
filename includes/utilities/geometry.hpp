@@ -1,13 +1,23 @@
 #pragma once
 
 #include <vector>
+#include <set>
+#include <unordered_map>
 
 #include <glm/glm/ext/scalar_constants.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 struct VertexData
 {
 	std::vector<float> vertices;
 	std::vector<float> normals;
+};
+
+struct VertexDataIndices
+{
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
 };
 
 /// <summary>
@@ -62,6 +72,12 @@ public:
 		return quadTexCoords;
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="slices"></param>
+	/// <param name="stacks"></param>
+	/// <returns></returns>
 	static VertexData getSphereVertices(int slices, int stacks)
 	{
 		// From https://danielsieger.com/blog/2021/03/27/generating-spheres.html
@@ -179,6 +195,46 @@ public:
 	}
 
 	/// <summary>
+	/// Optimizes a vector of vertices by using indexed drawing to keep only unique vertices
+	/// </summary>
+	/// <param name="vertices"></param>
+	/// <returns></returns>
+	static VertexDataIndices optimizeVertices(std::vector<float> vertices)
+	{
+		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
+
+		std::set<glm::vec3> uniqueVertices;
+		std::unordered_map<glm::vec3, unsigned int> vertexToIndex;
+
+		// We start by storing each unique vertex in the vector, and keeping track of it's corresponding index
+		for (int i = 0; i < vertices.size(); i += 3)
+		{
+			glm::vec3 vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+			uniqueVertices.insert(vertex);
+			vertexToIndex[vertex] = i / 3;
+		}
+
+		VertexDataIndices vertexData;
+
+		// Second pass to generate the list of indices
+		for (int i = 0; i < vertices.size(); i += 3)
+		{
+			glm::vec3 vertex = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+			vertexData.indices.push_back(vertexToIndex[vertex]);
+		}
+
+		// Add the vertices to the struct
+		for (glm::vec3 uniqueVertex : uniqueVertices)
+		{
+			vertexData.vertices.push_back(uniqueVertex.x);
+			vertexData.vertices.push_back(uniqueVertex.y);
+			vertexData.vertices.push_back(uniqueVertex.z);
+		}
+
+		return VertexDataIndices();
+	}
+
+	/// <summary>
 	/// Calculates the per-vertex normals for an array of vertices without indices
 	/// </summary>
 	/// <param name="vertices">The vertices for which normals should be calculated</param>
@@ -228,7 +284,6 @@ public:
 	/// <returns></returns>
 	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices, std::vector<unsigned int> indices)
 	{
-		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
 		assert(indices.size() % 3 == 0, "Vector contains malformed vertice data!");
 
 		std::vector<glm::vec3> normals(vertices.size() / 3, glm::vec3(0.0f));

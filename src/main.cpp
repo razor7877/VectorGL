@@ -267,7 +267,7 @@ int main()
 		defaultRenderer.render(deltaTime);
 
 		dynamicsWorld->stepSimulation(deltaTime, 10);
-		dynamicsWorld->debugDrawWorld();
+		//dynamicsWorld->debugDrawWorld();
 
 		// Print positions of the box
 		btTransform trans;
