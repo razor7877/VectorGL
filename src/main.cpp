@@ -139,12 +139,14 @@ int main()
 
 	dynamicsWorld->setGravity(btVector3(0.0f, gravity, 0.0f));
 
+	// Plane rigid body
 	btCollisionShape* planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -5.0f);
 	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 0.0f, 0.0f)));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, planeShape, btVector3(0.0f, 0.0f, 0.0f));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 	dynamicsWorld->addRigidBody(groundRigidBody);
 
+	// Box rigid body
 	btCollisionShape* boxShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
 	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 25.0f, 0.0f)));
 	btScalar mass = 1.0f;
@@ -154,18 +156,31 @@ int main()
 	boxRigidBody = new btRigidBody(boxRigidBodyCI);
 	dynamicsWorld->addRigidBody(boxRigidBody);
 
+	// Sphere rigid body
+	btScalar radius = 1.0f;
+	btCollisionShape* sphereShape = new btSphereShape(radius);
+
+	// Initial position of the sphere
+	btVector3 initialPosition(0, 10, 0);
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	sphereShape->calculateLocalInertia(mass, localInertia);
+	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, sphereShape, localInertia);
+	btRigidBody* sphereRigidBody = new btRigidBody(rigidBodyCI);
+	dynamicsWorld->addRigidBody(sphereRigidBody);
+
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
-
-	PBRMaterial* cubeMaterial = dynamic_cast<PBRMaterial*>(cubeMesh->material.get());
-	if (cubeMaterial != nullptr)
-	{
-		cubeMaterial->albedoColor = glm::vec3(0.0f, 1.0f, 0.0f);
-	}
-
 	defaultRenderer.addEntity(std::move(cubeEntity));
+
+	std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
+	MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
+	VertexData sphere = Geometry::getSphereVertices(100, 30);
+	sphereMesh->setupMesh(&sphere.vertices[0], sphere.vertices.size() * sizeof(float), pbrShader);
+	sphereMesh->addNormals(sphere.normals);
+	defaultRenderer.addEntity(std::move(sphereEntity));
 
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
@@ -261,8 +276,8 @@ int main()
 		glm::mat4 glmMat(1.0f);  // Initialize to identity matrix
 
 		// Extract basis (rotation) and origin (translation) from btTransform
-		const btMatrix3x3& basis = trans.getBasis();
-		const btVector3& origin = trans.getOrigin();
+		btMatrix3x3& basis = trans.getBasis();
+		btVector3& origin = trans.getOrigin();
 
 		// Set rotation part
 		glmMat[0][0] = basis[0][0];
@@ -281,6 +296,32 @@ int main()
 		glmMat[3][2] = origin.getZ();
 
 		cubeMesh->parent->transform->setModelMatrix(glmMat);
+
+		sphereRigidBody->getMotionState()->getWorldTransform(trans);
+
+		glmMat = glm::mat4(1.0f);  // Initialize to identity matrix
+
+		// Extract basis (rotation) and origin (translation) from btTransform
+		basis = trans.getBasis();
+		origin = trans.getOrigin();
+
+		// Set rotation part
+		glmMat[0][0] = basis[0][0];
+		glmMat[1][0] = basis[0][1];
+		glmMat[2][0] = basis[0][2];
+		glmMat[0][1] = basis[1][0];
+		glmMat[1][1] = basis[1][1];
+		glmMat[2][1] = basis[1][2];
+		glmMat[0][2] = basis[2][0];
+		glmMat[1][2] = basis[2][1];
+		glmMat[2][2] = basis[2][2];
+
+		// Set translation part
+		glmMat[3][0] = origin.getX();
+		glmMat[3][1] = origin.getY();
+		glmMat[3][2] = origin.getZ();
+
+		sphereMesh->parent->transform->setModelMatrix(glmMat);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

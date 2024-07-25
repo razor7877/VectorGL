@@ -2,6 +2,14 @@
 
 #include <vector>
 
+#include <glm/glm/ext/scalar_constants.hpp>
+
+struct VertexData
+{
+	std::vector<float> vertices;
+	std::vector<float> normals;
+};
+
 /// <summary>
 /// A utility class that provides methods for creating geometric primitives, getting texture coordinates, normals etc.
 /// </summary>
@@ -54,6 +62,122 @@ public:
 		return quadTexCoords;
 	}
 
+	static VertexData getSphereVertices(int slices, int stacks)
+	{
+		// From https://danielsieger.com/blog/2021/03/27/generating-spheres.html
+		std::vector<glm::vec3> vertices;
+
+		// Top vertex
+		glm::vec3 v0 = glm::vec3(0.0f, 1.0f, 0.0f);
+		vertices.push_back(v0);
+
+		// Generate vertices per stack / slice
+		for (int i = 0; i < stacks - 1; i++)
+		{
+			float phi = glm::pi<float>() * (i + 1) / stacks;
+
+			for (int j = 0; j < slices; j++)
+			{
+				float theta = 2.0f * glm::pi<float>() * j / slices;
+				float x = std::sin(phi) * std::cos(theta);
+				float y = std::cos(phi);
+				float z = std::sin(phi) * std::sin(theta);
+				vertices.push_back(glm::vec3(x, y, z));
+			}
+		}
+
+		// Bottom vertex
+		glm::vec3 v1 = glm::vec3(0.0f, -1.0f, 0.0f);
+		vertices.push_back(v1);
+
+		std::vector<glm::vec3> topTriangles;
+		std::vector<glm::vec3> bottomTriangles;
+		// Add top/bottom triangles
+		for (int i = 0; i < slices; i++)
+		{
+			// Top triangles
+			int i0 = i + 1;
+			int i1 = (i + 1) % slices + 1;
+			topTriangles.push_back(v0);
+			topTriangles.push_back(vertices[i1]);
+			topTriangles.push_back(vertices[i0]);
+
+			// Bottom triangles
+			i0 = i + slices * (stacks - 2) + 1;
+			i1 = (i + 1) % slices + slices * (stacks - 2) + 1;
+			bottomTriangles.push_back(v1);
+			bottomTriangles.push_back(vertices[i0]);
+			bottomTriangles.push_back(vertices[i1]);
+		}
+
+		std::vector<glm::vec3> quadTriangles;
+		// Add quads
+		for (int j = 0; j < stacks - 2; j++)
+		{
+			int j0 = j * slices + 1;
+			int j1 = (j + 1) * slices + 1;
+
+			for (int i = 0; i < slices; i++)
+			{
+				int i0 = j0 + i;
+				int i1 = j0 + (i + 1) % slices;
+				int i2 = j1 + (i + 1) % slices;
+				int i3 = j1 + i;
+
+				quadTriangles.push_back(vertices[i0]);
+				quadTriangles.push_back(vertices[i1]);
+				quadTriangles.push_back(vertices[i2]);
+
+				quadTriangles.push_back(vertices[i0]);
+				quadTriangles.push_back(vertices[i2]);
+				quadTriangles.push_back(vertices[i3]);
+			}
+		}
+
+		VertexData sphereData;
+
+		// Add the vertices for the top triangles
+		for (glm::vec3 triangleVert : topTriangles)
+		{
+			sphereData.vertices.push_back(triangleVert.x);
+			sphereData.vertices.push_back(triangleVert.y);
+			sphereData.vertices.push_back(triangleVert.z);
+
+			glm::vec3 normal = glm::normalize(glm::vec3(triangleVert.x, triangleVert.y, triangleVert.z));
+			sphereData.normals.push_back(normal.x);
+			sphereData.normals.push_back(normal.y);
+			sphereData.normals.push_back(normal.z);
+		}
+
+		// Add the vertices for all the middle quads
+		for (glm::vec3 triangleVert : quadTriangles)
+		{
+			sphereData.vertices.push_back(triangleVert.x);
+			sphereData.vertices.push_back(triangleVert.y);
+			sphereData.vertices.push_back(triangleVert.z);
+
+			glm::vec3 normal = glm::normalize(glm::vec3(triangleVert.x, triangleVert.y, triangleVert.z));
+			sphereData.normals.push_back(normal.x);
+			sphereData.normals.push_back(normal.y);
+			sphereData.normals.push_back(normal.z);
+		}
+
+		// Add the vertices for the bottom triangles
+		for (glm::vec3 triangleVert : bottomTriangles)
+		{
+			sphereData.vertices.push_back(triangleVert.x);
+			sphereData.vertices.push_back(triangleVert.y);
+			sphereData.vertices.push_back(triangleVert.z);
+
+			glm::vec3 normal = glm::normalize(glm::vec3(triangleVert.x, triangleVert.y, triangleVert.z));
+			sphereData.normals.push_back(normal.x);
+			sphereData.normals.push_back(normal.y);
+			sphereData.normals.push_back(normal.z);
+		}
+
+		return sphereData;
+	}
+
 	/// <summary>
 	/// Calculates the per-vertex normals for an array of vertices without indices
 	/// </summary>
@@ -61,6 +185,8 @@ public:
 	/// <returns>A vector containing the normals for each vertex</returns>
 	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices)
 	{
+		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
+
 		std::vector<float> normals;
 
 		// Iterates over the vector triangle by triangle
@@ -102,6 +228,7 @@ public:
 	/// <returns></returns>
 	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices, std::vector<unsigned int> indices)
 	{
+		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
 		assert(indices.size() % 3 == 0, "Vector contains malformed vertice data!");
 
 		std::vector<glm::vec3> normals(vertices.size() / 3, glm::vec3(0.0f));
@@ -123,7 +250,7 @@ public:
 			// Calculate the normal
 			glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
 
-			// Add the normal to each corresponding vertex as a "weight"
+			// Add the normal to each corresponding vertex as a "weight", which we'll normalize later to keep just the direction
 			normals[i1] += normal;
 			normals[i2] += normal;
 			normals[i3] += normal;
