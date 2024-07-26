@@ -90,6 +90,12 @@ public:
 	static std::vector<Log> getLogs();
 
 	/// <summary>
+	/// Returns how many logs are currently stored
+	/// </summary>
+	/// <returns>The count of logs</returns>
+	static int getLogCount();
+
+	/// <summary>
 	/// Returns all the logs filtered by the given log level
 	/// </summary>
 	/// <param name="logLevel">The selected log level</param>
@@ -110,6 +116,10 @@ public:
 	/// <returns></returns>
 	static std::vector<Log> getFilteredLogs(std::set<LogLevel> logLevels, std::set<std::string> files = Logger::sourceFiles);
 
+	/// <summary>
+	/// Returns a list of all source files that have created logs
+	/// </summary>
+	/// <returns>A vector of file names</returns>
 	static std::vector<std::string> getSourceFiles();
 
 	/// <summary>

@@ -176,13 +176,19 @@ int main()
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
 	defaultRenderer.addEntity(std::move(cubeEntity));
 
-	// Sphere
-	std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
-	MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
-	sphereMesh->setupMesh(&sphere.vertices[0], sphere.vertices.size() * sizeof(float), pbrShader);
-	sphereMesh->addNormals(sphere.normals);
-	defaultRenderer.addEntity(std::move(sphereEntity));
+	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
+
+	// Sphere
+	for (int i = 0; i < 1000; i++)
+	{
+		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
+		MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
+		sphereMesh->setupMesh(&sphereOptimized.vertices[0], sphereOptimized.vertices.size() * sizeof(float), pbrShader);
+		sphereMesh->addIndices(sphereOptimized.indices);
+		sphereMesh->addNormals(sphereOptimized.normals);
+		defaultRenderer.addEntity(std::move(sphereEntity));
+	}
 
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
@@ -246,6 +252,9 @@ int main()
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
+
+	for (int i = 0; i < 1000; i++)
+		Logger::logWarning("Test", "main.cpp");
 
 	// Render loop
 	while (!glfwWindowShouldClose(window))
@@ -325,7 +334,7 @@ int main()
 		glmMat[3][1] = origin.getY();
 		glmMat[3][2] = origin.getZ();
 
-		sphereMesh->parent->transform->setModelMatrix(glmMat);
+		//sphereMesh->parent->transform->setModelMatrix(glmMat);
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

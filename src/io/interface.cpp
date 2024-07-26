@@ -101,6 +101,12 @@ struct
 
 	// Currently selected source files
 	std::set<std::string> selectedSourceFiles;
+
+	// A cached vector containing the current logs shown in the console
+	std::vector<Log> shownLogs;
+
+	// How many logs the logger contained when it was last filtered, this is used to implement a caching system to improve performance
+	int lastFilteredVectorSize = 0;
 } consoleParams;
 
 struct
@@ -274,15 +280,18 @@ void ShowConsole()
 	ImGui::BeginChild("Logs", ImVec2(0, windowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
 
-	std::vector<Log> logs;
-
-	logs = Logger::getFilteredLogs(consoleParams.selectedLogLevels, consoleParams.selectedSourceFiles);
+	int currentLogCount = Logger::getLogCount();
+	if (consoleParams.lastFilteredVectorSize != currentLogCount)
+	{
+		consoleParams.shownLogs = Logger::getFilteredLogs(consoleParams.selectedLogLevels, consoleParams.selectedSourceFiles);
+		consoleParams.lastFilteredVectorSize = currentLogCount;
+	}
 
 	// Display all the logs with their corresponding colors, with the earliest first
-	for (int i = logs.size() - 1; i > 0; i--)
+	for (int i = consoleParams.shownLogs.size() - 1; i > 0; i--)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.levelToColor[logs[i].logLevel]);
-		ImGui::Text(logs[i].logMessage.c_str());
+		ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.levelToColor[consoleParams.shownLogs[i].logLevel]);
+		ImGui::Text(consoleParams.shownLogs[i].logMessage.c_str());
 		ImGui::PopStyleColor();
 	}
 
@@ -359,7 +368,7 @@ void PerformanceMenu()
 {
 	ImGui::Begin("Performance");
 
-	ImGui::Text("Frame render time: %.2f ms", performanceParams.timeToFrame * 1000);;
+	ImGui::Text("Frame render time: %.2f ms", deltaTime * 1000);;
 
 	performanceParams.lastFrames[performanceParams.frameIndex] = deltaTime;
 	performanceParams.frameIndex++;

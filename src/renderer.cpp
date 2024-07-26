@@ -9,6 +9,7 @@
 #include "shaderManager.hpp"
 #include "entity.hpp"
 #include "materials/pbrMaterial.hpp"
+#include "components/meshComponent.hpp"
 
 Renderer::Renderer()
 {
@@ -132,8 +133,39 @@ void Renderer::render(float deltaTime)
 	LightManager::getInstance().sendToShader();
 
 	// Render & update the scene
+	std::map<MaterialType, std::vector<Entity*>> renderables;
+	std::vector<Entity*> nonRenderables;
+
 	for (auto&& entity : this->entities)
-		entity->update(deltaTime);
+	{
+		Entity* entityPtr = entity.get();
+		MeshComponent* mesh = entityPtr->getComponent<MeshComponent>();
+
+		if (mesh == nullptr)
+			nonRenderables.push_back(entityPtr);
+		else
+			renderables[mesh->material->getType()].push_back(entityPtr);
+	}
+
+	for (Entity* nonRenderable : nonRenderables)
+		nonRenderable->update(deltaTime);
+
+	for (auto& [material, meshes] : renderables)
+	{
+		switch (material)
+		{
+			case MaterialType::PhongMaterial:
+				this->shaderManager.getShader(ShaderType::PHONG)->use();
+				break;
+
+			case MaterialType::PBRMaterial:
+				this->shaderManager.getShader(ShaderType::PBR)->use();
+				break;
+		}
+
+		for (Entity* renderable : meshes)
+			renderable->update(deltaTime);
+	}
 
 	if (lineVerts.size() > 0)
 	{

@@ -16,6 +16,9 @@
 class MeshComponent : public virtual Component
 {
 public:
+	static const std::string MODEL;
+	static const std::string NORMAL_MATRIX;
+
 	MeshComponent(Entity* parent);
 	~MeshComponent() override;
 

@@ -40,6 +40,11 @@ std::vector<Log> Logger::getLogs()
 	return Logger::logMessages;
 }
 
+int Logger::getLogCount()
+{
+	return Logger::logMessages.size();
+}
+
 std::vector<Log> Logger::getLogsByLevel(LogLevel logLevel)
 {
 	std::vector<Log> filteredLogs;

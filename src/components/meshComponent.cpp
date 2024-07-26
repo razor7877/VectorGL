@@ -11,6 +11,9 @@
 #include "materials/material.hpp"
 #include "utilities/geometry.hpp"
 
+const std::string MeshComponent::MODEL = "model";
+const std::string MeshComponent::NORMAL_MATRIX = "normalMatrix";
+
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
 	this->material = std::make_unique<PBRMaterial>();
@@ -32,26 +35,6 @@ MeshComponent::~MeshComponent()
 
 void MeshComponent::start()
 {
-	// We optimize the vertices using indexed drawing if the mesh doesn't use indices
-	if (indices.size() == 0)
-	{
-		if (normals.size() == 0)
-		{
-			VertexDataIndices optimizedVertexData = Geometry::optimizeVertices(this->vertices);
-
-			this->vertices = optimizedVertexData.vertices;
-			this->indices = optimizedVertexData.indices;
-		}
-		else
-		{
-			VertexDataIndices optimizedVertexData = Geometry::optimizeVertices(this->vertices, this->normals);
-
-			this->vertices = optimizedVertexData.vertices;
-			this->indices = optimizedVertexData.indices;
-			this->normals = optimizedVertexData.normals;
-		}
-	}
-
 	// We calculate the normals if none are provided
 	if (normals.size() == 0)
 	{
@@ -152,8 +135,6 @@ void MeshComponent::start()
 
 void MeshComponent::update(float deltaTime)
 {
-	this->shaderProgram->use();
-	
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
@@ -163,23 +144,14 @@ void MeshComponent::update(float deltaTime)
 
 	// Send the model matrix
 	this->shaderProgram
-		->setMat4("model", this->parent->transform->getModelMatrix())
-		->setMat3("normalMatrix", this->parent->transform->getNormalMatrix());
+		->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
+		->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
 
 	// Indexed drawing
 	if (this->hasIndices)
 		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
 	else // Normal drawing
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
-
-	// Unbind textures
-	for (int i = 0; i < 8; i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	glActiveTexture(GL_TEXTURE0);
 }
 
 void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position)
