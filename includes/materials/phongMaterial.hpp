@@ -13,6 +13,24 @@
 struct PhongMaterial : public virtual Material
 {
 public:
+	static const std::string AMBIENT_COLOR;
+	static const std::string DIFFUSE_COLOR;
+	static const std::string SPECULAR_COLOR;
+	static const std::string SHININESS;
+
+	static const std::string USE_DIFFUSE_MAP;
+	static const std::string USE_SPECULAR_MAP;
+	static const std::string USE_NORMAL_MAP;
+	static const std::string USE_HEIGHT_MAP;
+	static const std::string USE_EMISSIVE_MAP;
+
+	static const std::string TEXTURE_DIFFUSE;
+	static const std::string TEXTURE_SPECULAR;
+	static const std::string TEXTURE_NORMAL;
+	static const std::string TEXTURE_HEIGHT;
+	static const std::string TEXTURE_EMISSIVE;
+
+
 	PhongMaterial();
 	PhongMaterial(std::shared_ptr<Texture> texture);
 	PhongMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture);
@@ -25,6 +43,8 @@ public:
 	void sendToShader(Shader* shaderProgram) override;
 
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
+
+	MaterialType getType() override;
 
 	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);
 	void addSpecularMap(std::shared_ptr<Texture> specularTexture);

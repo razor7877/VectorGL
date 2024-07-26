@@ -1,5 +1,22 @@
 #include "materials/phongMaterial.hpp"
 
+const std::string PhongMaterial::AMBIENT_COLOR = "material.ambient";
+const std::string PhongMaterial::DIFFUSE_COLOR = "material.diffuse";
+const std::string PhongMaterial::SPECULAR_COLOR = "material.specular";
+const std::string PhongMaterial::SHININESS = "material.shininess";
+
+const std::string PhongMaterial::USE_DIFFUSE_MAP = "material.use_diffuse_map";
+const std::string PhongMaterial::USE_SPECULAR_MAP = "material.use_specular_map";
+const std::string PhongMaterial::USE_NORMAL_MAP = "material.use_normal_map";
+const std::string PhongMaterial::USE_HEIGHT_MAP = "material.use_height_map";
+const std::string PhongMaterial::USE_EMISSIVE_MAP = "material.use_emissive_map";
+
+const std::string PhongMaterial::TEXTURE_DIFFUSE = "material.texture_diffuse";
+const std::string PhongMaterial::TEXTURE_SPECULAR = "material.texture_specular";
+const std::string PhongMaterial::TEXTURE_NORMAL = "material.texture_normal";
+const std::string PhongMaterial::TEXTURE_HEIGHT = "material.texture_height";
+const std::string PhongMaterial::TEXTURE_EMISSIVE = "material.texture_emissive";
+
 PhongMaterial::PhongMaterial()
 {
 
@@ -27,53 +44,51 @@ PhongMaterial::~PhongMaterial()
 void PhongMaterial::sendToShader(Shader* shaderProgram)
 {
 	shaderProgram
-		->setVec3("material.ambient", this->ambientColor)
-		->setVec3("material.diffuse", this->diffuseColor)
-		->setVec3("material.specular", this->specularColor)
-		->setFloat("material.shininess", this->shininess);
+		->setVec3(PhongMaterial::AMBIENT_COLOR, this->ambientColor)
+		->setVec3(PhongMaterial::DIFFUSE_COLOR, this->diffuseColor)
+		->setVec3(PhongMaterial::SPECULAR_COLOR, this->specularColor)
+		->setFloat(PhongMaterial::SHININESS, this->shininess);
 
 	// Send all data relevant to textures
-	shaderProgram->setInt("material.use_diffuse_map", this->useDiffuseMap);
-	shaderProgram->setInt("material.use_specular_map", this->useSpecularMap);
-	shaderProgram->setInt("material.use_normal_map", this->useNormalMap);
-	shaderProgram->setInt("material.use_height_map", this->useHeightMap);
-	shaderProgram->setInt("material.use_emissive_map", this->useEmissiveMap);
+	shaderProgram->setInt(PhongMaterial::USE_DIFFUSE_MAP, this->useDiffuseMap);
+	shaderProgram->setInt(PhongMaterial::USE_SPECULAR_MAP, this->useSpecularMap);
+	shaderProgram->setInt(PhongMaterial::USE_NORMAL_MAP, this->useNormalMap);
+	shaderProgram->setInt(PhongMaterial::USE_HEIGHT_MAP, this->useHeightMap);
+	shaderProgram->setInt(PhongMaterial::USE_EMISSIVE_MAP, this->useEmissiveMap);
 
 	// Bind all the textures needed
 	if (this->useDiffuseMap)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		shaderProgram->setInt("material.texture_diffuse", 0);
+		shaderProgram->setInt(PhongMaterial::TEXTURE_DIFFUSE, 0);
 		this->diffuseTexture->bindTexture();
 	}
-	else
-		shaderProgram->setVec3("material.diffuse_color", this->diffuseColor);
 
 	if (this->useSpecularMap)
 	{
 		glActiveTexture(GL_TEXTURE1);
-		shaderProgram->setInt("material.texture_specular", 1);
+		shaderProgram->setInt(PhongMaterial::TEXTURE_SPECULAR, 1);
 		this->specularTexture->bindTexture();
 	}
 
 	if (this->useNormalMap)
 	{
 		glActiveTexture(GL_TEXTURE2);
-		shaderProgram->setInt("material.texture_normal", 2);
+		shaderProgram->setInt(PhongMaterial::TEXTURE_NORMAL, 2);
 		this->normalTexture->bindTexture();
 	}
 
 	if (this->useHeightMap)
 	{
 		glActiveTexture(GL_TEXTURE3);
-		shaderProgram->setInt("material.texture_height", 3);
+		shaderProgram->setInt(PhongMaterial::TEXTURE_HEIGHT, 3);
 		this->heightTexture->bindTexture();
 	}
 
 	if (this->useEmissiveMap)
 	{
 		glActiveTexture(GL_TEXTURE4);
-		shaderProgram->setInt("material.texture_emissive", 4);
+		shaderProgram->setInt(PhongMaterial::TEXTURE_EMISSIVE, 4);
 		this->emissiveTexture->bindTexture();
 	}
 }
@@ -105,6 +120,11 @@ void PhongMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
 				this->addEmissiveMap(textures[i]);
 		}
 	}
+}
+
+MaterialType PhongMaterial::getType()
+{
+	return MaterialType::PhongMaterial;
 }
 
 void PhongMaterial::addDiffuseMap(std::shared_ptr<Texture> diffuseTexture)

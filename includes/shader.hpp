@@ -67,7 +67,7 @@ private:
 	/// </summary>
 	std::map<std::string, GLuint> locationCache;
 
-	GLuint getUniformLocation(std::string uniformName);
+	GLuint getUniformLocation(const std::string& uniformName);
 };
 
 #endif

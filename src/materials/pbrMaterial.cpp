@@ -1,6 +1,31 @@
 #include "materials/pbrMaterial.hpp"
 #include "main.hpp"
 
+const std::string PBRMaterial::USE_ALBEDO_MAP = "material.use_albedo_map";
+const std::string PBRMaterial::USE_NORMAL_MAP = "material.use_normal_map";
+const std::string PBRMaterial::USE_METALLIC_MAP = "material.use_metallic_map";
+const std::string PBRMaterial::USE_ROUGHNESS_MAP = "material.use_roughness_map";
+const std::string PBRMaterial::USE_AO_MAP = "material.use_ao_map";
+const std::string PBRMaterial::USE_EMISSIVE_MAP = "material.use_emissive_map";
+
+const std::string PBRMaterial::TEXTURE_ALBEDO = "material.texture_albedo";
+const std::string PBRMaterial::TEXTURE_NORMAL = "material.texture_normal";
+const std::string PBRMaterial::TEXTURE_METALLIC = "material.texture_metallic";
+const std::string PBRMaterial::TEXTURE_ROUGHNESS = "material.texture_roughness";
+const std::string PBRMaterial::TEXTURE_AO = "material.texture_ao";
+const std::string PBRMaterial::TEXTURE_OPACITY = "material.texture_opacity";
+const std::string PBRMaterial::TEXTURE_EMISSIVE = "material.texture_emissive";
+
+const std::string PBRMaterial::ALBEDO = "material.albedo";
+const std::string PBRMaterial::METALLIC = "material.metallic";
+const std::string PBRMaterial::ROUGHNESS = "material.roughness";
+const std::string PBRMaterial::AO = "material.ao";
+const std::string PBRMaterial::OPACITY = "material.opacity";
+
+const std::string PBRMaterial::IRRADIANCE_MAP = "irradianceMap";
+const std::string PBRMaterial::PREFILTER_MAP = "prefilterMap";
+const std::string PBRMaterial::BRDF_LUT = "brdfLUT";
+
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
 std::shared_ptr<Texture> PBRMaterial::brdfLut = nullptr;
@@ -18,92 +43,93 @@ PBRMaterial::~PBRMaterial()
 void PBRMaterial::sendToShader(Shader* shaderProgram)
 {
 	// Send all data relevant to textures
-	shaderProgram->setInt("material.use_albedo_map", this->useAlbedoMap);
-	shaderProgram->setInt("material.use_normal_map", this->useNormalMap);
-	shaderProgram->setInt("material.use_metallic_map", this->useMetallicMap);
-	shaderProgram->setInt("material.use_roughness_map", this->useRoughnessMap);
-	shaderProgram->setInt("material.use_ao_map", this->useAoMap);
-	shaderProgram->setInt("material.use_emissive_map", this->useEmissiveMap);
+	shaderProgram->setInt(PBRMaterial::USE_ALBEDO_MAP, this->useAlbedoMap);
+	shaderProgram->setInt(PBRMaterial::USE_NORMAL_MAP, this->useNormalMap);
+	shaderProgram->setInt(PBRMaterial::USE_METALLIC_MAP, this->useMetallicMap);
+	shaderProgram->setInt(PBRMaterial::USE_ROUGHNESS_MAP, this->useRoughnessMap);
+	shaderProgram->setInt(PBRMaterial::USE_AO_MAP, this->useAoMap);
+	shaderProgram->setInt(PBRMaterial::USE_EMISSIVE_MAP, this->useEmissiveMap);
 
 	if (this->useAlbedoMap)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		shaderProgram->setInt("material.texture_albedo", 0);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_ALBEDO, 0);
 		this->albedoTexture->bindTexture();
 	}
 	else
-		shaderProgram->setVec3("material.albedo", this->albedoColor);
+		shaderProgram->setVec3(PBRMaterial::ALBEDO, this->albedoColor);
 
 	if (this->useNormalMap)
 	{
 		glActiveTexture(GL_TEXTURE1);
-		shaderProgram->setInt("material.texture_normal", 1);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_NORMAL, 1);
 		this->normalTexture->bindTexture();
 	}
 
 	if (this->useMetallicMap)
 	{
 		glActiveTexture(GL_TEXTURE2);
-		shaderProgram->setInt("material.texture_metallic", 2);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_METALLIC, 2);
 		this->metallicTexture->bindTexture();
 	}
 	else
-		shaderProgram->setFloat("material.metallic", this->metallic);
-	
+		shaderProgram->setFloat(PBRMaterial::METALLIC, this->metallic);
+
 	if (this->useRoughnessMap)
 	{
 		glActiveTexture(GL_TEXTURE3);
-		shaderProgram->setInt("material.texture_roughness", 3);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_ROUGHNESS, 3);
 		this->roughnessTexture->bindTexture();
 	}
 	else
-		shaderProgram->setFloat("material.roughness", this->roughness);
+		shaderProgram->setFloat(PBRMaterial::ROUGHNESS, this->roughness);
 
 	if (this->useAoMap)
 	{
 		glActiveTexture(GL_TEXTURE4);
-		shaderProgram->setInt("material.texture_ao", 4);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_AO, 4);
 		this->roughnessTexture->bindTexture();
 	}
 	else
-		shaderProgram->setFloat("material.ao", this->ao);
+		shaderProgram->setFloat(PBRMaterial::AO, this->ao);
 
 	if (this->useOpacityMap)
 	{
 		glActiveTexture(GL_TEXTURE5);
-		shaderProgram->setInt("material.texture_opacity", 5);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_OPACITY, 5);
 		this->opacityTexture->bindTexture();
 	}
 	else
-		shaderProgram->setFloat("material.opacity", this->opacity);
+		shaderProgram->setFloat(PBRMaterial::OPACITY, this->opacity);
 
 	if (this->useEmissiveMap)
 	{
 		glActiveTexture(GL_TEXTURE6);
-		shaderProgram->setInt("material.texture_emissive", 6);
+		shaderProgram->setInt(PBRMaterial::TEXTURE_EMISSIVE, 6);
 		this->emissiveTexture->bindTexture();
 	}
 
 	if (this->irradianceMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE7);
-		shaderProgram->setInt("irradianceMap", 7);
+		shaderProgram->setInt(PBRMaterial::IRRADIANCE_MAP, 7);
 		this->irradianceMap->bind();
 	}
 
 	if (this->prefilterMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE8);
-		shaderProgram->setInt("prefilterMap", 8);
+		shaderProgram->setInt(PBRMaterial::PREFILTER_MAP, 8);
 		this->prefilterMap->bind();
 	}
 
 	if (this->brdfLut != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE9);
-		shaderProgram->setInt("brdfLUT", 9);
+		shaderProgram->setInt(PBRMaterial::BRDF_LUT, 9);
 		this->brdfLut->bindTexture();
 	}
+
 }
 
 void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
@@ -141,6 +167,11 @@ void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
 				break;
 		}
 	}
+}
+
+MaterialType PBRMaterial::getType()
+{
+	return MaterialType::PBRMaterial;
 }
 
 void PBRMaterial::addAlbedoMap(std::shared_ptr<Texture> albedoTexture)

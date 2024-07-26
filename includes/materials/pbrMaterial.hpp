@@ -9,6 +9,31 @@
 struct PBRMaterial : public virtual Material
 {
 public:
+	static const std::string USE_ALBEDO_MAP;
+	static const std::string USE_NORMAL_MAP;
+	static const std::string USE_METALLIC_MAP;
+	static const std::string USE_ROUGHNESS_MAP;
+	static const std::string USE_AO_MAP;
+	static const std::string USE_EMISSIVE_MAP;
+
+	static const std::string TEXTURE_ALBEDO;
+	static const std::string TEXTURE_NORMAL;
+	static const std::string TEXTURE_METALLIC;
+	static const std::string TEXTURE_ROUGHNESS;
+	static const std::string TEXTURE_AO;
+	static const std::string TEXTURE_OPACITY;
+	static const std::string TEXTURE_EMISSIVE;
+
+	static const std::string ALBEDO;
+	static const std::string METALLIC;
+	static const std::string ROUGHNESS;
+	static const std::string AO;
+	static const std::string OPACITY;
+
+	static const std::string IRRADIANCE_MAP;
+	static const std::string PREFILTER_MAP;
+	static const std::string BRDF_LUT;
+
 	/// <summary>
 	/// The irradiance texture of the sky for diffuse IBL
 	/// </summary>
@@ -97,6 +122,8 @@ public:
 
 	void sendToShader(Shader* shaderProgram) override;
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
+
+	MaterialType getType() override;
 
 	void addAlbedoMap(std::shared_ptr<Texture> albedoTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);

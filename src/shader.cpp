@@ -188,7 +188,7 @@ Shader* Shader::setMat4(const std::string& name, const glm::mat4& value)
 	return this;
 }
 
-GLuint Shader::getUniformLocation(std::string uniformName)
+GLuint Shader::getUniformLocation(const std::string& uniformName)
 {
 	if (this->locationCache.count(uniformName) == 0)
 		this->locationCache[uniformName] = glGetUniformLocation(this->ID, uniformName.c_str());
