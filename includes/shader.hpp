@@ -2,6 +2,7 @@
 #define SHADER_HPP
 
 #include <string>
+#include <map>
 
 #include <utilities/glad.h>
 #include <glm/glm.hpp>
@@ -26,8 +27,18 @@ public:
 	/// </summary>
 	std::string fragmentPath;
 
+	/// <summary>
+	/// Creates a new OpenGL shader
+	/// </summary>
+	/// <param name="vertexPath">A path to the vertex shader file</param>
+	/// <param name="fragmentPath">A path to the fragment shader file</param>
 	Shader(const char* vertexPath, const char* fragmentPath);
 	~Shader();
+
+	/// <summary>
+	/// Binds the shader
+	/// </summary>
+	/// <returns></returns>
 	Shader* use();
 
 	/// <summary>
@@ -49,6 +60,14 @@ public:
 	Shader* setMat2(const std::string& name, const glm::mat2& value);
 	Shader* setMat3(const std::string& name, const glm::mat3& value);
 	Shader* setMat4(const std::string& name, const glm::mat4& value);
+
+private:
+	/// <summary>
+	/// The shader keeps a cache of the uniform locations to improve runtime performance
+	/// </summary>
+	std::map<std::string, GLuint> locationCache;
+
+	GLuint getUniformLocation(std::string uniformName);
 };
 
 #endif
