@@ -16,6 +16,7 @@
 #include "components/lights/pointLightComponent.hpp"
 #include "components/skyboxComponent.hpp"
 #include "components/scriptComponent.hpp"
+#include "components/physicsComponent.hpp"
 #include "utilities/resourceLoader.hpp"
 #include "logger.hpp"
 #include "utilities/geometry.hpp"
@@ -58,15 +59,18 @@ int main()
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
-	defaultRenderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
-	defaultRenderer.physicsWorld->addSphere(1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
 	defaultRenderer.physicsWorld->enableDebugDraw = true;
 
 	// Cube
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
+
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
+
+	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
+	cubeCollider->setCollider(defaultRenderer.physicsWorld->addBox(glm::vec3(1.0f), glm::vec3(0.0f)));
+
 	defaultRenderer.addEntity(std::move(cubeEntity));
 
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
@@ -76,10 +80,15 @@ int main()
 	for (int i = 0; i < 1; i++)
 	{
 		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
+
 		MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
 		sphereMesh->setupMesh(&sphereOptimized.vertices[0], sphereOptimized.vertices.size() * sizeof(float), pbrShader);
 		sphereMesh->addIndices(sphereOptimized.indices);
 		sphereMesh->addNormals(sphereOptimized.normals);
+
+		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
+		sphereCollider->setCollider(defaultRenderer.physicsWorld->addSphere(1.0f, glm::vec3(0.0f, 25.0f, 0.0f)));
+
 		defaultRenderer.addEntity(std::move(sphereEntity));
 	}
 
@@ -127,12 +136,15 @@ int main()
 	// Plane
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::unique_ptr<Entity> planeEntity = std::make_unique<Entity>("Plane");
+
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), pbrShader);
 	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
 	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
 	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 	defaultRenderer.addEntity(std::move(planeEntity));
+
+	defaultRenderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
 	// After all needed objects have been added, initializes the renderer's data to set up every object's data
 	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
