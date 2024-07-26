@@ -50,16 +50,6 @@ Shader* ShaderManager::getShader(ShaderType shader)
 
 		case ShaderType::PBR:
 			enumToShader[shader] = new Shader("shaders/pbr.vert", "shaders/pbr.frag");
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_ALBEDO, 0);
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_NORMAL, 1);
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_METALLIC, 2);
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_ROUGHNESS, 3);
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_AO, 4);
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_OPACITY, 5);
-			enumToShader[shader]->setInt(PBRMaterial::TEXTURE_EMISSIVE, 6);
-			enumToShader[shader]->setInt(PBRMaterial::IRRADIANCE_MAP, 7);
-			enumToShader[shader]->setInt(PBRMaterial::PREFILTER_MAP, 8);
-			enumToShader[shader]->setInt(PBRMaterial::BRDF_LUT, 9);
 			break;
 
 		case ShaderType::SKYBOX:
