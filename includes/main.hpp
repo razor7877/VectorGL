@@ -17,8 +17,6 @@ extern int windowHeight;
 extern Renderer defaultRenderer;
 extern CameraComponent* cameraComponent;
 
-void raycastLine(glm::vec3 rayFrom, glm::vec3 rayTo);
-
 int setupGlfwContext();
 int main();
 

@@ -12,7 +12,7 @@ add_subdirectory(libs/glfw EXCLUDE_FROM_ALL)
 add_subdirectory(libs/glm EXCLUDE_FROM_ALL)
 add_subdirectory(libs/lua-5.4.7 EXCLUDE_FROM_ALL)
 
-set(BULLET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3/build")
+set(BULLET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet3")
 find_package(Bullet REQUIRED)
 
 # Find all source files
@@ -34,7 +34,7 @@ file(GLOB IO_INCLUDES "includes/io/*.h" "includes/io/*.hpp")
 file(GLOB KHR_INCLUDES "includes/KHR/*.h" "includes/KHR/*.hpp")
 file(GLOB LIGHTS_INCLUDES "includes/lights/*.h" "includes/lights/*.hpp")
 file(GLOB MATERIALS_INCLUDES "includes/materials/*.h" "includes/materials/*.hpp")
-file(GLOB PHYSICS_INCLUDES "includes/physics/*.h" "includes/materials/*.hpp")
+file(GLOB PHYSICS_INCLUDES "includes/physics/*.h" "includes/physics/*.hpp")
 file(GLOB UTILITIES_INCLUDES "includes/utilities/*.h" "includes/utilities/*.hpp")
 
 # Add sources to target
@@ -97,7 +97,6 @@ source_group("includes\\utilities" FILES ${UTILITIES_INCLUDES})
 # Add header files
 target_include_directories(VectorGL PUBLIC
 	includes
-	src/headers
 	libs
 	libs/glm
 	libs/ImGui

@@ -10,6 +10,7 @@
 #include "shaderManager.hpp"
 #include "renderTarget.hpp"
 #include "components/cameraComponent.hpp"
+#include "physics/physicsWorld.hpp"
 
 extern std::vector<float> lineVerts;
 
@@ -21,6 +22,7 @@ class Renderer
 public:
 	ShaderManager shaderManager;
 	CameraComponent* currentCamera;
+	PhysicsWorld* physicsWorld = new PhysicsWorld();
 
 	Renderer();
 

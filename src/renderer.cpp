@@ -132,6 +132,11 @@ void Renderer::render(float deltaTime)
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
 
+	// Update the physics simulation
+	this->physicsWorld->update(deltaTime);
+	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
+	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
+
 	// Render & update the scene
 	std::map<MaterialType, std::vector<Entity*>> renderables;
 	std::vector<Entity*> nonRenderables;
@@ -206,4 +211,6 @@ void Renderer::end()
 	// Delete all the objects contained in the renderer
 	for (auto&& entity : this->entities)
 		entity.reset();
+
+	delete this->physicsWorld;
 }

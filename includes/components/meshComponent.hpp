@@ -25,7 +25,7 @@ public:
 	void Component::start() override;
 	void Component::update(float deltaTime) override;
 
-	void setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position = glm::vec3(0));
+	void setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position = glm::vec3(0.0f));
 	void setupMesh(
 		std::vector<float> vertices,
 		std::vector<float> texCoords,

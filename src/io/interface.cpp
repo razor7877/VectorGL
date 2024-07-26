@@ -263,7 +263,7 @@ void ShowViewer()
 			defaultRenderer.addLine(cameraComponent->getPosition(), rayDirection, true);
 			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 
-			raycastLine(rayStartPosWorld, rayDirection);
+			//raycastLine(rayStartPosWorld, rayDirection);
 		}
 	}
 
