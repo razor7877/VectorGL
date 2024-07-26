@@ -16,7 +16,7 @@ const std::string MeshComponent::NORMAL_MATRIX = "normalMatrix";
 
 MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 {
-	this->material = std::make_unique<PBRMaterial>();
+
 }
 
 MeshComponent::~MeshComponent()
@@ -140,10 +140,10 @@ void MeshComponent::update(float deltaTime)
 
 	// Send material data
 	if (this->material != nullptr)
-		this->material->sendToShader(this->shaderProgram);
+		this->material->sendToShader();
 
 	// Send the model matrix
-	this->shaderProgram
+	this->material->shaderProgram
 		->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
 		->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
 
@@ -157,7 +157,6 @@ void MeshComponent::update(float deltaTime)
 void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position)
 {
 	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
-	this->shaderProgram = shaderProgram;
 	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
 
 	this->VAO = {};
@@ -165,6 +164,8 @@ void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* s
 	this->indicesBO = {};
 	this->texCoordBO = {};
 	this->normalBO = {};
+
+	this->material = std::make_unique<PBRMaterial>(shaderProgram);
 }
 
 void MeshComponent::setupMesh(
@@ -177,7 +178,6 @@ void MeshComponent::setupMesh(
 	glm::vec3 position)
 {
 	this->vertices = vertices;
-	this->shaderProgram = shaderProgram;
 	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
 	this->texCoords = texCoords;
 	this->textures = textures;
@@ -190,6 +190,8 @@ void MeshComponent::setupMesh(
 	this->indicesBO = {};
 	this->texCoordBO = {};
 	this->normalBO = {};
+
+	this->material = std::make_unique<PBRMaterial>(shaderProgram);
 }
 
 // Add texture coordinates data to the MeshComponent

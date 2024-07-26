@@ -117,10 +117,10 @@ public:
 	bool useOpacityMap = false;
 	bool useEmissiveMap = false;
 
-	PBRMaterial();
+	PBRMaterial(Shader* shaderProgram);
 	~PBRMaterial() override;
 
-	void sendToShader(Shader* shaderProgram) override;
+	void sendToShader() override;
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
 
 	MaterialType getType() override;

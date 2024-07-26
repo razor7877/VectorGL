@@ -57,11 +57,6 @@ public:
 	std::unique_ptr<Material> material = nullptr;
 
 protected:
-	/// <summary>
-	/// The shader used to draw the mesh
-	/// </summary>
-	Shader* shaderProgram = nullptr;
-
 	std::vector<float> vertices;
 	std::vector<float> texCoords;
 	std::vector<float> normals;
