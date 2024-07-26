@@ -180,7 +180,7 @@ int main()
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
 	// Sphere
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 2500; i++)
 	{
 		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 		MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
@@ -280,7 +280,7 @@ int main()
 		defaultRenderer.render(deltaTime);
 
 		dynamicsWorld->stepSimulation(deltaTime, 10);
-		//dynamicsWorld->debugDrawWorld();
+		dynamicsWorld->debugDrawWorld();
 
 		// Print positions of the box
 		btTransform trans;
@@ -310,7 +310,7 @@ int main()
 
 		cubeMesh->parent->transform->setModelMatrix(glmMat);
 
-		sphereRigidBody->getMotionState()->getWorldTransform(trans);
+		//sphereRigidBody->getMotionState()->getWorldTransform(trans);
 
 		glmMat = glm::mat4(1.0f);  // Initialize to identity matrix
 
