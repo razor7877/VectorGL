@@ -317,6 +317,8 @@ void ShowConsole()
 					consoleParams.selectedLogLevels.insert(level);
 				else
 					consoleParams.selectedLogLevels.erase(level);
+
+				consoleParams.shownLogs = Logger::getFilteredLogs(consoleParams.selectedLogLevels, consoleParams.selectedSourceFiles);
 			}
 		}
 
@@ -354,6 +356,8 @@ void ShowConsole()
 					consoleParams.selectedSourceFiles.insert(file);
 				else
 					consoleParams.selectedSourceFiles.erase(file);
+
+				consoleParams.shownLogs = Logger::getFilteredLogs(consoleParams.selectedLogLevels, consoleParams.selectedSourceFiles);
 			}
 		}
 
