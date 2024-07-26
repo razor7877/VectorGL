@@ -53,13 +53,16 @@ struct Material
     sampler2D texture_ao;
     sampler2D texture_emissive;
 
-	bool use_albedo_map;
-	bool use_normal_map;
-	bool use_metallic_map;
-	bool use_roughness_map;
-    bool use_ao_map;
-    bool use_emissive_map;
+    int used_maps;
 };
+
+#define ALBEDO_MAP 1
+#define NORMAL_MAP 2
+#define METALLIC_MAP 4
+#define ROUGHNESS_MAP 8
+#define AO_MAP 16
+#define OPACITY_MAP 32
+#define EMISSIVE_MAP 64
 
 // DEFINING INPUT VALUES
 // Takes as input fragment position, a texture coordinate, and possibly a normal vector
@@ -224,7 +227,7 @@ void main()
 	
     // We start by sampling all the values we need from textures or uniforms
     vec3 albedo;
-    if (material.use_albedo_map)
+    if ((material.used_maps & ALBEDO_MAP) != 0)
     {
         vec4 albedoSRGB = texture(material.texture_albedo, TexCoord);
         float r = pow(albedoSRGB.r, 2.2);
@@ -237,7 +240,7 @@ void main()
         albedo = material.albedo;
         
     vec3 normalVec;
-    if (material.use_normal_map)
+    if ((material.used_maps & NORMAL_MAP) != 0)
     {
         normalVec = texture(material.texture_normal, TexCoord).rgb;
         normalVec = normalVec * 2.0 - 1.0;
@@ -247,13 +250,13 @@ void main()
         normalVec = Normal;
     
     float metallic;
-    if (material.use_metallic_map)
+    if ((material.used_maps & METALLIC_MAP) != 0)
         metallic = texture(material.texture_metallic, TexCoord).r;
     else
         metallic = material.metallic;
         
     float roughness;
-    if (material.use_roughness_map)
+    if ((material.used_maps & ROUGHNESS_MAP) != 0)
         roughness = texture(material.texture_roughness, TexCoord).r;
     else
         roughness = material.roughness;
@@ -261,7 +264,7 @@ void main()
     roughness *= roughness;
     
     float ao;
-    if (material.use_ao_map)
+    if ((material.used_maps & AO_MAP) != 0)
         ao = texture(material.texture_ao, TexCoord).r;
     else
         ao = material.ao;
@@ -306,7 +309,7 @@ void main()
 	
     vec3 color = ambient + Lo;
 
-    if (material.use_emissive_map)
+    if ((material.used_maps & EMISSIVE_MAP) != 0)
         color += texture(material.texture_emissive, TexCoord).rgb;
         
     //color = color / (color + vec3(1.0));

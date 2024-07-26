@@ -9,12 +9,7 @@
 struct PBRMaterial : public virtual Material
 {
 public:
-	static const std::string USE_ALBEDO_MAP;
-	static const std::string USE_NORMAL_MAP;
-	static const std::string USE_METALLIC_MAP;
-	static const std::string USE_ROUGHNESS_MAP;
-	static const std::string USE_AO_MAP;
-	static const std::string USE_EMISSIVE_MAP;
+	static const std::string USED_MAPS;
 
 	static const std::string TEXTURE_ALBEDO;
 	static const std::string TEXTURE_NORMAL;
@@ -33,6 +28,17 @@ public:
 	static const std::string IRRADIANCE_MAP;
 	static const std::string PREFILTER_MAP;
 	static const std::string BRDF_LUT;
+
+	enum UsedMaps
+	{
+		ALBEDO_MAP_FLAG = 1,
+		NORMAL_MAP_FLAG = 2,
+		METALLIC_MAP_FLAG = 4,
+		ROUGHNESS_MAP_FLAG = 8,
+		AO_MAP_FLAG = 16,
+		OPACITY_MAP_FLAG = 32,
+		EMISSIVE_MAP_FLAG = 64,
+	};
 
 	/// <summary>
 	/// The irradiance texture of the sky for diffuse IBL
@@ -109,13 +115,13 @@ public:
 	/// </summary>
 	std::shared_ptr<Texture> emissiveTexture = nullptr;
 
-	bool useAlbedoMap = false;
-	bool useNormalMap = false;
-	bool useMetallicMap = false;
-	bool useRoughnessMap = false;
-	bool useAoMap = false;
-	bool useOpacityMap = false;
-	bool useEmissiveMap = false;
+	int useAlbedoMap = 0;
+	int useNormalMap = 0;
+	int useMetallicMap = 0;
+	int useRoughnessMap = 0;
+	int useAoMap = 0;
+	int useOpacityMap = 0;
+	int useEmissiveMap = 0;
 
 	PBRMaterial(Shader* shaderProgram);
 	~PBRMaterial() override;

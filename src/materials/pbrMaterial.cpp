@@ -1,12 +1,7 @@
 #include "materials/pbrMaterial.hpp"
 #include "main.hpp"
 
-const std::string PBRMaterial::USE_ALBEDO_MAP = "material.use_albedo_map";
-const std::string PBRMaterial::USE_NORMAL_MAP = "material.use_normal_map";
-const std::string PBRMaterial::USE_METALLIC_MAP = "material.use_metallic_map";
-const std::string PBRMaterial::USE_ROUGHNESS_MAP = "material.use_roughness_map";
-const std::string PBRMaterial::USE_AO_MAP = "material.use_ao_map";
-const std::string PBRMaterial::USE_EMISSIVE_MAP = "material.use_emissive_map";
+const std::string PBRMaterial::USED_MAPS = "material.used_maps";
 
 const std::string PBRMaterial::TEXTURE_ALBEDO = "material.texture_albedo";
 const std::string PBRMaterial::TEXTURE_NORMAL = "material.texture_normal";
@@ -57,13 +52,10 @@ void PBRMaterial::init()
 
 void PBRMaterial::sendToShader()
 {
-	// Send all data relevant to textures
-	this->shaderProgram->setInt(PBRMaterial::USE_ALBEDO_MAP, this->useAlbedoMap);
-	this->shaderProgram->setInt(PBRMaterial::USE_NORMAL_MAP, this->useNormalMap);
-	this->shaderProgram->setInt(PBRMaterial::USE_METALLIC_MAP, this->useMetallicMap);
-	this->shaderProgram->setInt(PBRMaterial::USE_ROUGHNESS_MAP, this->useRoughnessMap);
-	this->shaderProgram->setInt(PBRMaterial::USE_AO_MAP, this->useAoMap);
-	this->shaderProgram->setInt(PBRMaterial::USE_EMISSIVE_MAP, this->useEmissiveMap);
+	// Instead of sending 7 uniforms for telling which maps are toggled on/off, we send a single int where each bit corresponds to a texture
+	uint8_t usedMaps = this->useAlbedoMap | this->useNormalMap | this->useMetallicMap | this->useRoughnessMap | this->useAoMap | this->useEmissiveMap;
+
+	this->shaderProgram->setInt(PBRMaterial::USED_MAPS, usedMaps);
 
 	if (this->useAlbedoMap)
 	{
@@ -181,41 +173,41 @@ MaterialType PBRMaterial::getType()
 void PBRMaterial::addAlbedoMap(std::shared_ptr<Texture> albedoTexture)
 {
 	this->albedoTexture = albedoTexture;
-	this->useAlbedoMap = true;
+	this->useAlbedoMap = ALBEDO_MAP_FLAG;
 }
 
 void PBRMaterial::addNormalMap(std::shared_ptr<Texture> normalTexture)
 {
 	this->normalTexture = normalTexture;
-	this->useNormalMap = true;
+	this->useNormalMap = NORMAL_MAP_FLAG;
 }
 
 void PBRMaterial::addMetallicMap(std::shared_ptr<Texture> metallicTexture)
 {
 	this->metallicTexture = metallicTexture;
-	this->useMetallicMap = true;
+	this->useMetallicMap = METALLIC_MAP_FLAG;
 }
 
 void PBRMaterial::addRoughnessMap(std::shared_ptr<Texture> roughnessTexture)
 {
 	this->roughnessTexture = roughnessTexture;
-	this->useRoughnessMap = true;
+	this->useRoughnessMap = ROUGHNESS_MAP_FLAG;
 }
 
 void PBRMaterial::addAoMap(std::shared_ptr<Texture> aoTexture)
 {
 	this->aoTexture = aoTexture;
-	this->useAoMap = true;
+	this->useAoMap = AO_MAP_FLAG;
 }
 
 void PBRMaterial::addOpacityMap(std::shared_ptr<Texture> opacityTexture)
 {
 	this->opacityTexture = opacityTexture;
-	this->useOpacityMap = true;
+	this->useOpacityMap = OPACITY_MAP_FLAG;
 }
 
 void PBRMaterial::addEmissiveMap(std::shared_ptr<Texture> emissiveTexture)
 {
 	this->emissiveTexture = emissiveTexture;
-	this->useEmissiveMap = true;
+	this->useEmissiveMap = EMISSIVE_MAP_FLAG;
 }
