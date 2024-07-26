@@ -22,6 +22,12 @@ struct Material
 	virtual ~Material() {};
 
 	/// <summary>
+	/// Initializes the material, this might execute code such as setting one time uniforms (for texture samplers etc.)
+	/// Can be called multiple times, for example if shader changes or is recompiled
+	/// </summary>
+	virtual void init() = 0;
+
+	/// <summary>
 	/// Sends the material data to it's corresponding shader
 	/// </summary>
 	virtual void sendToShader() = 0;

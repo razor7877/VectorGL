@@ -19,11 +19,12 @@ const std::string PhongMaterial::TEXTURE_EMISSIVE = "material.texture_emissive";
 
 PhongMaterial::PhongMaterial(Shader* shaderProgram) : Material(shaderProgram)
 {
-
+	this->init();
 }
 
 PhongMaterial::PhongMaterial(Shader* shaderProgram, std::shared_ptr<Texture> texture) : Material(shaderProgram)
 {
+	this->init();
 	this->addDiffuseMap(texture);
 }
 
@@ -40,6 +41,15 @@ PhongMaterial::PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3
 PhongMaterial::~PhongMaterial()
 {
 
+}
+
+void PhongMaterial::init()
+{
+	this->shaderProgram->setInt(PhongMaterial::TEXTURE_DIFFUSE, 0);
+	this->shaderProgram->setInt(PhongMaterial::TEXTURE_SPECULAR, 1);
+	this->shaderProgram->setInt(PhongMaterial::TEXTURE_NORMAL, 2);
+	this->shaderProgram->setInt(PhongMaterial::TEXTURE_HEIGHT, 3);
+	this->shaderProgram->setInt(PhongMaterial::TEXTURE_EMISSIVE, 4);
 }
 
 void PhongMaterial::sendToShader()
@@ -61,35 +71,30 @@ void PhongMaterial::sendToShader()
 	if (this->useDiffuseMap)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		this->shaderProgram->setInt(PhongMaterial::TEXTURE_DIFFUSE, 0);
 		this->diffuseTexture->bindTexture();
 	}
 
 	if (this->useSpecularMap)
 	{
 		glActiveTexture(GL_TEXTURE1);
-		this->shaderProgram->setInt(PhongMaterial::TEXTURE_SPECULAR, 1);
 		this->specularTexture->bindTexture();
 	}
 
 	if (this->useNormalMap)
 	{
 		glActiveTexture(GL_TEXTURE2);
-		this->shaderProgram->setInt(PhongMaterial::TEXTURE_NORMAL, 2);
 		this->normalTexture->bindTexture();
 	}
 
 	if (this->useHeightMap)
 	{
 		glActiveTexture(GL_TEXTURE3);
-		this->shaderProgram->setInt(PhongMaterial::TEXTURE_HEIGHT, 3);
 		this->heightTexture->bindTexture();
 	}
 
 	if (this->useEmissiveMap)
 	{
 		glActiveTexture(GL_TEXTURE4);
-		this->shaderProgram->setInt(PhongMaterial::TEXTURE_EMISSIVE, 4);
 		this->emissiveTexture->bindTexture();
 	}
 }

@@ -8,6 +8,7 @@
 
 #include "shader.hpp"
 #include "logger.hpp"
+#include "materials/pbrMaterial.hpp"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {

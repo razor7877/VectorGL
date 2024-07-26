@@ -47,6 +47,8 @@ private:
 	std::map<SkyboxType, IBLData*> skyboxes;
 	bool useIBL = true;
 
+	Shader* shaderProgram;
+
 	Cubemap* currentCubemap = nullptr;
 	IBLData* currentSky = nullptr;
 };

@@ -30,11 +30,12 @@ public:
 	static const std::string TEXTURE_HEIGHT;
 	static const std::string TEXTURE_EMISSIVE;
 
-
 	PhongMaterial(Shader* shaderProgram);
 	PhongMaterial(Shader* shaderProgram, std::shared_ptr<Texture> texture);
 	PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture);
 	~PhongMaterial() override;
+
+	void init() override;
 
 	/// <summary>
 	/// Sends the material data to a shader, the method assumes the shader is already in use

@@ -32,12 +32,27 @@ std::shared_ptr<Texture> PBRMaterial::brdfLut = nullptr;
 
 PBRMaterial::PBRMaterial(Shader* shaderProgram) : Material(shaderProgram)
 {
-
+	this->init();
 }
 
 PBRMaterial::~PBRMaterial()
 {
 
+}
+
+void PBRMaterial::init()
+{
+	this->shaderProgram->use();
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_ALBEDO, 0);
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_NORMAL, 1);
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_METALLIC, 2);
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_ROUGHNESS, 3);
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_AO, 4);
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_OPACITY, 5);
+	this->shaderProgram->setInt(PBRMaterial::TEXTURE_EMISSIVE, 6);
+	this->shaderProgram->setInt(PBRMaterial::IRRADIANCE_MAP, 7);
+	this->shaderProgram->setInt(PBRMaterial::PREFILTER_MAP, 8);
+	this->shaderProgram->setInt(PBRMaterial::BRDF_LUT, 9);
 }
 
 void PBRMaterial::sendToShader()

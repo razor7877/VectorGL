@@ -120,6 +120,7 @@ public:
 	PBRMaterial(Shader* shaderProgram);
 	~PBRMaterial() override;
 
+	void init() override;
 	void sendToShader() override;
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
 
