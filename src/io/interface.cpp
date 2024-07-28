@@ -247,8 +247,8 @@ void ShowViewer()
 			
 			float cameraFov = glm::radians(cameraComponent->getZoom());
 
-			float dx = tanf(cameraFov * 0.5f) * -ndcX;
-			float dy = tanf(cameraFov * 0.5f) * -ndcY;
+			float dx = tanf(cameraFov * 0.5f) * ndcX;
+			float dy = tanf(cameraFov * 0.5f) * ndcY;
 
 			glm::vec4 rayStartPosView = glm::vec4(dx * CameraComponent::NEAR, dy * CameraComponent::NEAR, CameraComponent::NEAR, 1.0f);
 			glm::vec4 rayEndPosView = glm::vec4(dx * CameraComponent::FAR, dy * CameraComponent::FAR, CameraComponent::FAR, 1.0f);
@@ -260,10 +260,10 @@ void ShowViewer()
 
 			glm::vec3 rayDirection = rayStartPosWorld - rayEndPosWorld;
 
-			defaultRenderer.addLine(cameraComponent->getPosition(), rayDirection, true);
-			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
+			//defaultRenderer.addLine(cameraComponent->getPosition(), rayDirection, true);
+			defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 
-			//raycastLine(rayStartPosWorld, rayDirection);
+			defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
 		}
 	}
 
