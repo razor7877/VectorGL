@@ -15,7 +15,7 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	Shader* prefilterShader = renderer.shaderManager.getShader(ShaderType::PREFILTER);
 	Shader* brdfShader = renderer.shaderManager.getShader(ShaderType::BRDF);
 
-	std::vector<float> boxVertices = Geometry::getCubeVertices();
+	std::vector<float> boxVertices = Geometry::getClockwiseCubeVertices();
 
 	// Create an entity that will contain a box mesh to display the HDR map
 	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
@@ -164,7 +164,7 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	Shader* prefilterShader = renderer.shaderManager.getShader(ShaderType::PREFILTER);
 	Shader* brdfShader = renderer.shaderManager.getShader(ShaderType::BRDF);
 
-	std::vector<float> boxVertices = Geometry::getCubeVertices();
+	std::vector<float> boxVertices = Geometry::getClockwiseCubeVertices();
 
 	// Create an entity that will contain a box mesh to display the HDR map
 	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
