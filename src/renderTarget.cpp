@@ -36,7 +36,7 @@ void RenderTarget::clear()
 	if (this->targetTextureType == TargetType::TEXTURE_CUBEMAP)
 		glClear(GL_DEPTH_BUFFER_BIT);
 	else
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void RenderTarget::resize(glm::vec2 newSize)
@@ -59,8 +59,8 @@ void RenderTarget::resize(glm::vec2 newSize)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->renderTexture, 0);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
 			break;
 
 		case TargetType::TEXTURE_2D_MULTISAMPLE:
@@ -73,8 +73,8 @@ void RenderTarget::resize(glm::vec2 newSize)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture, 0);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
 			break;
 
 		case TargetType::TEXTURE_CUBEMAP:
@@ -97,8 +97,8 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			// Depth buffer for the FBO
 			glGenRenderbuffers(1, &this->depthbuffer);
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
 
 			// Render texture
 			glGenTextures(1, &this->renderTexture);
@@ -116,11 +116,12 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			break;
 
 		case TargetType::TEXTURE_2D_MULTISAMPLE:
+		{
 			// Depth buffer for the FBO
 			glGenRenderbuffers(1, &this->depthbuffer);
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthbuffer);
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthbuffer);
 
 			// Render texture
 			glGenTextures(1, &this->renderTexture);
@@ -133,6 +134,8 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 			glDrawBuffers(1, drawBuffers);
 			break;
+		}
+			
 
 		case TargetType::TEXTURE_CUBEMAP:
 			// Depth buffer for the FBO

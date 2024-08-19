@@ -45,13 +45,19 @@ int main()
 		return -1;
 	
 	// Sets up some parameters for the OpenGL context
-	// Depth test for depth buffering, face culling for performance, blending for transparency
+	// Depth test for depth buffering
 	glEnable(GL_DEPTH_TEST);
+	// Stencil test for outlines
+	glEnable(GL_STENCIL_TEST);
+	// Face culling for performance
 	glEnable(GL_CULL_FACE);
+	// MSAA
 	glEnable(GL_MULTISAMPLE);
+	// Transparency
 	glEnable(GL_BLEND);
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Interpolation between sides of a cubemap
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = defaultRenderer.shaderManager.getShader(ShaderType::PBR);
@@ -167,7 +173,7 @@ int main()
 	{
 		// Clears the buffers and last frame before rendering the next one
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = (float)glfwGetTime();

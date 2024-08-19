@@ -158,6 +158,10 @@ void Renderer::render(float deltaTime)
 		nonRenderable->update(deltaTime);
 
 	// Entities that can be rendered are grouped by shader and then rendered together
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+
 	for (auto& [material, meshes] : renderables)
 	{
 		switch (material)
@@ -174,6 +178,8 @@ void Renderer::render(float deltaTime)
 		for (Entity* renderable : meshes)
 			renderable->update(deltaTime);
 	}
+
+	glStencilMask(0x00);
 
 	if (lineVerts.size() > 0)
 	{
