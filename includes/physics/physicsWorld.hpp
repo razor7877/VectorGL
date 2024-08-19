@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
@@ -69,7 +70,7 @@ public:
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
 	void update(float deltaTime);
 
-	btRigidBody* raycastLine(glm::vec3 from, glm::vec3 to);
+	PhysicsComponent* raycastLine(glm::vec3 from, glm::vec3 to);
 
 	std::vector<float> getDebugLines();
 
@@ -104,4 +105,5 @@ private:
 	DebugDrawer* debugDrawer;
 
 	std::vector<btRigidBody*> rigidBodies;
+	std::map<btRigidBody*, PhysicsComponent*> rigidBodyToComponent;
 };

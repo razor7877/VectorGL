@@ -25,7 +25,7 @@ void PhysicsWorld::update(float deltaTime)
 		this->world->debugDrawWorld();
 }
 
-btRigidBody* PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
+PhysicsComponent* PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
 {
 	btVector3 btRayFrom(from.x, from.y, from.z);
 	btVector3 btRayTo(to.x, to.y, to.z);
@@ -39,7 +39,8 @@ btRigidBody* PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
 		btCollisionObject* hitObject = const_cast<btCollisionObject*>(rayCallback.m_collisionObject);
 		btRigidBody* hitRigidBody = btRigidBody::upcast(hitObject);
 
-		return hitRigidBody;
+		if (this->rigidBodyToComponent.count(hitRigidBody) != 0)
+			return this->rigidBodyToComponent[hitRigidBody];
 	}
 
 	return nullptr;
@@ -80,6 +81,7 @@ void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, gl
 
 	this->world->addRigidBody(boxRigidBody);
 	component->setCollider(boxRigidBody);
+	this->rigidBodyToComponent[boxRigidBody] = component;
 }
 
 void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec3 position)
@@ -97,4 +99,5 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 
 	this->world->addRigidBody(sphereRigidBody);
 	component->setCollider(sphereRigidBody);
+	this->rigidBodyToComponent[sphereRigidBody] = component;
 }
