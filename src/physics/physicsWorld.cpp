@@ -25,7 +25,7 @@ void PhysicsWorld::update(float deltaTime)
 		this->world->debugDrawWorld();
 }
 
-void PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
+btRigidBody* PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
 {
 	btVector3 btRayFrom(from.x, from.y, from.z);
 	btVector3 btRayTo(to.x, to.y, to.z);
@@ -39,20 +39,10 @@ void PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
 		btCollisionObject* hitObject = const_cast<btCollisionObject*>(rayCallback.m_collisionObject);
 		btRigidBody* hitRigidBody = btRigidBody::upcast(hitObject);
 
-		if (hitRigidBody && !hitRigidBody->isStaticObject() && !hitRigidBody->isKinematicObject())
-		{
-			btVector3 hitToCenter = hitRigidBody->getWorldTransform().getOrigin() - hitPoint;
-			hitToCenter.normalize();
-
-			constexpr float FORCE = 250.0f;
-
-			btVector3 force = hitToCenter * FORCE;
-
-			// Make sure rigid body is in active state then apply force at the hit point
-			hitRigidBody->setActivationState(ACTIVE_TAG);
-			hitRigidBody->applyForce(force, hitPoint);
-		}
+		return hitRigidBody;
 	}
+
+	return nullptr;
 }
 
 std::vector<float> PhysicsWorld::getDebugLines()
@@ -62,7 +52,7 @@ std::vector<float> PhysicsWorld::getDebugLines()
 	return lines;
 }
 
-btRigidBody* PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
+void PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
 {
 	btVector3 initialPosition(position.x, position.y, position.z);
 
@@ -72,11 +62,9 @@ btRigidBody* PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 
 	this->world->addRigidBody(groundRigidBody);
-
-	return groundRigidBody;
 }
 
-btRigidBody* PhysicsWorld::addBox(glm::vec3 halfExtents, glm::vec3 position)
+void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position)
 {
 	btVector3 initialPosition(position.x, position.y, position.z);
 	btVector3 btHalfExtents(halfExtents.x, halfExtents.y, halfExtents.z);
@@ -89,12 +77,12 @@ btRigidBody* PhysicsWorld::addBox(glm::vec3 halfExtents, glm::vec3 position)
 	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, boxInertia);
 	btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
-	this->world->addRigidBody(boxRigidBody);
 
-	return boxRigidBody;
+	this->world->addRigidBody(boxRigidBody);
+	component->setCollider(boxRigidBody);
 }
 
-btRigidBody* PhysicsWorld::addSphere(float radius, glm::vec3 position)
+void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec3 position)
 {
 	btVector3 initialPosition(position.x, position.y, position.z);
 	btVector3 localInertia(0.0f, 0.0f, 0.0f);
@@ -106,7 +94,7 @@ btRigidBody* PhysicsWorld::addSphere(float radius, glm::vec3 position)
 	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, sphereShape, localInertia);
 	btRigidBody* sphereRigidBody = new btRigidBody(rigidBodyCI);
-	this->world->addRigidBody(sphereRigidBody);
 
-	return sphereRigidBody;
+	this->world->addRigidBody(sphereRigidBody);
+	component->setCollider(sphereRigidBody);
 }

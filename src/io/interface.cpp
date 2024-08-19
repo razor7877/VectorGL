@@ -260,7 +260,11 @@ void ShowViewer()
 			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
 
 			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
-			defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
+			btRigidBody* raycastResult = defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
+			if (raycastResult != nullptr)
+			{
+
+			}
 		}
 	}
 

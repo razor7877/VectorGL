@@ -16,5 +16,5 @@ public:
 	void setCollider(btRigidBody* rigidBody);
 
 private:
-	btRigidBody* rigidBody;
+	btRigidBody* rigidBody = nullptr;
 };

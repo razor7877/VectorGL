@@ -5,6 +5,8 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
+#include <components/physicsComponent.hpp>
+
 class DebugDrawer : public btIDebugDraw
 {
 public:
@@ -61,14 +63,41 @@ public:
 	PhysicsWorld();
 	~PhysicsWorld();
 
+	/// <summary>
+	/// Updates the physics simulation
+	/// </summary>
+	/// <param name="deltaTime">The time elapsed since the last frame</param>
 	void update(float deltaTime);
-	void raycastLine(glm::vec3 from, glm::vec3 to);
+
+	btRigidBody* raycastLine(glm::vec3 from, glm::vec3 to);
 
 	std::vector<float> getDebugLines();
 
-	btRigidBody* addPlane(glm::vec3 normal, glm::vec3 position);
-	btRigidBody* addBox(glm::vec3 halfExtents, glm::vec3 position);
-	btRigidBody* addSphere(float radius, glm::vec3 position);
+	/// <summary>
+	/// Creates a new plane collider
+	/// </summary>
+	/// <param name="normal">The normal of the plane</param>
+	/// <param name="position">The position of the plane</param>
+	/// <returns>A pointer corresponding to the Bullet plane collider</returns>
+	void addPlane(glm::vec3 normal, glm::vec3 position);
+
+	/// <summary>
+	/// Creates a new box collider
+	/// </summary>
+	/// <param name="component">The physics component of the entity for which the collider is added</param>
+	/// <param name="halfExtents">The half extents of the box</param>
+	/// <param name="position">The position of the box</param>
+	/// <returns>A pointer corresponding to the Bullet box collider</returns>
+	void addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position);
+
+	/// <summary>
+	/// Creates a new sphere collider
+	/// </summary>
+	/// <param name="component">The physics component of the entity for which the collider is added</param>
+	/// <param name="radius">The radius of the sphere</param>
+	/// <param name="position">The position of the sphere</param>
+	/// <returns>A pointer corresponding to the Bullet sphere collider</returns>
+	void addSphere(PhysicsComponent* component, float radius, glm::vec3 position);
 
 private:
 	btDiscreteDynamicsWorld* world;

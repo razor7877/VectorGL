@@ -20,6 +20,9 @@ void PhysicsComponent::start()
 
 void PhysicsComponent::update(float deltaTime)
 {
+	if (this->rigidBody == nullptr)
+		return;
+
 	// Extract basis (rotation) and origin (translation) from btTransform
 	btTransform trans;
 	this->rigidBody->getMotionState()->getWorldTransform(trans);

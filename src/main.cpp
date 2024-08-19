@@ -69,7 +69,7 @@ int main()
 	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
 
 	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
-	cubeCollider->setCollider(defaultRenderer.physicsWorld->addBox(glm::vec3(1.0f), glm::vec3(0.0f)));
+	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
 
 	defaultRenderer.addEntity(std::move(cubeEntity));
 
@@ -87,7 +87,7 @@ int main()
 		sphereMesh->addNormals(sphereOptimized.normals);
 
 		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
-		sphereCollider->setCollider(defaultRenderer.physicsWorld->addSphere(1.0f, glm::vec3(0.0f, 25.0f, 0.0f)));
+		defaultRenderer.physicsWorld->addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
 
 		defaultRenderer.addEntity(std::move(sphereEntity));
 	}
@@ -142,6 +142,7 @@ int main()
 	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
 	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
 	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
+
 	defaultRenderer.addEntity(std::move(planeEntity));
 
 	defaultRenderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
