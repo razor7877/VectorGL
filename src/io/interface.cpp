@@ -229,80 +229,39 @@ void ShowViewer()
 	if (isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 	{
 		glm::vec2 mousePos = ImGui::GetMousePos();
+		// Get mouse position inside of the viewer
 		glm::vec2 relativeMousePos = mousePos - imagePos;
 
-		// Calculate X and Y click position in the NDC range [-1, 1]
+		// Inspired from https://www.mvps.org/directx/articles/rayproj.htm
+		
+		// Calculate X click position on range -1 to 1
 		float ndcX = relativeMousePos.x / viewerSize.x * 2.0f - 1.0f;
+		// Calculate Y click position on range -1 to 1
 		float ndcY = 1.0f - relativeMousePos.y / viewerSize.y * 2.0f;
 
-		// Check if the click is within the viewer bounds
+		// This is a click inside of the window
 		if (ndcX > -1.0f && ndcX < 1.0f && ndcY > -1.0f && ndcY < 1.0f)
 		{
+			std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
+			Logger::logInfo(hitMessage, "interface.cpp");
+			
 			float cameraFov = glm::radians(cameraComponent->getZoom());
 			float aspectRatio = viewerSize.x / viewerSize.y;
 
-			// Calculate the ray direction in view space
-			float tanHalfFov = tanf(cameraFov * 0.5f);
-			glm::vec3 rayDirectionView(
-				ndcX * aspectRatio * tanHalfFov,  // X direction
-				ndcY * tanHalfFov,                // Y direction
-				-1.0f                             // Z direction (assuming right-handed coordinate system)
-			);
+			float dx = tanf(cameraFov * 0.5f) * ndcX * aspectRatio;
+			float dy = tanf(cameraFov * 0.5f) * ndcY;
 
-			// Normalize the direction
-			rayDirectionView = glm::normalize(rayDirectionView);
+			glm::vec4 rayStartPosView = glm::vec4(dx * CameraComponent::NEAR, dy * CameraComponent::NEAR, -CameraComponent::NEAR, 1.0f);
+			glm::vec4 rayEndPosView = glm::vec4(dx * CameraComponent::FAR, dy * CameraComponent::FAR, -CameraComponent::FAR, 1.0f);
 
-			// The ray starts from the camera position and extends into the scene
-			glm::vec4 rayStartPosView = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Camera origin in view space
-			glm::vec4 rayEndPosView = glm::vec4(rayDirectionView * CameraComponent::FAR, 1.0f);
-
-			// Transform the ray start and end positions to world space
 			glm::mat4 cameraViewInv = glm::inverse(cameraComponent->getViewMatrix());
 
-			glm::vec3 rayStartPosWorld = glm::vec3(cameraViewInv * rayStartPosView);
-			glm::vec3 rayEndPosWorld = glm::vec3(cameraViewInv * rayEndPosView);
+			glm::vec3 rayStartPosWorld = cameraViewInv * rayStartPosView;
+			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
 
-			// Normalize the ray direction in world space to ensure correctness
-			glm::vec3 rayDirWorld = glm::normalize(rayEndPosWorld - rayStartPosWorld);
-			rayEndPosWorld = rayStartPosWorld + rayDirWorld * CameraComponent::FAR;
-
-			// Add the ray to the renderer and perform the raycast
 			defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 			defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
 		}
-		//glm::vec2 mousePos = ImGui::GetMousePos();
-		//// Get mouse position inside of the viewer
-		//glm::vec2 relativeMousePos = mousePos - imagePos;
-
-		//// Inspired from https://www.mvps.org/directx/articles/rayproj.htm
-		//
-		//// Calculate X click position on range -1 to 1
-		//float ndcX = relativeMousePos.x / viewerSize.x * 2.0f - 1.0f;
-		//// Calculate Y click position on range -1 to 1
-		//float ndcY = 1.0f - relativeMousePos.y / viewerSize.y * 2.0f;
-
-		//// This is a click inside of the window
-		//if (ndcX > -1.0f && ndcX < 1.0f && ndcY > -1.0f && ndcY < 1.0f)
-		//{
-		//	std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
-		//	Logger::logInfo(hitMessage, "interface.cpp");
-		//	
-		//	float cameraFov = glm::radians(cameraComponent->getZoom());
-
-		//	float dx = tanf(cameraFov * 0.5f) * ndcX;
-		//	float dy = tanf(cameraFov * 0.5f) * ndcY;
-
-		//	glm::vec4 rayStartPosView = glm::vec4(dx * CameraComponent::NEAR, dy * CameraComponent::NEAR, CameraComponent::NEAR, 1.0f);
-		//	glm::vec4 rayEndPosView = glm::vec4(dx * CameraComponent::FAR, dy * CameraComponent::FAR, CameraComponent::FAR, 1.0f);
-
-		//	glm::mat4 cameraViewInv = glm::inverse(cameraComponent->getViewMatrix());
-
-		//	glm::vec3 rayStartPosWorld = cameraViewInv * rayStartPosView;
-		//	glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
-
-		//	defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
-		//	defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
-		//}
 	}
 
 	ImGui::End();

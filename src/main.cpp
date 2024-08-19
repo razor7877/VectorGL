@@ -47,7 +47,7 @@ int main()
 	// Sets up some parameters for the OpenGL context
 	// Depth test for depth buffering, face culling for performance, blending for transparency
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);

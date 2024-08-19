@@ -141,6 +141,7 @@ void Renderer::render(float deltaTime)
 	std::map<MaterialType, std::vector<Entity*>> renderables;
 	std::vector<Entity*> nonRenderables;
 
+	// We start by sorting the entities depending on if they are renderable objects
 	for (auto&& entity : this->entities)
 	{
 		Entity* entityPtr = entity.get();
@@ -148,13 +149,15 @@ void Renderer::render(float deltaTime)
 
 		if (mesh == nullptr)
 			nonRenderables.push_back(entityPtr);
-		else
+		else // Entities that can be rendered are grouped by shader
 			renderables[mesh->material->getType()].push_back(entityPtr);
 	}
 
+	// We can simply update all entities that won't be rendered
 	for (Entity* nonRenderable : nonRenderables)
 		nonRenderable->update(deltaTime);
 
+	// Entities that can be rendered are grouped by shader and then rendered together
 	for (auto& [material, meshes] : renderables)
 	{
 		switch (material)
