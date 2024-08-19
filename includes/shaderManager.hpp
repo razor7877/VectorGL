@@ -18,6 +18,7 @@ enum class ShaderType
 	PREFILTER,
 	BRDF,
 	SOLID,
+	OUTLINE,
 };
 
 /// <summary>

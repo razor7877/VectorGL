@@ -79,6 +79,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 		case ShaderType::SOLID:
 			enumToShader[shader] = new Shader("shaders/solid.vert", "shaders/solid.frag");
 			break;
+
+		case ShaderType::OUTLINE:
+			enumToShader[shader] = new Shader("shaders/outline.vert", "shaders/outline.frag");
+			break;
 	}
 
 	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->ID, "Matrices");

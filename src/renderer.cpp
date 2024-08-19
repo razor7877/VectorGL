@@ -138,7 +138,12 @@ void Renderer::render(float deltaTime)
 	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
 
 	// Render & update the scene
+
+	// Entities that are rendered to the screen
 	std::map<MaterialType, std::vector<Entity*>> renderables;
+	// Entities that should have an outline
+	std::vector<Entity*> outlineRenderables;
+	// Entities that aren't rendered to the screen
 	std::vector<Entity*> nonRenderables;
 
 	// We start by sorting the entities depending on if they are renderable objects
@@ -150,18 +155,21 @@ void Renderer::render(float deltaTime)
 		if (mesh == nullptr)
 			nonRenderables.push_back(entityPtr);
 		else // Entities that can be rendered are grouped by shader
+		{
 			renderables[mesh->material->getType()].push_back(entityPtr);
+			if (entityPtr->drawOutline)
+				outlineRenderables.push_back(entityPtr);
+		}
 	}
 
 	// We can simply update all entities that won't be rendered
 	for (Entity* nonRenderable : nonRenderables)
 		nonRenderable->update(deltaTime);
 
-	// Entities that can be rendered are grouped by shader and then rendered together
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glStencilMask(0xFF);
 
+	// Entities that can be rendered are grouped by shader and then rendered together
 	for (auto& [material, meshes] : renderables)
 	{
 		switch (material)
@@ -176,10 +184,44 @@ void Renderer::render(float deltaTime)
 		}
 
 		for (Entity* renderable : meshes)
+		{
+			// We only write to the stencil mask if the entity should have an outline
+			if (renderable->drawOutline)
+				glStencilMask(0xFF);
+			else
+				glStencilMask(0x00);
+
 			renderable->update(deltaTime);
+		}
 	}
 
+	// Disable stencil writes
 	glStencilMask(0x00);
+	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	// Disable depth test before drawing outlines
+	glDisable(GL_DEPTH_TEST);
+	// Use outline shader
+	Shader* outlineShader = this->shaderManager.getShader(ShaderType::OUTLINE);
+	outlineShader->use();
+
+	for (Entity* outlinedEntity : outlineRenderables)
+	{
+		MeshComponent* mesh = outlinedEntity->getComponent<MeshComponent>();
+		glm::mat4 originalMatrix = outlinedEntity->transform->getModelMatrix();
+		Shader* originalShader = mesh->material->shaderProgram;
+
+		mesh->material->shaderProgram = outlineShader;
+
+		outlinedEntity->transform->setScale(glm::vec3(1.0f));
+		outlinedEntity->update(0);
+		outlinedEntity->transform->setModelMatrix(originalMatrix);
+
+		mesh->material->shaderProgram = originalShader;
+	}
+
+	// Reenable depth test after drawing outlines
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glEnable(GL_DEPTH_TEST);
 
 	if (lineVerts.size() > 0)
 	{

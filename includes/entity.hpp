@@ -17,6 +17,8 @@ class Entity
 public:
 	TransformComponent* transform = nullptr;
 
+	bool drawOutline = false;
+
 	Entity();
 	Entity(std::string label);
 	~Entity();

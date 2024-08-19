@@ -261,8 +261,17 @@ void ShowViewer()
 
 			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 			PhysicsComponent* raycastResult = defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
+
+			if (selectedSceneNode != nullptr)
+				selectedSceneNode->drawOutline = false;
+
 			if (raycastResult != nullptr)
+			{
 				selectedSceneNode = raycastResult->parent;
+				selectedSceneNode->drawOutline = true;
+			}
+			else
+				selectedSceneNode = nullptr;
 		}
 	}
 
@@ -747,7 +756,11 @@ void SceneGraphRecurse(std::vector<Entity*> children)
 void HandleSceneGraphClick(Entity* object)
 {
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+	{
+		if (selectedSceneNode != nullptr) selectedSceneNode->drawOutline = false;
 		selectedSceneNode = object;
+		selectedSceneNode->drawOutline = true;
+	}
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		ImGui::OpenPopup("NodePopup");
 
