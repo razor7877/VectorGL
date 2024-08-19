@@ -59,7 +59,7 @@ int main()
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
-	defaultRenderer.physicsWorld->enableDebugDraw = true;
+	//defaultRenderer.physicsWorld->enableDebugDraw = true;
 
 	// Cube
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
@@ -77,7 +77,7 @@ int main()
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
 	// Sphere
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 

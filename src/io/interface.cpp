@@ -259,7 +259,7 @@ void ShowViewer()
 			glm::vec3 rayStartPosWorld = cameraViewInv * rayStartPosView;
 			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
 
-			defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
+			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 			defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
 		}
 	}

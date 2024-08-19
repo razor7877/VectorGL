@@ -17,7 +17,7 @@ SkyboxComponent::~SkyboxComponent()
 
 void SkyboxComponent::start()
 {
-	std::vector<float> boxVertices = Geometry::getCubeVertices();
+	std::vector<float> boxVertices = Geometry::getClockwiseCubeVertices();
 
 	MeshComponent::setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), this->shaderProgram);
 	MeshComponent::start();

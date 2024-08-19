@@ -33,7 +33,67 @@ public:
 	/// <returns>A vector of floats</returns>
 	static const std::vector<float> getCubeVertices()
 	{
+		std::vector<float> cubeVertices = {
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+
+			1.0f, 1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+
+			1.0f, 1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f,
+
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+
+			1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f
+		};
+
+		return cubeVertices;
+	}
+
+	/// <summary>
+	/// Returns a vector containing the vertices for a cube arranged in clockwise order (face culling only shows the interior faces, used for skyboxes for example)
+	/// </summary>
+	/// <returns>A vector of floats</returns>
+	static const std::vector<float> getClockwiseCubeVertices()
+	{
 		std::vector<float> cubeVertices = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
+
 		return cubeVertices;
 	}
 
@@ -44,13 +104,13 @@ public:
 	static const std::vector<float> getQuadVertices()
 	{
 		std::vector<float> quadVertices = {
-			-1.0f, 1.0f, 0.0f, // Top left
 			1.0f, 1.0f, 0.0f, // Top right
+			-1.0f, 1.0f, 0.0f, // Top left
 			-1.0f, -1.0f, 0.0f, // Bottom left
 
 			1.0f, 1.0f, 0.0f, // Top right
-			1.0f, -1.0f, 0.0f, // Bottom right
 			-1.0f, -1.0f, 0.0f, // Bottom left
+			1.0f, -1.0f, 0.0f, // Bottom right
 		};
 		return quadVertices;
 	}
