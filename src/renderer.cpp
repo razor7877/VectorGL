@@ -145,12 +145,22 @@ void Renderer::render(float deltaTime)
 	// Update the physics simulation
 	this->physicsWorld->update(deltaTime);
 
+	// Render the shadow map
 	this->shadowPass(meshes);
-	this->renderPass(deltaTime, renderables, nonRenderables);
-	this->outlinePass(outlineRenderables);
-	this->blitPass();
+	
+	// We now want to draw to the MSAA framebuffer
+	this->multiSampledTarget.bind();
+	this->multiSampledTarget.clear();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// Render the scene
+	this->renderPass(deltaTime, renderables, nonRenderables);
+	// Render outlines
+	this->outlinePass(outlineRenderables);
+
+	this->multiSampledTarget.unbind();
+
+	// Resolve the multisampled framebuffer to the normal one for display
+	this->blitPass();
 }
 
 void Renderer::end()
@@ -179,8 +189,8 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
 
 	glEnable(GL_DEPTH_TEST);
 
-	glm::mat4 dirLightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, this->currentCamera->NEAR, this->currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, this->currentCamera->NEAR, this->currentCamera->FAR);
+	glm::mat4 dirLightView = glm::lookAt(glm::vec3(5.0f, 10.0f, 5.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
@@ -202,19 +212,12 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
 
 void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables)
 {
-	// We want to draw to the MSAA framebuffer
-	this->multiSampledTarget.bind();
-	this->multiSampledTarget.clear();
-
 	// Update camera info
 	glm::vec2 windowSize = this->multiSampledTarget.size;
 	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
 
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
-
-	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
-	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
 
 	glStencilMask(0x00);
 
@@ -254,6 +257,8 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 	}
 
 	// Line drawing for debugging raycasts etc.
+	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
+	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
 	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
 	if (lineVerts.size() > 0)
 	{
@@ -274,8 +279,6 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 		glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
 		lineVerts.clear();
 	}
-
-	this->multiSampledTarget.unbind();
 
 	// Disable stencil writes
 	glStencilMask(0x00);

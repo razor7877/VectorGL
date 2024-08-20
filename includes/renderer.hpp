@@ -85,8 +85,8 @@ public:
 	void resizeFramebuffer(glm::vec2 newSize);
 
 private:
-	static constexpr unsigned int SHADOW_MAP_WIDTH = 1024;
-	static constexpr unsigned int SHADOW_MAP_HEIGHT = 1024;
+	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
+	static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
 
 	std::vector<std::unique_ptr<Entity>> entities;
 
