@@ -134,6 +134,8 @@ private:
 	/// The final pass, reponsible for resolving the multisampled framebuffer texture to the final texture for display
 	/// </summary>
 	void blitPass();
+
+	void getMeshesRecursively(std::vector<Entity*> entities, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& outlineRenderables, std::vector<MeshComponent*>& meshes, std::vector<Entity*>& nonRenderables);
 };
 
 #endif

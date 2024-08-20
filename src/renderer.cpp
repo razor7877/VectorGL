@@ -130,23 +130,11 @@ void Renderer::render(float deltaTime)
 	// Entities that aren't rendered to the screen
 	std::vector<Entity*> nonRenderables;
 
-	// TODO : Find a better way of sorting renderables? MeshComponents are not the only renderables
-	// We start by sorting the entities depending on if they are renderable objects
+	std::vector<Entity*> ptrList;
 	for (auto&& entity : this->entities)
-	{
-		Entity* entityPtr = entity.get();
-		MeshComponent* mesh = entityPtr->getComponent<MeshComponent>();
+		ptrList.push_back(entity.get());
 
-		if (mesh == nullptr)
-			nonRenderables.push_back(entityPtr);
-		else // Entities that can be rendered are grouped by shader
-		{
-			meshes.push_back(mesh);
-			renderables[mesh->material->getType()].push_back(entityPtr);
-			if (entityPtr->drawOutline)
-				outlineRenderables.push_back(entityPtr);
-		}
-	}
+	this->getMeshesRecursively(ptrList, renderables, outlineRenderables, meshes, nonRenderables);
 
 	// Update the physics simulation
 	this->physicsWorld->update(deltaTime);
@@ -330,4 +318,28 @@ void Renderer::blitPass()
 	glm::vec2 framebufferSize = this->multiSampledTarget.size;
 	// Resolve the multisampled texture to the second target
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
+
+void Renderer::getMeshesRecursively(std::vector<Entity*> entities, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& outlineRenderables, std::vector<MeshComponent*>& meshes, std::vector<Entity*>& nonRenderables)
+{
+	// We start by sorting the entities depending on if they are renderable objects
+	for (Entity* entity : entities)
+	{
+		if (entity->getIsEnabled())
+		{
+			MeshComponent* mesh = entity->getComponent<MeshComponent>();
+
+			if (mesh == nullptr)
+				nonRenderables.push_back(entity);
+			else // Entities that can be rendered are grouped by shader
+			{
+				meshes.push_back(mesh);
+				renderables[mesh->material->getType()].push_back(entity);
+				if (entity->drawOutline)
+					outlineRenderables.push_back(entity);
+			}
+
+			this->getMeshesRecursively(entity->getChildren(), renderables, outlineRenderables, meshes, nonRenderables);
+		}
+	}
 }
