@@ -31,6 +31,7 @@ void SkyboxComponent::update(float deltaTime)
 
 	glBindVertexArray(this->VAO);
 
+	glActiveTexture(GL_TEXTURE0);
 	if (this->useIBL)
 		this->currentSky->environmentMap->bind();
 	else
