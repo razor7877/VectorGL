@@ -11,6 +11,7 @@
 #include "renderTarget.hpp"
 #include "components/cameraComponent.hpp"
 #include "components/meshComponent.hpp"
+#include "components/lights/directionalLightComponent.hpp"
 #include "physics/physicsWorld.hpp"
 
 extern std::vector<float> lineVerts;
@@ -23,6 +24,7 @@ class Renderer
 public:
 	ShaderManager shaderManager;
 	CameraComponent* currentCamera;
+	DirectionalLightComponent* directionalLight;
 	PhysicsWorld* physicsWorld = new PhysicsWorld();
 
 	Renderer();

@@ -98,11 +98,6 @@ int main()
 		defaultRenderer.addEntity(std::move(sphereEntity));
 	}
 
-	// Directional light
-	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
-	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
-	defaultRenderer.addEntity(std::move(dirLightEntity));
-
 	// Skybox
 	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();

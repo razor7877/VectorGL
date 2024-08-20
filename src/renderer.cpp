@@ -83,6 +83,12 @@ void Renderer::init(glm::vec2 windowSize)
 	if (LightManager::getInstance().shaderProgram->ID != 0)
 		LightManager::getInstance().init();
 
+	// Directional light
+	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
+	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
+	this->directionalLight = directionalLightComponent;
+	this->addEntity(std::move(dirLightEntity));
+
 	for (auto&& entity : this->entities)
 		entity->start();
 
@@ -190,7 +196,7 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
 	glEnable(GL_DEPTH_TEST);
 
 	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, this->currentCamera->NEAR, this->currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(glm::vec3(5.0f, 10.0f, 5.0f),
+	glm::mat4 dirLightView = glm::lookAt(this->directionalLight->parent->transform->getPosition(),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
