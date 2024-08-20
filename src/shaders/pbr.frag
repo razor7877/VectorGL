@@ -70,6 +70,7 @@ in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
 in mat3 TBN;
+in vec4 FragPosLightSpace;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
@@ -81,6 +82,8 @@ uniform vec3 camPos;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
+
+uniform sampler2D shadowMap;
 
 uniform Material material;
 
@@ -221,6 +224,22 @@ vec3 calcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float 
     return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // Perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // Get values in range [0, 1]
+    projCoords = projCoords * 0.5 + 0.5;
+    // Get closest depth value from light's perspective
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    // Get depth of fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // Check if position is in shadow
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 void main()
 {
 	float opacity = material.opacity;
@@ -269,6 +288,9 @@ void main()
     else
         ao = material.ao;
     
+    float shadow = ShadowCalculation(FragPosLightSpace);
+    float shadowInverse = 1.0 - shadow;
+    
     // Now we can start lighting calculations
     // Normal
     vec3 N = normalize(normalVec);
@@ -298,12 +320,14 @@ void main()
 
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
+    diffuse *= shadowInverse;
 
     // Sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    specular *= shadowInverse;
 
     vec3 ambient = (kD * diffuse + specular) * ao;
 	

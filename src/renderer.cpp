@@ -81,6 +81,7 @@ void Renderer::createFramebuffer(glm::vec2 windowSize)
 	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
 
 	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
+	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap.renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 
 void Renderer::init(glm::vec2 windowSize)
@@ -163,6 +164,7 @@ void Renderer::render(float deltaTime)
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
+	PBRMaterial::lightSpaceMatrix = lightSpaceMatrix;
 
 	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH);
 

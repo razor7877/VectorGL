@@ -10,9 +10,11 @@ out vec3 FragPos;
 out vec2 TexCoord;
 out vec3 Normal;
 out mat3 TBN;
+out vec4 FragPosLightSpace;
 
 uniform mat4 model;
 uniform mat3 normalMatrix;
+uniform mat4 lightSpaceMatrix;
 
 layout (std140) uniform Matrices
 {
@@ -22,14 +24,16 @@ layout (std140) uniform Matrices
 
 void main()
 {
-	vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
-	vec3 B = normalize(vec3(model * vec4(aBitangent, 0.0)));
-	vec3 N = normalize(vec3(model * vec4(aNormal, 0.0)));
-	TBN = mat3(T, B, N);
-
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 
 	FragPos = vec3(model * vec4(aPos, 1.0));
 	TexCoord = aTexCoord;
 	Normal = normalMatrix * aNormal;
+
+	vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
+	vec3 B = normalize(vec3(model * vec4(aBitangent, 0.0)));
+	vec3 N = normalize(vec3(model * vec4(aNormal, 0.0)));
+	TBN = mat3(T, B, N);
+
+	FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 }

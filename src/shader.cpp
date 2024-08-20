@@ -113,6 +113,7 @@ bool Shader::compileShader()
 	this->ID = newID;
 
 	Logger::logInfo("Successfully compiled shader!", "shader.cpp");
+	this->wasRecompiled = true;
 
 	return true;
 }

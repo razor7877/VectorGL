@@ -140,12 +140,18 @@ void MeshComponent::update(float deltaTime)
 
 	// Send material data
 	if (this->material != nullptr)
+	{
+		if (this->material->shaderProgram->wasRecompiled)
+			this->material->init();
+
+		this->material->shaderProgram->wasRecompiled = false;
 		this->material->sendToShader();
 
-	// Send the model matrix
-	this->material->shaderProgram
-		->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
-		->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
+		// Send the model matrix
+		this->material->shaderProgram
+			->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
+			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
+	}
 
 	// Indexed drawing
 	if (this->hasIndices)

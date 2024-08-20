@@ -29,6 +29,9 @@ public:
 	static const std::string PREFILTER_MAP;
 	static const std::string BRDF_LUT;
 
+	static const std::string SHADOW_MAP;
+	static const std::string LIGHT_SPACE_MATRIX;
+
 	enum UsedMaps
 	{
 		ALBEDO_MAP_FLAG = 1,
@@ -54,6 +57,16 @@ public:
 	/// The BRDF look up table for specular IBL
 	/// </summary>
 	static std::shared_ptr<Texture> brdfLut;
+
+	/// <summary>
+	/// The shadow map for shadow calculations
+	/// </summary>
+	static std::shared_ptr<Texture> shadowMap;
+
+	/// <summary>
+	/// The light space matrix for shadow calculations
+	/// </summary>
+	static glm::mat4 lightSpaceMatrix;
 
 	/// <summary>
 	/// The albedo color of the object, used in case it doesn't have an albedo texture

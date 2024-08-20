@@ -21,9 +21,14 @@ const std::string PBRMaterial::IRRADIANCE_MAP = "irradianceMap";
 const std::string PBRMaterial::PREFILTER_MAP = "prefilterMap";
 const std::string PBRMaterial::BRDF_LUT = "brdfLUT";
 
+const std::string PBRMaterial::SHADOW_MAP = "shadowMap";
+const std::string PBRMaterial::LIGHT_SPACE_MATRIX = "lightSpaceMatrix";
+
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
 std::shared_ptr<Texture> PBRMaterial::brdfLut = nullptr;
+std::shared_ptr<Texture> PBRMaterial::shadowMap = nullptr;
+glm::mat4 PBRMaterial::lightSpaceMatrix = glm::mat4(1.0f);
 
 PBRMaterial::PBRMaterial(Shader* shaderProgram) : Material(shaderProgram)
 {
@@ -48,6 +53,7 @@ void PBRMaterial::init()
 	this->shaderProgram->setInt(PBRMaterial::IRRADIANCE_MAP, 7);
 	this->shaderProgram->setInt(PBRMaterial::PREFILTER_MAP, 8);
 	this->shaderProgram->setInt(PBRMaterial::BRDF_LUT, 9);
+	this->shaderProgram->setInt(PBRMaterial::SHADOW_MAP, 10);
 }
 
 void PBRMaterial::sendToShader()
@@ -126,6 +132,15 @@ void PBRMaterial::sendToShader()
 		glActiveTexture(GL_TEXTURE9);
 		this->brdfLut->bindTexture();
 	}
+
+	if (this->shadowMap != nullptr)
+	{
+		glActiveTexture(GL_TEXTURE10);
+		this->shadowMap->bindTexture();
+		this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRIX, this->lightSpaceMatrix);
+	}
+
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)

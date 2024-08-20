@@ -27,6 +27,8 @@ public:
 	/// </summary>
 	std::string fragmentPath;
 
+	bool wasRecompiled = false;
+
 	/// <summary>
 	/// Creates a new OpenGL shader
 	/// </summary>
