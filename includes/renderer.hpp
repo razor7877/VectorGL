@@ -84,10 +84,25 @@ public:
 	void resizeFramebuffer(glm::vec2 newSize);
 
 private:
+	static constexpr unsigned int SHADOW_MAP_WIDTH = 1024;
+	static constexpr unsigned int SHADOW_MAP_HEIGHT = 1024;
+
 	std::vector<std::unique_ptr<Entity>> entities;
 
+	/// <summary>
+	/// The render target in which everything is rendered
+	/// </summary>
 	RenderTarget multiSampledTarget;
+
+	/// <summary>
+	/// The final render target, the multisampled target is resolved into this one that can be used for displaying to screen
+	/// </summary>
 	RenderTarget finalTarget;
+
+	/// <summary>
+	/// The depth map for shadow mapping
+	/// </summary>
+	RenderTarget depthMap;
 
 	// Creates a framebuffer with the size specified
 	void createFramebuffer(glm::vec2 windowSize);

@@ -8,6 +8,7 @@ enum class TargetType
 	TEXTURE_2D,
 	TEXTURE_2D_MULTISAMPLE,
 	TEXTURE_CUBEMAP,
+	TEXTURE_DEPTH,
 };
 
 /// <summary>

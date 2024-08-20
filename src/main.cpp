@@ -165,9 +165,6 @@ int main()
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
-	for (int i = 0; i < 1000; i++)
-		Logger::logWarning("Test", "main.cpp");
-
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{

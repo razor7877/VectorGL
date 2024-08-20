@@ -49,9 +49,7 @@ void PhysicsComponent::update(float deltaTime)
 	glmMat[3][1] = origin.getY();
 	glmMat[3][2] = origin.getZ();
 
-	glm::vec3 scale = this->parent->transform->getScale();
-	Logger::logDebug(std::to_string(scale.x) + " - " + std::to_string(scale.y) + " - " + std::to_string(scale.z), "physicsComponent.cpp");
-	glmMat = glm::scale(glmMat, scale);
+	glmMat = glm::scale(glmMat, this->parent->transform->getScale());
 
 	this->parent->transform->setModelMatrix(glmMat);
 }
