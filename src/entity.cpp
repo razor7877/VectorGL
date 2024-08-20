@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "entity.hpp"
+#include "components/physicsComponent.hpp"
 
 Entity::Entity()
 {
@@ -36,6 +37,10 @@ void Entity::update(float deltaTime)
 {
 	if (!this->isEnabled)
 		return;
+
+	std::type_index physics = std::type_index(typeid(PhysicsComponent));
+	if (this->components.count(physics))
+		this->components[physics]->update(deltaTime);
 
 	for (auto& [type, component] : this->components)
 		component->update(deltaTime);

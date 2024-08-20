@@ -146,6 +146,7 @@ void Renderer::render(float deltaTime)
 	// Entities that aren't rendered to the screen
 	std::vector<Entity*> nonRenderables;
 
+	// TODO : Find a better way of sorting renderables? MeshComponents are not the only renderables
 	// We start by sorting the entities depending on if they are renderable objects
 	for (auto&& entity : this->entities)
 	{
@@ -162,10 +163,14 @@ void Renderer::render(float deltaTime)
 		}
 	}
 
+	glStencilMask(0x00);
+
 	// We can simply update all entities that won't be rendered
 	for (Entity* nonRenderable : nonRenderables)
 		nonRenderable->update(deltaTime);
 
+	glEnable(GL_DEPTH_TEST);
+	glStencilMask(0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 
@@ -197,7 +202,7 @@ void Renderer::render(float deltaTime)
 
 	// Disable stencil writes
 	glStencilMask(0x00);
-	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	// Disable depth test before drawing outlines
 	glDisable(GL_DEPTH_TEST);
 	// Use outline shader
@@ -207,14 +212,14 @@ void Renderer::render(float deltaTime)
 	for (Entity* outlinedEntity : outlineRenderables)
 	{
 		MeshComponent* mesh = outlinedEntity->getComponent<MeshComponent>();
-		glm::mat4 originalMatrix = outlinedEntity->transform->getModelMatrix();
+		glm::vec3 originalScale = outlinedEntity->transform->getScale();
 		Shader* originalShader = mesh->material->shaderProgram;
 
 		mesh->material->shaderProgram = outlineShader;
 
-		outlinedEntity->transform->setScale(glm::vec3(1.0f));
+		outlinedEntity->transform->setScale(originalScale * 1.1f);
 		outlinedEntity->update(0);
-		outlinedEntity->transform->setModelMatrix(originalMatrix);
+		outlinedEntity->transform->setScale(originalScale);
 
 		mesh->material->shaderProgram = originalShader;
 	}
@@ -222,6 +227,8 @@ void Renderer::render(float deltaTime)
 	// Reenable depth test after drawing outlines
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glEnable(GL_DEPTH_TEST);
+	// Reenable stencil writes or buffer won't be cleared properly on next frame
+	glStencilMask(0xFF);
 
 	if (lineVerts.size() > 0)
 	{

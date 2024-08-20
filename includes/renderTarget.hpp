@@ -24,7 +24,7 @@ public:
 	/// <summary>
 	/// The OpenGL handle for the depth buffer
 	/// </summary>
-	GLuint depthbuffer{};
+	GLuint depthStencilBuffer{};
 
 	/// <summary>
 	/// The OpenGL handle for the render texture
