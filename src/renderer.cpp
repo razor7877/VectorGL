@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include <glm/glm/ext/matrix_transform.hpp>
+#include <glm/glm/ext/matrix_clip_space.hpp>
 
 #include "main.hpp"
 #include "renderer.hpp"
@@ -123,6 +124,59 @@ void Renderer::render(float deltaTime)
 {
 	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
 
+	// Render & update the scene
+
+	// Entities that are rendered to the screen
+	std::map<MaterialType, std::vector<Entity*>> renderables;
+	// Entities that should have an outline
+	std::vector<Entity*> outlineRenderables;
+	std::vector<MeshComponent*> meshes;
+	// Entities that aren't rendered to the screen
+	std::vector<Entity*> nonRenderables;
+
+	// TODO : Find a better way of sorting renderables? MeshComponents are not the only renderables
+	// We start by sorting the entities depending on if they are renderable objects
+	for (auto&& entity : this->entities)
+	{
+		Entity* entityPtr = entity.get();
+		MeshComponent* mesh = entityPtr->getComponent<MeshComponent>();
+
+		if (mesh == nullptr)
+			nonRenderables.push_back(entityPtr);
+		else // Entities that can be rendered are grouped by shader
+		{
+			meshes.push_back(mesh);
+			renderables[mesh->material->getType()].push_back(entityPtr);
+			if (entityPtr->drawOutline)
+				outlineRenderables.push_back(entityPtr);
+		}
+	}
+
+	// We prepare for the depth map rendering for shadow mapping
+	this->depthMap.bind();
+	this->depthMap.clear();
+
+	glEnable(GL_DEPTH_TEST);
+
+	glm::mat4 dirLightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, this->currentCamera->NEAR, this->currentCamera->FAR);
+	glm::mat4 dirLightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
+
+	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH);
+
+	depthShader->use()
+		->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+	for (MeshComponent* mesh : meshes)
+	{
+		Shader* oldShader = mesh->material->shaderProgram;
+		mesh->material->shaderProgram = depthShader;
+		mesh->update(0);
+		mesh->material->shaderProgram = oldShader;
+	}
+
 	// We want to draw to the MSAA framebuffer
 	this->multiSampledTarget.bind();
 	this->multiSampledTarget.clear();
@@ -138,32 +192,6 @@ void Renderer::render(float deltaTime)
 	this->physicsWorld->update(deltaTime);
 	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
 	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
-
-	// Render & update the scene
-
-	// Entities that are rendered to the screen
-	std::map<MaterialType, std::vector<Entity*>> renderables;
-	// Entities that should have an outline
-	std::vector<Entity*> outlineRenderables;
-	// Entities that aren't rendered to the screen
-	std::vector<Entity*> nonRenderables;
-
-	// TODO : Find a better way of sorting renderables? MeshComponents are not the only renderables
-	// We start by sorting the entities depending on if they are renderable objects
-	for (auto&& entity : this->entities)
-	{
-		Entity* entityPtr = entity.get();
-		MeshComponent* mesh = entityPtr->getComponent<MeshComponent>();
-
-		if (mesh == nullptr)
-			nonRenderables.push_back(entityPtr);
-		else // Entities that can be rendered are grouped by shader
-		{
-			renderables[mesh->material->getType()].push_back(entityPtr);
-			if (entityPtr->drawOutline)
-				outlineRenderables.push_back(entityPtr);
-		}
-	}
 
 	glStencilMask(0x00);
 

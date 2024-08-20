@@ -19,6 +19,7 @@ enum class ShaderType
 	BRDF,
 	SOLID,
 	OUTLINE,
+	DEPTH,
 };
 
 /// <summary>
