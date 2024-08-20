@@ -75,15 +75,6 @@ void Renderer::resizeFramebuffer(glm::vec2 newSize)
 	this->finalTarget.unbind();
 }
 
-void Renderer::createFramebuffer(glm::vec2 windowSize)
-{
-	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
-	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
-
-	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
-	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap.renderTexture, TextureType::TEXTURE_ALBEDO);
-}
-
 void Renderer::init(glm::vec2 windowSize)
 {
 	this->shaderManager.initUniformBuffer();
@@ -123,8 +114,6 @@ void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 
 void Renderer::render(float deltaTime)
 {
-	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
-
 	// Render & update the scene
 
 	// Entities that are rendered to the screen
@@ -153,6 +142,37 @@ void Renderer::render(float deltaTime)
 		}
 	}
 
+	// Update the physics simulation
+	this->physicsWorld->update(deltaTime);
+
+	this->shadowPass(meshes);
+	this->renderPass(deltaTime, renderables, nonRenderables);
+	this->outlinePass(outlineRenderables);
+	this->blitPass();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::end()
+{
+	// Delete all the objects contained in the renderer
+	for (auto&& entity : this->entities)
+		entity.reset();
+
+	delete this->physicsWorld;
+}
+
+void Renderer::createFramebuffer(glm::vec2 windowSize)
+{
+	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
+	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
+
+	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
+	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap.renderTexture, TextureType::TEXTURE_ALBEDO);
+}
+
+void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
+{
 	// We prepare for the depth map rendering for shadow mapping
 	this->depthMap.bind();
 	this->depthMap.clear();
@@ -178,7 +198,10 @@ void Renderer::render(float deltaTime)
 		mesh->update(0);
 		mesh->material->shaderProgram = oldShader;
 	}
+}
 
+void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables)
+{
 	// We want to draw to the MSAA framebuffer
 	this->multiSampledTarget.bind();
 	this->multiSampledTarget.clear();
@@ -190,8 +213,6 @@ void Renderer::render(float deltaTime)
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
 
-	// Update the physics simulation
-	this->physicsWorld->update(deltaTime);
 	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
 	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
 
@@ -232,8 +253,36 @@ void Renderer::render(float deltaTime)
 		}
 	}
 
+	// Line drawing for debugging raycasts etc.
+	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
+	if (lineVerts.size() > 0)
+	{
+		GLuint lineVAO;
+		GLuint lineVBO;
+
+		glGenVertexArrays(1, &lineVAO);
+		glGenBuffers(1, &lineVBO);
+		glBindVertexArray(lineVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+		glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		this->shaderManager.getShader(ShaderType::SOLID)->use();
+		glBindVertexArray(lineVAO);
+		glLineWidth(25.0f);
+		glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
+		lineVerts.clear();
+	}
+
+	this->multiSampledTarget.unbind();
+
 	// Disable stencil writes
 	glStencilMask(0x00);
+}
+
+void Renderer::outlinePass(std::vector<Entity*>& outlineRenderables)
+{
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	// Disable depth test before drawing outlines
 	glDisable(GL_DEPTH_TEST);
@@ -261,28 +310,10 @@ void Renderer::render(float deltaTime)
 	glEnable(GL_DEPTH_TEST);
 	// Reenable stencil writes or buffer won't be cleared properly on next frame
 	glStencilMask(0xFF);
+}
 
-	if (lineVerts.size() > 0)
-	{
-		GLuint lineVAO;
-		GLuint lineVBO;
-
-		glGenVertexArrays(1, &lineVAO);
-		glGenBuffers(1, &lineVBO);
-		glBindVertexArray(lineVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-		glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-
-		this->shaderManager.getShader(ShaderType::SOLID)->use();
-		glBindVertexArray(lineVAO);
-		glLineWidth(25.0f);
-		glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
-	}
-
-	this->multiSampledTarget.unbind();
-
+void Renderer::blitPass()
+{
 	// Bind the second target that will contain the mixed multisampled textures
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->multiSampledTarget.framebuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalTarget.framebuffer);
@@ -290,17 +321,4 @@ void Renderer::render(float deltaTime)
 	glm::vec2 framebufferSize = this->multiSampledTarget.size;
 	// Resolve the multisampled texture to the second target
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	lineVerts.clear();
-}
-
-void Renderer::end()
-{
-	// Delete all the objects contained in the renderer
-	for (auto&& entity : this->entities)
-		entity.reset();
-
-	delete this->physicsWorld;
 }

@@ -10,6 +10,7 @@
 #include "shaderManager.hpp"
 #include "renderTarget.hpp"
 #include "components/cameraComponent.hpp"
+#include "components/meshComponent.hpp"
 #include "physics/physicsWorld.hpp"
 
 extern std::vector<float> lineVerts;
@@ -106,6 +107,31 @@ private:
 
 	// Creates a framebuffer with the size specified
 	void createFramebuffer(glm::vec2 windowSize);
+
+	/// <summary>
+	/// The pass responsible for generating the shadow map
+	/// </summary>
+	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
+	void shadowPass(std::vector<MeshComponent*>& meshes);
+
+	/// <summary>
+	/// The main pass, responsible for rendering all the objects in the scene
+	/// </summary>
+	/// <param name="deltaTime">The time elapsed since the last frame</param>
+	/// <param name="renderables">A vector containing all the entities that are rendered to the screen</param>
+	/// <param name="nonRenderables">A vector containing all the entities that are not rendered to the screen</param>
+	void renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables);
+	
+	/// <summary>
+	/// The outline pass, responsible for rendering the outline of selected objects
+	/// </summary>
+	/// <param name="outlineRenderables"></param>
+	void outlinePass(std::vector<Entity*>& outlineRenderables);
+
+	/// <summary>
+	/// The final pass, reponsible for resolving the multisampled framebuffer texture to the final texture for display
+	/// </summary>
+	void blitPass();
 };
 
 #endif
