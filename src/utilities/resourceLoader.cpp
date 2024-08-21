@@ -17,7 +17,7 @@ std::map<aiTextureType, TextureType> ResourceLoader::aiMatToTextureType = {
 	{ aiTextureType_HEIGHT, TextureType::TEXTURE_HEIGHT },
 	{ aiTextureType_METALNESS, TextureType::TEXTURE_METALLIC },
 	{ aiTextureType_DIFFUSE_ROUGHNESS, TextureType::TEXTURE_ROUGHNESS },
-	{ aiTextureType_AMBIENT_OCCLUSION, TextureType::TEXTURE_AO },
+	{ aiTextureType_LIGHTMAP, TextureType::TEXTURE_AO },
 	{ aiTextureType_OPACITY, TextureType::TEXTURE_OPACITY },
 	{ aiTextureType_EMISSIVE, TextureType::TEXTURE_EMISSIVE },
 };
@@ -175,7 +175,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		std::vector<std::shared_ptr<Texture>> roughnessMaps = loadMaterialTextures(scene, material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
 		textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
-		std::vector<std::shared_ptr<Texture>> aoMaps = loadMaterialTextures(scene, material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
+		std::vector<std::shared_ptr<Texture>> aoMaps = loadMaterialTextures(scene, material, aiTextureType_LIGHTMAP, "texture_ao");
 		textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 
 		std::vector<std::shared_ptr<Texture>> opacityMaps = loadMaterialTextures(scene, material, aiTextureType_OPACITY, "texture_opacity");

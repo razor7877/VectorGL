@@ -71,6 +71,7 @@ in vec2 TexCoord;
 in vec3 Normal;
 in mat3 TBN;
 in vec4 FragPosLightSpace;
+in vec2 FragPosScreenSpace;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
@@ -83,7 +84,12 @@ uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
+// Shadow mapping
 uniform sampler2D shadowMap;
+
+// SSAO
+uniform sampler2D ssaoMap;
+uniform vec2 windowSize;
 
 uniform Material material;
 
@@ -287,13 +293,13 @@ void main()
     
     float metallic;
     if ((material.used_maps & METALLIC_MAP) != 0)
-        metallic = texture(material.texture_metallic, TexCoord).r;
+        metallic = texture(material.texture_metallic, TexCoord).b;
     else
         metallic = material.metallic;
         
     float roughness;
     if ((material.used_maps & ROUGHNESS_MAP) != 0)
-        roughness = texture(material.texture_roughness, TexCoord).r;
+        roughness = texture(material.texture_metallic, TexCoord).g;
     else
         roughness = material.roughness;
     
@@ -323,6 +329,7 @@ void main()
     for (int i = 0; i < nrDirLights; i++)
         Lo += calcDirLight(dirLights[i], N, V, F0, albedo, metallic, roughness);
 
+    // Apply shadow mapping on the directional light
     Lo *= shadowInverse;
 
     for (int i = 0; i < nrPointLights; i++)
@@ -346,7 +353,12 @@ void main()
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
+    // Sample the SSAO value
+    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize).r;
     vec3 ambient = (kD * diffuse + specular) * ao;
+
+    if (gl_FragCoord.x / windowSize.x > 0.5)
+        ambient *= ssao;
 	
     vec3 color = ambient + Lo;
 
@@ -357,4 +369,6 @@ void main()
     //color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+    //FragColor = vec4(ssao, 0.0, 0.0, 1.0);
+    //FragColor = vec4(gl_FragCoord.xy * 0.5 + 1.0, 0.0, 1.0);
 }

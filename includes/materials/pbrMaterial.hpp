@@ -32,6 +32,8 @@ public:
 	static const std::string SHADOW_MAP;
 	static const std::string LIGHT_SPACE_MATRIX;
 
+	static const std::string SSAO_MAP;
+
 	enum UsedMaps
 	{
 		ALBEDO_MAP_FLAG = 1,
@@ -62,6 +64,11 @@ public:
 	/// The shadow map for shadow calculations
 	/// </summary>
 	static std::shared_ptr<Texture> shadowMap;
+
+	/// <summary>
+	/// The SSAO map for applying screen space ambient occlusion
+	/// </summary>
+	static std::shared_ptr<Texture> ssaoMap;
 
 	/// <summary>
 	/// The light space matrix for shadow calculations

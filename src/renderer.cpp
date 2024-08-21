@@ -34,7 +34,7 @@ std::vector<Entity*> Renderer::getEntities()
 
 GLuint Renderer::getRenderTexture()
 {
-	return this->ssaoTarget.renderTexture;
+	//return this->ssaoTarget.renderTexture;
 	return this->finalTarget.renderTexture;
 }
 
@@ -258,6 +258,7 @@ void Renderer::createFramebuffers(glm::vec2 windowSize)
 	// Screen space effects
 	this->gBuffer = RenderTarget(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
 	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize, GL_RED);
+	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 
 void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
@@ -352,6 +353,10 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 	glStencilMask(0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+	this->shaderManager.getShader(ShaderType::PBR)
+		->use()
+		->setVec2("windowSize", this->ssaoTarget.size);
 
 	// Entities that can be rendered are grouped by shader and then rendered together
 	for (auto& [material, meshes] : renderables)

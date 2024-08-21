@@ -24,10 +24,13 @@ const std::string PBRMaterial::BRDF_LUT = "brdfLUT";
 const std::string PBRMaterial::SHADOW_MAP = "shadowMap";
 const std::string PBRMaterial::LIGHT_SPACE_MATRIX = "lightSpaceMatrix";
 
+const std::string PBRMaterial::SSAO_MAP = "ssaoMap";
+
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
 std::shared_ptr<Texture> PBRMaterial::brdfLut = nullptr;
 std::shared_ptr<Texture> PBRMaterial::shadowMap = nullptr;
+std::shared_ptr<Texture> PBRMaterial::ssaoMap = nullptr;
 glm::mat4 PBRMaterial::lightSpaceMatrix = glm::mat4(1.0f);
 
 PBRMaterial::PBRMaterial(Shader* shaderProgram) : Material(shaderProgram)
@@ -54,6 +57,7 @@ void PBRMaterial::init()
 	this->shaderProgram->setInt(PBRMaterial::PREFILTER_MAP, 8);
 	this->shaderProgram->setInt(PBRMaterial::BRDF_LUT, 9);
 	this->shaderProgram->setInt(PBRMaterial::SHADOW_MAP, 10);
+	this->shaderProgram->setInt(PBRMaterial::SSAO_MAP, 11);
 }
 
 void PBRMaterial::sendToShader()
@@ -96,7 +100,7 @@ void PBRMaterial::sendToShader()
 	if (this->useAoMap)
 	{
 		glActiveTexture(GL_TEXTURE4);
-		this->roughnessTexture->bindTexture();
+		this->aoTexture->bindTexture();
 	}
 	else
 		this->shaderProgram->setFloat(PBRMaterial::AO, this->ao);
@@ -138,6 +142,12 @@ void PBRMaterial::sendToShader()
 		glActiveTexture(GL_TEXTURE10);
 		this->shadowMap->bindTexture();
 		this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRIX, this->lightSpaceMatrix);
+	}
+
+	if (this->ssaoMap != nullptr)
+	{
+		glActiveTexture(GL_TEXTURE11);
+		this->ssaoMap->bindTexture();
 	}
 
 	glActiveTexture(GL_TEXTURE0);
