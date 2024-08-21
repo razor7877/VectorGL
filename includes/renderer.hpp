@@ -123,6 +123,8 @@ private:
 	
 	std::vector<glm::vec3> ssaoNoise;
 
+	std::unique_ptr<Entity> quadEntity;
+
 	// Creates a framebuffer with the size specified
 	void createFramebuffers(glm::vec2 windowSize);
 
@@ -131,6 +133,16 @@ private:
 	/// </summary>
 	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
 	void shadowPass(std::vector<MeshComponent*>& meshes);
+
+	/// <summary>
+	/// The pass responsible for rendering position/normal/albedo informations to the G buffer textures
+	/// </summary>
+	void gBufferPass(std::vector<MeshComponent*>& meshes);
+
+	/// <summary>
+	/// The pass responsible for calculating SSAO
+	/// </summary>
+	void ssaoPass(std::vector<MeshComponent*>& meshes);
 
 	/// <summary>
 	/// The main pass, responsible for rendering all the objects in the scene

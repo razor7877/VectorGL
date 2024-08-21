@@ -21,6 +21,7 @@ enum class ShaderType
 	OUTLINE,
 	DEPTH,
 	GBUFFER,
+	SSAO,
 };
 
 /// <summary>

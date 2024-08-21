@@ -12,6 +12,7 @@
 #include "entity.hpp"
 #include "materials/pbrMaterial.hpp"
 #include "components/meshComponent.hpp"
+#include "utilities/geometry.hpp"
 
 Renderer::Renderer()
 {
@@ -33,6 +34,7 @@ std::vector<Entity*> Renderer::getEntities()
 
 GLuint Renderer::getRenderTexture()
 {
+	return this->ssaoTarget.renderTexture;
 	return this->finalTarget.renderTexture;
 }
 
@@ -148,6 +150,16 @@ void Renderer::init(glm::vec2 windowSize)
 
 	this->ssaoNoiseTexture = std::make_unique<Texture>(noiseTexture, TextureType::TEXTURE_ALBEDO);
 
+	std::vector<float> quadVertices = Geometry::getQuadVertices();
+	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
+
+	this->quadEntity = std::make_unique<Entity>("Quad");
+	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
+	quadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), this->shaderManager.getShader(ShaderType::SSAO));
+	quadMesh->addTexCoords(quadTexCoords);
+
+	quadMesh->start();
+
 	this->createFramebuffers(windowSize);
 }
 
@@ -195,8 +207,20 @@ void Renderer::render(float deltaTime)
 	// Update the physics simulation
 	this->physicsWorld->update(deltaTime);
 
+	// Update camera info
+	glm::vec2 windowSize = this->multiSampledTarget.size;
+	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	// Send light data to shader
+	LightManager::getInstance().sendToShader();
+
 	// Render the shadow map
 	this->shadowPass(meshes);
+
+	// Render to the G buffer
+	this->gBufferPass(meshes);
+
+	// Calculate SSAO
+	this->ssaoPass(meshes);
 	
 	// We now want to draw to the MSAA framebuffer
 	this->multiSampledTarget.bind();
@@ -206,21 +230,6 @@ void Renderer::render(float deltaTime)
 	this->renderPass(deltaTime, renderables, nonRenderables);
 	// Render outlines
 	this->outlinePass(outlineRenderables);
-
-	this->gBuffer.bind();
-	this->gBuffer.clear();
-
-	// Use G-buffer shader
-	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::GBUFFER);
-	gBufferShader->use();
-
-	for (MeshComponent* mesh : meshes)
-	{
-		Shader* oldShader = mesh->material->shaderProgram;
-		mesh->material->shaderProgram = gBufferShader;
-		mesh->update(0);
-		mesh->material->shaderProgram = oldShader;
-	}
 
 	this->multiSampledTarget.unbind();
 
@@ -278,17 +287,61 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
 		mesh->update(0);
 		mesh->material->shaderProgram = oldShader;
 	}
+
+	this->depthMap.unbind();
+}
+
+void Renderer::gBufferPass(std::vector<MeshComponent*>& meshes)
+{
+	this->gBuffer.bind();
+	this->gBuffer.clear();
+
+	// Use G-buffer shader
+	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::GBUFFER);
+	gBufferShader->use();
+
+	for (MeshComponent* mesh : meshes)
+	{
+		Shader* oldShader = mesh->material->shaderProgram;
+		mesh->material->shaderProgram = gBufferShader;
+		mesh->update(0);
+		mesh->material->shaderProgram = oldShader;
+	}
+
+	this->gBuffer.unbind();
+}
+
+void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
+{
+	this->ssaoTarget.bind();
+	this->ssaoTarget.clear();
+
+	Shader* ssaoShader = this->shaderManager.getShader(ShaderType::SSAO);
+	ssaoShader->use()
+		->setInt("gPosition", 0)
+		->setInt("gNormal", 1)
+		->setInt("texNoise", 2)
+		->setVec2("noiseScale", glm::vec2(this->ssaoTarget.size.x / 4.0f, this->ssaoTarget.size.y / 4.0f));
+
+	for (unsigned int i = 0; i < 64; i++)
+		ssaoShader->setVec3("samples[" + std::to_string(i) + "]", this->ssaoKernel[i]);
+
+	glActiveTexture(GL_TEXTURE0); 
+	glBindTexture(GL_TEXTURE_2D, this->gBuffer.gPosition);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, this->gBuffer.gNormal);
+
+	glActiveTexture(GL_TEXTURE2);
+	this->ssaoNoiseTexture->bindTexture();
+
+	this->quadEntity->update(0);
+
+	this->ssaoTarget.unbind();
 }
 
 void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables)
 {
-	// Update camera info
-	glm::vec2 windowSize = this->multiSampledTarget.size;
-	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-
-	// Send light data to shader
-	LightManager::getInstance().sendToShader();
-
 	glStencilMask(0x00);
 
 	// We can simply update all entities that won't be rendered

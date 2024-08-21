@@ -91,6 +91,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 		case ShaderType::GBUFFER:
 			enumToShader[shader] = new Shader("shaders/gBuffer.vert", "shaders/gBuffer.frag");
 			break;
+
+		case ShaderType::SSAO:
+			enumToShader[shader] = new Shader("shaders/ssao.vert", "shaders/ssao.frag");
+			break;
 	}
 
 	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->ID, "Matrices");
