@@ -77,7 +77,17 @@ int main()
 	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
 	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
 
-	defaultRenderer.addEntity(std::move(cubeEntity));
+	//defaultRenderer.addEntity(std::move(cubeEntity));
+
+	cubeEntity = std::make_unique<Entity>("Cube");
+
+	cubeMesh = cubeEntity->addComponent<MeshComponent>();
+	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
+
+	cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
+	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
+
+	//defaultRenderer.addEntity(std::move(cubeEntity));
 
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);

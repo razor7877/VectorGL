@@ -247,9 +247,9 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, this->gAlbedo, 0);
 
-			this->drawBuffers[0] = GL_COLOR_ATTACHMENT0;
-			this->drawBuffers[1] = GL_COLOR_ATTACHMENT1;
-			this->drawBuffers[2] = GL_COLOR_ATTACHMENT2;
+			this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
+			this->drawBuffers[1] = { GL_COLOR_ATTACHMENT1 };
+			this->drawBuffers[2] = { GL_COLOR_ATTACHMENT2 };
 			glDrawBuffers(3, drawBuffers);
 			break;
 		}

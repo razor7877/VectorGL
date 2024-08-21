@@ -217,7 +217,7 @@ void ShowViewer()
 	glm::vec2 imagePos = ImGui::GetCursorScreenPos();
 
 	ImGui::Image(
-		(ImTextureID)renderer->GetRenderTexture(),
+		(ImTextureID)renderer->getRenderTexture(),
 		viewerSize,
 		ImVec2(0, 1),
 		ImVec2(1, 0)
@@ -715,7 +715,7 @@ void SceneGraph()
 
 	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 	{
-		SceneGraphRecurse(renderer->GetEntities());
+		SceneGraphRecurse(renderer->getEntities());
 		ImGui::TreePop();
 	}
 

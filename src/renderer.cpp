@@ -20,7 +20,7 @@ Renderer::Renderer()
 	this->addEntity(std::move(cameraEntity));
 }
 
-std::vector<Entity*> Renderer::GetEntities()
+std::vector<Entity*> Renderer::getEntities()
 {
 	std::vector<Entity*> rawPointers;
 
@@ -30,9 +30,9 @@ std::vector<Entity*> Renderer::GetEntities()
 	return rawPointers;
 }
 
-GLuint Renderer::GetRenderTexture()
+GLuint Renderer::getRenderTexture()
 {
-	return this->finalTarget.renderTexture;
+	return this->gBuffer.gPosition;
 }
 
 void Renderer::addEntity(std::unique_ptr<Entity> objectPtr)
@@ -142,21 +142,6 @@ void Renderer::render(float deltaTime)
 	// Update the physics simulation
 	this->physicsWorld->update(deltaTime);
 
-	this->gBuffer.bind();
-	this->gBuffer.clear();
-
-	// Use outline shader
-	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::GBUFFER);
-	gBufferShader->use();
-
-	for (MeshComponent* mesh : meshes)
-	{
-		Shader* oldShader = mesh->material->shaderProgram;
-		mesh->material->shaderProgram = gBufferShader;
-		mesh->update(0);
-		mesh->material->shaderProgram = oldShader;
-	}
-
 	// Render the shadow map
 	this->shadowPass(meshes);
 	
@@ -168,6 +153,21 @@ void Renderer::render(float deltaTime)
 	this->renderPass(deltaTime, renderables, nonRenderables);
 	// Render outlines
 	this->outlinePass(outlineRenderables);
+
+	this->gBuffer.bind();
+	this->gBuffer.clear();
+
+	// Use G-buffer shader
+	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::PBR);
+	gBufferShader->use();
+
+	for (MeshComponent* mesh : meshes)
+	{
+		Shader* oldShader = mesh->material->shaderProgram;
+		mesh->material->shaderProgram = gBufferShader;
+		mesh->update(0);
+		mesh->material->shaderProgram = oldShader;
+	}
 
 	this->multiSampledTarget.unbind();
 

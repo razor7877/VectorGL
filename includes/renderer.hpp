@@ -33,13 +33,13 @@ public:
 	/// Returns a list of raw pointers to the entities in the renderer
 	/// </summary>
 	/// <returns>A vector containing all the raw entities pointers in the renderer</returns>
-	std::vector<Entity*> GetEntities();
+	std::vector<Entity*> getEntities();
 
 	/// <summary>
 	/// Returns the framebuffer that the renderer draws into
 	/// </summary>
 	/// <returns>A GLuint pointing to the render texture on the GPU</returns>
-	GLuint GetRenderTexture();
+	GLuint getRenderTexture();
 
 	/// <summary>
 	/// Adds an entity to the renderer
