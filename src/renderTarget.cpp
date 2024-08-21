@@ -122,6 +122,16 @@ void RenderTarget::resize(glm::vec2 newSize)
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilBuffer);
 			break;
 
+		case TargetType::TEXTURE_RED:
+			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, this->size.x, this->size.y, 0, GL_RED, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->renderTexture, 0);
+			break;
+
 		default:
 			Logger::logWarning("Attempted to resize unsupported framebuffer!", "renderTarget.cpp");
 			break;
@@ -179,7 +189,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			glDrawBuffers(1, drawBuffers);
 			break;
 		}
-			
+		
 		case TargetType::TEXTURE_CUBEMAP:
 		{
 			// Depth buffer for the FBO
@@ -253,6 +263,17 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			glDrawBuffers(3, drawBuffers);
 			break;
 		}
+
+		case TargetType::TEXTURE_RED:
+			glGenTextures(1, &this->renderTexture);
+			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, this->size.x, this->size.y, 0, GL_RED, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
+			break;
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

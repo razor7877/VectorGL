@@ -84,7 +84,7 @@ public:
 	/// Resizes the existing framebuffer with the size specified
 	/// </summary>
 	/// <param name="newSize">The new size in pixels</param>
-	void resizeFramebuffer(glm::vec2 newSize);
+	void resizeFramebuffers(glm::vec2 newSize);
 
 private:
 	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
@@ -112,8 +112,19 @@ private:
 	/// </summary>
 	RenderTarget gBuffer;
 
+	/// <summary>
+	/// The render target for rendering the SSAO
+	/// </summary>
+	RenderTarget ssaoTarget;
+
+	std::unique_ptr<Texture> ssaoNoiseTexture;
+
+	std::vector<glm::vec3> ssaoKernel;
+	
+	std::vector<glm::vec3> ssaoNoise;
+
 	// Creates a framebuffer with the size specified
-	void createFramebuffer(glm::vec2 windowSize);
+	void createFramebuffers(glm::vec2 windowSize);
 
 	/// <summary>
 	/// The pass responsible for generating the shadow map

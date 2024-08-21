@@ -5,12 +5,15 @@
 
 enum class TargetType
 {
-	TEXTURE_2D,
-	TEXTURE_2D_MULTISAMPLE,
-	TEXTURE_CUBEMAP,
-	TEXTURE_DEPTH,
-	G_BUFFER,
+	TEXTURE_2D, // Depth + stencil + one color attachment
+	TEXTURE_2D_MULTISAMPLE, // Depth + stencil + one color attachment with MSAA x4
+	TEXTURE_CUBEMAP, // Color only?
+	TEXTURE_DEPTH, // Depth only
+	G_BUFFER, // 3 color attachments + depth
+	TEXTURE_RED, // 1 color attachment, single channel
 };
+
+// TODO : Use inheritance 
 
 /// <summary>
 /// Represents a render target that can be drawn into
@@ -49,7 +52,7 @@ public:
 	GLuint gAlbedo{};
 
 	/// <summary>
-	/// The OpenGL handle for the draw buffer
+	/// The OpenGL handle for the draw buffers
 	/// </summary>
 	GLenum drawBuffers[4]{};
 
@@ -61,7 +64,7 @@ public:
 	/// <summary>
 	/// The size of the render target in pixels
 	/// </summary>
-	glm::vec2 size = glm::vec2(0);
+	glm::vec2 size = glm::vec2(0.0f);
 
 	/// <summary>
 	/// The type of the target texture attached to the framebuffer

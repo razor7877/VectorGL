@@ -211,7 +211,7 @@ void ShowViewer()
 
 	ImVec2 viewerSize = ImGui::GetContentRegionAvail();
 
-	defaultRenderer.resizeFramebuffer(glm::vec2(viewerSize.x, viewerSize.y));
+	defaultRenderer.resizeFramebuffers(glm::vec2(viewerSize.x, viewerSize.y));
 
 	// Since we are about to draw the image, this returns the top left corner of the image
 	glm::vec2 imagePos = ImGui::GetCursorScreenPos();

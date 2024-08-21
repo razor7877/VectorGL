@@ -1,6 +1,7 @@
 #include <iostream>
 #include <set>
 #include <algorithm>
+#include <random>
 
 #include <glm/glm/ext/matrix_transform.hpp>
 #include <glm/glm/ext/matrix_clip_space.hpp>
@@ -32,7 +33,7 @@ std::vector<Entity*> Renderer::getEntities()
 
 GLuint Renderer::getRenderTexture()
 {
-	return this->gBuffer.gPosition;
+	return this->finalTarget.renderTexture;
 }
 
 void Renderer::addEntity(std::unique_ptr<Entity> objectPtr)
@@ -64,7 +65,7 @@ bool Renderer::removeEntity(Entity* rawObjectPtr)
 	return false;
 }
 
-void Renderer::resizeFramebuffer(glm::vec2 newSize)
+void Renderer::resizeFramebuffers(glm::vec2 newSize)
 {
 	this->multiSampledTarget.bind();
 	this->multiSampledTarget.resize(newSize);
@@ -75,7 +76,15 @@ void Renderer::resizeFramebuffer(glm::vec2 newSize)
 	this->gBuffer.bind();
 	this->gBuffer.resize(newSize);
 
+	this->ssaoTarget.bind();
+	this->ssaoTarget.resize(newSize);
+
 	this->gBuffer.unbind();
+}
+
+float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
 }
 
 void Renderer::init(glm::vec2 windowSize)
@@ -92,10 +101,54 @@ void Renderer::init(glm::vec2 windowSize)
 	this->directionalLight = directionalLightComponent;
 	this->addEntity(std::move(dirLightEntity));
 
+	// Start all the entities on the scene
 	for (auto&& entity : this->entities)
 		entity->start();
 
-	this->createFramebuffer(windowSize);
+	// Initialize SSAO kernels
+	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+	std::default_random_engine generator;
+
+	for (unsigned int i = 0; i < 64; ++i)
+	{
+		glm::vec3 sample(
+			randomFloats(generator) * 2.0f - 1.0f, // x between -1:1
+			randomFloats(generator) * 2.0f - 1.0f, // y between -1:1
+			randomFloats(generator) // z between 0:1
+		);
+
+		sample = glm::normalize(sample);
+
+		float scale = (float)i / 64.0f;
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale;
+
+		ssaoKernel.push_back(sample);
+	}
+
+	for (unsigned int i = 0; i < 16; i++)
+	{
+		glm::vec3 noise(
+			randomFloats(generator) * 2.0f - 1.0f,
+			randomFloats(generator) * 2.0f - 1.0f,
+			0.0f
+		);
+
+		ssaoNoise.push_back(noise);
+	}
+
+	GLuint noiseTexture;
+	glGenTextures(1, &noiseTexture);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	this->ssaoNoiseTexture = std::make_unique<Texture>(noiseTexture, TextureType::TEXTURE_ALBEDO);
+
+	this->createFramebuffers(windowSize);
 }
 
 std::vector<float> lineVerts;
@@ -184,7 +237,7 @@ void Renderer::end()
 	delete this->physicsWorld;
 }
 
-void Renderer::createFramebuffer(glm::vec2 windowSize)
+void Renderer::createFramebuffers(glm::vec2 windowSize)
 {
 	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
 	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
@@ -195,6 +248,7 @@ void Renderer::createFramebuffer(glm::vec2 windowSize)
 
 	// Screen space effects
 	this->gBuffer = RenderTarget(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
+	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize, GL_RED);
 }
 
 void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
