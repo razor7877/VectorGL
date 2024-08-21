@@ -1,5 +1,7 @@
 #version 330 core
 
+// Shader for calculating irradiance maps for IBL calculations
+
 out vec4 FragColor;
 
 in vec3 FragPos;

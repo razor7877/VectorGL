@@ -1,5 +1,7 @@
 #version 330 core
 
+// Shader for mapping HDR maps onto a cube
+
 out vec4 FragColor;
 in vec3 FragPos;
 

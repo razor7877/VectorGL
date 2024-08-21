@@ -1,5 +1,7 @@
 #version 330 core
 
+// Shader for drawing object outlines
+
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 model;

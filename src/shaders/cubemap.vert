@@ -1,5 +1,7 @@
 #version 330 core
 
+// Shader for rendering to a cubemap
+
 layout (location = 0) in vec3 aPos;
 
 out vec3 FragPos;

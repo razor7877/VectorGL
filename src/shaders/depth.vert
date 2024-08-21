@@ -1,5 +1,7 @@
 #version 330 core
 
+// Depth map only shader for shadow mapping
+
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 lightSpaceMatrix;

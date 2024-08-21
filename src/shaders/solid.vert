@@ -1,5 +1,7 @@
 #version 330 core
 
+// Basic, single color shader, used for drawing debug raycasts for example
+
 layout (location = 0) in vec3 aPos;
 
 layout (std140) uniform Matrices
