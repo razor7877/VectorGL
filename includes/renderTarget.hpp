@@ -9,6 +9,7 @@ enum class TargetType
 	TEXTURE_2D_MULTISAMPLE,
 	TEXTURE_CUBEMAP,
 	TEXTURE_DEPTH,
+	G_BUFFER,
 };
 
 /// <summary>
@@ -33,9 +34,24 @@ public:
 	GLuint renderTexture{};
 
 	/// <summary>
+	/// The OpenGL handle for the G-buffer position texture
+	/// </summary>
+	GLuint gPosition{};
+
+	/// <summary>
+	/// The OpenGL handle for the G-buffer normal texture
+	/// </summary>
+	GLuint gNormal{};
+
+	/// <summary>
+	/// The OpenGL handle for the G-buffer albedo texture
+	/// </summary>
+	GLuint gAlbedo{};
+
+	/// <summary>
 	/// The OpenGL handle for the draw buffer
 	/// </summary>
-	GLenum drawBuffers[1]{};
+	GLenum drawBuffers[4]{};
 
 	/// <summary>
 	/// The pixel format of the framebuffer

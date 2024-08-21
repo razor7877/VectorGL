@@ -72,7 +72,10 @@ void Renderer::resizeFramebuffer(glm::vec2 newSize)
 	this->finalTarget.bind();
 	this->finalTarget.resize(newSize);
 
-	this->finalTarget.unbind();
+	this->gBuffer.bind();
+	this->gBuffer.resize(newSize);
+
+	this->gBuffer.unbind();
 }
 
 void Renderer::init(glm::vec2 windowSize)
@@ -171,8 +174,12 @@ void Renderer::createFramebuffer(glm::vec2 windowSize)
 	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
 	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
 
+	// Shadow mapping
 	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
 	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap.renderTexture, TextureType::TEXTURE_ALBEDO);
+
+	// Screen space effects
+	this->gBuffer = RenderTarget(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
 }
 
 void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)

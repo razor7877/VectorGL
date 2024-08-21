@@ -107,6 +107,11 @@ private:
 	/// </summary>
 	RenderTarget depthMap;
 
+	/// <summary>
+	/// The G-buffer for screen space effects
+	/// </summary>
+	RenderTarget gBuffer;
+
 	// Creates a framebuffer with the size specified
 	void createFramebuffer(glm::vec2 windowSize);
 
@@ -135,6 +140,9 @@ private:
 	/// </summary>
 	void blitPass();
 
+	/// <summary>
+	/// A recursive function for traversing the scene graph and sorting all the entities before render
+	/// </summary>
 	void getMeshesRecursively(std::vector<Entity*> entities, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& outlineRenderables, std::vector<MeshComponent*>& meshes, std::vector<Entity*>& nonRenderables);
 };
 

@@ -49,6 +49,7 @@ void RenderTarget::resize(glm::vec2 newSize)
 	switch (this->targetTextureType)
 	{
 		case TargetType::TEXTURE_2D:
+		{
 			// Bind the texture
 			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
 			// Create a 2D texture
@@ -62,8 +63,10 @@ void RenderTarget::resize(glm::vec2 newSize)
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this->size.x, this->size.y);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilBuffer);
 			break;
+		}
 
 		case TargetType::TEXTURE_2D_MULTISAMPLE:
+		{
 			// Bind the texture
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture);
 			// Create a 2D multisampled texture
@@ -76,10 +79,45 @@ void RenderTarget::resize(glm::vec2 newSize)
 			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, this->size.x, this->size.y);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilBuffer);
 			break;
+		}
 
 		case TargetType::TEXTURE_CUBEMAP:
+		{
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthStencilBuffer);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, this->size.x, this->size.y);
+			break;
+		}
+
+		case TargetType::G_BUFFER:
+			// Resize G-buffer position texture
+			glBindTexture(GL_TEXTURE_2D, this->gPosition);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gPosition, 0);
+
+			// Resize G-buffer normal texture
+			glBindTexture(GL_TEXTURE_2D, this->gNormal);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gNormal, 0);
+
+			// Resize G-buffer albedo texture
+			glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gAlbedo, 0);
+
+			// Resize depth buffer
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthStencilBuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilBuffer);
+			break;
+
+		default:
+			Logger::logWarning("Attempted to resize unsupported framebuffer!", "renderTarget.cpp");
 			break;
 	}
 
@@ -94,6 +132,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 	switch (this->targetTextureType)
 	{
 		case TargetType::TEXTURE_2D:
+		{
 			// Depth buffer for the FBO
 			glGenRenderbuffers(1, &this->depthStencilBuffer);
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthStencilBuffer);
@@ -114,6 +153,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 			glDrawBuffers(1, drawBuffers);
 			break;
+		}
 
 		case TargetType::TEXTURE_2D_MULTISAMPLE:
 		{
@@ -127,8 +167,6 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, this->renderTexture);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, this->format, this->size.x, this->size.y, GL_TRUE);
-
-			// Set texture as color attachment 0
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this->renderTexture, 0);
 
 			this->drawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
@@ -137,14 +175,17 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 		}
 			
 		case TargetType::TEXTURE_CUBEMAP:
+		{
 			// Depth buffer for the FBO
 			glGenRenderbuffers(1, &this->depthStencilBuffer);
 			glBindRenderbuffer(GL_RENDERBUFFER, this->depthStencilBuffer);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, this->size.x, this->size.y);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilBuffer);
 			break;
+		}
 
 		case TargetType::TEXTURE_DEPTH:
+		{
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
 			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, 0);
@@ -160,6 +201,46 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 			break;
+		}
+
+		case TargetType::G_BUFFER:
+		{
+			// Depth buffer for the FBO
+			glGenRenderbuffers(1, &this->depthStencilBuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, this->depthStencilBuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this->size.x, this->size.y);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->depthStencilBuffer);
+
+			// G-buffer position texture
+			glGenTextures(1, &this->gPosition);
+			glBindTexture(GL_TEXTURE_2D, this->gPosition);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, this->gPosition, 0);
+
+			// G-buffer normal texture
+			glGenTextures(1, &this->gNormal);
+			glBindTexture(GL_TEXTURE_2D, this->gNormal);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, this->gNormal, 0);
+
+			// G-buffer albedo texture
+			glGenTextures(1, &this->gAlbedo);
+			glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, this->gAlbedo, 0);
+
+			this->drawBuffers[0] = GL_COLOR_ATTACHMENT0;
+			this->drawBuffers[1] = GL_COLOR_ATTACHMENT1;
+			this->drawBuffers[2] = GL_COLOR_ATTACHMENT2;
+			glDrawBuffers(3, drawBuffers);
+			break;
+		}
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
