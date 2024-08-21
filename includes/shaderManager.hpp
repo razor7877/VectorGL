@@ -20,6 +20,7 @@ enum class ShaderType
 	SOLID,
 	OUTLINE,
 	DEPTH,
+	GBUFFER,
 };
 
 /// <summary>

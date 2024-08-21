@@ -487,6 +487,18 @@ void ShaderSettings()
 				label = "Solid";
 				break;
 
+			case ShaderType::OUTLINE:
+				label = "Outline";
+				break;
+
+			case ShaderType::DEPTH:
+				label = "Depth";
+				break;
+
+			case ShaderType::GBUFFER:
+				label = "G Buffer";
+				break;
+
 			default:
 				label = "Unnamed";
 				break;

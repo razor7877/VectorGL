@@ -142,6 +142,21 @@ void Renderer::render(float deltaTime)
 	// Update the physics simulation
 	this->physicsWorld->update(deltaTime);
 
+	this->gBuffer.bind();
+	this->gBuffer.clear();
+
+	// Use outline shader
+	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::GBUFFER);
+	gBufferShader->use();
+
+	for (MeshComponent* mesh : meshes)
+	{
+		Shader* oldShader = mesh->material->shaderProgram;
+		mesh->material->shaderProgram = gBufferShader;
+		mesh->update(0);
+		mesh->material->shaderProgram = oldShader;
+	}
+
 	// Render the shadow map
 	this->shadowPass(meshes);
 	
