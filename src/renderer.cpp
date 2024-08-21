@@ -158,7 +158,7 @@ void Renderer::render(float deltaTime)
 	this->gBuffer.clear();
 
 	// Use G-buffer shader
-	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::PBR);
+	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::GBUFFER);
 	gBufferShader->use();
 
 	for (MeshComponent* mesh : meshes)
