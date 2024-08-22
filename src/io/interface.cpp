@@ -380,7 +380,15 @@ void PerformanceMenu()
 {
 	ImGui::Begin("Performance");
 
-	ImGui::Text("Frame render time: %.2f ms", deltaTime * 1000);;
+	ImGui::Text("Frame render time: %.2f ms", deltaTime * 1000);
+	ImGui::Text("Mesh sorting time: %.2f ms", renderer->meshSortingTime * 1000);
+	ImGui::Text("Physics update time: %.2f ms", renderer->physicsUpdateTime * 1000);
+	ImGui::Text("Shadow pass time: %.2f ms", renderer->shadowPassTime * 1000);
+	ImGui::Text("gBuffer pass time: %.2f ms", renderer->gBufferPassTime * 1000);
+	ImGui::Text("SSAO pass time: %.2f ms", renderer->ssaoPassTime * 1000);
+	ImGui::Text("Render pass time: %.2f ms", renderer->renderPassTime * 1000);
+	ImGui::Text("Outline pass time: %.2f ms", renderer->outlinePassTime * 1000);
+	ImGui::Text("Blit pass time: %.2f ms", renderer->blitPassTime * 1000);
 
 	performanceParams.lastFrames[performanceParams.frameIndex] = deltaTime;
 	performanceParams.frameIndex++;

@@ -208,10 +208,16 @@ void Renderer::render(float deltaTime)
 	for (auto&& entity : this->entities)
 		ptrList.push_back(entity.get());
 
+	double startTime = glfwGetTime();
 	this->getMeshesRecursively(ptrList, renderables, outlineRenderables, meshes, nonRenderables, transparentRenderables);
+	double endTime = glfwGetTime();
+	this->meshSortingTime = endTime - startTime;
 
 	// Update the physics simulation
+	startTime = glfwGetTime();
 	this->physicsWorld->update(deltaTime);
+	endTime = glfwGetTime();
+	this->physicsUpdateTime = endTime - startTime;
 
 	// Update camera info
 	glm::vec2 windowSize = this->multiSampledTarget.size;
@@ -220,27 +226,45 @@ void Renderer::render(float deltaTime)
 	LightManager::getInstance().sendToShader();
 
 	// Render the shadow map
+	startTime = glfwGetTime();
 	this->shadowPass(meshes);
+	endTime = glfwGetTime();
+	this->shadowPassTime = endTime - startTime;
 
 	// Render to the G buffer
+	startTime = glfwGetTime();
 	this->gBufferPass(meshes);
+	endTime = glfwGetTime();
+	this->gBufferPassTime = endTime - startTime;
 
 	// Calculate SSAO
+	startTime = glfwGetTime();
 	this->ssaoPass(meshes);
+	endTime = glfwGetTime();
+	this->ssaoPassTime = endTime - startTime;
 	
 	// We now want to draw to the MSAA framebuffer
 	this->multiSampledTarget.bind();
 	this->multiSampledTarget.clear();
 
 	// Render the scene
+	startTime = glfwGetTime();
 	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables);
+	endTime = glfwGetTime();
+	this->renderPassTime = endTime - startTime;
 	// Render outlines
+	startTime = glfwGetTime();
 	this->outlinePass(outlineRenderables);
+	endTime = glfwGetTime();
+	this->outlinePassTime = endTime - startTime;
 
 	this->multiSampledTarget.unbind();
 
 	// Resolve the multisampled framebuffer to the normal one for display
+	startTime = glfwGetTime();
 	this->blitPass();
+	endTime = glfwGetTime();
+	this->blitPassTime = endTime - startTime;
 }
 
 void Renderer::end()
