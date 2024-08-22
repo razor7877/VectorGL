@@ -355,7 +355,10 @@ void main()
 
     // Sample the SSAO value
     float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize).r;
-    vec3 ambient = (kD * diffuse + specular) * ao * ssao;
+    vec3 ambient = (kD * diffuse + specular) * ao;
+
+    if (gl_FragCoord.x / windowSize.x > 0.5)
+        ambient *= ssao;
 	
     vec3 color = ambient + Lo;
 
@@ -366,5 +369,5 @@ void main()
     //color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(vec3(ssao), opacity);
-    FragColor = vec4(color, opacity);
+    FragColor = vec4(color, 1.0);
 }

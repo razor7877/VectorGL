@@ -27,10 +27,10 @@ void main()
 
     FragPos = viewPos.xyz;
 	TexCoord = aTexCoord;
-	Normal = vec3(view * model * vec4(aNormal, 1.0));
+	Normal = vec3(view * model * vec4(normalMatrix * aNormal, 1.0));
 
-	vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
-	vec3 B = normalize(vec3(model * vec4(aBitangent, 0.0)));
-	vec3 N = normalize(vec3(model * vec4(aNormal, 0.0)));
+	vec3 T = normalize(vec3(view * model * vec4(aTangent, 0.0)));
+	vec3 B = normalize(vec3(view * model * vec4(aBitangent, 0.0)));
+	vec3 N = normalize(vec3(view * model * vec4(aNormal, 0.0)));
 	TBN = mat3(T, B, N);
 }

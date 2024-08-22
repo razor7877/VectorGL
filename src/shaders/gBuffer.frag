@@ -60,7 +60,7 @@ void main()
     }
     else
         normalVec = Normal;
-    normalVec = Normal;
+
     // Store fragment position
     gPosition = vec4(FragPos, 1.0);
     // Store normal
