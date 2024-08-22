@@ -17,7 +17,7 @@ enum class SkyboxType
 class SkyboxComponent : public MeshComponent
 {
 public:
-	static constexpr SkyboxType DEFAULT_SKY = SkyboxType::NIGHT;
+	static constexpr SkyboxType DEFAULT_SKY = SkyboxType::SKY;
 	
 	SkyboxComponent(Entity* parent);
 	~SkyboxComponent();

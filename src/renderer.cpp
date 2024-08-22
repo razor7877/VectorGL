@@ -34,7 +34,7 @@ std::vector<Entity*> Renderer::getEntities()
 
 GLuint Renderer::getRenderTexture()
 {
-	//return this->ssaoTarget.renderTexture;
+	//return this->gBuffer.gNormal;
 	return this->finalTarget.renderTexture;
 }
 
