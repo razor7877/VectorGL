@@ -86,11 +86,6 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize)
 	this->ssaoBlurTarget.unbind();
 }
 
-// TODO : Make this cleaner
-static float lerp(float a, float b, float f)
-{
-	return a + f * (b - a);
-}
 
 void Renderer::init(glm::vec2 windowSize)
 {
@@ -125,7 +120,8 @@ void Renderer::init(glm::vec2 windowSize)
 		sample = glm::normalize(sample);
 
 		float scale = (float)i / 64.0f;
-		scale = lerp(0.1f, 1.0f, scale * scale);
+		// Lerp
+		scale = 0.1f + (scale * scale) * (1.0f - 0.1f);
 		sample *= scale;
 
 		ssaoKernel.push_back(sample);
@@ -173,27 +169,24 @@ void Renderer::init(glm::vec2 windowSize)
 	this->createFramebuffers(windowSize);
 }
 
-std::vector<float> lineVerts;
-std::vector<float> storedLineVerts;
-
 void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 {
 	if (store)
 	{
-		storedLineVerts.push_back(startPos.x);
-		storedLineVerts.push_back(startPos.y);
-		storedLineVerts.push_back(startPos.z);
-		storedLineVerts.push_back(endPos.x);
-		storedLineVerts.push_back(endPos.y);
-		storedLineVerts.push_back(endPos.z);
+		this->storedLineVerts.push_back(startPos.x);
+		this->storedLineVerts.push_back(startPos.y);
+		this->storedLineVerts.push_back(startPos.z);
+		this->storedLineVerts.push_back(endPos.x);
+		this->storedLineVerts.push_back(endPos.y);
+		this->storedLineVerts.push_back(endPos.z);
 	}
 
-	lineVerts.push_back(startPos.x);
-	lineVerts.push_back(startPos.y);
-	lineVerts.push_back(startPos.z);
-	lineVerts.push_back(endPos.x);
-	lineVerts.push_back(endPos.y);
-	lineVerts.push_back(endPos.z);
+	this->lineVerts.push_back(startPos.x);
+	this->lineVerts.push_back(startPos.y);
+	this->lineVerts.push_back(startPos.z);
+	this->lineVerts.push_back(endPos.x);
+	this->lineVerts.push_back(endPos.y);
+	this->lineVerts.push_back(endPos.z);
 }
 
 void Renderer::render(float deltaTime)

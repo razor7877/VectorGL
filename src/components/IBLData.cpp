@@ -152,7 +152,6 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	// TODO : Fix broken BRDF lookup map, probably an issue with the quad
 	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 
 	cubemapEntity.reset();

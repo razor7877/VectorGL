@@ -92,6 +92,9 @@ private:
 
 	static constexpr float SSAO_SCALE_FACTOR = 0.5;
 
+	/// <summary>
+	/// The entities stored in the renderer
+	/// </summary>
 	std::vector<std::unique_ptr<Entity>> entities;
 
 	/// <summary>
@@ -148,6 +151,16 @@ private:
 	/// The quad for the SSAO blur rendering
 	/// </summary>
 	std::unique_ptr<Entity> ssaoBlurQuad;
+
+	/// <summary>
+	/// Debug lines vertices
+	/// </summary>
+	std::vector<float> lineVerts;
+
+	/// <summary>
+	/// Debug lines vertices
+	/// </summary>
+	std::vector<float> storedLineVerts;
 
 	// Creates a framebuffer with the size specified
 	void createFramebuffers(glm::vec2 windowSize);
