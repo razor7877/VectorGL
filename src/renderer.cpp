@@ -267,8 +267,8 @@ void Renderer::createFramebuffers(glm::vec2 windowSize)
 
 	// Screen space effects
 	this->gBuffer = RenderTarget(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
-	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize, GL_RED);
-	this->ssaoBlurTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize, GL_RED);
+	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize * this->SSAO_SCALE_FACTOR, GL_RED);
+	this->ssaoBlurTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize * this->SSAO_SCALE_FACTOR, GL_RED);
 	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 
