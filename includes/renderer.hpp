@@ -187,7 +187,7 @@ private:
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
 	/// <param name="renderables">A vector containing all the entities that are rendered to the screen</param>
 	/// <param name="nonRenderables">A vector containing all the entities that are not rendered to the screen</param>
-	void renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables);
+	void renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables, std::map<MaterialType, std::vector<Entity*>>& transparentRenderables);
 	
 	/// <summary>
 	/// The outline pass, responsible for rendering the outline of selected objects
@@ -203,7 +203,15 @@ private:
 	/// <summary>
 	/// A recursive function for traversing the scene graph and sorting all the entities before render
 	/// </summary>
-	void getMeshesRecursively(std::vector<Entity*> entities, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& outlineRenderables, std::vector<MeshComponent*>& meshes, std::vector<Entity*>& nonRenderables);
+	void getMeshesRecursively(
+		std::vector<Entity*> entities,
+		std::map<MaterialType,
+		std::vector<Entity*>>& renderables,
+		std::vector<Entity*>& outlineRenderables,
+		std::vector<MeshComponent*>& meshes,
+		std::vector<Entity*>& nonRenderables,
+		std::map<MaterialType, std::vector<Entity*>>& transparentRenderables
+	);
 };
 
 #endif

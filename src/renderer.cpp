@@ -202,12 +202,13 @@ void Renderer::render(float deltaTime)
 	std::vector<MeshComponent*> meshes;
 	// Entities that aren't rendered to the screen
 	std::vector<Entity*> nonRenderables;
+	std::map<MaterialType, std::vector<Entity*>> transparentRenderables;
 
 	std::vector<Entity*> ptrList;
 	for (auto&& entity : this->entities)
 		ptrList.push_back(entity.get());
 
-	this->getMeshesRecursively(ptrList, renderables, outlineRenderables, meshes, nonRenderables);
+	this->getMeshesRecursively(ptrList, renderables, outlineRenderables, meshes, nonRenderables, transparentRenderables);
 
 	// Update the physics simulation
 	this->physicsWorld->update(deltaTime);
@@ -232,7 +233,7 @@ void Renderer::render(float deltaTime)
 	this->multiSampledTarget.clear();
 
 	// Render the scene
-	this->renderPass(deltaTime, renderables, nonRenderables);
+	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables);
 	// Render outlines
 	this->outlinePass(outlineRenderables);
 
@@ -365,7 +366,7 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	this->ssaoBlurTarget.unbind();
 }
 
-void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables)
+void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables, std::map<MaterialType, std::vector<Entity*>>& transparentRenderables)
 {
 	glStencilMask(0x00);
 
@@ -384,6 +385,31 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 
 	// Entities that can be rendered are grouped by shader and then rendered together
 	for (auto& [material, meshes] : renderables)
+	{
+		switch (material)
+		{
+			case MaterialType::PhongMaterial:
+				this->shaderManager.getShader(ShaderType::PHONG)->use();
+				break;
+
+			case MaterialType::PBRMaterial:
+				this->shaderManager.getShader(ShaderType::PBR)->use();
+				break;
+		}
+
+		for (Entity* renderable : meshes)
+		{
+			// We only write to the stencil mask if the entity should have an outline
+			if (renderable->drawOutline)
+				glStencilMask(0xFF);
+			else
+				glStencilMask(0x00);
+
+			renderable->update(deltaTime);
+		}
+	}
+
+	for (auto& [material, meshes] : transparentRenderables)
 	{
 		switch (material)
 		{
@@ -478,7 +504,13 @@ void Renderer::blitPass()
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-void Renderer::getMeshesRecursively(std::vector<Entity*> entities, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& outlineRenderables, std::vector<MeshComponent*>& meshes, std::vector<Entity*>& nonRenderables)
+void Renderer::getMeshesRecursively(
+	std::vector<Entity*> entities,
+	std::map<MaterialType, std::vector<Entity*>>& renderables,
+	std::vector<Entity*>& outlineRenderables,
+	std::vector<MeshComponent*>& meshes,
+	std::vector<Entity*>& nonRenderables,
+	std::map<MaterialType, std::vector<Entity*>>& transparentRenderables)
 {
 	// We start by sorting the entities depending on if they are renderable objects
 	for (Entity* entity : entities)
@@ -492,12 +524,17 @@ void Renderer::getMeshesRecursively(std::vector<Entity*> entities, std::map<Mate
 			else // Entities that can be rendered are grouped by shader
 			{
 				meshes.push_back(mesh);
-				renderables[mesh->material->getType()].push_back(entity);
+
+				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
+				if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
+					renderables[mesh->material->getType()].push_back(entity);
+				else
+					transparentRenderables[mesh->material->getType()].push_back(entity);
 				if (entity->drawOutline)
 					outlineRenderables.push_back(entity);
 			}
 
-			this->getMeshesRecursively(entity->getChildren(), renderables, outlineRenderables, meshes, nonRenderables);
+			this->getMeshesRecursively(entity->getChildren(), renderables, outlineRenderables, meshes, nonRenderables, transparentRenderables);
 		}
 	}
 }

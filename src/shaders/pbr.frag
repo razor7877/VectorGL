@@ -280,6 +280,9 @@ void main()
     }
     else
         albedo = material.albedo;
+
+    if (opacity < 0.2)
+        discard;
         
     vec3 normalVec;
     if ((material.used_maps & NORMAL_MAP) != 0)
@@ -354,10 +357,13 @@ void main()
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     // Sample the SSAO value
-    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize).r;
+    // Coordinate vector is divided because SSAO map is scaled down by a factor of 2
+    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize / 2.0).r;
     vec3 ambient = (kD * diffuse + specular) * ao;
     // SSAO weighs for 50% of the ambient color to avoid the effect being too strong
-    ambient = 0.5 * ambient + 0.5 * ambient * ssao;
+    // Don't use SSAO if we are using an AO map
+    if ((material.used_maps & AO_MAP) == 0)
+        ambient = 0.5 * ambient + 0.5 * ambient * ssao;
 	
     vec3 color = ambient + Lo;
 
@@ -367,5 +373,5 @@ void main()
     //color = color / (color + vec3(1.0));
     //color = pow(color, vec3(1.0 / 2.2));
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, opacity);
 }
