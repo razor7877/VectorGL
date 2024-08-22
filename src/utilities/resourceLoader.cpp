@@ -6,8 +6,10 @@
 #include "utilities/resourceLoader.hpp"
 #include "utilities/stb_image.h"
 #include "components/meshComponent.hpp"
+#include "components/physicsComponent.hpp"
 #include "logger.hpp"
 #include "utilities/geometry.hpp"
+#include "main.hpp"
 
 ResourceLoader ResourceLoader::instance;
 
@@ -202,6 +204,12 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 	Entity* entity = new Entity();
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
+	PhysicsComponent* physicsComponent = entity->addComponent<PhysicsComponent>();
+
+	BoundingBox meshBoundingBox = Geometry::getMeshBoundingBox(vertices);
+	glm::vec3 halfExtents = (meshBoundingBox.maxPosition - meshBoundingBox.minPosition) * 0.5f;
+	glm::vec3 position = (meshBoundingBox.maxPosition + meshBoundingBox.minPosition) * 0.5f;
+	//defaultRenderer.physicsWorld->addBox(physicsComponent, halfExtents, position, 0.0f, true);
 
 	if (normals.size() == 0)
 		normals = Geometry::calculateVerticesNormals(vertices, indices);

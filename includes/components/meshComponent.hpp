@@ -12,6 +12,7 @@
 #include "transformComponent.hpp"
 #include "texture.hpp"
 #include "shader.hpp"
+#include "physics/boundingBox.hpp"
 
 class MeshComponent : public virtual Component
 {

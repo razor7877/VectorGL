@@ -89,7 +89,7 @@ public:
 	/// <param name="halfExtents">The half extents of the box</param>
 	/// <param name="position">The position of the box</param>
 	/// <returns>A pointer corresponding to the Bullet box collider</returns>
-	void addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position);
+	void addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 	/// <summary>
 	/// Creates a new sphere collider
@@ -98,7 +98,7 @@ public:
 	/// <param name="radius">The radius of the sphere</param>
 	/// <param name="position">The position of the sphere</param>
 	/// <returns>A pointer corresponding to the Bullet sphere collider</returns>
-	void addSphere(PhysicsComponent* component, float radius, glm::vec3 position);
+	void addSphere(PhysicsComponent* component, float radius, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 private:
 	btDiscreteDynamicsWorld* world;

@@ -65,12 +65,11 @@ void PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
 	this->world->addRigidBody(groundRigidBody);
 }
 
-void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position)
+void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position, float mass, bool disableCollision)
 {
 	btVector3 initialPosition(position.x, position.y, position.z);
 	btVector3 btHalfExtents(halfExtents.x, halfExtents.y, halfExtents.z);
 	btVector3 boxInertia(0.0f, 0.0f, 0.0f);
-	btScalar mass = 1.0f;
 
 	btCollisionShape* boxShape = new btBoxShape(btHalfExtents);
 	boxShape->calculateLocalInertia(mass, boxInertia);
@@ -79,16 +78,18 @@ void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, gl
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, boxInertia);
 	btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
 
+	if (disableCollision)
+		boxRigidBody->setCollisionFlags(boxRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
 	this->world->addRigidBody(boxRigidBody);
 	component->setCollider(boxRigidBody);
 	this->rigidBodyToComponent[boxRigidBody] = component;
 }
 
-void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec3 position)
+void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec3 position, float mass, bool disableCollision)
 {
 	btVector3 initialPosition(position.x, position.y, position.z);
 	btVector3 localInertia(0.0f, 0.0f, 0.0f);
-	btScalar mass = 1.0f;
 
 	btCollisionShape* sphereShape = new btSphereShape(radius);
 	sphereShape->calculateLocalInertia(mass, localInertia);
@@ -96,6 +97,9 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, sphereShape, localInertia);
 	btRigidBody* sphereRigidBody = new btRigidBody(rigidBodyCI);
+
+	if (disableCollision)
+		sphereRigidBody->setCollisionFlags(sphereRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	this->world->addRigidBody(sphereRigidBody);
 	component->setCollider(sphereRigidBody);

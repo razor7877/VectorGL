@@ -8,6 +8,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+#include <physics/boundingBox.hpp>
+
 struct VertexData
 {
 	std::vector<float> vertices;
@@ -455,5 +457,31 @@ public:
 		}
 
 		return normalsAsFloats;
+	}
+
+	static BoundingBox getMeshBoundingBox(std::vector<float> vertices)
+	{
+		assert(vertices.size() % 3 == 0, "Vector contains malformed vertice data!");
+
+		float minX = INFINITY;
+		float minY = INFINITY;
+		float minZ = INFINITY;
+
+		float maxX = -INFINITY;
+		float maxY = -INFINITY;
+		float maxZ = -INFINITY;
+
+		for (int i = 0; i < vertices.size(); i += 3)
+		{
+			if (vertices[i] < minX) minX = vertices[i];
+			if (vertices[i + 1] < minY) minY = vertices[i + 1];
+			if (vertices[i + 2] < minZ) minZ = vertices[i + 2];
+
+			if (vertices[i] > maxX) maxX = vertices[i];
+			if (vertices[i + 1] > maxY) maxY = vertices[i + 1];
+			if (vertices[i + 2] > maxZ) maxZ = vertices[i + 2];
+		}
+
+		return BoundingBox(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
 	}
 };
