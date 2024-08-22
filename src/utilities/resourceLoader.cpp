@@ -206,9 +206,14 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	if (normals.size() == 0)
 		normals = Geometry::calculateVerticesNormals(vertices, indices);
 
-	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
-	meshComponent->addTangents(tangents);
-	meshComponent->addBitangents(bitangents);
+	meshComponent->setMaterial(std::make_unique<PBRMaterial>(shaderProgram))
+		.addVertices(vertices)
+		.addTexCoords(texCoords)
+		.addNormals(normals)
+		.addIndices(indices)
+		.addTextures(textures)
+		.addTangents(tangents)
+		.addBitangents(bitangents);
 
 	meshComponent->setDiffuseColor(diffuseColor);
 

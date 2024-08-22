@@ -19,7 +19,8 @@ void SkyboxComponent::start()
 {
 	std::vector<float> boxVertices = Geometry::getClockwiseCubeVertices();
 
-	MeshComponent::setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), this->shaderProgram);
+	this->setMaterial(std::make_unique<PBRMaterial>(this->shaderProgram))
+		.addVertices(boxVertices);
 	MeshComponent::start();
 }
 

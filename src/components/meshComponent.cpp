@@ -160,48 +160,19 @@ void MeshComponent::update(float deltaTime)
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 }
 
-void MeshComponent::setupMesh(float vertices[], unsigned int vertSize, Shader* shaderProgram, glm::vec3 position)
-{
-	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
-	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
-
-	this->VAO = {};
-	this->VBO = {};
-	this->indicesBO = {};
-	this->texCoordBO = {};
-	this->normalBO = {};
-
-	this->material = std::make_unique<PBRMaterial>(shaderProgram);
-}
-
-void MeshComponent::setupMesh(
-	std::vector<float> vertices,
-	std::vector<float> texCoords,
-	std::vector<float> normals,
-	std::vector<unsigned int> indices,
-	std::vector<std::shared_ptr<Texture>> textures,
-	Shader* shaderProgram,
-	glm::vec3 position)
+MeshComponent& MeshComponent::addVertices(std::vector<float> vertices)
 {
 	this->vertices = vertices;
-	this->parent->transform->setModelMatrix(position, glm::vec3(0), glm::vec3(1.0f));
-	this->texCoords = texCoords;
-	this->textures = textures;
-
-	addNormals(&normals[0], (GLsizei)normals.size() * sizeof(float));
-	addIndices(&indices[0], (GLsizei)indices.size() * sizeof(unsigned int));
-
-	this->VAO = {};
-	this->VBO = {};
-	this->indicesBO = {};
-	this->texCoordBO = {};
-	this->normalBO = {};
-
-	this->material = std::make_unique<PBRMaterial>(shaderProgram);
+	return *this;
 }
 
-// Add texture coordinates data to the MeshComponent
-MeshComponent& MeshComponent::addTexCoords(std::vector<float> texCoords)
+MeshComponent& MeshComponent::addVertices(float vertices[], unsigned int vertSize)
+{
+	this->vertices.insert(this->vertices.end(), &vertices[0], &vertices[vertSize / sizeof(float)]);
+	return *this;
+}
+
+MeshComponent& MeshComponent::MeshComponent::addTexCoords(std::vector<float> texCoords)
 {
 	this->texCoords = texCoords;
 	return *this;
@@ -213,19 +184,12 @@ MeshComponent& MeshComponent::addTexCoords(float texCoords[], unsigned int texSi
 	return *this;
 }
 
-MeshComponent& MeshComponent::addTexture(std::shared_ptr<Texture> texture)
-{
-	this->textures.insert(textures.end(), texture);
-	return *this;
-}
-
 MeshComponent& MeshComponent::addNormals(std::vector<float> normals)
 {
 	this->normals = normals;
 	return *this;
 }
 
-// Add normals data to the MeshComponent
 MeshComponent& MeshComponent::addNormals(float normals[], unsigned int normalSize)
 {
 	this->normals.insert(this->normals.end(), &normals[0], &normals[normalSize / sizeof(float)]);
@@ -238,7 +202,6 @@ MeshComponent& MeshComponent::addIndices(std::vector<unsigned int> indices)
 	return *this;
 }
 
-// Add indices data to the MeshComponent
 MeshComponent& MeshComponent::addIndices(unsigned int indices[], unsigned int indicesSize)
 {
 	this->indices.insert(this->indices.end(), &indices[0], &indices[indicesSize / sizeof(unsigned int)]);
@@ -254,6 +217,24 @@ MeshComponent& MeshComponent::addTangents(std::vector<float> tangents)
 MeshComponent& MeshComponent::addBitangents(std::vector<float> bitangents)
 {
 	this->bitangents = bitangents;
+	return *this;
+}
+
+MeshComponent& MeshComponent::addTexture(std::shared_ptr<Texture> texture)
+{
+	this->textures.insert(textures.end(), texture);
+	return *this;
+}
+
+MeshComponent& MeshComponent::addTextures(std::vector<std::shared_ptr<Texture>> textures)
+{
+	this->textures.insert(this->textures.end(), textures.begin(), textures.end());
+	return *this;
+}
+
+MeshComponent& MeshComponent::setMaterial(std::unique_ptr<Material> material)
+{
+	this->material = std::move(material);
 	return *this;
 }
 

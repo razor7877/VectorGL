@@ -20,8 +20,9 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	// Create an entity that will contain a box mesh to display the HDR map
 	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
 	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
-	lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), hdrToCubemapShader);
-	lightMesh->addTexture(hdrMap);
+	lightMesh->setMaterial(std::make_unique<PBRMaterial>(hdrToCubemapShader))
+		.addVertices(boxVertices)
+		.addTexture(hdrMap);
 
 	cubemapEntity->start();
 
@@ -78,7 +79,8 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 		irradianceShader->setMat4("view", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, this->irradianceMap->texID, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), irradianceShader);
+		lightMesh->setMaterial(std::make_unique<PBRMaterial>(irradianceShader))
+			.addVertices(boxVertices);
 		lightMesh->start();
 		cubemapEntity->update(0);
 	}
@@ -113,7 +115,8 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 			prefilterShader->setMat4("view", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, this->prefilterMap->texID, mip);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), prefilterShader);
+			lightMesh->setMaterial(std::make_unique<PBRMaterial>(prefilterShader))
+				.addVertices(boxVertices);
 			lightMesh->start();
 			cubemapEntity->update(0);
 		}
@@ -126,9 +129,10 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 
 	std::unique_ptr<Entity> quadEntity = std::make_unique<Entity>("Quad");
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
-	quadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), brdfShader);
-	quadMesh->addTexCoords(quadTexCoords);
-	quadMesh->addTexture(hdrMap);
+	quadMesh->setMaterial(std::make_unique<PBRMaterial>(brdfShader))
+		.addVertices(quadVertices)
+		.addTexCoords(quadTexCoords)
+		.addTexture(hdrMap);
 
 	quadMesh->start();
 
@@ -169,7 +173,8 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	// Create an entity that will contain a box mesh to display the HDR map
 	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
 	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
-	lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), irradianceShader);
+	lightMesh->setMaterial(std::make_unique<PBRMaterial>(irradianceShader))
+		.addVertices(boxVertices);
 
 	cubemapEntity->start();
 
@@ -235,7 +240,8 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 			prefilterShader->setMat4("view", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, this->prefilterMap->texID, mip);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			lightMesh->setupMesh(&boxVertices[0], boxVertices.size() * sizeof(float), prefilterShader);
+			lightMesh->setMaterial(std::make_unique<PBRMaterial>(prefilterShader))
+				.addVertices(boxVertices);
 			lightMesh->start();
 			cubemapEntity->update(0);
 		}
@@ -248,8 +254,9 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 
 	std::unique_ptr<Entity> quadEntity = std::make_unique<Entity>("Quad");
 	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
-	quadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), brdfShader);
-	quadMesh->addTexCoords(quadTexCoords);
+	quadMesh->setMaterial(std::make_unique<PBRMaterial>(brdfShader))
+		.addVertices(quadVertices)
+		.addTexCoords(quadTexCoords);
 
 	quadMesh->start();
 

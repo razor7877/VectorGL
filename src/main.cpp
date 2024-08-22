@@ -72,7 +72,8 @@ int main()
 
 	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
-	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
+	cubeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+		.addVertices(cubeVertices);
 
 	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
 	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
@@ -82,7 +83,8 @@ int main()
 	cubeEntity = std::make_unique<Entity>("Cube");
 
 	cubeMesh = cubeEntity->addComponent<MeshComponent>();
-	cubeMesh->setupMesh(&cubeVertices[0], cubeVertices.size() * sizeof(float), pbrShader);
+	cubeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+		.addVertices(cubeVertices);
 
 	cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
 	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
@@ -98,9 +100,10 @@ int main()
 		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 
 		MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
-		sphereMesh->setupMesh(&sphereOptimized.vertices[0], sphereOptimized.vertices.size() * sizeof(float), pbrShader);
-		sphereMesh->addIndices(sphereOptimized.indices);
-		sphereMesh->addNormals(sphereOptimized.normals);
+		sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+			.addVertices(sphereOptimized.vertices)
+			.addIndices(sphereOptimized.indices)
+			.addNormals(sphereOptimized.normals);
 
 		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
 		defaultRenderer.physicsWorld->addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
@@ -149,7 +152,8 @@ int main()
 	std::unique_ptr<Entity> planeEntity = std::make_unique<Entity>("Plane");
 
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
-	planeMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), pbrShader);
+	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+		.addVertices(quadVertices);
 	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
 	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
 	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));

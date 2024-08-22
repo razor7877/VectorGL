@@ -154,15 +154,17 @@ void Renderer::init(glm::vec2 windowSize)
 
 	this->ssaoQuad = std::make_unique<Entity>("Quad");
 	MeshComponent* ssaoQuadMesh = ssaoQuad->addComponent<MeshComponent>();
-	ssaoQuadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), this->shaderManager.getShader(ShaderType::SSAO));
-	ssaoQuadMesh->addTexCoords(quadTexCoords);
+	ssaoQuadMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::SSAO)))
+		.addVertices(quadVertices)
+		.addTexCoords(quadTexCoords);
 
 	ssaoQuadMesh->start();
 
 	this->ssaoBlurQuad = std::make_unique<Entity>("Quad");
 	MeshComponent* ssaoBlurQuadMesh = ssaoBlurQuad->addComponent<MeshComponent>();
-	ssaoBlurQuadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), this->shaderManager.getShader(ShaderType::SSAOBLUR));
-	ssaoBlurQuadMesh->addTexCoords(quadTexCoords);
+	ssaoBlurQuadMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::SSAOBLUR)))
+		.addVertices(quadVertices)
+		.addTexCoords(quadTexCoords);
 
 	ssaoBlurQuadMesh->start();
 
