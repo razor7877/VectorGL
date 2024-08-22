@@ -27,6 +27,16 @@ public:
 	DirectionalLightComponent* directionalLight;
 	PhysicsWorld* physicsWorld = new PhysicsWorld();
 
+	float frameRenderTime = 0.0f;
+	float meshSortingTime = 0.0f;
+	float physicsUpdateTime = 0.0f;
+	float shadowPassTime = 0.0f;
+	float gBufferPassTime = 0.0f;
+	float ssaoPassTime = 0.0f;
+	float renderPassTime = 0.0f;
+	float outlinePassTime = 0.0f;
+	float blitPassTime = 0.0f;
+
 	Renderer();
 
 	/// <summary>
