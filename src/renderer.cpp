@@ -34,7 +34,6 @@ std::vector<Entity*> Renderer::getEntities()
 
 GLuint Renderer::getRenderTexture()
 {
-	//return this->gBuffer.gNormal;
 	return this->finalTarget.renderTexture;
 }
 
@@ -81,10 +80,14 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize)
 	this->ssaoTarget.bind();
 	this->ssaoTarget.resize(newSize);
 
-	this->gBuffer.unbind();
+	this->ssaoBlurTarget.bind();
+	this->ssaoBlurTarget.resize(newSize);
+
+	this->ssaoBlurTarget.unbind();
 }
 
-float lerp(float a, float b, float f)
+// TODO : Make this cleaner
+static float lerp(float a, float b, float f)
 {
 	return a + f * (b - a);
 }
@@ -153,12 +156,19 @@ void Renderer::init(glm::vec2 windowSize)
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
-	this->quadEntity = std::make_unique<Entity>("Quad");
-	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
-	quadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), this->shaderManager.getShader(ShaderType::SSAO));
-	quadMesh->addTexCoords(quadTexCoords);
+	this->ssaoQuad = std::make_unique<Entity>("Quad");
+	MeshComponent* ssaoQuadMesh = ssaoQuad->addComponent<MeshComponent>();
+	ssaoQuadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), this->shaderManager.getShader(ShaderType::SSAO));
+	ssaoQuadMesh->addTexCoords(quadTexCoords);
 
-	quadMesh->start();
+	ssaoQuadMesh->start();
+
+	this->ssaoBlurQuad = std::make_unique<Entity>("Quad");
+	MeshComponent* ssaoBlurQuadMesh = ssaoBlurQuad->addComponent<MeshComponent>();
+	ssaoBlurQuadMesh->setupMesh(&quadVertices[0], quadVertices.size() * sizeof(float), this->shaderManager.getShader(ShaderType::SSAOBLUR));
+	ssaoBlurQuadMesh->addTexCoords(quadTexCoords);
+
+	ssaoBlurQuadMesh->start();
 
 	this->createFramebuffers(windowSize);
 }
@@ -258,7 +268,8 @@ void Renderer::createFramebuffers(glm::vec2 windowSize)
 	// Screen space effects
 	this->gBuffer = RenderTarget(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
 	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize, GL_RED);
-	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
+	this->ssaoBlurTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize, GL_RED);
+	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 
 void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
@@ -318,6 +329,7 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	this->ssaoTarget.clear();
 
 	Shader* ssaoShader = this->shaderManager.getShader(ShaderType::SSAO);
+	// Setup required uniforms
 	ssaoShader->use()
 		->setInt("gPosition", 0)
 		->setInt("gNormal", 1)
@@ -327,7 +339,8 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	for (unsigned int i = 0; i < 64; i++)
 		ssaoShader->setVec3("samples[" + std::to_string(i) + "]", this->ssaoKernel[i]);
 
-	glActiveTexture(GL_TEXTURE0); 
+	// Bind the G buffer textures
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, this->gBuffer.gPosition);
 
 	glActiveTexture(GL_TEXTURE1);
@@ -336,9 +349,25 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	glActiveTexture(GL_TEXTURE2);
 	this->ssaoNoiseTexture->bindTexture();
 
-	this->quadEntity->update(0);
+	// Render SSAO to quad
+	this->ssaoQuad->update(0);
 
 	this->ssaoTarget.unbind();
+
+	// Now we want to blur the result to correct the repeating noise pattern
+	this->ssaoBlurTarget.bind();
+	this->ssaoBlurTarget.clear();
+
+	Shader* ssaoBlurShader = this->shaderManager.getShader(ShaderType::SSAOBLUR);
+	ssaoBlurShader->use()
+		->setInt("ssaoInput", 0);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, this->ssaoTarget.renderTexture);
+
+	this->ssaoBlurQuad->update(0);
+
+	this->ssaoBlurTarget.unbind();
 }
 
 void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables)

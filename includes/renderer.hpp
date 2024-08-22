@@ -117,13 +117,35 @@ private:
 	/// </summary>
 	RenderTarget ssaoTarget;
 
+	/// <summary>
+	/// The render target for rendering the blurred SSAO texture
+	/// </summary>
+	RenderTarget ssaoBlurTarget;
+
+	/// <summary>
+	/// The noise texture for SSAO sampling
+	/// </summary>
 	std::unique_ptr<Texture> ssaoNoiseTexture;
 
+	/// <summary>
+	/// The kernel for SSAO sampling
+	/// </summary>
 	std::vector<glm::vec3> ssaoKernel;
 	
+	/// <summary>
+	/// The noise values for SSAO sampling
+	/// </summary>
 	std::vector<glm::vec3> ssaoNoise;
 
-	std::unique_ptr<Entity> quadEntity;
+	/// <summary>
+	/// The quad for the SSAO rendering
+	/// </summary>
+	std::unique_ptr<Entity> ssaoQuad;
+
+	/// <summary>
+	/// The quad for the SSAO blur rendering
+	/// </summary>
+	std::unique_ptr<Entity> ssaoBlurQuad;
 
 	// Creates a framebuffer with the size specified
 	void createFramebuffers(glm::vec2 windowSize);

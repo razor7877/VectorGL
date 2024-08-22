@@ -22,6 +22,7 @@ enum class ShaderType
 	DEPTH,
 	GBUFFER,
 	SSAO,
+	SSAOBLUR
 };
 
 /// <summary>
