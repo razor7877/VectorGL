@@ -7,6 +7,7 @@
 #include "utilities/stb_image.h"
 #include "components/meshComponent.hpp"
 #include "logger.hpp"
+#include "utilities/geometry.hpp"
 
 ResourceLoader ResourceLoader::instance;
 
@@ -201,6 +202,10 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 	Entity* entity = new Entity();
 	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
+
+	if (normals.size() == 0)
+		normals = Geometry::calculateVerticesNormals(vertices, indices);
+
 	meshComponent->setupMesh(vertices, texCoords, normals, indices, textures, shaderProgram);
 	meshComponent->addTangents(tangents);
 	meshComponent->addBitangents(bitangents);
