@@ -355,7 +355,9 @@ void main()
 
     // Sample the SSAO value
     float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize).r;
-    vec3 ambient = (kD * diffuse + specular) * ao * ssao;
+    vec3 ambient = (kD * diffuse + specular) * ao;
+    // SSAO weighs for 50% of the ambient color to avoid the effect being too strong
+    ambient = 0.5 * ambient + 0.5 * ambient * ssao;
 	
     vec3 color = ambient + Lo;
 

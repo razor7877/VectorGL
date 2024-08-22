@@ -90,6 +90,8 @@ private:
 	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
 	static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
 
+	static constexpr float SSAO_SCALE_FACTOR = 0.5;
+
 	std::vector<std::unique_ptr<Entity>> entities;
 
 	/// <summary>
