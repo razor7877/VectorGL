@@ -1,22 +1,32 @@
 # VectorGL
-A 3D forward renderer powered by C++/OpenGL. This is not meant for serious use and was simply made as a learning experience.
+A graphics engine & WIP game engine powered by C++/OpenGL. This is not meant for serious use and is simply being developed for fun.
 
-![](img/engine_2.png "")
+![](img/engine.png "")
 
 ## Features
 
- - Low level OpenGL calls are abstracted into various classes
- - Texture loading
- - Cubemaps and skyboxes
- - Model and mesh loading using Assimp
- - Compile and use multiple shaders
- - Support for multiple lights: point lights, spot lights, directional lights
- - Basic renderer for batch rendering by shader and lighting
- - Scene graph that can be visualized and interacted with using the UI
- - LightManager class is associated to a renderer to handle all the lights and send them to the shaders
- - Global Phong shader for models & meshes
- - Camera system to move around
- - Interfaces to dynamically interact with the lights, skybox, and shader settings
+- Full fledged PBR renderer with most common properties supported (albedo, metallic, roughness, ambient occlusion, emissive, opacity)
+- Scene graph system with entities and components (composition over inheritance)
+- Model & mesh loading of most common file formats using Assimp
+- Skyboxes and image based lighting (IBL)
+- Support for point lights, directional lights and spot lights
+- Directional light shadow mapping
+- Screen space ambient occlusion (SSAO)
+- All sorts of helper classes for managing shaders, textures, creating basic geometry (quads, cubes, spheres), optimizing meshes, calculating normals, bounding boxes etc.
+- Bullet engine integration for game physics
+- Extremely basic Lua integration to add scripts to entities
+- Complete ImGui interface to interact with every aspect of the engine, including dynamic shader recompilation and script editing
+
+## To be added
+
+- Skeletal animation
+- Improve transparency handling
+- Bloom
+- Game state management
+- Basic UI system for making menus
+- Serialization of scenes
+- Iridescence & clear coat PBR support
+- Frustum culling
 
 ## Setup
  - Clone the repository `https://github.com/razor7877/VectorGL.git`
@@ -28,13 +38,16 @@ It works on Windows (Visual Studio/MSVC) and should probably work on Linux and M
 ### Dependencies
 
  - Assimp: Model & mesh loading from various file formats
+ - Bullet: Physics engine
  - GLFW: Windowing, inputs and OpenGL context management
  - glad: OpenGL functions loading
  - GLM: Matrix maths
  - ImGui: Interfaces
+ - Lua: Scripting support
 
 ## Pictures
 
-![](img/tank_wireframe.png "")
-![](img/sea_keep.png "")
-![](img/interface.png "")
+![](img/engine.png "")
+![](img/engine_2.png "")
+![](img/engine_3.png "")
+![](img/engine_4.png "")

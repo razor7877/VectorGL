@@ -399,4 +399,4 @@ FodyWeavers.xsd
 
 build/
 models/
-img/
+img/*.hdr
