@@ -17,6 +17,7 @@ RenderTarget::RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum 
 
 RenderTarget::~RenderTarget()
 {
+	// TODO : Correctly delete framebuffers when a render target is deleted
 	//glDeleteFramebuffers(1, &this->framebuffer);
 }
 

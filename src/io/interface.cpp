@@ -276,6 +276,18 @@ void ShowViewer()
 	}
 
 	ImGui::End();
+
+	// Second camera view
+	ImGui::Begin("Top view");
+
+	ImGui::Image(
+		(ImTextureID)renderer->getSkyRenderTexture(),
+		viewerSize,
+		ImVec2(0, 1),
+		ImVec2(1, 0)
+	);
+
+	ImGui::End();
 }
 
 void ShowConsole()

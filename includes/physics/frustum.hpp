@@ -2,6 +2,9 @@
 
 #include "physics/plane.hpp"
 
+/// <summary>
+/// Represents a frustum
+/// </summary>
 struct Frustum
 {
 	Plane topFace;

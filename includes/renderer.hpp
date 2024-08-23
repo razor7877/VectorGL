@@ -24,6 +24,7 @@ class Renderer
 public:
 	ShaderManager shaderManager;
 	CameraComponent* currentCamera;
+	CameraComponent* skyCamera;
 	DirectionalLightComponent* directionalLight;
 	PhysicsWorld* physicsWorld = new PhysicsWorld();
 
@@ -51,6 +52,8 @@ public:
 	/// <returns>A GLuint pointing to the render texture on the GPU</returns>
 	GLuint getRenderTexture();
 
+	GLuint getSkyRenderTexture();
+
 	/// <summary>
 	/// Adds an entity to the renderer
 	/// </summary>
@@ -77,6 +80,12 @@ public:
 	/// <param name="windowSize">The window size in pixels</param>
 	void init(glm::vec2 windowSize);
 
+	/// <summary>
+	/// Adds a line to draw for debugging raycasts etc.
+	/// </summary>
+	/// <param name="startPos">The start position of the line</param>
+	/// <param name="endPos">The end position of the line</param>
+	/// <param name="store">Whether the line data should persist between frames</param>
 	void addLine(glm::vec3 startPos, glm::vec3 endPos, bool store);
 
 	/// <summary>
@@ -116,6 +125,11 @@ private:
 	/// The final render target, the multisampled target is resolved into this one that can be used for displaying to screen
 	/// </summary>
 	RenderTarget finalTarget;
+
+	/// <summary>
+	/// The render target for the top down view
+	/// </summary>
+	RenderTarget skyTarget;
 
 	/// <summary>
 	/// The depth map for shadow mapping

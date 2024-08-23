@@ -13,13 +13,11 @@
 #include "materials/pbrMaterial.hpp"
 #include "components/meshComponent.hpp"
 #include "utilities/geometry.hpp"
+#include "utilities/geometry.hpp"
 
 Renderer::Renderer()
 {
-	// Create the camera and set it up
-	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
-	this->currentCamera = cameraEntity->addComponent<CameraComponent>();
-	this->addEntity(std::move(cameraEntity));
+	
 }
 
 std::vector<Entity*> Renderer::getEntities()
@@ -35,6 +33,11 @@ std::vector<Entity*> Renderer::getEntities()
 GLuint Renderer::getRenderTexture()
 {
 	return this->finalTarget.renderTexture;
+}
+
+GLuint Renderer::getSkyRenderTexture()
+{
+	return this->skyTarget.renderTexture;
 }
 
 void Renderer::addEntity(std::unique_ptr<Entity> objectPtr)
@@ -89,6 +92,26 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize)
 
 void Renderer::init(glm::vec2 windowSize)
 {
+	// Create the camera and set it up
+	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
+	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
+	VertexData sphere = Geometry::getSphereVertices(100, 30);
+	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
+	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::PBR)))
+		.addVertices(sphereOptimized.vertices)
+		.addIndices(sphereOptimized.indices)
+		.addNormals(sphereOptimized.normals)
+		.setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
+	this->currentCamera = cameraEntity->addComponent<CameraComponent>();
+	this->addEntity(std::move(cameraEntity));
+
+	std::unique_ptr<Entity> skyCameraEntity = std::unique_ptr<Entity>(new Entity("Sky Camera"));
+	this->skyCamera = skyCameraEntity->addComponent<CameraComponent>();
+	this->skyCamera->setPosition(glm::vec3(0.0f, 75.0f, 0.0f));
+	this->skyCamera->setZoom(90.0f);
+	skyCameraEntity->transform->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
+	this->addEntity(std::move(skyCameraEntity));
+
 	this->shaderManager.initUniformBuffer();
 
 	// Initializes the light manager if it was setup to send all required data to the shader
@@ -254,6 +277,7 @@ void Renderer::render(float deltaTime)
 	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables);
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
+
 	// Render outlines
 	startTime = glfwGetTime();
 	this->outlinePass(outlineRenderables);
@@ -269,6 +293,14 @@ void Renderer::render(float deltaTime)
 	this->blitPassTime = endTime - startTime;
 
 	this->frameRenderTime = glfwGetTime() - frameStartTime;
+
+	this->skyTarget.bind();
+	this->skyTarget.clear();
+
+	this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables);
+
+	this->skyTarget.unbind();
 }
 
 void Renderer::end()
@@ -284,6 +316,7 @@ void Renderer::createFramebuffers(glm::vec2 windowSize)
 {
 	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
 	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
+	this->skyTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
 
 	// Shadow mapping
 	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
