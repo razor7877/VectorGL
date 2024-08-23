@@ -196,20 +196,6 @@ int main()
 			->setVec3("camPos", cameraComponent->getPosition());
 
 		defaultRenderer.render(deltaTime);
-
-		for (int i = 0; i < 100; i++)
-		{
-			std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
-
-			MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
-			sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-				.addVertices(sphereOptimized.vertices)
-				.addIndices(sphereOptimized.indices)
-				.addNormals(sphereOptimized.normals);
-
-			PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
-			defaultRenderer.physicsWorld->addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
-		}
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();

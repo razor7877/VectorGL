@@ -196,4 +196,9 @@ protected:
 	/// A OpenGL handle for the buffer object containing the bitangents
 	/// </summary>
 	GLuint bitangentsBO = 0;
+
+	/// <summary>
+	/// The axis aligned bounding box of the mesh in local space
+	/// </summary>
+	BoundingBox boundingBox;
 };

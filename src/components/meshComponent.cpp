@@ -121,6 +121,8 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(4);
 	}
 
+	this->boundingBox = Geometry::getMeshBoundingBox(this->vertices);
+
 	this->verticesCount = this->vertices.size();
 	this->indicesCount = this->indices.size();
 
