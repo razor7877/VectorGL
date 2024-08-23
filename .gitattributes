@@ -7,7 +7,8 @@
 *.frag linguist-detectable
 *.frag linguist-language=GLSL
 
-src/glad/glad.c linguist-vendored
-includes/glad/glad.h linguist-vendored
-includes/stb_image.h linguist-vendored
+src/utilities/glad/glad.c linguist-vendored
+includes/utilities/glad/glad.h linguist-vendored
+includes/utilities/stb_image.h linguist-vendored
 includes/KHR/khrplatform.h linguist-vendored
+libs/** linguist-vendored
