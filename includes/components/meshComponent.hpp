@@ -112,15 +112,49 @@ public:
 	std::unique_ptr<Material> material = nullptr;
 
 protected:
+	/// <summary>
+	/// The vertices of the mesh
+	/// </summary>
 	std::vector<float> vertices;
+
+	/// <summary>
+	/// The texture coordinates of the mesh
+	/// </summary>
 	std::vector<float> texCoords;
+
+	/// <summary>
+	/// The normals of the mesh for lighting calculations
+	/// </summary>
 	std::vector<float> normals;
+
+	/// <summary>
+	/// The indices of the mesh for indexed drawing
+	/// </summary>
 	std::vector<unsigned int> indices;
+
+	/// <summary>
+	/// The tangents of the mesh for normal mapping
+	/// </summary>
 	std::vector<float> tangents;
+
+	/// <summary>
+	/// The bitangents of the mesh for normal mapping
+	/// </summary>
 	std::vector<float> bitangents;
 
+	/// <summary>
+	/// The number of vertices stored in the mesh
+	/// </summary>
 	int verticesCount = 0;
+
+	/// <summary>
+	/// The number of indices stored in the mesh
+	/// </summary>
 	int indicesCount = 0;
+
+	/// <summary>
+	/// Whether the mesh uses indices for drawing
+	/// </summary>
 	bool hasIndices = false;
 
 	/// <summary>
