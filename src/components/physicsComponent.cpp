@@ -12,8 +12,8 @@ PhysicsComponent::PhysicsComponent(Entity* parent) : Component(parent)
 
 PhysicsComponent::~PhysicsComponent()
 {
-	this->world->removeRigidBody(this->rigidBody);
-	delete this->rigidBody;
+	if (this->collider->world != nullptr)
+		this->collider->world->removeRigidBody(this->collider->rigidBody.get());
 }
 
 void PhysicsComponent::start()
@@ -23,12 +23,12 @@ void PhysicsComponent::start()
 
 void PhysicsComponent::update(float deltaTime)
 {
-	if (this->rigidBody == nullptr)
+	if (this->collider->rigidBody == nullptr)
 		return;
 
 	// Extract basis (rotation) and origin (translation) from btTransform
 	btTransform trans;
-	this->rigidBody->getMotionState()->getWorldTransform(trans);
+	this->collider->rigidBody->getMotionState()->getWorldTransform(trans);
 	btMatrix3x3& basis = trans.getBasis();
 	btVector3& origin = trans.getOrigin();
 
@@ -55,8 +55,7 @@ void PhysicsComponent::update(float deltaTime)
 	this->parent->transform->setModelMatrix(glmMat);
 }
 
-void PhysicsComponent::setCollider(btDiscreteDynamicsWorld* world, btRigidBody* rigidBody)
+void PhysicsComponent::setCollider(std::unique_ptr<Collider> collider)
 {
-	this->world = world;
-	this->rigidBody = rigidBody;
+	this->collider = std::move(collider);
 }

@@ -62,6 +62,7 @@ void PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, planeShape, btVector3(0.0f, 0.0f, 0.0f));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 
+	// TODO : Properly manage deletion of plane colliders too
 	this->world->addRigidBody(groundRigidBody);
 }
 
@@ -81,8 +82,15 @@ void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, gl
 	if (disableCollision)
 		boxRigidBody->setCollisionFlags(boxRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
+	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
+		this->world,
+		std::unique_ptr<btCollisionShape>(boxShape),
+		std::unique_ptr<btDefaultMotionState>(boxMotionState),
+		std::unique_ptr<btRigidBody>(boxRigidBody)
+	);
+
 	this->world->addRigidBody(boxRigidBody);
-	component->setCollider(this->world, boxRigidBody);
+	component->setCollider(std::move(collider));
 	this->rigidBodyToComponent[boxRigidBody] = component;
 }
 
@@ -101,7 +109,14 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 	if (disableCollision)
 		sphereRigidBody->setCollisionFlags(sphereRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
+	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
+		this->world,
+		std::unique_ptr<btCollisionShape>(sphereShape),
+		std::unique_ptr<btDefaultMotionState>(motionState),
+		std::unique_ptr<btRigidBody>(sphereRigidBody)
+	);
+
 	this->world->addRigidBody(sphereRigidBody);
-	component->setCollider(this->world, sphereRigidBody);
+	component->setCollider(std::move(collider));
 	this->rigidBodyToComponent[sphereRigidBody] = component;
 }		

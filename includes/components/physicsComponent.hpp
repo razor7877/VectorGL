@@ -3,6 +3,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include "components/component.hpp"
+#include "physics/collider.hpp"
 
 class PhysicsComponent : public virtual Component
 {
@@ -18,16 +19,11 @@ public:
 	/// </summary>
 	/// <param name="world">A reference to the physics world</param>
 	/// <param name="rigidBody">The collider to associate with the component</param>
-	void setCollider(btDiscreteDynamicsWorld* world, btRigidBody* rigidBody);
+	void setCollider(std::unique_ptr<Collider> collider);
 
 private:
 	/// <summary>
-	/// A reference to the physics world 
+	/// The collider of the component
 	/// </summary>
-	btDiscreteDynamicsWorld* world = nullptr;
-
-	/// <summary>
-	/// The rigid body associated with the component
-	/// </summary>
-	btRigidBody* rigidBody = nullptr;
+	std::unique_ptr<Collider> collider;
 };
