@@ -13,8 +13,21 @@ public:
 	void Component::start() override;
 	void Component::update(float deltaTime) override;
 
-	void setCollider(btRigidBody* rigidBody);
+	/// <summary>
+	/// Sets a collider for the component
+	/// </summary>
+	/// <param name="world">A reference to the physics world</param>
+	/// <param name="rigidBody">The collider to associate with the component</param>
+	void setCollider(btDiscreteDynamicsWorld* world, btRigidBody* rigidBody);
 
 private:
+	/// <summary>
+	/// A reference to the physics world 
+	/// </summary>
+	btDiscreteDynamicsWorld* world = nullptr;
+
+	/// <summary>
+	/// The rigid body associated with the component
+	/// </summary>
 	btRigidBody* rigidBody = nullptr;
 };

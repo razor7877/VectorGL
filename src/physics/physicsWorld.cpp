@@ -82,7 +82,7 @@ void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, gl
 		boxRigidBody->setCollisionFlags(boxRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	this->world->addRigidBody(boxRigidBody);
-	component->setCollider(boxRigidBody);
+	component->setCollider(this->world, boxRigidBody);
 	this->rigidBodyToComponent[boxRigidBody] = component;
 }
 
@@ -102,6 +102,6 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 		sphereRigidBody->setCollisionFlags(sphereRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	this->world->addRigidBody(sphereRigidBody);
-	component->setCollider(sphereRigidBody);
+	component->setCollider(this->world, sphereRigidBody);
 	this->rigidBodyToComponent[sphereRigidBody] = component;
-}
+}		

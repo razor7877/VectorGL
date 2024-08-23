@@ -12,7 +12,8 @@ PhysicsComponent::PhysicsComponent(Entity* parent) : Component(parent)
 
 PhysicsComponent::~PhysicsComponent()
 {
-
+	this->world->removeRigidBody(this->rigidBody);
+	delete this->rigidBody;
 }
 
 void PhysicsComponent::start()
@@ -54,7 +55,8 @@ void PhysicsComponent::update(float deltaTime)
 	this->parent->transform->setModelMatrix(glmMat);
 }
 
-void PhysicsComponent::setCollider(btRigidBody* collider)
+void PhysicsComponent::setCollider(btDiscreteDynamicsWorld* world, btRigidBody* rigidBody)
 {
-	this->rigidBody = collider;
+	this->world = world;
+	this->rigidBody = rigidBody;
 }
