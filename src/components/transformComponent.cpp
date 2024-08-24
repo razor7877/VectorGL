@@ -21,7 +21,12 @@ void TransformComponent::update(float deltaTime) { }
 
 glm::mat4 TransformComponent::getGlobalModelMatrix()
 {
-	return this->parent->getParent()->transform->getModelMatrix() * this->modelMatrix;
+	Entity* parent = this->parent->getParent();
+
+	if (parent == nullptr)
+		return this->modelMatrix;
+
+	return parent->transform->getModelMatrix() * this->modelMatrix;
 }
 
 glm::mat4 TransformComponent::getModelMatrix()
