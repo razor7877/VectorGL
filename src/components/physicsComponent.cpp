@@ -12,7 +12,7 @@ PhysicsComponent::PhysicsComponent(Entity* parent) : Component(parent)
 
 PhysicsComponent::~PhysicsComponent()
 {
-	if (this->collider->world != nullptr)
+	if (this->collider != nullptr && this->collider->world != nullptr)
 		this->collider->world->removeRigidBody(this->collider->rigidBody.get());
 }
 
@@ -23,7 +23,7 @@ void PhysicsComponent::start()
 
 void PhysicsComponent::update(float deltaTime)
 {
-	if (this->collider->rigidBody == nullptr)
+	if (this->collider == nullptr || this->collider->rigidBody == nullptr)
 		return;
 
 	// Extract basis (rotation) and origin (translation) from btTransform
