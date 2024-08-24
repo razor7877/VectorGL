@@ -101,7 +101,15 @@ public:
 	/// </summary>
 	int getIndicesCount();
 
-	BoundingBox getBoundingBox();
+	/// <summary>
+	/// Returns the bounding box of the object in local space
+	/// </summary>
+	BoundingBox getLocalBoundingBox();
+
+	/// <summary>
+	/// Returns the bounding box of the object in world space
+	/// </summary>
+	BoundingBox getWorldBoundingBox();
 
 	/// <summary>
 	/// Sets the diffuse color used to render the mesh (if no textures are present)

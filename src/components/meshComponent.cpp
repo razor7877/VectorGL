@@ -250,9 +250,14 @@ int MeshComponent::getIndicesCount()
 	return this->indicesCount;
 }
 
-BoundingBox MeshComponent::getBoundingBox()
+BoundingBox MeshComponent::getLocalBoundingBox()
 {
 	return this->boundingBox;
+}
+
+BoundingBox MeshComponent::getWorldBoundingBox()
+{
+	return this->boundingBox * this->parent->transform->getGlobalModelMatrix();
 }
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)

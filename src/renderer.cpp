@@ -275,7 +275,7 @@ void Renderer::render(float deltaTime)
 
 	// Render the scene
 	startTime = glfwGetTime();
-	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables);
+	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables, meshes);
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
@@ -299,7 +299,7 @@ void Renderer::render(float deltaTime)
 	this->skyTarget.clear();
 
 	this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables);
+	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables, meshes);
 
 	this->skyTarget.unbind();
 }
@@ -428,7 +428,7 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	this->ssaoBlurTarget.unbind();
 }
 
-void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables, std::map<MaterialType, std::vector<Entity*>>& transparentRenderables)
+void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables, std::map<MaterialType, std::vector<Entity*>>& transparentRenderables, std::vector<MeshComponent*> meshes)
 {
 	glStencilMask(0x00);
 
@@ -500,6 +500,48 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
 	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
 	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
+
+	// Debug bounding boxes
+	for (MeshComponent* mesh : meshes)
+	{
+		std::vector<float> vertices;
+
+		BoundingBox meshBB = mesh->getWorldBoundingBox();
+		glm::vec3 minPos = meshBB.minPosition;
+		glm::vec3 maxPos = meshBB.maxPosition;
+
+		// The 8 vertices of the cube, pushing back each coordinate separately
+		vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_min, y_min, z_min)
+		vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_min, z_max)
+		vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_min, y_max, z_min)
+		vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_max, z_max)
+		vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_max, y_min, z_min)
+		vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_min, z_max)
+		vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_max, y_max, z_min)
+		vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_max, z_max)
+
+		int edge_indices[12][2] = {
+		{0, 1}, {1, 3}, {3, 2}, {2, 0}, // Bottom face edges
+		{4, 5}, {5, 7}, {7, 6}, {6, 4}, // Top face edges
+		{0, 4}, {1, 5}, {2, 6}, {3, 7}  // Vertical edges connecting bottom to top
+		};
+
+		// Add each edge (line) to the edges vector
+		for (int i = 0; i < 12; ++i)
+		{
+			int v1 = edge_indices[i][0];
+			int v2 = edge_indices[i][1];
+
+			// Add the coordinates of the two vertices for each edge
+			lineVerts.push_back(vertices[v1 * 3 + 0]); // x of v1
+			lineVerts.push_back(vertices[v1 * 3 + 1]); // y of v1
+			lineVerts.push_back(vertices[v1 * 3 + 2]); // z of v1
+			lineVerts.push_back(vertices[v2 * 3 + 0]); // x of v2
+			lineVerts.push_back(vertices[v2 * 3 + 1]); // y of v2
+			lineVerts.push_back(vertices[v2 * 3 + 2]); // z of v2
+		}
+	}
+
 	if (lineVerts.size() > 0)
 	{
 		GLuint lineVAO;
@@ -518,6 +560,9 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 		glLineWidth(25.0f);
 		glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
 		lineVerts.clear();
+
+		glDeleteVertexArrays(1, &lineVAO);
+		glDeleteBuffers(1, &lineVBO);
 	}
 
 	// Disable stencil writes
@@ -582,6 +627,9 @@ bool isOnOrForwardPlane(const Plane& plane, glm::vec3 extents, glm::vec3 center)
 
 bool isOnFrustum(const Frustum& camFrustum, TransformComponent* transform, BoundingBox meshBB)
 {
+	glm::mat4 globalModelMatrix = transform->getGlobalModelMatrix();
+	meshBB = meshBB * globalModelMatrix;
+
 	glm::vec3 bbCenter = (meshBB.maxPosition + meshBB.minPosition) * 0.5f;
 	glm::vec3 bbExtents = meshBB.maxPosition - bbCenter;
 
@@ -590,7 +638,6 @@ bool isOnFrustum(const Frustum& camFrustum, TransformComponent* transform, Bound
 	glm::vec3 transformRight = transformRotation * glm::vec3(0.0f, 0.0f, 1.0f);
 	glm::vec3 transformForward = transformRotation * glm::vec3(1.0f, 0.0f, 0.0f);
 
-	glm::mat4 globalModelMatrix = transform->getGlobalModelMatrix();
 	glm::vec3 globalCenter(globalModelMatrix[3][0], globalModelMatrix[3][1], globalModelMatrix[3][2]);
 
 	glm::vec3 right = transformRight * bbExtents.x;
@@ -627,26 +674,7 @@ void Renderer::getMeshesRecursively(
 	std::vector<Entity*>& nonRenderables,
 	std::map<MaterialType, std::vector<Entity*>>& transparentRenderables)
 {
-	Frustum frustum;
-
-	const float halfVSide = this->currentCamera->FAR * tanf(this->currentCamera->getZoom() * 0.5f);
-	const float halfHSide = halfVSide * (this->multiSampledTarget.size.x / this->multiSampledTarget.size.y);
-
-	const glm::vec3 frontMultFar = this->currentCamera->FAR * this->currentCamera->getForward();
-
-	glm::vec3 camPos = this->currentCamera->getPosition();
-	glm::vec3 camForward = this->currentCamera->getForward();
-	//glm::vec3 camRight = this->currentCamera->getRight();
-	//glm::vec3 camUp = this->currentCamera->getUp();
-	glm::vec3 camRight = glm::cross(this->currentCamera->getForward(), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::vec3 camUp = glm::cross(camRight, this->currentCamera->getForward());
-
-	frustum.nearFace = { camPos + this->currentCamera->NEAR * camForward, camForward };
-	frustum.farFace = { camPos + frontMultFar, -camForward };
-	frustum.rightFace = { camPos, glm::cross(frontMultFar - camRight * halfHSide, camUp) };
-	frustum.leftFace = { camPos, glm::cross(camUp, frontMultFar + camRight * halfHSide) };
-	frustum.topFace = { camPos, glm::cross(camRight, frontMultFar - camUp * halfVSide) };
-	frustum.bottomFace = { camPos, glm::cross(frontMultFar + camUp * halfVSide, camRight) };
+	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
 
 	// We start by sorting the entities depending on if they are renderable objects
 	for (Entity* entity : entities)
@@ -659,7 +687,7 @@ void Renderer::getMeshesRecursively(
 				nonRenderables.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
-				BoundingBox meshBB = mesh->getBoundingBox();
+				BoundingBox meshBB = mesh->getLocalBoundingBox();
 				if (isOnFrustum(frustum, entity->transform, meshBB))
 					mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 				else
