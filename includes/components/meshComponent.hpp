@@ -101,6 +101,8 @@ public:
 	/// </summary>
 	int getIndicesCount();
 
+	BoundingBox getBoundingBox();
+
 	/// <summary>
 	/// Sets the diffuse color used to render the mesh (if no textures are present)
 	/// </summary>

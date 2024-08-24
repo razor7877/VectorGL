@@ -240,14 +240,19 @@ MeshComponent& MeshComponent::setMaterial(std::unique_ptr<Material> material)
 	return *this;
 }
 
+int MeshComponent::getVerticesCount()
+{
+	return this->verticesCount;
+}
+
 int MeshComponent::getIndicesCount()
 {
 	return this->indicesCount;
 }
 
-int MeshComponent::getVerticesCount()
+BoundingBox MeshComponent::getBoundingBox()
 {
-	return this->verticesCount;
+	return this->boundingBox;
 }
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)
