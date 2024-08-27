@@ -510,32 +510,42 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 		glm::vec3 minPos = meshBB.minPosition;
 		glm::vec3 maxPos = meshBB.maxPosition;
 
-		// The 8 vertices of the cube, pushing back each coordinate separately
+		// Create the vertices for the 8 points of the bounding box
+		// Left bottom back
 		vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_min, y_min, z_min)
+		// Left bottom front
 		vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_min, z_max)
+		// Left top back
 		vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_min, y_max, z_min)
+		// Left top front
 		vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_max, z_max)
+		// Right bottom back
 		vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_max, y_min, z_min)
+		// Right bottom front
 		vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_min, z_max)
+		// Right top back
 		vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_max, y_max, z_min)
+		// Right top front
 		vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_max, z_max)
 
-		int edge_indices[12][2] = {
-		{0, 1}, {1, 3}, {3, 2}, {2, 0}, // Bottom face edges
-		{4, 5}, {5, 7}, {7, 6}, {6, 4}, // Top face edges
-		{0, 4}, {1, 5}, {2, 6}, {3, 7}  // Vertical edges connecting bottom to top
+		// The indices for creating lines that links all the points of the bounding box using the 8 previous vertices
+		int edgeIndices[12][2] = {
+			{0, 1}, {0, 2}, {1, 3}, {2, 3}, // Left side edges
+			{4, 5}, {4, 6}, {5, 7}, {6, 7}, // Right side edges
+			{0, 4}, {2, 6}, {1, 5}, {3, 7}, // Connect the two sides
 		};
 
-		// Add each edge (line) to the edges vector
+		// Add the vertices to draw each line of the bounding box
 		for (int i = 0; i < 12; ++i)
 		{
-			int v1 = edge_indices[i][0];
-			int v2 = edge_indices[i][1];
+			int v1 = edgeIndices[i][0];
+			int v2 = edgeIndices[i][1];
 
 			// Add the coordinates of the two vertices for each edge
 			lineVerts.push_back(vertices[v1 * 3 + 0]); // x of v1
 			lineVerts.push_back(vertices[v1 * 3 + 1]); // y of v1
 			lineVerts.push_back(vertices[v1 * 3 + 2]); // z of v1
+
 			lineVerts.push_back(vertices[v2 * 3 + 0]); // x of v2
 			lineVerts.push_back(vertices[v2 * 3 + 1]); // y of v2
 			lineVerts.push_back(vertices[v2 * 3 + 2]); // z of v2
