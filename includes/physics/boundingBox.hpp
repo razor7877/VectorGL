@@ -13,11 +13,14 @@ struct BoundingBox
 	BoundingBox operator*(glm::mat4 modelMatrix)
 	{
 		BoundingBox result;
-		//result.minPosition = modelMatrix * glm::vec4(this->minPosition, 1.0f);
-		//result.maxPosition = modelMatrix * glm::vec4(this->maxPosition, 1.0f);
+		
+		float xMin = INFINITY;
+		float yMin = INFINITY;
+		float zMin = INFINITY;
 
-		glm::vec3 worldMin(FLT_MAX);
-		glm::vec3 worldMax(FLT_MIN);
+		float xMax = -INFINITY;
+		float yMax = -INFINITY;
+		float zMax = -INFINITY;
 
 		std::vector<glm::vec3> corners = {
 			this->minPosition,
@@ -30,15 +33,21 @@ struct BoundingBox
 			this->maxPosition
 		};
 
-		for (const auto& corner : corners)
+		for (glm::vec3 corner : corners)
 		{
 			glm::vec3 worldCorner = glm::vec3(modelMatrix * glm::vec4(corner, 1.0f));
-			worldMin = glm::min(worldMin, worldCorner);
-			worldMax = glm::max(worldMax, worldCorner);
+
+			if (worldCorner.x < xMin) xMin = worldCorner.x;
+			if (worldCorner.y < yMin) yMin = worldCorner.y;
+			if (worldCorner.z < zMin) zMin = worldCorner.z;
+
+			if (worldCorner.x > xMax) xMax = worldCorner.x;
+			if (worldCorner.y > yMax) yMax = worldCorner.y;
+			if (worldCorner.z > zMax) zMax = worldCorner.z;
 		}
 
-		result.minPosition = worldMin;
-		result.maxPosition = worldMax;
+		result.minPosition = glm::vec3(xMin, yMin, zMin);
+		result.maxPosition = glm::vec3(xMax, yMax, zMax);
 
 		return result;
 	}
