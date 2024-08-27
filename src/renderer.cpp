@@ -526,7 +526,7 @@ void Renderer::renderPass(
 		};
 
 		// Add the vertices to draw each line of the bounding box
-		for (int i = 0; i < 12; ++i)
+		for (int i = 0; i < 0; ++i)
 		{
 			int v1 = edgeIndices[i][0];
 			int v2 = edgeIndices[i][1];
@@ -611,61 +611,6 @@ void Renderer::blitPass()
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-float getSignedDistanceToPlane(const Plane& plane, const glm::vec3& point)
-{
-	return glm::dot(plane.normal, point - plane.position) - plane.distance;
-}
-
-bool isOnOrForwardPlane(const Plane& plane, glm::vec3 extents, glm::vec3 center)
-{
-	// Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-	const float r = extents.x * std::abs(plane.normal.x) +
-		extents.y * std::abs(plane.normal.y) + extents.z * std::abs(plane.normal.z);
-
-	return -r <= getSignedDistanceToPlane(plane, center);
-}
-
-bool isOnFrustum(const Frustum& camFrustum, TransformComponent* transform, BoundingBox meshBB)
-{
-	glm::mat4 globalModelMatrix = transform->getGlobalModelMatrix();
-	meshBB = meshBB * globalModelMatrix;
-
-	glm::vec3 bbCenter = (meshBB.maxPosition + meshBB.minPosition) * 0.5f;
-	glm::vec3 bbExtents = meshBB.maxPosition - bbCenter;
-
-	glm::vec3 transformRotation = transform->getRotation();
-	glm::vec3 transformUp = transformRotation * glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 transformRight = transformRotation * glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 transformForward = transformRotation * glm::vec3(1.0f, 0.0f, 0.0f);
-
-	glm::vec3 globalCenter(globalModelMatrix[3][0], globalModelMatrix[3][1], globalModelMatrix[3][2]);
-
-	glm::vec3 right = transformRight * bbExtents.x;
-	glm::vec3 up = transformUp * bbExtents.y;
-	glm::vec3 forward = transformForward * bbExtents.z;
-
-	const float newIi = std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, forward));
-
-	const float newIj = std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, forward));
-
-	const float newIk = std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, right)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, up)) +
-		std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, forward));
-
-	glm::vec3 newExtents(newIi, newIj, newIk);
-
-	return (isOnOrForwardPlane(camFrustum.leftFace, newExtents, globalCenter) &&
-		isOnOrForwardPlane(camFrustum.rightFace, newExtents, globalCenter) &&
-		isOnOrForwardPlane(camFrustum.topFace, newExtents, globalCenter) &&
-		isOnOrForwardPlane(camFrustum.bottomFace, newExtents, globalCenter) &&
-		isOnOrForwardPlane(camFrustum.nearFace, newExtents, globalCenter) &&
-		isOnOrForwardPlane(camFrustum.farFace, newExtents, globalCenter));
-}
-
 void Renderer::getMeshesRecursively(
 	std::vector<Entity*> entities,
 	std::map<Shader*, std::vector<Entity*>>& renderList,
@@ -687,8 +632,8 @@ void Renderer::getMeshesRecursively(
 				logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
-				BoundingBox meshBB = mesh->getLocalBoundingBox();
-				if (isOnFrustum(frustum, entity->transform, meshBB))
+				BoundingBox meshBB = mesh->getWorldBoundingBox();
+				if (frustum.isOnFrustum(meshBB, entity->transform))
 					mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 				else
 					mesh->setDiffuseColor(glm::vec3(1.0f));

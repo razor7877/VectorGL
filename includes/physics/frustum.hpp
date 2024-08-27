@@ -35,4 +35,45 @@ struct Frustum
 		this->topFace = { camPos, glm::cross(camRight, frontMultFar - camUp * halfVSide) };
 		this->bottomFace = { camPos, glm::cross(frontMultFar + camUp * halfVSide, camRight) };
 	}
+
+	bool isOnFrustum(BoundingBox element, TransformComponent* transform)
+	{
+		glm::mat4 globalModelMatrix = transform->getGlobalModelMatrix();
+		element = element * globalModelMatrix;
+
+		glm::vec3 bbCenter = (element.maxPosition + element.minPosition) * 0.5f;
+		glm::vec3 bbExtents = element.maxPosition - bbCenter;
+
+		glm::vec3 transformRotation = transform->getRotation();
+		glm::vec3 transformUp = transformRotation * glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 transformRight = transformRotation * glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 transformForward = transformRotation * glm::vec3(1.0f, 0.0f, 0.0f);
+
+		glm::vec3 globalCenter(globalModelMatrix[3][0], globalModelMatrix[3][1], globalModelMatrix[3][2]);
+
+		glm::vec3 right = transformRight * bbExtents.x;
+		glm::vec3 up = transformUp * bbExtents.y;
+		glm::vec3 forward = transformForward * bbExtents.z;
+
+		const float newIi = std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, right)) +
+			std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, up)) +
+			std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, forward));
+
+		const float newIj = std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, right)) +
+			std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, up)) +
+			std::abs(glm::dot(glm::vec3{ 0.f, 1.f, 0.f }, forward));
+
+		const float newIk = std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, right)) +
+			std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, up)) +
+			std::abs(glm::dot(glm::vec3{ 0.f, 0.f, 1.f }, forward));
+
+		glm::vec3 newExtents(newIi, newIj, newIk);
+
+		return (this->leftFace.isOnOrForwardPlane(newExtents, globalCenter) &&
+			this->rightFace.isOnOrForwardPlane(newExtents, globalCenter) &&
+			this->topFace.isOnOrForwardPlane(newExtents, globalCenter) &&
+			this->bottomFace.isOnOrForwardPlane(newExtents, globalCenter) &&
+			this->nearFace.isOnOrForwardPlane(newExtents, globalCenter) &&
+			this->farFace.isOnOrForwardPlane(newExtents, globalCenter));
+	}
 };
