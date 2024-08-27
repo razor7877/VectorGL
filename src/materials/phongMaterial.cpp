@@ -128,11 +128,6 @@ void PhongMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
 	}
 }
 
-MaterialType PhongMaterial::getType()
-{
-	return MaterialType::PhongMaterial;
-}
-
 void PhongMaterial::addDiffuseMap(std::shared_ptr<Texture> diffuseTexture)
 {
 	this->useDiffuseMap = true;

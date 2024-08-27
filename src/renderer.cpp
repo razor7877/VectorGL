@@ -221,21 +221,24 @@ void Renderer::render(float deltaTime)
 
 	// Render & update the scene
 
-	// Entities that are rendered to the screen
-	std::map<MaterialType, std::vector<Entity*>> renderables;
+	// All the entities at the top level of the scene
+	std::vector<Entity*> entities;
+	// Opaque entities that are rendered to the screen
+	std::map<Shader*, std::vector<Entity*>> renderList;
+	// Transparent entities that are rendered to the screen
+	std::map<Shader*, std::vector<Entity*>> transparentRenderList;
 	// Entities that should have an outline
-	std::vector<Entity*> outlineRenderables;
+	std::vector<Entity*> outlineRenderList;
+	// Entities that aren't rendered to the screen but need to be updated
+	std::vector<Entity*> logicEntities;
+	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
 	std::vector<MeshComponent*> meshes;
-	// Entities that aren't rendered to the screen
-	std::vector<Entity*> nonRenderables;
-	std::map<MaterialType, std::vector<Entity*>> transparentRenderables;
 
-	std::vector<Entity*> ptrList;
 	for (auto&& entity : this->entities)
-		ptrList.push_back(entity.get());
+		entities.push_back(entity.get());
 
 	double startTime = glfwGetTime();
-	this->getMeshesRecursively(ptrList, renderables, outlineRenderables, meshes, nonRenderables, transparentRenderables);
+	this->getMeshesRecursively(entities, renderList, transparentRenderList, outlineRenderList, logicEntities, meshes);
 	double endTime = glfwGetTime();
 	this->meshSortingTime = endTime - startTime;
 
@@ -275,13 +278,13 @@ void Renderer::render(float deltaTime)
 
 	// Render the scene
 	startTime = glfwGetTime();
-	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables, meshes);
+	this->renderPass(deltaTime, renderList, transparentRenderList, logicEntities, meshes);
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
 	// Render outlines
 	startTime = glfwGetTime();
-	this->outlinePass(outlineRenderables);
+	this->outlinePass(outlineRenderList);
 	endTime = glfwGetTime();
 	this->outlinePassTime = endTime - startTime;
 
@@ -299,7 +302,7 @@ void Renderer::render(float deltaTime)
 	this->skyTarget.clear();
 
 	this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-	this->renderPass(deltaTime, renderables, nonRenderables, transparentRenderables, meshes);
+	this->renderPass(deltaTime, renderList, transparentRenderList, logicEntities, meshes);
 
 	this->skyTarget.unbind();
 }
@@ -428,7 +431,12 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	this->ssaoBlurTarget.unbind();
 }
 
-void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<Entity*>>& renderables, std::vector<Entity*>& nonRenderables, std::map<MaterialType, std::vector<Entity*>>& transparentRenderables, std::vector<MeshComponent*> meshes)
+void Renderer::renderPass(
+	float deltaTime,
+	std::map<Shader*, std::vector<Entity*>>& renderables,
+	std::map<Shader*, std::vector<Entity*>>& transparentRenderables,
+	std::vector<Entity*>& nonRenderables,
+	std::vector<MeshComponent*> meshes)
 {
 	glStencilMask(0x00);
 
@@ -446,18 +454,9 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 		->setVec2("windowSize", this->ssaoTarget.size);
 
 	// Entities that can be rendered are grouped by shader and then rendered together
-	for (auto& [material, meshes] : renderables)
+	for (auto& [shader, meshes] : renderables)
 	{
-		switch (material)
-		{
-			case MaterialType::PhongMaterial:
-				this->shaderManager.getShader(ShaderType::PHONG)->use();
-				break;
-
-			case MaterialType::PBRMaterial:
-				this->shaderManager.getShader(ShaderType::PBR)->use();
-				break;
-		}
+		shader->use();
 
 		for (Entity* renderable : meshes)
 		{
@@ -471,18 +470,9 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 		}
 	}
 
-	for (auto& [material, meshes] : transparentRenderables)
+	for (auto& [shader, meshes] : transparentRenderables)
 	{
-		switch (material)
-		{
-			case MaterialType::PhongMaterial:
-				this->shaderManager.getShader(ShaderType::PHONG)->use();
-				break;
-
-			case MaterialType::PBRMaterial:
-				this->shaderManager.getShader(ShaderType::PBR)->use();
-				break;
-		}
+		shader->use();
 
 		for (Entity* renderable : meshes)
 		{
@@ -579,7 +569,7 @@ void Renderer::renderPass(float deltaTime, std::map<MaterialType, std::vector<En
 	glStencilMask(0x00);
 }
 
-void Renderer::outlinePass(std::vector<Entity*>& outlineRenderables)
+void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
 {
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	// Disable depth test before drawing outlines
@@ -588,7 +578,7 @@ void Renderer::outlinePass(std::vector<Entity*>& outlineRenderables)
 	Shader* outlineShader = this->shaderManager.getShader(ShaderType::OUTLINE);
 	outlineShader->use();
 
-	for (Entity* outlinedEntity : outlineRenderables)
+	for (Entity* outlinedEntity : outlineRenderList)
 	{
 		MeshComponent* mesh = outlinedEntity->getComponent<MeshComponent>();
 		glm::vec3 originalScale = outlinedEntity->transform->getScale();
@@ -678,11 +668,11 @@ bool isOnFrustum(const Frustum& camFrustum, TransformComponent* transform, Bound
 
 void Renderer::getMeshesRecursively(
 	std::vector<Entity*> entities,
-	std::map<MaterialType, std::vector<Entity*>>& renderables,
-	std::vector<Entity*>& outlineRenderables,
-	std::vector<MeshComponent*>& meshes,
-	std::vector<Entity*>& nonRenderables,
-	std::map<MaterialType, std::vector<Entity*>>& transparentRenderables)
+	std::map<Shader*, std::vector<Entity*>>& renderList,
+	std::map<Shader*, std::vector<Entity*>>& transparentRenderList,
+	std::vector<Entity*>& outlineRenderList,
+	std::vector<Entity*>& logicEntities,
+	std::vector<MeshComponent*>& meshes)
 {
 	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
 
@@ -694,7 +684,7 @@ void Renderer::getMeshesRecursively(
 			MeshComponent* mesh = entity->getComponent<MeshComponent>();
 
 			if (mesh == nullptr)
-				nonRenderables.push_back(entity);
+				logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
 				BoundingBox meshBB = mesh->getLocalBoundingBox();
@@ -707,14 +697,14 @@ void Renderer::getMeshesRecursively(
 
 				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 				if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
-					renderables[mesh->material->getType()].push_back(entity);
+					renderList[mesh->material->shaderProgram].push_back(entity);
 				else
-					transparentRenderables[mesh->material->getType()].push_back(entity);
+					transparentRenderList[mesh->material->shaderProgram].push_back(entity);
 				if (entity->drawOutline)
-					outlineRenderables.push_back(entity);
+					outlineRenderList.push_back(entity);
 			}
 
-			this->getMeshesRecursively(entity->getChildren(), renderables, outlineRenderables, meshes, nonRenderables, transparentRenderables);
+			this->getMeshesRecursively(entity->getChildren(), renderList, transparentRenderList, outlineRenderList, logicEntities, meshes);
 		}
 	}
 }

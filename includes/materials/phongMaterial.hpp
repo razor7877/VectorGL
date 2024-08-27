@@ -45,8 +45,6 @@ public:
 
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
 
-	MaterialType getType() override;
-
 	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);
 	void addSpecularMap(std::shared_ptr<Texture> specularTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);

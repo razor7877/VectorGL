@@ -190,11 +190,6 @@ void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
 	}
 }
 
-MaterialType PBRMaterial::getType()
-{
-	return MaterialType::PBRMaterial;
-}
-
 void PBRMaterial::addAlbedoMap(std::shared_ptr<Texture> albedoTexture)
 {
 	this->albedoTexture = albedoTexture;

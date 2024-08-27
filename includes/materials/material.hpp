@@ -6,12 +6,6 @@
 #include "shader.hpp"
 #include "texture.hpp"
 
-enum class MaterialType
-{
-	PhongMaterial,
-	PBRMaterial,
-};
-
 struct Material
 {
 	/// <summary>
@@ -38,10 +32,4 @@ struct Material
 	/// </summary>
 	/// <param name="textures">The textures to be added</param>
 	virtual void addTextures(std::vector<std::shared_ptr<Texture>> textures) {}
-
-	/// <summary>
-	/// Returns an enum that corresponds to the type of the material
-	/// </summary>
-	/// <returns></returns>
-	virtual MaterialType getType() = 0;
 };

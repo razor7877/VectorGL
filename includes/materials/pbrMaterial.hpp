@@ -150,8 +150,6 @@ public:
 	void sendToShader() override;
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
 
-	MaterialType getType() override;
-
 	void addAlbedoMap(std::shared_ptr<Texture> albedoTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);
 	void addMetallicMap(std::shared_ptr<Texture> metallicTexture);
