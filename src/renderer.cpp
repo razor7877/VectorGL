@@ -526,7 +526,7 @@ void Renderer::renderPass(
 		};
 
 		// Add the vertices to draw each line of the bounding box
-		for (int i = 0; i < 0; ++i)
+		for (int i = 0; i < 12; ++i)
 		{
 			int v1 = edgeIndices[i][0];
 			int v2 = edgeIndices[i][1];
@@ -619,6 +619,7 @@ void Renderer::getMeshesRecursively(
 	std::vector<Entity*>& logicEntities,
 	std::vector<MeshComponent*>& meshes)
 {
+	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
 	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
 
 	// We start by sorting the entities depending on if they are renderable objects
@@ -632,8 +633,7 @@ void Renderer::getMeshesRecursively(
 				logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
-				BoundingBox meshBB = mesh->getWorldBoundingBox();
-				if (frustum.isOnFrustum(meshBB, entity->transform))
+				if (frustum.isOnFrustum(mesh->getLocalBoundingBox(), entity->transform))
 					mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 				else
 					mesh->setDiffuseColor(glm::vec3(1.0f));
@@ -645,6 +645,7 @@ void Renderer::getMeshesRecursively(
 					renderList[mesh->material->shaderProgram].push_back(entity);
 				else
 					transparentRenderList[mesh->material->shaderProgram].push_back(entity);
+
 				if (entity->drawOutline)
 					outlineRenderList.push_back(entity);
 			}

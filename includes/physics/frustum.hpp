@@ -45,9 +45,9 @@ struct Frustum
 		glm::vec3 bbExtents = element.maxPosition - bbCenter;
 
 		glm::vec3 transformRotation = transform->getRotation();
-		glm::vec3 transformUp = transformRotation * glm::vec3(0.0f, 1.0f, 0.0f);
-		glm::vec3 transformRight = transformRotation * glm::vec3(0.0f, 0.0f, 1.0f);
-		glm::vec3 transformForward = transformRotation * glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 transformRight = transformRotation.x * glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 transformUp = transformRotation.y * glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 transformForward = transformRotation.z * glm::vec3(1.0f, 0.0f, 0.0f);
 
 		glm::vec3 globalCenter(globalModelMatrix[3][0], globalModelMatrix[3][1], globalModelMatrix[3][2]);
 

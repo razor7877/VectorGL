@@ -5,11 +5,14 @@
 struct Plane
 {
 	glm::vec3 normal = { 0.0f, 1.0f, 0.0f };
-	glm::vec3 position{};
 	float distance = 0.0f;
 
 	Plane() {}
-	Plane(glm::vec3 position, glm::vec3 normal) : position(position), normal(normal) {}
+	Plane(glm::vec3 position, glm::vec3 normal)
+	{
+		this->normal = glm::normalize(normal);
+		this->distance = glm::dot(this->normal, position);
+	}
 
 	bool isOnOrForwardPlane(glm::vec3 extents, glm::vec3 center)
 	{
@@ -24,6 +27,6 @@ struct Plane
 
 	float getSignedDistanceToPlane(glm::vec3 point)
 	{
-		return glm::dot(this->normal, point - this->position) - this->distance;
+		return glm::dot(this->normal, point) - this->distance;
 	}
 };
