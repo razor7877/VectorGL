@@ -42,18 +42,13 @@ struct Frustum
 		element = element * globalModelMatrix;
 
 		glm::vec3 bbCenter = (element.maxPosition + element.minPosition) * 0.5f;
-		glm::vec3 bbExtents = element.maxPosition - bbCenter;
-
-		glm::vec3 transformRotation = transform->getRotation();
-		glm::vec3 transformRight = transformRotation.x * glm::vec3(0.0f, 0.0f, 1.0f);
-		glm::vec3 transformUp = transformRotation.y * glm::vec3(0.0f, 1.0f, 0.0f);
-		glm::vec3 transformForward = transformRotation.z * glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 bbExtents = (element.maxPosition - element.minPosition) * 0.5f;
 
 		glm::vec3 globalCenter(globalModelMatrix[3][0], globalModelMatrix[3][1], globalModelMatrix[3][2]);
 
-		glm::vec3 right = transformRight * bbExtents.x;
-		glm::vec3 up = transformUp * bbExtents.y;
-		glm::vec3 forward = transformForward * bbExtents.z;
+		glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f) * bbExtents.x;
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f) * bbExtents.y;
+		glm::vec3 forward = glm::vec3(0.0f, 0.0f, 1.0f) * bbExtents.z;
 
 		const float newIi = std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, right)) +
 			std::abs(glm::dot(glm::vec3{ 1.f, 0.f, 0.f }, up)) +
