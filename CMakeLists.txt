@@ -19,6 +19,7 @@ find_package(Bullet REQUIRED)
 file(GLOB MAIN_SRC "src/*.c" "src/*.cpp")
 file(GLOB COMPONENTS_SRC "src/components/*.c" "src/components/*.cpp")
 file(GLOB COMPONENTS_LIGHTS_SRC "src/components/lights/*.c" "src/components/lights/*.cpp")
+file(GLOB GAME_SRC "src/game/*.c" "src/game/*.cpp")
 file(GLOB IO_SRC "src/io/*.c" "src/io/*.cpp")
 file(GLOB KHR_SRC "src/KHR/*.c" "src/KHR/*.cpp")
 file(GLOB MATERIALS_SRC "src/materials/*.c" "src/materials/*.cpp")
@@ -29,6 +30,7 @@ file(GLOB UTILITIES_SRC "src/utilities/*.c" "src/utilities/*.cpp")
 file(GLOB MAIN_INCLUDES "includes/*.h" "includes/*.hpp")
 file(GLOB COMPONENTS_INCLUDES "includes/components/*.h" "includes/components/*.hpp")
 file(GLOB COMPONENTS_LIGHTS_INCLUDES "includes/components/lights/*.h" "includes/components/lights/*.hpp")
+file(GLOB GAME_INCLUDES "includes/game/*.h" "includes/game/*.hpp")
 file(GLOB IO_INCLUDES "includes/io/*.h" "includes/io/*.hpp")
 file(GLOB KHR_INCLUDES "includes/KHR/*.h" "includes/KHR/*.hpp")
 file(GLOB MATERIALS_INCLUDES "includes/materials/*.h" "includes/materials/*.hpp")
@@ -40,6 +42,7 @@ add_executable(VectorGL
 	${MAIN_SRC}
 	${COMPONENTS_SRC}
 	${COMPONENTS_LIGHTS_SRC}
+	${GAME_SRC}
 	${IO_SRC}
 	${KHR_SRC}
 	${MATERIALS_SRC}
@@ -49,6 +52,7 @@ add_executable(VectorGL
 	${MAIN_INCLUDES}
 	${COMPONENTS_INCLUDES}
 	${COMPONENTS_LIGHTS_INCLUDES}
+	${GAME_INCLUDES}
 	${IO_INCLUDES}
 	${KHR_INCLUDES}
 	${MATERIALS_INCLUDES}
@@ -73,6 +77,7 @@ add_executable(VectorGL
 source_group("src" FILES ${MAIN_SRC})
 source_group("src\\components" FILES ${COMPONENTS_SRC})
 source_group("src\\components\\lights" FILES ${COMPONENTS_LIGHTS_SRC})
+source_group("src\\game" FILES ${GAME_SRC})
 source_group("src\\io" FILES ${IO_SRC})
 source_group("src\\KHR" FILES ${KHR_SRC})
 source_group("src\\materials" FILES ${MATERIALS_SRC})
@@ -82,6 +87,7 @@ source_group("src\\utilities" FILES ${UTILITIES_SRC})
 source_group("includes" FILES ${MAIN_INCLUDES})
 source_group("includes\\components" FILES ${COMPONENTS_INCLUDES})
 source_group("includes\\components\\lights" FILES ${COMPONENTS_LIGHTS_INCLUDES})
+source_group("includes\\game" FILES ${GAME_INCLUDES})
 source_group("includes\\io" FILES ${IO_INCLUDES})
 source_group("includes\\KHR" FILES ${KHR_INCLUDES})
 source_group("includes\\materials" FILES ${MATERIALS_INCLUDES})
