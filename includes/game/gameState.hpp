@@ -1,11 +1,14 @@
 #pragma once
 
-#include "game/gameEngine.hpp"
 #include "renderer.hpp"
+#include "scene.hpp"
+#include "game/gameEngine.hpp"
 
 class GameState
 {
 public:
+	GameState(Renderer& renderer) : renderer(renderer) {}
+
 	/// <summary>
 	/// This is executed when the game state starts
 	/// </summary>
@@ -54,8 +57,12 @@ public:
 		gameEngine->changeState(gameState);
 	}
 
-	GameState(Renderer& renderer) : renderer(renderer) {}
+	Scene& getScene()
+	{
+		return this->scene;
+	}
 
 protected:
 	Renderer& renderer;
+	Scene scene;
 };

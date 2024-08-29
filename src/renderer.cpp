@@ -21,16 +21,6 @@ Renderer::Renderer()
 	
 }
 
-std::vector<Entity*> Renderer::getEntities()
-{
-	std::vector<Entity*> rawPointers;
-
-	for (auto&& entity : this->entities)
-		rawPointers.push_back(entity.get());
-
-	return rawPointers;
-}
-
 GLuint Renderer::getRenderTexture()
 {
 	return this->finalTarget.renderTexture;
@@ -39,35 +29,6 @@ GLuint Renderer::getRenderTexture()
 GLuint Renderer::getSkyRenderTexture()
 {
 	return this->skyTarget.renderTexture;
-}
-
-void Renderer::addEntity(std::unique_ptr<Entity> objectPtr)
-{
-	this->entities.push_back(std::move(objectPtr));
-}
-
-bool Renderer::removeEntity(std::unique_ptr<Entity> objectPtr)
-{
-	const int startSize = this->entities.size();
-
-	this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), objectPtr), this->entities.end());
-
-	// Delete was successful if the size of the vector is different
-	return this->entities.size() != startSize;
-}
-
-bool Renderer::removeEntity(Entity* rawObjectPtr)
-{
-	for (auto&& entity : this->entities)
-	{
-		if (entity.get() == rawObjectPtr)
-		{
-			this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), entity), this->entities.end());
-			return true;
-		}
-	}
-
-	return false;
 }
 
 void Renderer::resizeFramebuffers(glm::vec2 newSize)
@@ -107,43 +68,6 @@ void Renderer::init(glm::vec2 windowSize)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Interpolation between sides of a cubemap
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-	// Create the camera and set it up
-	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
-	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
-	VertexData sphere = Geometry::getSphereVertices(100, 30);
-	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
-	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::PBR)))
-		.addVertices(sphereOptimized.vertices)
-		.addIndices(sphereOptimized.indices)
-		.addNormals(sphereOptimized.normals)
-		.setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
-	this->currentCamera = cameraEntity->addComponent<CameraComponent>();
-	this->addEntity(std::move(cameraEntity));
-
-	std::unique_ptr<Entity> skyCameraEntity = std::unique_ptr<Entity>(new Entity("Sky Camera"));
-	this->skyCamera = skyCameraEntity->addComponent<CameraComponent>();
-	this->skyCamera->setPosition(glm::vec3(0.0f, 75.0f, 0.0f));
-	this->skyCamera->setZoom(90.0f);
-	skyCameraEntity->transform->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
-	this->addEntity(std::move(skyCameraEntity));
-
-	this->shaderManager.initUniformBuffer();
-
-	LightManager::getInstance().shaderProgram = this->shaderManager.getShader(ShaderType::PBR);
-	// Initializes the light manager if it was setup to send all required data to the shader
-	if (LightManager::getInstance().shaderProgram->ID != 0)
-		LightManager::getInstance().init();
-
-	// Directional light
-	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
-	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
-	this->directionalLight = directionalLightComponent;
-	this->addEntity(std::move(dirLightEntity));
-
-	// Start all the entities on the scene
-	for (auto&& entity : this->entities)
-		entity->start();
 
 	// Initialize SSAO kernels
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
@@ -231,22 +155,19 @@ void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 	this->lineVerts.push_back(endPos.z);
 }
 
-void Renderer::render(float deltaTime)
+void Renderer::render(Scene& scene, float deltaTime)
 {
 	double frameStartTime = glfwGetTime();
 
 	// Render & update the scene
 
 	// All the entities at the top level of the scene
-	std::vector<Entity*> entities;
-
-	for (auto&& entity : this->entities)
-		entities.push_back(entity.get());
+	std::vector<Entity*> entities = scene.getEntities();
 
 	double startTime = glfwGetTime();
-	this->sortedSceneData.clearCache();
-	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
-	this->getMeshesRecursively(frustum, entities, this->sortedSceneData);
+	scene.sortedSceneData.clearCache();
+	Frustum frustum(scene.currentCamera, this->multiSampledTarget.size);
+	scene.getMeshesRecursively(frustum, entities);
 	double endTime = glfwGetTime();
 	this->meshSortingTime = endTime - startTime;
 
@@ -258,27 +179,27 @@ void Renderer::render(float deltaTime)
 
 	// Update camera info
 	glm::vec2 windowSize = this->multiSampledTarget.size;
-	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-	this->shaderManager.getShader(ShaderType::PHONG)->use()->setVec3("viewPos", this->currentCamera->getPosition());
-	this->shaderManager.getShader(ShaderType::PBR)->use()->setVec3("camPos", this->currentCamera->getPosition());
+	this->shaderManager.updateUniformBuffer(scene.currentCamera->getViewMatrix(), scene.currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	this->shaderManager.getShader(ShaderType::PHONG)->use()->setVec3("viewPos", scene.currentCamera->getPosition());
+	this->shaderManager.getShader(ShaderType::PBR)->use()->setVec3("camPos", scene.currentCamera->getPosition());
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
 
 	// Render the shadow map
 	startTime = glfwGetTime();
-	this->shadowPass(sortedSceneData.allMeshes);
+	this->shadowPass(scene.sortedSceneData.allMeshes, scene);
 	endTime = glfwGetTime();
 	this->shadowPassTime = endTime - startTime;
 
 	// Render to the G buffer
 	startTime = glfwGetTime();
-	this->gBufferPass(sortedSceneData.meshes);
+	this->gBufferPass(scene.sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->gBufferPassTime = endTime - startTime;
 
 	// Calculate SSAO
 	startTime = glfwGetTime();
-	this->ssaoPass(sortedSceneData.meshes);
+	this->ssaoPass(scene.sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->ssaoPassTime = endTime - startTime;
 	
@@ -290,17 +211,17 @@ void Renderer::render(float deltaTime)
 	startTime = glfwGetTime();
 	this->renderPass(
 		deltaTime,
-		sortedSceneData.renderList,
-		sortedSceneData.transparentRenderList,
-		sortedSceneData.logicEntities,
-		sortedSceneData.meshes
+		scene.sortedSceneData.renderList,
+		scene.sortedSceneData.transparentRenderList,
+		scene.sortedSceneData.logicEntities,
+		scene.sortedSceneData.meshes
 	);
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
 	// Render outlines
 	startTime = glfwGetTime();
-	this->outlinePass(sortedSceneData.outlineRenderList);
+	this->outlinePass(scene.sortedSceneData.outlineRenderList);
 	endTime = glfwGetTime();
 	this->outlinePassTime = endTime - startTime;
 
@@ -317,13 +238,13 @@ void Renderer::render(float deltaTime)
 	this->skyTarget.bind();
 	this->skyTarget.clear();
 
-	this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
 	this->renderPass(
 		deltaTime,
-		sortedSceneData.renderList,
-		sortedSceneData.transparentRenderList,
-		sortedSceneData.logicEntities,
-		sortedSceneData.meshes
+		scene.sortedSceneData.renderList,
+		scene.sortedSceneData.transparentRenderList,
+		scene.sortedSceneData.logicEntities,
+		scene.sortedSceneData.meshes
 	);
 
 	this->skyTarget.unbind();
@@ -331,10 +252,6 @@ void Renderer::render(float deltaTime)
 
 void Renderer::end()
 {
-	// Delete all the objects contained in the renderer
-	for (auto&& entity : this->entities)
-		entity.reset();
-
 	delete this->physicsWorld;
 }
 
@@ -355,7 +272,7 @@ void Renderer::createFramebuffers(glm::vec2 windowSize)
 	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 
-void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
+void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 {
 	// We prepare for the depth map rendering for shadow mapping
 	this->depthMap.bind();
@@ -363,8 +280,8 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
 
 	glEnable(GL_DEPTH_TEST);
 
-	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, this->currentCamera->NEAR, this->currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(this->directionalLight->parent->transform->getPosition(),
+	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, scene.currentCamera->NEAR, scene.currentCamera->FAR);
+	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->transform->getPosition(),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
@@ -635,44 +552,4 @@ void Renderer::blitPass()
 	glm::vec2 framebufferSize = this->multiSampledTarget.size;
 	// Resolve the multisampled texture to the second target
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-}
-
-void Renderer::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities, SortedSceneData& sortedSceneData)
-{
-	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
-	// We start by sorting the entities depending on if they are renderable objects
-	for (Entity* entity : entities)
-	{
-		if (entity->getIsEnabled())
-		{
-			MeshComponent* mesh = entity->getComponent<MeshComponent>();
-
-			if (mesh == nullptr)
-				sortedSceneData.logicEntities.push_back(entity);
-			else // Entities that can be rendered are grouped by shader
-			{
-				sortedSceneData.allMeshes.push_back(mesh);
-
-				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
-				{
-					sortedSceneData.meshes.push_back(mesh);
-
-					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
-					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
-						sortedSceneData.renderList[mesh->material->shaderProgram].push_back(entity);
-					else
-						sortedSceneData.transparentRenderList[mesh->material->shaderProgram].push_back(entity);
-
-					if (entity->drawOutline)
-						sortedSceneData.outlineRenderList.push_back(entity);
-
-					//mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
-				}
-				//else
-				//	mesh->setDiffuseColor(glm::vec3(1.0f));
-			}
-
-			this->getMeshesRecursively(cameraFrustum, entity->getChildren(), sortedSceneData);
-		}
-	}
 }

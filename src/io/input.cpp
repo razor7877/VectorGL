@@ -7,6 +7,7 @@
 #include "utilities/resourceLoader.hpp"
 #include "logger.hpp"
 #include "game/gameEngine.hpp"
+#include "game/gameState.hpp"
 
 GLFWwindow* window;
 
@@ -80,7 +81,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 
-	game.cameraComponent->processMouseMovement(xoffset, yoffset);
+	game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -90,7 +91,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		return;
 	}
-	game.cameraComponent->processMouseScroll(static_cast<float>(yoffset));
+	game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yoffset));
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -186,7 +187,7 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
 		if (newEntity != nullptr)
 		{
 			newEntity->start();
-			game.renderer.addEntity(std::move(newEntity));
+			game.getCurrentState()->getScene().addEntity(std::move(newEntity));
 		}
 	}
 }

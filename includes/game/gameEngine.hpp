@@ -12,8 +12,16 @@ class GameState;
 class GameEngine
 {
 public:
+	/// <summary>
+	/// The renderer shared between all the game states
+	/// </summary>
 	Renderer renderer = Renderer();
-	CameraComponent* cameraComponent = nullptr;
+
+	/// <summary>
+	/// Returns the active game state
+	/// </summary>
+	/// <returns>A pointer to the current state, or nullptr if no state is active</returns>
+	GameState* getCurrentState();
 
 	/// <summary>
 	/// Initializes the game

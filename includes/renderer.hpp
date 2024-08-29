@@ -14,31 +14,7 @@
 #include "components/lights/directionalLightComponent.hpp"
 #include "physics/physicsWorld.hpp"
 #include "physics/frustum.hpp"
-
-struct SortedSceneData
-{
-	// Opaque entities that are rendered to the screen
-	std::map<Shader*, std::vector<Entity*>> renderList;
-	// Transparent entities that are rendered to the screen
-	std::map<Shader*, std::vector<Entity*>> transparentRenderList;
-	// Entities that should have an outline
-	std::vector<Entity*> outlineRenderList;
-	// Entities that aren't rendered to the screen but need to be updated
-	std::vector<Entity*> logicEntities;
-	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
-	std::vector<MeshComponent*> meshes;
-	std::vector<MeshComponent*> allMeshes;
-
-	void clearCache()
-	{
-		renderList.clear();
-		transparentRenderList.clear();
-		outlineRenderList.clear();
-		logicEntities.clear();
-		meshes.clear();
-		allMeshes.clear();
-	}
-};
+#include "scene.hpp"
 
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
@@ -47,9 +23,6 @@ class Renderer
 {
 public:
 	ShaderManager shaderManager;
-	CameraComponent* currentCamera;
-	CameraComponent* skyCamera;
-	DirectionalLightComponent* directionalLight;
 	PhysicsWorld* physicsWorld = new PhysicsWorld();
 
 	float frameRenderTime = 0.0f;
@@ -67,38 +40,12 @@ public:
 	Renderer();
 
 	/// <summary>
-	/// Returns a list of raw pointers to the entities in the renderer
-	/// </summary>
-	/// <returns>A vector containing all the raw entities pointers in the renderer</returns>
-	std::vector<Entity*> getEntities();
-
-	/// <summary>
 	/// Returns the framebuffer that the renderer draws into
 	/// </summary>
 	/// <returns>A GLuint pointing to the render texture on the GPU</returns>
 	GLuint getRenderTexture();
 
 	GLuint getSkyRenderTexture();
-
-	/// <summary>
-	/// Adds an entity to the renderer
-	/// </summary>
-	/// <param name="objectPtr">The entity to be added</param>
-	void addEntity(std::unique_ptr<Entity> objectPtr);
-
-	/// <summary>
-	/// Removes an entity from the renderer
-	/// </summary>
-	/// <param name="objectPtr">The entity to be removed</param>
-	/// <returns>True if the entity was successfully removed, false otherwise</return>
-	bool removeEntity(std::unique_ptr<Entity> objectPtr);
-
-	/// <summary>
-	/// Removes an entity from the renderer using a raw pointer
-	/// </summary>
-	/// <param name="rawObjectPtr">The raw pointer to the object</param>
-	/// <returns>True if the entity was successfully removed, false otherwise</returns>
-	bool removeEntity(Entity* rawObjectPtr);
 
 	/// <summary>
 	/// Initializes the renderer data, this needs to be done once before the render loop
@@ -118,7 +65,7 @@ public:
 	/// Draws the scene and updates all the entities
 	/// </summary>
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
-	void render(float deltaTime);
+	void render(Scene& scene, float deltaTime);
 
 	/// <summary>
 	/// Stops the renderer, this cleans up all the resources it contains (not implemented yet)
@@ -146,17 +93,6 @@ private:
 	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution
 	/// </summary>
 	static constexpr float SSAO_SCALE_FACTOR = 0.5;
-
-	/// <summary>
-	/// The entities stored in the renderer
-	/// </summary>
-	std::vector<std::unique_ptr<Entity>> entities;
-
-	/// <summary>
-	/// A struct that serves to cache the data obtained when sorting the scene
-	/// It is reused until the scene gets updated
-	/// </summary>
-	SortedSceneData sortedSceneData;
 
 	/// <summary>
 	/// The render target in which everything is rendered
@@ -235,7 +171,7 @@ private:
 	/// The pass responsible for generating the shadow map
 	/// </summary>
 	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
-	void shadowPass(std::vector<MeshComponent*>& meshes);
+	void shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene);
 
 	/// <summary>
 	/// The pass responsible for rendering position/normal/albedo informations to the G buffer textures
@@ -271,11 +207,6 @@ private:
 	/// The final pass, reponsible for resolving the multisampled framebuffer texture to the final texture for display
 	/// </summary>
 	void blitPass();
-
-	/// <summary>
-	/// A recursive function for traversing the scene graph and sorting all the entities before render
-	/// </summary>
-	void getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities, SortedSceneData& sortedSceneData);
 };
 
 #endif

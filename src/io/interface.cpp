@@ -16,6 +16,7 @@
 #include "lightManager.hpp"
 #include "logger.hpp"
 #include "game/gameEngine.hpp"
+#include "game/gameState.hpp"
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
@@ -227,7 +228,7 @@ void ShowViewer()
 	isViewerFocused = ImGui::IsWindowFocused();
 
 	// If we have a click inside the viewer window
-	if (isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+	if (isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && false)
 	{
 		glm::vec2 mousePos = ImGui::GetMousePos();
 		// Get mouse position inside of the viewer
@@ -246,7 +247,7 @@ void ShowViewer()
 			std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
 			Logger::logInfo(hitMessage, "interface.cpp");
 			
-			float cameraFov = glm::radians(game.cameraComponent->getZoom());
+			float cameraFov = glm::radians(game.getCurrentState()->getScene().currentCamera->getZoom());
 			float aspectRatio = viewerSize.x / viewerSize.y;
 
 			float dx = tanf(cameraFov * 0.5f) * ndcX * aspectRatio;
@@ -255,7 +256,7 @@ void ShowViewer()
 			glm::vec4 rayStartPosView = glm::vec4(dx * CameraComponent::NEAR, dy * CameraComponent::NEAR, -CameraComponent::NEAR, 1.0f);
 			glm::vec4 rayEndPosView = glm::vec4(dx * CameraComponent::FAR, dy * CameraComponent::FAR, -CameraComponent::FAR, 1.0f);
 
-			glm::mat4 cameraViewInv = glm::inverse(game.cameraComponent->getViewMatrix());
+			glm::mat4 cameraViewInv = glm::inverse(game.getCurrentState()->getScene().currentCamera->getViewMatrix());
 
 			glm::vec3 rayStartPosWorld = cameraViewInv * rayStartPosView;
 			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
@@ -741,7 +742,8 @@ void SceneGraph()
 
 	if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 	{
-		SceneGraphRecurse(renderer->getEntities());
+		// TODO : Go through current state scene
+		SceneGraphRecurse(game.getCurrentState()->getScene().getEntities());
 		ImGui::TreePop();
 	}
 
@@ -825,7 +827,8 @@ void HandleSceneGraphClick(Entity* object)
 			if (object == selectedSceneNode)
 				selectedSceneNode = nullptr;
 
-			if (!renderer->removeEntity(object))
+			// TODO : Remove from scene
+			if (!game.getCurrentState()->getScene().removeEntity(object))
 			{
 				object->getParent()->removeChild(object);
 				delete object;

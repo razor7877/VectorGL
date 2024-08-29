@@ -6,8 +6,6 @@
 class MainGameState : public virtual GameState
 {
 public:
-	CameraComponent* camera = nullptr;
-
 	MainGameState(Renderer& renderer) : GameState(renderer) {};
 
 	void init() override;
