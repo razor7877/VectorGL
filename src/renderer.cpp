@@ -229,7 +229,8 @@ void Renderer::render(float deltaTime)
 
 	double startTime = glfwGetTime();
 	this->sortedSceneData.clearCache();
-	this->getMeshesRecursively(entities, this->sortedSceneData);
+	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
+	this->getMeshesRecursively(frustum, entities, this->sortedSceneData);
 	double endTime = glfwGetTime();
 	this->meshSortingTime = endTime - startTime;
 
@@ -612,11 +613,9 @@ void Renderer::blitPass()
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-void Renderer::getMeshesRecursively(std::vector<Entity*> entities, SortedSceneData& sortedSceneData)
+void Renderer::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities, SortedSceneData& sortedSceneData)
 {
 	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
-	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
-
 	// We start by sorting the entities depending on if they are renderable objects
 	for (Entity* entity : entities)
 	{
@@ -630,7 +629,7 @@ void Renderer::getMeshesRecursively(std::vector<Entity*> entities, SortedSceneDa
 			{
 				sortedSceneData.meshes.push_back(mesh);
 
-				if (frustum.isOnFrustum(mesh->getLocalBoundingBox(), entity->transform))
+				if (cameraFrustum.isOnFrustum(mesh->getLocalBoundingBox(), mesh->getWorldBoundingBox()))
 				{
 					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
@@ -646,7 +645,7 @@ void Renderer::getMeshesRecursively(std::vector<Entity*> entities, SortedSceneDa
 				//	mesh->setDiffuseColor(glm::vec3(1.0f));
 			}
 
-			this->getMeshesRecursively(entity->getChildren(), sortedSceneData);
+			this->getMeshesRecursively(cameraFrustum, entity->getChildren(), sortedSceneData);
 		}
 	}
 }

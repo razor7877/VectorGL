@@ -13,6 +13,7 @@
 #include "components/meshComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
 #include "physics/physicsWorld.hpp"
+#include "physics/frustum.hpp"
 
 struct SortedSceneData
 {
@@ -272,7 +273,7 @@ private:
 	/// <summary>
 	/// A recursive function for traversing the scene graph and sorting all the entities before render
 	/// </summary>
-	void getMeshesRecursively(std::vector<Entity*> entities, SortedSceneData& sortedSceneData);
+	void getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities, SortedSceneData& sortedSceneData);
 };
 
 #endif
