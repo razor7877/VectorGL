@@ -27,6 +27,12 @@ public:
 	void Component::update(float deltaTime) override;
 
 	/// <summary>
+	/// Unlike the update method, this is a much simpler method that only sends model & normal matrices to the material shader before drawing
+	/// Much faster to run, used for passes that only need to draw the geometry of the mesh
+	/// </summary>
+	void drawGeometry();
+
+	/// <summary>
 	/// Adds vertices to the mesh
 	/// </summary>
 	MeshComponent& addVertices(std::vector<float> vertices);

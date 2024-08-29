@@ -301,8 +301,8 @@ void Renderer::render(float deltaTime)
 	this->skyTarget.bind();
 	this->skyTarget.clear();
 
-	this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-	this->renderPass(deltaTime, renderList, transparentRenderList, logicEntities, meshes);
+	/*this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	this->renderPass(deltaTime, renderList, transparentRenderList, logicEntities, meshes);*/
 
 	this->skyTarget.unbind();
 }
@@ -357,7 +357,7 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes)
 	{
 		Shader* oldShader = mesh->material->shaderProgram;
 		mesh->material->shaderProgram = depthShader;
-		mesh->update(0);
+		mesh->drawGeometry();
 		mesh->material->shaderProgram = oldShader;
 	}
 
@@ -377,7 +377,7 @@ void Renderer::gBufferPass(std::vector<MeshComponent*>& meshes)
 	{
 		Shader* oldShader = mesh->material->shaderProgram;
 		mesh->material->shaderProgram = gBufferShader;
-		mesh->update(0);
+		mesh->drawGeometry();
 		mesh->material->shaderProgram = oldShader;
 	}
 
@@ -526,7 +526,7 @@ void Renderer::renderPass(
 		};
 
 		// Add the vertices to draw each line of the bounding box
-		for (int i = 0; i < 12; ++i)
+		for (int i = 0; i < 0; ++i)
 		{
 			int v1 = edgeIndices[i][0];
 			int v2 = edgeIndices[i][1];
@@ -633,21 +633,24 @@ void Renderer::getMeshesRecursively(
 				logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
-				if (frustum.isOnFrustum(mesh->getLocalBoundingBox(), entity->transform))
-					mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
-				else
-					mesh->setDiffuseColor(glm::vec3(1.0f));
-				
 				meshes.push_back(mesh);
 
-				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
-				if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
-					renderList[mesh->material->shaderProgram].push_back(entity);
-				else
-					transparentRenderList[mesh->material->shaderProgram].push_back(entity);
+				if (frustum.isOnFrustum(mesh->getLocalBoundingBox(), entity->transform))
+				{
+					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
+					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
+						renderList[mesh->material->shaderProgram].push_back(entity);
+					else
+						transparentRenderList[mesh->material->shaderProgram].push_back(entity);
 
-				if (entity->drawOutline)
-					outlineRenderList.push_back(entity);
+					if (entity->drawOutline)
+						outlineRenderList.push_back(entity);
+				}
+				//	mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
+				//else
+				//	mesh->setDiffuseColor(glm::vec3(1.0f));
+				
+				
 			}
 
 			this->getMeshesRecursively(entity->getChildren(), renderList, transparentRenderList, outlineRenderList, logicEntities, meshes);

@@ -94,6 +94,27 @@ int main()
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
+	for (int x = 0; x < 12; x++)
+	{
+		for (int y = 0; y < 12; y++)
+		{
+			for (int z = 0; z < 12; z++)
+			{
+				std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
+
+				MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
+				sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+					.addVertices(sphereOptimized.vertices)
+					.addIndices(sphereOptimized.indices)
+					.addNormals(sphereOptimized.normals);
+
+				sphereEntity->transform->setPosition(x * 3, y * 3, z * 3);
+
+				defaultRenderer.addEntity(std::move(sphereEntity));
+			}
+		}
+	}
+
 	// Sphere
 	for (int i = 0; i < 100; i++)
 	{
