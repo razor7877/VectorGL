@@ -27,6 +27,7 @@ struct SortedSceneData
 	std::vector<Entity*> logicEntities;
 	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
 	std::vector<MeshComponent*> meshes;
+	std::vector<MeshComponent*> allMeshes;
 
 	void clearCache()
 	{
@@ -35,6 +36,7 @@ struct SortedSceneData
 		outlineRenderList.clear();
 		logicEntities.clear();
 		meshes.clear();
+		allMeshes.clear();
 	}
 };
 

@@ -248,7 +248,7 @@ void Renderer::render(float deltaTime)
 
 	// Render the shadow map
 	startTime = glfwGetTime();
-	this->shadowPass(sortedSceneData.meshes);
+	this->shadowPass(sortedSceneData.allMeshes);
 	endTime = glfwGetTime();
 	this->shadowPassTime = endTime - startTime;
 
@@ -299,8 +299,14 @@ void Renderer::render(float deltaTime)
 	this->skyTarget.bind();
 	this->skyTarget.clear();
 
-	/*this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-	this->renderPass(deltaTime, renderList, transparentRenderList, logicEntities, meshes);*/
+	this->shaderManager.updateUniformBuffer(this->skyCamera->getViewMatrix(), this->skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	this->renderPass(
+		deltaTime,
+		sortedSceneData.renderList,
+		sortedSceneData.transparentRenderList,
+		sortedSceneData.logicEntities,
+		sortedSceneData.meshes
+	);
 
 	this->skyTarget.unbind();
 }
@@ -627,10 +633,12 @@ void Renderer::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>
 				sortedSceneData.logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
-				sortedSceneData.meshes.push_back(mesh);
+				sortedSceneData.allMeshes.push_back(mesh);
 
 				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
 				{
+					sortedSceneData.meshes.push_back(mesh);
+
 					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
 						sortedSceneData.renderList[mesh->material->shaderProgram].push_back(entity);
@@ -639,8 +647,9 @@ void Renderer::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>
 
 					if (entity->drawOutline)
 						sortedSceneData.outlineRenderList.push_back(entity);
+
+					//mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 				}
-				//	mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 				//else
 				//	mesh->setDiffuseColor(glm::vec3(1.0f));
 			}
