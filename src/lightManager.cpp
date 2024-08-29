@@ -19,6 +19,9 @@ LightManager::LightManager()
 
 void LightManager::init()
 {
+	this->nrDirLights = {};
+	this->nrPointLights = {};
+	this->nrSpotLights = {};
 	this->sendToShader();
 }
 

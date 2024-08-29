@@ -1,5 +1,6 @@
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
+#include "main.hpp"
 
 GameState* GameEngine::getCurrentState()
 {
@@ -11,8 +12,7 @@ GameState* GameEngine::getCurrentState()
 
 void GameEngine::init()
 {
-	// After all needed objects have been added, initializes the renderer's data to set up every object's data
-	this->renderer.init(glm::vec2(10));
+	this->renderer.init(glm::vec2(windowHeight, windowWidth));
 }
 
 void GameEngine::cleanup()
@@ -22,6 +22,8 @@ void GameEngine::cleanup()
 		this->states.back()->cleanup();
 		this->states.pop_back();
 	}
+
+	this->renderer.end();
 }
 
 void GameEngine::changeState(GameState* state)

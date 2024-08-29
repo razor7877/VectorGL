@@ -1,6 +1,7 @@
 #pragma once
 
 #include "physics/plane.hpp"
+#include "components/cameraComponent.hpp"
 
 /// <summary>
 /// Represents a frustum

@@ -48,6 +48,13 @@ void Scene::init()
 		entity->start();
 }
 
+void Scene::end()
+{
+	// Start all the entities on the scene
+	for (auto&& entity : this->entities)
+		entity.reset();
+}
+
 void Scene::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities)
 {
 	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between

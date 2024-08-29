@@ -69,6 +69,9 @@ void Renderer::init(glm::vec2 windowSize)
 	// Interpolation between sides of a cubemap
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
+	this->shaderManager.initUniformBuffer();
+	LightManager::getInstance().shaderProgram = this->shaderManager.getShader(ShaderType::PBR);
+
 	// Initialize SSAO kernels
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 	std::default_random_engine generator;
@@ -238,21 +241,21 @@ void Renderer::render(Scene& scene, float deltaTime)
 	this->skyTarget.bind();
 	this->skyTarget.clear();
 
-	this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	/*this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
 	this->renderPass(
 		deltaTime,
 		scene.sortedSceneData.renderList,
 		scene.sortedSceneData.transparentRenderList,
 		scene.sortedSceneData.logicEntities,
 		scene.sortedSceneData.meshes
-	);
+	);*/
 
 	this->skyTarget.unbind();
 }
 
 void Renderer::end()
 {
-	delete this->physicsWorld;
+
 }
 
 void Renderer::createFramebuffers(glm::vec2 windowSize)

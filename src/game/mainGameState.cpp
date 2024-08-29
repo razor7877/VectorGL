@@ -19,6 +19,8 @@
 
 void MainGameState::init()
 {
+	LightManager::getInstance().init();
+
 	Shader* phongShader = this->renderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = this->renderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* skyboxShader = this->renderer.shaderManager.getShader(ShaderType::SKYBOX);
@@ -45,19 +47,11 @@ void MainGameState::init()
 	skyCameraEntity->transform->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
 	this->scene.addEntity(std::move(skyCameraEntity));
 
-	game.renderer.shaderManager.initUniformBuffer();
-
-	LightManager& lightManager = LightManager::getInstance();
-	lightManager.shaderProgram = pbrShader;
-	lightManager.init();
-
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
-
-	//this->renderer.physicsWorld->enableDebugDraw = true;
 
 	// Cube
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
@@ -83,6 +77,7 @@ void MainGameState::init()
 
 	this->scene.addEntity(std::move(cubeEntity));
 
+	// Sphere grid
 	for (int x = 0; x < 13; x++)
 	{
 		for (int y = 0; y < 13; y++)
@@ -112,29 +107,13 @@ void MainGameState::init()
 		}
 	}
 
-	// Sphere
-	for (int i = 0; i < 10; i++)
-	{
-		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
-
-		MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
-		sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-			.addVertices(sphereOptimized.vertices)
-			.addIndices(sphereOptimized.indices)
-			.addNormals(sphereOptimized.normals);
-
-		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
-		this->renderer.physicsWorld->addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
-
-		this->scene.addEntity(std::move(sphereEntity));
-	}
-
 	// Skybox
 	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	this->scene.addEntity(std::move(skyEntity));
 
+	// Lights
 	glm::vec3 lightPositions[] = {
 		glm::vec3(-10.0f,  10.0f, 10.0f),
 		glm::vec3(10.0f,  10.0f, 10.0f),
@@ -173,15 +152,15 @@ void MainGameState::init()
 	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
 	this->scene.addEntity(std::move(planeEntity));
-
 	this->renderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
+	// Initialize scene
 	this->scene.init();
 }
 
 void MainGameState::cleanup()
 {
-	this->renderer.end();
+	this->scene.end();
 }
 
 void MainGameState::pause()

@@ -83,6 +83,11 @@ public:
 	void init();
 
 	/// <summary>
+	/// Stops all the entities in the scene
+	/// </summary>
+	void end();
+
+	/// <summary>
 	/// Sorts the scene data and stores it into a struct
 	/// </summary>
 	/// <param name="cameraFrustum">The camera frustum for frustum culling</param>
