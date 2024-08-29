@@ -1,5 +1,5 @@
 #include "components/lights/directionalLightComponent.hpp"
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 
 DirectionalLightComponent::DirectionalLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
 {

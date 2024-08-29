@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 
 LightManager LightManager::instance;
 

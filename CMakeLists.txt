@@ -21,7 +21,6 @@ file(GLOB COMPONENTS_SRC "src/components/*.c" "src/components/*.cpp")
 file(GLOB COMPONENTS_LIGHTS_SRC "src/components/lights/*.c" "src/components/lights/*.cpp")
 file(GLOB IO_SRC "src/io/*.c" "src/io/*.cpp")
 file(GLOB KHR_SRC "src/KHR/*.c" "src/KHR/*.cpp")
-file(GLOB LIGHTS_SRC "src/lights/*.c" "src/lights/*.cpp")
 file(GLOB MATERIALS_SRC "src/materials/*.c" "src/materials/*.cpp")
 file(GLOB PHYSICS_SRC "src/physics/*.c" "src/physics/*.cpp")
 file(GLOB UTILITIES_SRC "src/utilities/*.c" "src/utilities/*.cpp")
@@ -32,7 +31,6 @@ file(GLOB COMPONENTS_INCLUDES "includes/components/*.h" "includes/components/*.h
 file(GLOB COMPONENTS_LIGHTS_INCLUDES "includes/components/lights/*.h" "includes/components/lights/*.hpp")
 file(GLOB IO_INCLUDES "includes/io/*.h" "includes/io/*.hpp")
 file(GLOB KHR_INCLUDES "includes/KHR/*.h" "includes/KHR/*.hpp")
-file(GLOB LIGHTS_INCLUDES "includes/lights/*.h" "includes/lights/*.hpp")
 file(GLOB MATERIALS_INCLUDES "includes/materials/*.h" "includes/materials/*.hpp")
 file(GLOB PHYSICS_INCLUDES "includes/physics/*.h" "includes/physics/*.hpp")
 file(GLOB UTILITIES_INCLUDES "includes/utilities/*.h" "includes/utilities/*.hpp")
@@ -44,7 +42,6 @@ add_executable(VectorGL
 	${COMPONENTS_LIGHTS_SRC}
 	${IO_SRC}
 	${KHR_SRC}
-	${LIGHTS_SRC}
 	${MATERIALS_SRC}
 	${PHYSICS_SRC}
 	${UTILITIES_SRC}
@@ -54,7 +51,6 @@ add_executable(VectorGL
 	${COMPONENTS_LIGHTS_INCLUDES}
 	${IO_INCLUDES}
 	${KHR_INCLUDES}
-	${LIGHTS_INCLUDES}
 	${MATERIALS_INCLUDES}
 	${PHYSICS_INCLUDES}
 	${UTILITIES_INCLUDES}
@@ -79,7 +75,6 @@ source_group("src\\components" FILES ${COMPONENTS_SRC})
 source_group("src\\components\\lights" FILES ${COMPONENTS_LIGHTS_SRC})
 source_group("src\\io" FILES ${IO_SRC})
 source_group("src\\KHR" FILES ${KHR_SRC})
-source_group("src\\lights" FILES ${LIGHTS_SRC})
 source_group("src\\materials" FILES ${MATERIALS_SRC})
 source_group("src\\physics" FILES ${PHYSICS_SRC})
 source_group("src\\utilities" FILES ${UTILITIES_SRC})
@@ -89,7 +84,6 @@ source_group("includes\\components" FILES ${COMPONENTS_INCLUDES})
 source_group("includes\\components\\lights" FILES ${COMPONENTS_LIGHTS_INCLUDES})
 source_group("includes\\io" FILES ${IO_INCLUDES})
 source_group("includes\\KHR" FILES ${KHR_INCLUDES})
-source_group("includes\\lights" FILES ${LIGHTS_INCLUDES})
 source_group("includes\\materials" FILES ${MATERIALS_INCLUDES})
 source_group("includes\\physics" FILES ${PHYSICS_INCLUDES})
 source_group("includes\\utilities" FILES ${UTILITIES_INCLUDES})

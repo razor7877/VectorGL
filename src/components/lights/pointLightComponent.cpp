@@ -3,7 +3,7 @@
 #include <utilities/glad.h>
 
 #include "components/lights/pointLightComponent.hpp"
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 
 PointLightComponent::PointLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
 {

@@ -2,7 +2,7 @@
 #include <glm/glm/ext/matrix_transform.hpp>
 
 #include "components/lights/spotLightComponent.hpp"
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 
 SpotLightComponent::SpotLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
 {

@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "entity.hpp"
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 #include "shaderManager.hpp"
 #include "renderTarget.hpp"
 #include "components/cameraComponent.hpp"

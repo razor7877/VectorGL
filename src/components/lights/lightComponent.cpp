@@ -1,6 +1,6 @@
 #include "components/lights/lightComponent.hpp"
 #include "entity.hpp"
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 
 LightComponent::LightComponent(Entity* parent) : Component(parent)
 {

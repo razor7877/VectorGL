@@ -13,7 +13,7 @@
 #include "main.hpp"
 #include "entity.hpp"
 #include "io/interface.hpp"
-#include "lights/lightManager.hpp"
+#include "lightManager.hpp"
 #include "logger.hpp"
 
 #include "components/meshComponent.hpp"
