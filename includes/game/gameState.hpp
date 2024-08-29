@@ -9,6 +9,7 @@ class GameState
 {
 public:
 	GameState(Renderer& renderer) : renderer(renderer) {}
+	virtual ~GameState() = default;
 
 	/// <summary>
 	/// This is executed when the game state starts
@@ -53,9 +54,9 @@ public:
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
 	/// <param name="gameState">The new state to change to</param>
-	void changeState(GameEngine* gameEngine, GameState* gameState)
+	void changeState(GameEngine* gameEngine, std::unique_ptr<GameState> gameState)
 	{
-		gameEngine->changeState(gameState);
+		gameEngine->changeState(std::move(gameState));
 	}
 
 	Scene& getScene()

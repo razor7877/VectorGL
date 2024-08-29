@@ -35,9 +35,9 @@ int main()
 	ImGuiInit(window, &game.renderer);
 
 	// Start the game state
-	StartMenuState mainState = StartMenuState(game.renderer);
+	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);
 	game.init();
-	game.changeState(&mainState);
+	game.changeState(std::move(mainState));
 	
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;

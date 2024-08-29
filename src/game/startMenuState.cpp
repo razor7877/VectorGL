@@ -88,7 +88,7 @@ void StartMenuState::init()
 
 void StartMenuState::cleanup()
 {
-	this->renderer.end();
+	this->scene.end();
 }
 
 void StartMenuState::pause()
@@ -109,7 +109,7 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-			gameEngine->pushState(new MainGameState(this->renderer));
+			gameEngine->pushState(std::make_unique<MainGameState>(this->renderer));
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
 			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);

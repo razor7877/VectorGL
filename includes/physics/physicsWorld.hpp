@@ -101,6 +101,10 @@ public:
 	void addSphere(PhysicsComponent* component, float radius, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 private:
+	btDefaultCollisionConfiguration* collisionConfiguration;
+	btCollisionDispatcher* collisionDispatcher;
+	btBroadphaseInterface* overlappingPairCache;
+	btSequentialImpulseConstraintSolver* solver;
 	btDiscreteDynamicsWorld* world;
 	DebugDrawer* debugDrawer;
 

@@ -2,10 +2,10 @@
 
 PhysicsWorld::PhysicsWorld()
 {
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
-	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
+	this->collisionConfiguration = new btDefaultCollisionConfiguration();
+	this->collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
+	this->overlappingPairCache = new btDbvtBroadphase();
+	this->solver = new btSequentialImpulseConstraintSolver();
 	this->world = new btDiscreteDynamicsWorld(collisionDispatcher, overlappingPairCache, solver, collisionConfiguration);
 	this->world->setGravity(btVector3(0.0f, PhysicsWorld::GRAVITY, 0.0f));
 
@@ -15,7 +15,15 @@ PhysicsWorld::PhysicsWorld()
 
 PhysicsWorld::~PhysicsWorld()
 {
+	delete debugDrawer;
+	delete world;
+	delete solver;
+	delete overlappingPairCache;
+	delete collisionDispatcher;
+	delete collisionConfiguration;
 
+	for (btRigidBody* rigidBody : this->rigidBodies)
+		delete rigidBody;
 }
 
 void PhysicsWorld::update(float deltaTime)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include "renderer.hpp"
 #include "components/cameraComponent.hpp"
@@ -21,7 +22,7 @@ public:
 	/// Returns the active game state
 	/// </summary>
 	/// <returns>A pointer to the current state, or nullptr if no state is active</returns>
-	GameState* getCurrentState();
+	std::unique_ptr<GameState>& getCurrentState();
 
 	/// <summary>
 	/// Initializes the game
@@ -37,13 +38,13 @@ public:
 	/// Changes to a new state
 	/// </summary>
 	/// <param name="state"></param>
-	void changeState(GameState* state);
+	void changeState(std::unique_ptr<GameState> state);
 
 	/// <summary>
 	/// Pushes a new state to the stack
 	/// </summary>
 	/// <param name="state"></param>
-	void pushState(GameState* state);
+	void pushState(std::unique_ptr<GameState> state);
 
 	/// <summary>
 	/// Pops the last state from the stack
@@ -69,6 +70,6 @@ public:
 	void quit();
 
 private:
-	std::vector<GameState*> states;
+	std::vector<std::unique_ptr<GameState>> states;
 	bool isRunning = false;
 };

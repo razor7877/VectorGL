@@ -2,12 +2,12 @@
 #include "game/gameState.hpp"
 #include "main.hpp"
 
-GameState* GameEngine::getCurrentState()
+std::unique_ptr<GameState>& GameEngine::getCurrentState()
 {
 	if (!this->states.empty())
 		return this->states.back();
 
-	return nullptr;
+	return std::unique_ptr<GameState>(nullptr);
 }
 
 void GameEngine::init()
@@ -26,7 +26,7 @@ void GameEngine::cleanup()
 	this->renderer.end();
 }
 
-void GameEngine::changeState(GameState* state)
+void GameEngine::changeState(std::unique_ptr<GameState> state)
 {
 	// Cleanup and remove last state if there is one
 	if (!this->states.empty())
@@ -35,18 +35,18 @@ void GameEngine::changeState(GameState* state)
 		this->states.pop_back();
 	}
 
-	this->states.push_back(state);
 	state->init();
+	this->states.push_back(std::move(state));
 }
 
-void GameEngine::pushState(GameState* state)
+void GameEngine::pushState(std::unique_ptr<GameState> state)
 {
 	// Pause last state
 	if (!this->states.empty())
 		this->states.back()->pause();
 
-	this->states.push_back(state);
 	state->init();
+	this->states.push_back(std::move(state));
 }
 
 void GameEngine::popState()
