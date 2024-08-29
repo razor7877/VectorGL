@@ -11,6 +11,7 @@
 #include "renderer.hpp"
 #include "game/gameEngine.hpp"
 #include "game/mainGameState.hpp"
+#include "game/startMenuState.hpp"
 
 extern GLFWwindow* window;
 
@@ -23,9 +24,7 @@ int windowHeight = WINDOW_HEIGHT;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-// Creates a renderer for storing & drawing objects
-Renderer defaultRenderer = Renderer();
-CameraComponent* cameraComponent = nullptr;
+GameEngine& game = GameEngine();
 
 int main()
 {
@@ -33,14 +32,12 @@ int main()
 		return -1;
 	
 	// Initializes the ImGui UI system
-	ImGuiInit(window, &defaultRenderer);
+	ImGuiInit(window, &game.renderer);
 
 	// Start the game state
-	GameEngine game;
-	MainGameState mainState = MainGameState(defaultRenderer);
+	StartMenuState mainState = StartMenuState(game.renderer);
 	game.init();
 	game.changeState(&mainState);
-	cameraComponent = mainState.camera;
 	
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;

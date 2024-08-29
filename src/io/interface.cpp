@@ -15,6 +15,7 @@
 #include "io/interface.hpp"
 #include "lightManager.hpp"
 #include "logger.hpp"
+#include "game/gameEngine.hpp"
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
@@ -211,7 +212,7 @@ void ShowViewer()
 
 	ImVec2 viewerSize = ImGui::GetContentRegionAvail();
 
-	defaultRenderer.resizeFramebuffers(glm::vec2(viewerSize.x, viewerSize.y));
+	game.renderer.resizeFramebuffers(glm::vec2(viewerSize.x, viewerSize.y));
 
 	// Since we are about to draw the image, this returns the top left corner of the image
 	glm::vec2 imagePos = ImGui::GetCursorScreenPos();
@@ -245,7 +246,7 @@ void ShowViewer()
 			std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
 			Logger::logInfo(hitMessage, "interface.cpp");
 			
-			float cameraFov = glm::radians(cameraComponent->getZoom());
+			float cameraFov = glm::radians(game.cameraComponent->getZoom());
 			float aspectRatio = viewerSize.x / viewerSize.y;
 
 			float dx = tanf(cameraFov * 0.5f) * ndcX * aspectRatio;
@@ -254,13 +255,13 @@ void ShowViewer()
 			glm::vec4 rayStartPosView = glm::vec4(dx * CameraComponent::NEAR, dy * CameraComponent::NEAR, -CameraComponent::NEAR, 1.0f);
 			glm::vec4 rayEndPosView = glm::vec4(dx * CameraComponent::FAR, dy * CameraComponent::FAR, -CameraComponent::FAR, 1.0f);
 
-			glm::mat4 cameraViewInv = glm::inverse(cameraComponent->getViewMatrix());
+			glm::mat4 cameraViewInv = glm::inverse(game.cameraComponent->getViewMatrix());
 
 			glm::vec3 rayStartPosWorld = cameraViewInv * rayStartPosView;
 			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
 
 			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
-			PhysicsComponent* raycastResult = defaultRenderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
+			PhysicsComponent* raycastResult = game.renderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
 
 			if (selectedSceneNode != nullptr)
 				selectedSceneNode->drawOutline = false;

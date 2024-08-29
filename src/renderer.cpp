@@ -130,6 +130,7 @@ void Renderer::init(glm::vec2 windowSize)
 
 	this->shaderManager.initUniformBuffer();
 
+	LightManager::getInstance().shaderProgram = this->shaderManager.getShader(ShaderType::PBR);
 	// Initializes the light manager if it was setup to send all required data to the shader
 	if (LightManager::getInstance().shaderProgram->ID != 0)
 		LightManager::getInstance().init();

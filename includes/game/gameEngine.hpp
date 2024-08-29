@@ -2,6 +2,9 @@
 
 #include <vector>
 
+#include "renderer.hpp"
+#include "components/cameraComponent.hpp"
+
 class GameState;
 
 // Inspired from http://gamedevgeek.com/tutorials/managing-game-states-in-c/
@@ -9,6 +12,9 @@ class GameState;
 class GameEngine
 {
 public:
+	Renderer renderer = Renderer();
+	CameraComponent* cameraComponent = nullptr;
+
 	/// <summary>
 	/// Initializes the game
 	/// </summary>

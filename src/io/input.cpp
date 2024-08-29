@@ -6,6 +6,7 @@
 #include "components/cameraComponent.hpp"
 #include "utilities/resourceLoader.hpp"
 #include "logger.hpp"
+#include "game/gameEngine.hpp"
 
 GLFWwindow* window;
 
@@ -24,8 +25,6 @@ int lastHeight = WINDOW_HEIGHT;
 // Used to save the last coordinates of the windowed mode window
 int lastXPos = 50;
 int lastYPos = 50;
-
-extern Renderer defaultRenderer;
 
 int setupGlfwContext()
 {
@@ -81,7 +80,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 
-	cameraComponent->processMouseMovement(xoffset, yoffset);
+	game.cameraComponent->processMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -91,7 +90,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		return;
 	}
-	cameraComponent->processMouseScroll(static_cast<float>(yoffset));
+	game.cameraComponent->processMouseScroll(static_cast<float>(yoffset));
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -187,26 +186,7 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
 		if (newEntity != nullptr)
 		{
 			newEntity->start();
-			defaultRenderer.addEntity(std::move(newEntity));
+			game.renderer.addEntity(std::move(newEntity));
 		}
 	}
-}
-
-void processInput(GLFWwindow* window, float deltaTime)
-{
-	// If cursor is shown (interacting with UI), don't handle movement
-	if (showCursor)
-		return;
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
-		cameraComponent->processKeyboard(CameraMovement::FORWARD, deltaTime);
-
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
-		cameraComponent->processKeyboard(CameraMovement::BACKWARD, deltaTime);
-	
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-		cameraComponent->processKeyboard(CameraMovement::LEFT, deltaTime);
-	
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-		cameraComponent->processKeyboard(CameraMovement::RIGHT, deltaTime);
 }

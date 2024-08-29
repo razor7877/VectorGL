@@ -25,6 +25,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 // Callbakc function to handle drag and dropping files
 void drop_callback(GLFWwindow* window, int count, const char** paths);
 // Used to process various key presses like movement keys
-void processInput(GLFWwindow* window, float deltaTime);
+template <typename T>
+void processInput(T&& lambda, GLFWwindow* window, float deltaTime)
+{
+	lambda(window, deltaTime);
+}
 
 #endif

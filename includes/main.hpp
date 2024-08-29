@@ -10,12 +10,12 @@
 #include "renderer.hpp"
 #include "texture.hpp"
 #include "cubemap.hpp"
+#include "game/gameEngine.hpp"
 
 extern int windowWidth;
 extern int windowHeight;
 
-extern Renderer defaultRenderer;
-extern CameraComponent* cameraComponent;
+extern GameEngine& game;
 
 int setupGlfwContext();
 int main();
