@@ -44,9 +44,6 @@ void Entity::update(float deltaTime)
 
 	for (auto& [type, component] : this->components)
 		component->update(deltaTime);
-
-	for (Entity* child : this->children)
-		child->update(deltaTime);
 }
 
 std::map<std::type_index, Component*> Entity::getComponents()

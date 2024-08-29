@@ -94,11 +94,14 @@ int main()
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
-	for (int x = 0; x < 12; x++)
+	std::vector<float> cubeVerts = Geometry::getCubeVertices();
+	std::vector<float> cubeNormals = Geometry::calculateVerticesNormals(cubeVerts);
+
+	for (int x = 0; x < 13; x++)
 	{
-		for (int y = 0; y < 12; y++)
+		for (int y = 0; y < 13; y++)
 		{
-			for (int z = 0; z < 12; z++)
+			for (int z = 0; z < 13; z++)
 			{
 				std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 
@@ -107,16 +110,27 @@ int main()
 					.addVertices(sphereOptimized.vertices)
 					.addIndices(sphereOptimized.indices)
 					.addNormals(sphereOptimized.normals);
+				//sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+				//	.addVertices(cubeVerts)
+				//	.addNormals(cubeNormals);
 
+				sphereMesh->setDiffuseColor(glm::vec3((float)x / 13.0f, (float)y / 13.0f, 1.0f));
 				sphereEntity->transform->setPosition(x * 3, y * 3, z * 3);
 
-				defaultRenderer.addEntity(std::move(sphereEntity));
+				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
+				if (pbrMat != nullptr)
+				{
+					pbrMat->roughness = (float)y / 13.0f + 0.001f;
+					pbrMat->metallic = (float)z / 13.0f;
+				}
+
+				//defaultRenderer.addEntity(std::move(sphereEntity));
 			}
 		}
 	}
 
 	// Sphere
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 0; i++)
 	{
 		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 
