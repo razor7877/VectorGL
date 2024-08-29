@@ -16,14 +16,15 @@
 #include "utilities/geometry.hpp"
 #include "materials/pbrMaterial.hpp"
 #include "main.hpp"
+#include "logger.hpp"
 
 void MainGameState::init()
 {
-	LightManager::getInstance().init();
-
 	Shader* phongShader = this->renderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = this->renderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* skyboxShader = this->renderer.shaderManager.getShader(ShaderType::SKYBOX);
+
+	LightManager::getInstance().shaderProgram = pbrShader;
 
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
@@ -47,6 +48,8 @@ void MainGameState::init()
 	skyCameraEntity->transform->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
 	this->scene.addEntity(std::move(skyCameraEntity));
 
+	LightManager::getInstance().init();
+
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
@@ -62,7 +65,7 @@ void MainGameState::init()
 		.addVertices(cubeVertices);
 
 	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
-	this->renderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
+	this->physicsWorld.addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
 
 	this->scene.addEntity(std::move(cubeEntity));
 
@@ -73,7 +76,7 @@ void MainGameState::init()
 		.addVertices(cubeVertices);
 
 	cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
-	this->renderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
+	this->physicsWorld.addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
 
 	this->scene.addEntity(std::move(cubeEntity));
 
@@ -152,7 +155,7 @@ void MainGameState::init()
 	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
 	this->scene.addEntity(std::move(planeEntity));
-	this->renderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
+	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
 	// Initialize scene
 	this->scene.init();
@@ -179,7 +182,7 @@ extern GLFWwindow* window;
 void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
 	CameraComponent* camera = this->scene.currentCamera;
-	auto lambda = [camera, gameEngine](GLFWwindow* window, float deltaTime)
+	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
 			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
@@ -192,6 +195,9 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
 			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
+
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+			gameEngine->popState();
 	};
 
 	// Processes any mouse or keyboard input for camera movement
@@ -200,7 +206,7 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)
 {
-	this->renderer.render(this->scene, deltaTime);
+	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }
 
 void MainGameState::draw(GameEngine* gameEngine)

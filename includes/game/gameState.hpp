@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "scene.hpp"
 #include "game/gameEngine.hpp"
+#include "physics/physicsWorld.hpp"
 
 class GameState
 {
@@ -62,7 +63,13 @@ public:
 		return this->scene;
 	}
 
+	PhysicsWorld& getPhysicsWorld()
+	{
+		return this->physicsWorld;
+	}
+
 protected:
 	Renderer& renderer;
 	Scene scene;
+	PhysicsWorld physicsWorld;
 };

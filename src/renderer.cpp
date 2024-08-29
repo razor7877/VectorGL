@@ -70,7 +70,6 @@ void Renderer::init(glm::vec2 windowSize)
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	this->shaderManager.initUniformBuffer();
-	LightManager::getInstance().shaderProgram = this->shaderManager.getShader(ShaderType::PBR);
 
 	// Initialize SSAO kernels
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
@@ -158,7 +157,7 @@ void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 	this->lineVerts.push_back(endPos.z);
 }
 
-void Renderer::render(Scene& scene, float deltaTime)
+void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 {
 	double frameStartTime = glfwGetTime();
 
@@ -176,7 +175,7 @@ void Renderer::render(Scene& scene, float deltaTime)
 
 	// Update the physics simulation
 	startTime = glfwGetTime();
-	this->physicsWorld->update(deltaTime);
+	physicsWorld.update(deltaTime);
 	endTime = glfwGetTime();
 	this->physicsUpdateTime = endTime - startTime;
 
@@ -214,6 +213,7 @@ void Renderer::render(Scene& scene, float deltaTime)
 	startTime = glfwGetTime();
 	this->renderPass(
 		deltaTime,
+		physicsWorld,
 		scene.sortedSceneData.renderList,
 		scene.sortedSceneData.transparentRenderList,
 		scene.sortedSceneData.logicEntities,
@@ -375,12 +375,17 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 
 void Renderer::renderPass(
 	float deltaTime,
+	PhysicsWorld& physicsWorld,
 	std::map<Shader*, std::vector<Entity*>>& renderables,
 	std::map<Shader*, std::vector<Entity*>>& transparentRenderables,
 	std::vector<Entity*>& nonRenderables,
 	std::vector<MeshComponent*> meshes)
 {
 	glStencilMask(0x00);
+
+	this->shaderManager.getShader(ShaderType::PBR)
+		->use()
+		->setVec2("windowSize", this->ssaoTarget.size);
 
 	// We can simply update all entities that won't be rendered
 	for (Entity* nonRenderable : nonRenderables)
@@ -390,10 +395,6 @@ void Renderer::renderPass(
 	glStencilMask(0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-	this->shaderManager.getShader(ShaderType::PBR)
-		->use()
-		->setVec2("windowSize", this->ssaoTarget.size);
 
 	// Entities that can be rendered are grouped by shader and then rendered together
 	for (auto& [shader, meshes] : renderables)
@@ -431,7 +432,7 @@ void Renderer::renderPass(
 	if (this->enableDebugDraw)
 	{
 		// Line drawing for debugging raycasts etc.
-		std::vector<float> debugLines = this->physicsWorld->getDebugLines();
+		std::vector<float> debugLines = physicsWorld.getDebugLines();
 		lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
 		lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
 

@@ -23,7 +23,6 @@ class Renderer
 {
 public:
 	ShaderManager shaderManager;
-	PhysicsWorld* physicsWorld = new PhysicsWorld();
 
 	float frameRenderTime = 0.0f;
 	float meshSortingTime = 0.0f;
@@ -65,7 +64,7 @@ public:
 	/// Draws the scene and updates all the entities
 	/// </summary>
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
-	void render(Scene& scene, float deltaTime);
+	void render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime);
 
 	/// <summary>
 	/// Stops the renderer, this cleans up all the resources it contains (not implemented yet)
@@ -191,6 +190,7 @@ private:
 	/// <param name="nonRenderables">A vector containing all the entities that are not rendered to the screen</param>
 	void renderPass(
 		float deltaTime,
+		PhysicsWorld& physicsWorld,
 		std::map<Shader*, std::vector<Entity*>>& renderables,
 		std::map<Shader*, std::vector<Entity*>>& transparentRenderables,
 		std::vector<Entity*>& nonRenderables,

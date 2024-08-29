@@ -262,7 +262,7 @@ void ShowViewer()
 			glm::vec3 rayEndPosWorld = cameraViewInv * rayEndPosView;
 
 			//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
-			PhysicsComponent* raycastResult = game.renderer.physicsWorld->raycastLine(rayStartPosWorld, rayEndPosWorld);
+			PhysicsComponent* raycastResult = game.getCurrentState()->getPhysicsWorld().raycastLine(rayStartPosWorld, rayEndPosWorld);
 
 			if (selectedSceneNode != nullptr)
 				selectedSceneNode->drawOutline = false;

@@ -9,14 +9,16 @@
 #include "utilities/geometry.hpp"
 #include "main.hpp"
 #include "components/skyboxComponent.hpp"
+#include "components/lights/directionalLightComponent.hpp"
+#include "components/lights/pointLightComponent.hpp"
 
 void StartMenuState::init()
 {
-	LightManager::getInstance().init();
-
 	Shader* phongShader = this->renderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = this->renderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* skyboxShader = this->renderer.shaderManager.getShader(ShaderType::SKYBOX);
+
+	LightManager::getInstance().shaderProgram = pbrShader;
 
 	VertexData sphere = Geometry::getSphereVertices(100, 30);
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
@@ -33,13 +35,13 @@ void StartMenuState::init()
 	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
 	this->scene.addEntity(std::move(cameraEntity));
 
+	LightManager::getInstance().init();
+
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
-
-	this->scene.directionalLight = directionalLightComponent;
 
 	// Sphere
 	for (int i = 0; i < 10; i++)
@@ -53,7 +55,7 @@ void StartMenuState::init()
 			.addNormals(sphereOptimized.normals);
 
 		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
-		this->renderer.physicsWorld->addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
+		this->physicsWorld.addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
 
 		this->scene.addEntity(std::move(sphereEntity));
 	}
@@ -78,7 +80,7 @@ void StartMenuState::init()
 
 	this->scene.addEntity(std::move(planeEntity));
 
-	this->renderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
+	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
 	// Initialize scene
 	this->scene.init();
@@ -127,7 +129,7 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)
 {
-	this->renderer.render(this->scene, deltaTime);
+	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }
 
 void StartMenuState::draw(GameEngine* gameEngine)
