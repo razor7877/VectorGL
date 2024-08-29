@@ -285,6 +285,7 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 
 IBLData::~IBLData()
 {
+	delete this->environmentMap;
 	delete this->irradianceMap;
 	delete this->prefilterMap;
 	this->brdfLut.reset();

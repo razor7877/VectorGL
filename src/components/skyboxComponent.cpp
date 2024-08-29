@@ -12,7 +12,12 @@ SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Compon
 
 SkyboxComponent::~SkyboxComponent()
 {
+	PBRMaterial::irradianceMap = nullptr;
+	PBRMaterial::prefilterMap = nullptr;
+	PBRMaterial::brdfLut = nullptr;
 
+	for (auto& [type, iblData] : this->skyboxes)
+		delete iblData;
 }
 
 void SkyboxComponent::start()
