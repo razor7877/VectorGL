@@ -25,8 +25,8 @@ struct Frustum
 
 		glm::vec3 camPos = camera->getPosition();
 		glm::vec3 camForward = camera->getForward();
-		glm::vec3 camRight = glm::cross(camera->getForward(), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec3 camUp = glm::cross(camRight, camForward);
+		glm::vec3 camRight = glm::normalize(glm::cross(camera->getForward(), glm::vec3(0.0f, 1.0f, 0.0f)));
+		glm::vec3 camUp = glm::normalize(glm::cross(camRight, camForward));
 
 		this->nearFace = { camPos + camera->NEAR * camForward, camForward };
 		this->farFace = { camPos + frontMultFar, -camForward };
