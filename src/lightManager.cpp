@@ -27,11 +27,11 @@ void LightManager::init()
 
 void LightManager::sendToShader()
 {
-	glUseProgram(this->shaderProgram->ID);
+	this->shaderProgram->use();
 
-	glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "nrDirLights"), this->nrDirLights);
-	glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "nrPointLights"), this->nrPointLights);
-	glUniform1i(glGetUniformLocation(this->shaderProgram->ID, "nrSpotLights"), this->nrSpotLights);
+	this->shaderProgram->setInt("nrDirLights", this->nrDirLights);
+	this->shaderProgram->setInt("nrPointLights", this->nrPointLights);
+	this->shaderProgram->setInt("nrSpotLights", this->nrSpotLights);
 }
 
 unsigned int LightManager::addDirLight()

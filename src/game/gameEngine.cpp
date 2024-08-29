@@ -65,17 +65,20 @@ void GameEngine::popState()
 
 void GameEngine::handleEvents(float deltaTime)
 {
-	this->states.back()->handleEvents(this, deltaTime);
+	if (!this->states.empty())
+		this->states.back()->handleEvents(this, deltaTime);
 }
 
 void GameEngine::update(float deltaTime)
 {
-	this->states.back()->update(this, deltaTime);
+	if (!this->states.empty())
+		this->states.back()->update(this, deltaTime);
 }
 
 void GameEngine::draw()
 {
-	this->states.back()->draw(this);
+	if (!this->states.empty())
+		this->states.back()->draw(this);
 }
 
 bool GameEngine::getIsRunning()

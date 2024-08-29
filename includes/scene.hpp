@@ -47,8 +47,14 @@ public:
 	/// </summary>
 	CameraComponent* currentCamera;
 
+	/// <summary>
+	/// Second camera
+	/// </summary>
 	CameraComponent* skyCamera;
 
+	/// <summary>
+	/// The directional light of the scene
+	/// </summary>
 	DirectionalLightComponent* directionalLight;
 
 	/// <summary>
