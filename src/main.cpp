@@ -4,22 +4,13 @@
 
 #include <utilities/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm/ext/matrix_transform.hpp>
-#include <glm/glm/ext/matrix_clip_space.hpp>
-#include <btBulletDynamicsCommon.h>
 
-#include "renderer.hpp"
-#include "shader.hpp"
 #include "io/input.hpp"
 #include "io/interface.hpp"
-#include "components/lights/directionalLightComponent.hpp"
-#include "components/lights/pointLightComponent.hpp"
-#include "components/skyboxComponent.hpp"
-#include "components/scriptComponent.hpp"
-#include "components/physicsComponent.hpp"
-#include "utilities/resourceLoader.hpp"
 #include "logger.hpp"
-#include "utilities/geometry.hpp"
+#include "renderer.hpp"
+#include "game/gameEngine.hpp"
+#include "game/mainGameState.hpp"
 
 extern GLFWwindow* window;
 
@@ -34,175 +25,22 @@ float lastFrame = 0.0f;
 
 // Creates a renderer for storing & drawing objects
 Renderer defaultRenderer = Renderer();
-CameraComponent* cameraComponent;
-
-btDynamicsWorld* dynamicsWorld;
-btRigidBody* boxRigidBody;
+CameraComponent* cameraComponent = nullptr;
 
 int main()
 {
 	if (setupGlfwContext() != 0)
 		return -1;
 	
-	// Sets up some parameters for the OpenGL context
-	// Depth test for depth buffering
-	glEnable(GL_DEPTH_TEST);
-	// Stencil test for outlines
-	glEnable(GL_STENCIL_TEST);
-	// Face culling for performance
-	glEnable(GL_CULL_FACE);
-	// MSAA
-	glEnable(GL_MULTISAMPLE);
-	// Transparency
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// Interpolation between sides of a cubemap
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-	Shader* phongShader = defaultRenderer.shaderManager.getShader(ShaderType::PHONG);
-	Shader* pbrShader = defaultRenderer.shaderManager.getShader(ShaderType::PBR);
-	Shader* skyboxShader = defaultRenderer.shaderManager.getShader(ShaderType::SKYBOX);
-
-	LightManager::getInstance().shaderProgram = pbrShader;
-
-	//defaultRenderer.physicsWorld->enableDebugDraw = true;
-
-	// Cube
-	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
-
-	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
-	std::vector<float> cubeVertices = Geometry::getCubeVertices();
-	cubeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-		.addVertices(cubeVertices);
-
-	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
-	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
-
-	defaultRenderer.addEntity(std::move(cubeEntity));
-
-	cubeEntity = std::make_unique<Entity>("Cube");
-
-	cubeMesh = cubeEntity->addComponent<MeshComponent>();
-	cubeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-		.addVertices(cubeVertices);
-
-	cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
-	defaultRenderer.physicsWorld->addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
-
-	defaultRenderer.addEntity(std::move(cubeEntity));
-
-	VertexData sphere = Geometry::getSphereVertices(100, 30);
-	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
-
-	std::vector<float> cubeVerts = Geometry::getCubeVertices();
-	std::vector<float> cubeNormals = Geometry::calculateVerticesNormals(cubeVerts);
-
-	for (int x = 0; x < 13; x++)
-	{
-		for (int y = 0; y < 13; y++)
-		{
-			for (int z = 0; z < 13; z++)
-			{
-				std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
-
-				MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
-				sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-					.addVertices(sphereOptimized.vertices)
-					.addIndices(sphereOptimized.indices)
-					.addNormals(sphereOptimized.normals);
-				//sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-				//	.addVertices(cubeVerts)
-				//	.addNormals(cubeNormals);
-
-				sphereMesh->setDiffuseColor(glm::vec3((float)x / 13.0f, (float)y / 13.0f, 1.0f));
-				sphereEntity->transform->setPosition(x * 3, y * 3, z * 3);
-
-				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
-				if (pbrMat != nullptr)
-				{
-					pbrMat->roughness = (float)y / 13.0f + 0.001f;
-					pbrMat->metallic = (float)z / 13.0f;
-				}
-
-				//defaultRenderer.addEntity(std::move(sphereEntity));
-			}
-		}
-	}
-
-	// Sphere
-	for (int i = 0; i < 0; i++)
-	{
-		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
-
-		MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
-		sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-			.addVertices(sphereOptimized.vertices)
-			.addIndices(sphereOptimized.indices)
-			.addNormals(sphereOptimized.normals);
-
-		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
-		defaultRenderer.physicsWorld->addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
-
-		defaultRenderer.addEntity(std::move(sphereEntity));
-	}
-
-	// Skybox
-	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
-	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
-	skyComponent->setupSkybox(skyboxShader, defaultRenderer);
-	defaultRenderer.addEntity(std::move(skyEntity));
-
-	glm::vec3 lightPositions[] = {
-		glm::vec3(-10.0f,  10.0f, 10.0f),
-		glm::vec3(10.0f,  10.0f, 10.0f),
-		glm::vec3(-10.0f, -10.0f, 10.0f),
-		glm::vec3(10.0f, -10.0f, 10.0f),
-	};
-
-	glm::vec3 lightColors[] = {
-		glm::vec3(300.0f, 300.0f, 300.0f),
-		glm::vec3(300.0f, 300.0f, 300.0f),
-		glm::vec3(300.0f, 300.0f, 300.0f),
-		glm::vec3(300.0f, 300.0f, 300.0f)
-	};
-
-	for (int i = 0; i < 4; i++)
-	{
-		// Add point light
-		std::unique_ptr<Entity> pointLightEntity = std::unique_ptr<Entity>(new Entity("Point light"));
-		pointLightEntity->transform->setScale(glm::vec3(0.1f));
-		pointLightEntity->transform->setPosition(lightPositions[i]);
-		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
-		pointLightComponent->diffuseColor = lightColors[i];
-
-		defaultRenderer.addEntity(std::move(pointLightEntity));
-	}
-
-	//std::unique_ptr<Entity> modelEntity = ResourceLoader::getInstance().loadModelFromFilepath("models/DamagedHelmet.glb", pbrShader);
-	//ScriptComponent* scriptComponent = modelEntity->addComponent<ScriptComponent>();
-	//defaultRenderer.addEntity(std::move(modelEntity));
-
-	// Plane
-	std::vector<float> quadVertices = Geometry::getQuadVertices();
-	std::unique_ptr<Entity> planeEntity = std::make_unique<Entity>("Plane");
-
-	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
-	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
-		.addVertices(quadVertices);
-	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
-	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
-
-	defaultRenderer.addEntity(std::move(planeEntity));
-
-	defaultRenderer.physicsWorld->addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
-
-	// After all needed objects have been added, initializes the renderer's data to set up every object's data
-	defaultRenderer.init(glm::vec2(windowWidth, windowHeight));
-	cameraComponent = defaultRenderer.currentCamera;
-
 	// Initializes the ImGui UI system
 	ImGuiInit(window, &defaultRenderer);
+
+	// Start the game state
+	GameEngine game;
+	MainGameState mainState = MainGameState(defaultRenderer);
+	game.init();
+	game.changeState(&mainState);
+	cameraComponent = mainState.camera;
 	
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;
@@ -223,14 +61,10 @@ int main()
 
 		// Processes any mouse or keyboard input for camera movement
 		processInput(window, deltaTime);
-		
-		phongShader->use()
-			->setVec3("viewPos", cameraComponent->getPosition());
 
-		pbrShader->use()
-			->setVec3("camPos", cameraComponent->getPosition());
-
-		defaultRenderer.render(deltaTime);
+		game.handleEvents();
+		game.update(deltaTime);
+		game.draw();
 		
 		// Draws the ImGui interface windows
 		ImGuiDrawWindows();
@@ -244,7 +78,7 @@ int main()
 		glfwPollEvents();
 	}
 
-	defaultRenderer.end();
+	game.cleanup();
 
 	glfwTerminate();
 	return 0;

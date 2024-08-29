@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/gameEngine.hpp"
+#include "renderer.hpp"
 
 class GameState
 {
@@ -35,7 +36,7 @@ public:
 	/// Game logic
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
-	virtual void update(GameEngine* gameEngine) = 0;
+	virtual void update(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
 	/// Render logic
@@ -52,4 +53,9 @@ public:
 	{
 		gameEngine->changeState(gameState);
 	}
+
+	GameState(Renderer& renderer) : renderer(renderer) {}
+
+protected:
+	Renderer& renderer;
 };

@@ -189,9 +189,7 @@ void processInput(GLFWwindow* window, float &deltaTime)
 {
 	// If cursor is shown (interacting with UI), don't handle movement
 	if (showCursor)
-	{
 		return;
-	}
 
 	// Forward movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

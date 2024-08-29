@@ -1,4 +1,5 @@
 #include "game/gameEngine.hpp"
+#include "game/gameState.hpp"
 
 void GameEngine::init()
 {
@@ -52,9 +53,9 @@ void GameEngine::handleEvents()
 	this->states.back()->handleEvents(this);
 }
 
-void GameEngine::update()
+void GameEngine::update(float deltaTime)
 {
-	this->states.back()->update(this);
+	this->states.back()->update(this, deltaTime);
 }
 
 void GameEngine::draw()

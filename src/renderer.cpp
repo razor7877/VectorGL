@@ -93,6 +93,21 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize)
 
 void Renderer::init(glm::vec2 windowSize)
 {
+	// Sets up some parameters for the OpenGL context
+	// Depth test for depth buffering
+	glEnable(GL_DEPTH_TEST);
+	// Stencil test for outlines
+	glEnable(GL_STENCIL_TEST);
+	// Face culling for performance
+	glEnable(GL_CULL_FACE);
+	// MSAA
+	glEnable(GL_MULTISAMPLE);
+	// Transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Interpolation between sides of a cubemap
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	// Create the camera and set it up
 	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
@@ -243,6 +258,8 @@ void Renderer::render(float deltaTime)
 	// Update camera info
 	glm::vec2 windowSize = this->multiSampledTarget.size;
 	this->shaderManager.updateUniformBuffer(this->currentCamera->getViewMatrix(), this->currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	this->shaderManager.getShader(ShaderType::PHONG)->use()->setVec3("viewPos", this->currentCamera->getPosition());
+	this->shaderManager.getShader(ShaderType::PBR)->use()->setVec3("camPos", this->currentCamera->getPosition());
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
 

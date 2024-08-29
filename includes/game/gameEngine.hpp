@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "game/gameState.hpp"
+class GameState;
 
 // Inspired from http://gamedevgeek.com/tutorials/managing-game-states-in-c/
 
@@ -44,7 +44,7 @@ public:
 	/// <summary>
 	/// Game logic
 	/// </summary>
-	void update();
+	void update(float deltaTime);
 
 	/// <summary>
 	/// Render logic
@@ -52,7 +52,7 @@ public:
 	void draw();
 
 	bool getIsRunning();
-	void setIsRunning();
+	void quit();
 
 private:
 	std::vector<GameState*> states;
