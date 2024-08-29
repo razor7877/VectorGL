@@ -24,9 +24,11 @@ MeshComponent::~MeshComponent()
 	Logger::logDebug("Calling MeshComponent destructor", "meshComponent.cpp");
 	 
 	glDeleteBuffers(1, &this->VBO);
-	glDeleteBuffers(1, &this->indicesBO);
 	glDeleteBuffers(1, &this->texCoordBO);
 	glDeleteBuffers(1, &this->normalBO);
+	glDeleteBuffers(1, &this->indicesBO);
+	glDeleteBuffers(1, &this->tangentsBO);
+	glDeleteBuffers(1, &this->bitangentsBO);
 
 	glDeleteVertexArrays(1, &this->VAO);
 

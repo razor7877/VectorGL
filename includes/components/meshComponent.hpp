@@ -226,5 +226,5 @@ protected:
 	/// <summary>
 	/// The last global model matrix that was used for calculating the world space AABB
 	/// </summary>
-	glm::mat4 lastModelMatrix;
+	glm::mat4 lastModelMatrix = glm::mat4(1.0f);
 };
