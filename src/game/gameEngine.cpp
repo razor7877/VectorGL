@@ -48,9 +48,9 @@ void GameEngine::popState()
 		this->states.back()->resume();
 }
 
-void GameEngine::handleEvents()
+void GameEngine::handleEvents(float deltaTime)
 {
-	this->states.back()->handleEvents(this);
+	this->states.back()->handleEvents(this, deltaTime);
 }
 
 void GameEngine::update(float deltaTime)

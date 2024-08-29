@@ -39,7 +39,7 @@ public:
 	/// <summary>
 	/// Handles events
 	/// </summary>
-	void handleEvents();
+	void handleEvents(float deltaTime);
 
 	/// <summary>
 	/// Game logic

@@ -59,10 +59,7 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		// Processes any mouse or keyboard input for camera movement
-		processInput(window, deltaTime);
-
-		game.handleEvents();
+		game.handleEvents(deltaTime);
 		game.update(deltaTime);
 		game.draw();
 		

@@ -13,6 +13,7 @@
 #include "components/lights/pointLightComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
 #include "utilities/geometry.hpp"
+#include "io/input.hpp"
 
 void MainGameState::init()
 {
@@ -164,9 +165,12 @@ void MainGameState::resume()
 
 }
 
-void MainGameState::handleEvents(GameEngine* gameEngine)
-{
+extern GLFWwindow* window;
 
+void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
+{
+	// Processes any mouse or keyboard input for camera movement
+	processInput(window, deltaTime);
 }
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)

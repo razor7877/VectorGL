@@ -30,7 +30,7 @@ public:
 	/// Handles any events
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
-	virtual void handleEvents(GameEngine* gameEngine) = 0;
+	virtual void handleEvents(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
 	/// Game logic

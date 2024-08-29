@@ -159,6 +159,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	windowWidth = width;
+	windowHeight = height;
+	glViewport(0, 0, width, height);
+}
+
 void drop_callback(GLFWwindow* window, int count, const char** paths)
 {
 	int i;
@@ -185,37 +192,21 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
 	}
 }
 
-void processInput(GLFWwindow* window, float &deltaTime)
+void processInput(GLFWwindow* window, float deltaTime)
 {
 	// If cursor is shown (interacting with UI), don't handle movement
 	if (showCursor)
 		return;
 
-	// Forward movement
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
 		cameraComponent->processKeyboard(CameraMovement::FORWARD, deltaTime);
-	}
-	// Backward movement
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		cameraComponent->processKeyboard(CameraMovement::BACKWARD, deltaTime);
-	}
-	// Left movement
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		cameraComponent->processKeyboard(CameraMovement::LEFT, deltaTime);
-	}
-	// Right movement
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		cameraComponent->processKeyboard(CameraMovement::RIGHT, deltaTime);
-	}
-}
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	windowWidth = width;
-	windowHeight = height;
-	glViewport(0, 0, width, height);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
+		cameraComponent->processKeyboard(CameraMovement::BACKWARD, deltaTime);
+	
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
+		cameraComponent->processKeyboard(CameraMovement::LEFT, deltaTime);
+	
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
+		cameraComponent->processKeyboard(CameraMovement::RIGHT, deltaTime);
 }
