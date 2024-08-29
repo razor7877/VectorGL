@@ -216,5 +216,15 @@ protected:
 	/// <summary>
 	/// The axis aligned bounding box of the mesh in local space
 	/// </summary>
-	BoundingBox boundingBox;
+	BoundingBox localBoundingBox;
+
+	/// <summary>
+	/// The axis aligned bounding box of the mesh in world space
+	/// </summary>
+	BoundingBox worldBoundingBox;
+
+	/// <summary>
+	/// The last global model matrix that was used for calculating the world space AABB
+	/// </summary>
+	glm::mat4 lastModelMatrix;
 };

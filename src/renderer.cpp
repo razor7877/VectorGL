@@ -629,7 +629,7 @@ void Renderer::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>
 			{
 				sortedSceneData.meshes.push_back(mesh);
 
-				if (cameraFrustum.isOnFrustum(mesh->getLocalBoundingBox(), mesh->getWorldBoundingBox()))
+				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
 				{
 					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)

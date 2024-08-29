@@ -121,7 +121,7 @@ void MeshComponent::start()
 		glEnableVertexAttribArray(4);
 	}
 
-	this->boundingBox = Geometry::getMeshBoundingBox(this->vertices);
+	this->localBoundingBox = Geometry::getMeshBoundingBox(this->vertices);
 
 	this->verticesCount = this->vertices.size();
 	this->indicesCount = this->indices.size();
@@ -275,12 +275,21 @@ int MeshComponent::getIndicesCount()
 
 BoundingBox MeshComponent::getLocalBoundingBox()
 {
-	return this->boundingBox;
+	return this->localBoundingBox;
 }
 
 BoundingBox MeshComponent::getWorldBoundingBox()
 {
-	return this->boundingBox * this->parent->transform->getGlobalModelMatrix();
+	glm::mat4 newModelMatrix = this->parent->transform->getModelMatrix();
+	
+	// We only recalculate the AABB if the matrix changed, since it's fairly expensive to calculate it unnecessarily
+	if (this->lastModelMatrix != newModelMatrix)
+	{
+		this->lastModelMatrix = newModelMatrix;
+		this->worldBoundingBox = this->localBoundingBox * lastModelMatrix;
+	}
+
+	return this->worldBoundingBox;
 }
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)

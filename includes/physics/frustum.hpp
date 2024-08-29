@@ -38,8 +38,7 @@ struct Frustum
 
 	bool isOnFrustum(BoundingBox element, TransformComponent* transform)
 	{
-		glm::mat4 globalModelMatrix = transform->getGlobalModelMatrix();
-		element = element * globalModelMatrix;
+		glm::mat4 globalModelMatrix = transform->getModelMatrix();
 
 		glm::vec3 bbCenter = (element.maxPosition + element.minPosition) * 0.5f;
 		glm::vec3 bbExtents = (element.maxPosition - element.minPosition) * 0.5f;
