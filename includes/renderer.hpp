@@ -14,7 +14,28 @@
 #include "components/lights/directionalLightComponent.hpp"
 #include "physics/physicsWorld.hpp"
 
-extern std::vector<float> lineVerts;
+struct SortedSceneData
+{
+	// Opaque entities that are rendered to the screen
+	std::map<Shader*, std::vector<Entity*>> renderList;
+	// Transparent entities that are rendered to the screen
+	std::map<Shader*, std::vector<Entity*>> transparentRenderList;
+	// Entities that should have an outline
+	std::vector<Entity*> outlineRenderList;
+	// Entities that aren't rendered to the screen but need to be updated
+	std::vector<Entity*> logicEntities;
+	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
+	std::vector<MeshComponent*> meshes;
+
+	void clearCache()
+	{
+		renderList.clear();
+		transparentRenderList.clear();
+		outlineRenderList.clear();
+		logicEntities.clear();
+		meshes.clear();
+	}
+};
 
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
@@ -37,6 +58,8 @@ public:
 	float renderPassTime = 0.0f;
 	float outlinePassTime = 0.0f;
 	float blitPassTime = 0.0f;
+
+	bool enableDebugDraw = false;
 
 	Renderer();
 
@@ -106,15 +129,31 @@ public:
 	void resizeFramebuffers(glm::vec2 newSize);
 
 private:
+	/// <summary>
+	/// The width in pixels of the shadow map
+	/// </summary>
 	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
+
+	/// <summary>
+	/// The height in pixels of the shadow map
+	/// </summary>
 	static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
 
+	/// <summary>
+	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution
+	/// </summary>
 	static constexpr float SSAO_SCALE_FACTOR = 0.5;
 
 	/// <summary>
 	/// The entities stored in the renderer
 	/// </summary>
 	std::vector<std::unique_ptr<Entity>> entities;
+
+	/// <summary>
+	/// A struct that serves to cache the data obtained when sorting the scene
+	/// It is reused until the scene gets updated
+	/// </summary>
+	SortedSceneData sortedSceneData;
 
 	/// <summary>
 	/// The render target in which everything is rendered
@@ -233,14 +272,7 @@ private:
 	/// <summary>
 	/// A recursive function for traversing the scene graph and sorting all the entities before render
 	/// </summary>
-	void getMeshesRecursively(
-		std::vector<Entity*> entities,
-		std::map<Shader*, std::vector<Entity*>>& renderList,
-		std::map<Shader*, std::vector<Entity*>>& transparentRenderList,
-		std::vector<Entity*>& outlineRenderList,
-		std::vector<Entity*>& logicEntities,
-		std::vector<MeshComponent*>& meshes
-	);
+	void getMeshesRecursively(std::vector<Entity*> entities, SortedSceneData& sortedSceneData);
 };
 
 #endif

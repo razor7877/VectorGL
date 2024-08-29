@@ -144,9 +144,11 @@ void MeshComponent::update(float deltaTime)
 	if (this->material != nullptr)
 	{
 		if (this->material->shaderProgram->wasRecompiled)
+		{
 			this->material->init();
-
-		this->material->shaderProgram->wasRecompiled = false;
+			this->material->shaderProgram->wasRecompiled = false;
+		}
+		
 		this->material->sendToShader();
 
 		// Send the model matrix

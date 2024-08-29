@@ -223,22 +223,13 @@ void Renderer::render(float deltaTime)
 
 	// All the entities at the top level of the scene
 	std::vector<Entity*> entities;
-	// Opaque entities that are rendered to the screen
-	std::map<Shader*, std::vector<Entity*>> renderList;
-	// Transparent entities that are rendered to the screen
-	std::map<Shader*, std::vector<Entity*>> transparentRenderList;
-	// Entities that should have an outline
-	std::vector<Entity*> outlineRenderList;
-	// Entities that aren't rendered to the screen but need to be updated
-	std::vector<Entity*> logicEntities;
-	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
-	std::vector<MeshComponent*> meshes;
 
 	for (auto&& entity : this->entities)
 		entities.push_back(entity.get());
 
 	double startTime = glfwGetTime();
-	this->getMeshesRecursively(entities, renderList, transparentRenderList, outlineRenderList, logicEntities, meshes);
+	this->sortedSceneData.clearCache();
+	this->getMeshesRecursively(entities, this->sortedSceneData);
 	double endTime = glfwGetTime();
 	this->meshSortingTime = endTime - startTime;
 
@@ -256,19 +247,19 @@ void Renderer::render(float deltaTime)
 
 	// Render the shadow map
 	startTime = glfwGetTime();
-	this->shadowPass(meshes);
+	this->shadowPass(sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->shadowPassTime = endTime - startTime;
 
 	// Render to the G buffer
 	startTime = glfwGetTime();
-	this->gBufferPass(meshes);
+	this->gBufferPass(sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->gBufferPassTime = endTime - startTime;
 
 	// Calculate SSAO
 	startTime = glfwGetTime();
-	this->ssaoPass(meshes);
+	this->ssaoPass(sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->ssaoPassTime = endTime - startTime;
 	
@@ -278,13 +269,19 @@ void Renderer::render(float deltaTime)
 
 	// Render the scene
 	startTime = glfwGetTime();
-	this->renderPass(deltaTime, renderList, transparentRenderList, logicEntities, meshes);
+	this->renderPass(
+		deltaTime,
+		sortedSceneData.renderList,
+		sortedSceneData.transparentRenderList,
+		sortedSceneData.logicEntities,
+		sortedSceneData.meshes
+	);
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
 	// Render outlines
 	startTime = glfwGetTime();
-	this->outlinePass(outlineRenderList);
+	this->outlinePass(sortedSceneData.outlineRenderList);
 	endTime = glfwGetTime();
 	this->outlinePassTime = endTime - startTime;
 
@@ -486,83 +483,87 @@ void Renderer::renderPass(
 		}
 	}
 
-	// Line drawing for debugging raycasts etc.
-	std::vector<float> debugLines = this->physicsWorld->getDebugLines();
-	lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
-	lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
-
-	// Debug bounding boxes
-	for (MeshComponent* mesh : meshes)
+	if (this->enableDebugDraw)
 	{
-		std::vector<float> vertices;
+		// Line drawing for debugging raycasts etc.
+		std::vector<float> debugLines = this->physicsWorld->getDebugLines();
+		lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
+		lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
 
-		BoundingBox meshBB = mesh->getWorldBoundingBox();
-		glm::vec3 minPos = meshBB.minPosition;
-		glm::vec3 maxPos = meshBB.maxPosition;
-
-		// Create the vertices for the 8 points of the bounding box
-		// Left bottom back
-		vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_min, y_min, z_min)
-		// Left bottom front
-		vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_min, z_max)
-		// Left top back
-		vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_min, y_max, z_min)
-		// Left top front
-		vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_max, z_max)
-		// Right bottom back
-		vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_max, y_min, z_min)
-		// Right bottom front
-		vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_min, z_max)
-		// Right top back
-		vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_max, y_max, z_min)
-		// Right top front
-		vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_max, z_max)
-
-		// The indices for creating lines that links all the points of the bounding box using the 8 previous vertices
-		int edgeIndices[12][2] = {
-			{0, 1}, {0, 2}, {1, 3}, {2, 3}, // Left side edges
-			{4, 5}, {4, 6}, {5, 7}, {6, 7}, // Right side edges
-			{0, 4}, {2, 6}, {1, 5}, {3, 7}, // Connect the two sides
-		};
-
-		// Add the vertices to draw each line of the bounding box
-		for (int i = 0; i < 0; ++i)
+		// Debug bounding boxes
+		for (MeshComponent* mesh : meshes)
 		{
-			int v1 = edgeIndices[i][0];
-			int v2 = edgeIndices[i][1];
+			std::vector<float> vertices;
 
-			// Add the coordinates of the two vertices for each edge
-			lineVerts.push_back(vertices[v1 * 3 + 0]); // x of v1
-			lineVerts.push_back(vertices[v1 * 3 + 1]); // y of v1
-			lineVerts.push_back(vertices[v1 * 3 + 2]); // z of v1
+			// Querying the bounding boxes like that every frame is super slow, could probably be improved
+			BoundingBox meshBB = mesh->getWorldBoundingBox();
+			glm::vec3 minPos = meshBB.minPosition;
+			glm::vec3 maxPos = meshBB.maxPosition;
 
-			lineVerts.push_back(vertices[v2 * 3 + 0]); // x of v2
-			lineVerts.push_back(vertices[v2 * 3 + 1]); // y of v2
-			lineVerts.push_back(vertices[v2 * 3 + 2]); // z of v2
+			// Create the vertices for the 8 points of the bounding box
+			// Left bottom back
+			vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_min, y_min, z_min)
+			// Left bottom front
+			vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_min, z_max)
+			// Left top back
+			vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_min, y_max, z_min)
+			// Left top front
+			vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_max, z_max)
+			// Right bottom back
+			vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_max, y_min, z_min)
+			// Right bottom front
+			vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_min, z_max)
+			// Right top back
+			vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_max, y_max, z_min)
+			// Right top front
+			vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_max, z_max)
+
+			// The indices for creating lines that links all the points of the bounding box using the 8 previous vertices
+			int edgeIndices[12][2] = {
+				{0, 1}, {0, 2}, {1, 3}, {2, 3}, // Left side edges
+				{4, 5}, {4, 6}, {5, 7}, {6, 7}, // Right side edges
+				{0, 4}, {2, 6}, {1, 5}, {3, 7}, // Connect the two sides
+			};
+
+			// Add the vertices to draw each line of the bounding box
+			for (int i = 0; i < 12; ++i)
+			{
+				int v1 = edgeIndices[i][0];
+				int v2 = edgeIndices[i][1];
+
+				// Add the coordinates of the two vertices for each edge
+				lineVerts.push_back(vertices[v1 * 3 + 0]); // x of v1
+				lineVerts.push_back(vertices[v1 * 3 + 1]); // y of v1
+				lineVerts.push_back(vertices[v1 * 3 + 2]); // z of v1
+
+				lineVerts.push_back(vertices[v2 * 3 + 0]); // x of v2
+				lineVerts.push_back(vertices[v2 * 3 + 1]); // y of v2
+				lineVerts.push_back(vertices[v2 * 3 + 2]); // z of v2
+			}
 		}
-	}
 
-	if (lineVerts.size() > 0)
-	{
-		GLuint lineVAO;
-		GLuint lineVBO;
+		if (lineVerts.size() > 0)
+		{
+			GLuint lineVAO;
+			GLuint lineVBO;
 
-		glGenVertexArrays(1, &lineVAO);
-		glGenBuffers(1, &lineVBO);
-		glBindVertexArray(lineVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-		glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
+			glGenVertexArrays(1, &lineVAO);
+			glGenBuffers(1, &lineVBO);
+			glBindVertexArray(lineVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+			glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
 
-		this->shaderManager.getShader(ShaderType::SOLID)->use();
-		glBindVertexArray(lineVAO);
-		glLineWidth(25.0f);
-		glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
-		lineVerts.clear();
+			this->shaderManager.getShader(ShaderType::SOLID)->use();
+			glBindVertexArray(lineVAO);
+			glLineWidth(25.0f);
+			glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
+			lineVerts.clear();
 
-		glDeleteVertexArrays(1, &lineVAO);
-		glDeleteBuffers(1, &lineVBO);
+			glDeleteVertexArrays(1, &lineVAO);
+			glDeleteBuffers(1, &lineVBO);
+		}
 	}
 
 	// Disable stencil writes
@@ -611,13 +612,7 @@ void Renderer::blitPass()
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-void Renderer::getMeshesRecursively(
-	std::vector<Entity*> entities,
-	std::map<Shader*, std::vector<Entity*>>& renderList,
-	std::map<Shader*, std::vector<Entity*>>& transparentRenderList,
-	std::vector<Entity*>& outlineRenderList,
-	std::vector<Entity*>& logicEntities,
-	std::vector<MeshComponent*>& meshes)
+void Renderer::getMeshesRecursively(std::vector<Entity*> entities, SortedSceneData& sortedSceneData)
 {
 	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
 	Frustum frustum(this->currentCamera, this->multiSampledTarget.size);
@@ -630,30 +625,28 @@ void Renderer::getMeshesRecursively(
 			MeshComponent* mesh = entity->getComponent<MeshComponent>();
 
 			if (mesh == nullptr)
-				logicEntities.push_back(entity);
+				sortedSceneData.logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
-				meshes.push_back(mesh);
+				sortedSceneData.meshes.push_back(mesh);
 
 				if (frustum.isOnFrustum(mesh->getLocalBoundingBox(), entity->transform))
 				{
 					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
-						renderList[mesh->material->shaderProgram].push_back(entity);
+						sortedSceneData.renderList[mesh->material->shaderProgram].push_back(entity);
 					else
-						transparentRenderList[mesh->material->shaderProgram].push_back(entity);
+						sortedSceneData.transparentRenderList[mesh->material->shaderProgram].push_back(entity);
 
 					if (entity->drawOutline)
-						outlineRenderList.push_back(entity);
+						sortedSceneData.outlineRenderList.push_back(entity);
 				}
 				//	mesh->setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
 				//else
 				//	mesh->setDiffuseColor(glm::vec3(1.0f));
-				
-				
 			}
 
-			this->getMeshesRecursively(entity->getChildren(), renderList, transparentRenderList, outlineRenderList, logicEntities, meshes);
+			this->getMeshesRecursively(entity->getChildren(), sortedSceneData);
 		}
 	}
 }
