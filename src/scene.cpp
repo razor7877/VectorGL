@@ -77,7 +77,10 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& e
 
 					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 					if (pbrMat->getIsTransparent())
-						this->sortedSceneData.transparentRenderList[mesh->material->shaderProgram].push_back(entity);
+					{
+						float distance = glm::length(this->currentCamera->getPosition() - mesh->getWorldBoundingBox().center);
+						this->sortedSceneData.transparentRenderList[pbrMat->shaderProgram][distance] = entity;
+					}
 					else
 						this->sortedSceneData.renderList[mesh->material->shaderProgram].push_back(entity);
 

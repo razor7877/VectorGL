@@ -4,16 +4,35 @@
 
 struct BoundingBox
 {
+	/// <summary>
+	/// The minimum corner position of the bounding box
+	/// </summary>
 	glm::vec3 minPosition = glm::vec3(0.0f);
+
+	/// <summary>
+	/// The maximum corner position of the bounding box
+	/// </summary>
 	glm::vec3 maxPosition = glm::vec3(0.0f);
 
-	BoundingBox() {}
-	BoundingBox(glm::vec3 minPosition, glm::vec3 maxPosition) : minPosition(minPosition), maxPosition(maxPosition) {}
+	/// <summary>
+	/// The center position of the bounding box
+	/// </summary>
+	glm::vec3 center = glm::vec3(0.0f);
 
+	BoundingBox() {}
+
+	BoundingBox(glm::vec3 minPosition, glm::vec3 maxPosition) : minPosition(minPosition), maxPosition(maxPosition)
+	{
+		this->center = (this->minPosition + this->maxPosition) * 0.5f;
+	}
+
+	/// <summary>
+	/// Applies the transformation of a matrix to the corners of the bounding box (the matrix is first in the multiplication)
+	/// </summary>
+	/// <param name="modelMatrix">The matrix to multiply the corners with</param>
+	/// <returns>A new bounding box with the transformation applied to it</returns>
 	BoundingBox operator*(glm::mat4 modelMatrix)
 	{
-		BoundingBox result;
-		
 		float xMin = INFINITY;
 		float yMin = INFINITY;
 		float zMin = INFINITY;
@@ -46,9 +65,9 @@ struct BoundingBox
 			if (worldCorner.z > zMax) zMax = worldCorner.z;
 		}
 
-		result.minPosition = glm::vec3(xMin, yMin, zMin);
-		result.maxPosition = glm::vec3(xMax, yMax, zMax);
+		glm::vec3 minPosition = glm::vec3(xMin, yMin, zMin);
+		glm::vec3 maxPosition = glm::vec3(xMax, yMax, zMax);
 
-		return result;
+		return BoundingBox(minPosition, maxPosition);
 	}
 };

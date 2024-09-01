@@ -211,14 +211,7 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 
 	// Render the scene
 	startTime = glfwGetTime();
-	this->renderPass(
-		deltaTime,
-		physicsWorld,
-		scene.sortedSceneData.renderList,
-		scene.sortedSceneData.transparentRenderList,
-		scene.sortedSceneData.logicEntities,
-		scene.sortedSceneData.meshes
-	);
+	this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
@@ -373,13 +366,7 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	this->ssaoBlurTarget.unbind();
 }
 
-void Renderer::renderPass(
-	float deltaTime,
-	PhysicsWorld& physicsWorld,
-	std::map<Shader*, std::vector<Entity*>>& renderables,
-	std::map<Shader*, std::vector<Entity*>>& transparentRenderables,
-	std::vector<Entity*>& nonRenderables,
-	std::vector<MeshComponent*> meshes)
+void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSceneData& sceneData)
 {
 	glStencilMask(0x00);
 
@@ -388,7 +375,7 @@ void Renderer::renderPass(
 		->setVec2("windowSize", this->ssaoTarget.size);
 
 	// We can simply update all entities that won't be rendered
-	for (Entity* nonRenderable : nonRenderables)
+	for (Entity* nonRenderable : sceneData.logicEntities)
 		nonRenderable->update(deltaTime);
 
 	glEnable(GL_DEPTH_TEST);
@@ -397,7 +384,7 @@ void Renderer::renderPass(
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 
 	// Entities that can be rendered are grouped by shader and then rendered together
-	for (auto& [shader, meshes] : renderables)
+	for (auto& [shader, meshes] : sceneData.renderList)
 	{
 		shader->use();
 
@@ -413,19 +400,21 @@ void Renderer::renderPass(
 		}
 	}
 
-	for (auto& [shader, meshes] : transparentRenderables)
+	Shader* lastShaderProgram = nullptr;
+
+	for (auto& [shader, meshesByDistance] : sceneData.transparentRenderList)
 	{
 		shader->use();
 
-		for (Entity* renderable : meshes)
+		for (auto it = meshesByDistance.rbegin(); it != meshesByDistance.rend(); ++it)
 		{
 			// We only write to the stencil mask if the entity should have an outline
-			if (renderable->drawOutline)
+			if (it->second->drawOutline)
 				glStencilMask(0xFF);
 			else
 				glStencilMask(0x00);
 
-			renderable->update(deltaTime);
+			it->second->update(deltaTime);
 		}
 	}
 
@@ -437,7 +426,7 @@ void Renderer::renderPass(
 		lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
 
 		// Debug bounding boxes
-		for (MeshComponent* mesh : meshes)
+		for (MeshComponent* mesh : sceneData.meshes)
 		{
 			std::vector<float> vertices;
 

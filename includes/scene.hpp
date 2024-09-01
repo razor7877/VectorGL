@@ -14,7 +14,8 @@ struct SortedSceneData
 	// Opaque entities that are rendered to the screen
 	std::map<Shader*, std::vector<Entity*>> renderList;
 	// Transparent entities that are rendered to the screen
-	std::map<Shader*, std::vector<Entity*>> transparentRenderList;
+	// We use a double map that groups them by shader for performance, then by distance for correct rendering
+	std::map<Shader*, std::map<float, Entity*>> transparentRenderList;
 	// Entities that should have an outline
 	std::vector<Entity*> outlineRenderList;
 	// Entities that aren't rendered to the screen but need to be updated
