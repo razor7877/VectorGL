@@ -76,10 +76,10 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& e
 					this->sortedSceneData.meshes.push_back(mesh);
 
 					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
-					if (pbrMat != nullptr && pbrMat->opacity == 1.0f)
-						this->sortedSceneData.renderList[mesh->material->shaderProgram].push_back(entity);
-					else
+					if (pbrMat->getIsTransparent())
 						this->sortedSceneData.transparentRenderList[mesh->material->shaderProgram].push_back(entity);
+					else
+						this->sortedSceneData.renderList[mesh->material->shaderProgram].push_back(entity);
 
 					if (entity->drawOutline)
 						this->sortedSceneData.outlineRenderList.push_back(entity);

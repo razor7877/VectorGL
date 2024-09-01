@@ -81,11 +81,11 @@ void MainGameState::init()
 	this->scene.addEntity(std::move(cubeEntity));
 
 	// Sphere grid
-	for (int x = 0; x < 13; x++)
+	for (int x = 0; x < 5; x++)
 	{
-		for (int y = 0; y < 13; y++)
+		for (int y = 0; y < 5; y++)
 		{
-			for (int z = 0; z < 13; z++)
+			for (int z = 0; z < 5; z++)
 			{
 				std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 
@@ -103,6 +103,7 @@ void MainGameState::init()
 				{
 					pbrMat->roughness = (float)y / 13.0f + 0.001f;
 					pbrMat->metallic = (float)z / 13.0f;
+					pbrMat->opacity = 0.5f;
 				}
 
 				this->scene.addEntity(std::move(sphereEntity));

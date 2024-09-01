@@ -78,6 +78,8 @@ void Texture::createTexture(std::string filename, TextureType textureType, bool 
 		else if (nrChannels == 4)
 			format = GL_RGBA;
 
+		this->format = format;
+
 		// Create OpenGL texture
 		glGenTextures(1, &this->texID);
 		glBindTexture(GL_TEXTURE_2D, this->texID);
@@ -126,6 +128,7 @@ void Texture::createHDRTexture(std::string filename, TextureType textureType, bo
 	else
 		Logger::logError(std::string("Failed to load HDR texture: ") + filename, "texture.cpp");
 
+	this->format = GL_RGB;
 	this->width = width;
 	this->height = height;
 }

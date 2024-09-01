@@ -2,14 +2,15 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include <utilities/stb_image.h>
 
 #include "utilities/resourceLoader.hpp"
-#include "utilities/stb_image.h"
 #include "components/meshComponent.hpp"
 #include "components/physicsComponent.hpp"
 #include "logger.hpp"
 #include "utilities/geometry.hpp"
 #include "main.hpp"
+#include "logger.hpp"
 
 ResourceLoader ResourceLoader::instance;
 

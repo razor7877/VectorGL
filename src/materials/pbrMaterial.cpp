@@ -153,6 +153,14 @@ void PBRMaterial::sendToShader()
 	glActiveTexture(GL_TEXTURE0);
 }
 
+bool PBRMaterial::getIsTransparent()
+{
+	if (this->useAlbedoMap)
+		return this->albedoTexture->format == GL_RGBA;
+	
+	return this->opacity != 1.0f;
+}
+
 void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
 {
 	for (int i = 0; i < textures.size(); i++)

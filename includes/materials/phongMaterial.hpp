@@ -43,6 +43,8 @@ public:
 	/// <param name="shaderProgram">The shader to send the data to</param>
 	void sendToShader() override;
 
+	bool getIsTransparent() override;
+
 	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
 
 	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);

@@ -23,12 +23,39 @@ enum class TextureType
 class Texture
 {
 public:
+	/// <summary>
+	/// Whether this is an HDR texture or not
+	/// </summary>
 	bool isHDR = false;
+
+	/// <summary>
+	/// The OpenGL handle for the texture
+	/// </summary>
 	GLuint texID = 0;
+
+	/// <summary>
+	/// The OpenGL enum for the texture format
+	/// </summary>
+	GLenum format;
+
+	/// <summary>
+	/// An enum representing the type of texture
+	/// </summary>
 	TextureType type;
+
+	/// <summary>
+	/// The path to the texture, if it was loaded from a file
+	/// </summary>
 	std::string path;
 
+	/// <summary>
+	/// The width of the texture in pixels
+	/// </summary>
 	float width = 0;
+
+	/// <summary>
+	/// The height of the texture in pixels
+	/// </summary>
 	float height = 0;
 
 	Texture();

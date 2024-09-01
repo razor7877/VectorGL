@@ -28,6 +28,11 @@ struct Material
 	virtual void sendToShader() = 0;
 
 	/// <summary>
+	/// Whether the material will render anything with transparency
+	/// </summary>
+	virtual bool getIsTransparent() = 0;
+
+	/// <summary>
 	/// Adds a list of textures to the material. Different materials can use them in various ways, or not at all
 	/// </summary>
 	/// <param name="textures">The textures to be added</param>

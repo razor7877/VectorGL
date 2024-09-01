@@ -99,6 +99,11 @@ void PhongMaterial::sendToShader()
 	}
 }
 
+bool PhongMaterial::getIsTransparent()
+{
+	return false;
+}
+
 void PhongMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
 {
 	// We sort the textures from the vector into their own members in the mesh for easier use later
