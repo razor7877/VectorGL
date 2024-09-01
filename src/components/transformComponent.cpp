@@ -31,6 +31,9 @@ glm::mat3 TransformComponent::getNormalMatrix()
 
 glm::vec3 TransformComponent::getPosition()
 {
+	if (this->useRawModelMatrix)
+		return glm::vec3(this->manualModelMatrix[3][0], this->manualModelMatrix[3][1], this->manualModelMatrix[3][2]);
+
 	return this->position;
 }
 

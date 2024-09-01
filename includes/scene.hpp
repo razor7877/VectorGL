@@ -46,17 +46,17 @@ public:
 	/// <summary>
 	/// The current camera used to render the scene
 	/// </summary>
-	CameraComponent* currentCamera;
+	CameraComponent* currentCamera = nullptr;
 
 	/// <summary>
 	/// Second camera
 	/// </summary>
-	CameraComponent* skyCamera;
+	CameraComponent* skyCamera = nullptr;
 
 	/// <summary>
 	/// The directional light of the scene
 	/// </summary>
-	DirectionalLightComponent* directionalLight;
+	DirectionalLightComponent* directionalLight = nullptr;
 
 	/// <summary>
 	/// Returns a list of raw pointers to the entities in the renderer

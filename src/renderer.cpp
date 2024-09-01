@@ -229,21 +229,19 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	endTime = glfwGetTime();
 	this->blitPassTime = endTime - startTime;
 
+	if (this->enableDebugDraw && scene.skyCamera != nullptr)
+	{
+		this->skyTarget.bind();
+		this->skyTarget.clear();
+
+		this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+		this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
+
+		this->skyTarget.unbind();
+	}
+
 	this->frameRenderTime = glfwGetTime() - frameStartTime;
 
-	this->skyTarget.bind();
-	this->skyTarget.clear();
-
-	/*this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
-	this->renderPass(
-		deltaTime,
-		scene.sortedSceneData.renderList,
-		scene.sortedSceneData.transparentRenderList,
-		scene.sortedSceneData.logicEntities,
-		scene.sortedSceneData.meshes
-	);*/
-
-	this->skyTarget.unbind();
 }
 
 void Renderer::end()

@@ -839,6 +839,7 @@ void HandleSceneGraphClick(Entity* object)
 	}
 }
 
+// TODO : There's definitely a way to make this code much cleaner
 void ShowComponentUI(Component* component)
 {
 	if (dynamic_cast<TransformComponent*>(component))
@@ -1162,6 +1163,13 @@ void ShowComponentUI(Component* component)
 				scriptEditorParams.isEditingScript = true;
 				scriptEditorParams.editor.SetText(scriptComponent->scriptCode);
 			}
+		}
+	}
+	else if (dynamic_cast<PhysicsComponent*>(component))
+	{
+		if (ImGui::CollapsingHeader("Physics"))
+		{
+
 		}
 	}
 }
