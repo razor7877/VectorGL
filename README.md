@@ -6,7 +6,7 @@ A graphics engine & WIP game engine powered by C++/OpenGL. This is not meant for
 ## Features
 
 - Full fledged PBR renderer with most common properties supported (albedo, metallic, roughness, ambient occlusion, emissive, opacity)
-- Scene graph system with entities and components (composition over inheritance)
+- Scene graph system with non-ECS component system
 - Model & mesh loading of most common file formats using Assimp
 - Skyboxes and image based lighting (IBL)
 - Support for point lights, directional lights and spot lights
@@ -16,17 +16,18 @@ A graphics engine & WIP game engine powered by C++/OpenGL. This is not meant for
 - Bullet engine integration for game physics
 - Extremely basic Lua integration to add scripts to entities
 - Complete ImGui interface to interact with every aspect of the engine, including dynamic shader recompilation and script editing
+- CPU frustum culling
+- Game state management
 
 ## To be added
 
 - Skeletal animation
-- Improve transparency handling
+- Order independent transparency
+- Point shadows & cascaded shadow mapping
 - Bloom
-- Game state management
 - Basic UI system for making menus
 - Serialization of scenes
 - Iridescence & clear coat PBR support
-- Frustum culling
 
 ## Setup
  - Clone the repository `https://github.com/razor7877/VectorGL.git`
