@@ -58,7 +58,6 @@ class PhysicsWorld
 {
 public:
 	static constexpr float GRAVITY = -9.81f;
-
 	bool enableDebugDraw = false;
 
 	PhysicsWorld();
@@ -70,6 +69,12 @@ public:
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
 	void update(float deltaTime);
 
+	/// <summary>
+	/// Projects a ray and checks for collisions
+	/// </summary>
+	/// <param name="from">The ray start position</param>
+	/// <param name="to">The ray end position</param>
+	/// <returns>A pointer to the first object that was hit, or nullptr if not hit found</returns>
 	PhysicsComponent* raycastLine(glm::vec3 from, glm::vec3 to);
 
 	std::vector<float> getDebugLines();
@@ -79,7 +84,6 @@ public:
 	/// </summary>
 	/// <param name="normal">The normal of the plane</param>
 	/// <param name="position">The position of the plane</param>
-	/// <returns>A pointer corresponding to the Bullet plane collider</returns>
 	void addPlane(glm::vec3 normal, glm::vec3 position);
 
 	/// <summary>
@@ -88,7 +92,8 @@ public:
 	/// <param name="component">The physics component of the entity for which the collider is added</param>
 	/// <param name="halfExtents">The half extents of the box</param>
 	/// <param name="position">The position of the box</param>
-	/// <returns>A pointer corresponding to the Bullet box collider</returns>
+	/// <param name="mass">The mass of the box</param>
+	/// <param name="disableCollision">Whether collision testing should be disabled (if colliders are for raycasts only for example)</param>
 	void addBox(PhysicsComponent* component, glm::vec3 halfExtents, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 	/// <summary>
@@ -97,8 +102,20 @@ public:
 	/// <param name="component">The physics component of the entity for which the collider is added</param>
 	/// <param name="radius">The radius of the sphere</param>
 	/// <param name="position">The position of the sphere</param>
-	/// <returns>A pointer corresponding to the Bullet sphere collider</returns>
+	/// <param name="mass">The mass of the sphere</param>
+	/// <param name="disableCollision">Whether collision testing should be disabled (if colliders are for raycasts only for example)</param>
 	void addSphere(PhysicsComponent* component, float radius, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
+
+	/// <summary>
+	/// Creates a new capsule collider
+	/// </summary>
+	/// <param name="component">The physics component of the entity for which the collider is added</param>
+	/// <param name="radius">The radius of the capsule</param>
+	/// <param name="height">The height of the capsule</param>
+	/// <param name="position">The position of the capsule</param>
+	/// <param name="mass">The mass of the capsule</param>
+	/// <param name="disableCollision">Whether collision testing should be disabled (if colliders are for raycasts only for example)</param>
+	void addCapsule(PhysicsComponent* component, float radius, float height, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 private:
 	btDefaultCollisionConfiguration* collisionConfiguration;

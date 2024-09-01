@@ -128,3 +128,30 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 	component->setCollider(std::move(collider));
 	this->rigidBodyToComponent[sphereRigidBody] = component;
 }		
+
+void PhysicsWorld::addCapsule(PhysicsComponent* component, float radius, float height, glm::vec3 position, float mass, bool disableCollision)
+{
+	btVector3 initialPosition(position.x, position.y, position.z);
+	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+
+	btCollisionShape* capsuleShape = new btCapsuleShape(radius, height);
+	capsuleShape->calculateLocalInertia(mass, localInertia);
+
+	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, capsuleShape, localInertia);
+	btRigidBody* capsuleRigidBody = new btRigidBody(rigidBodyCI);
+
+	if (disableCollision)
+		capsuleRigidBody->setCollisionFlags(capsuleRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
+	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
+		this->world,
+		std::unique_ptr<btCollisionShape>(capsuleShape),
+		std::unique_ptr<btDefaultMotionState>(motionState),
+		std::unique_ptr<btRigidBody>(capsuleRigidBody)
+		);
+
+	this->world->addRigidBody(capsuleRigidBody);
+	component->setCollider(std::move(collider));
+	this->rigidBodyToComponent[capsuleRigidBody] = component;
+}
