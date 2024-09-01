@@ -275,14 +275,13 @@ void main()
         float r = pow(albedoSRGB.r, 2.2);
         float g = pow(albedoSRGB.g, 2.2);
         float b = pow(albedoSRGB.b, 2.2);
-        opacity = pow(albedoSRGB.a, 2.2);
+        // We read opacity from the albedo texture unless the material has a custom value set
+        if (opacity == 1.0)
+            opacity = pow(albedoSRGB.a, 2.2);
         albedo = vec3(r, g, b);
     }
     else
         albedo = material.albedo;
-
-    if (opacity < 0.2)
-        discard;
         
     vec3 normalVec;
     if ((material.used_maps & NORMAL_MAP) != 0)
