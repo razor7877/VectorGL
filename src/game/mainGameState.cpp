@@ -204,13 +204,21 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	CameraComponent* camera = this->scene.currentCamera;
 	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
+		// Z forward vector
 		glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
+		// The camera forward vector
 		glm::vec3 cameraFront = this->getScene().currentCamera->getForward();
-		glm::vec3 cameraFrontXy = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
+		// The camera forward projected onto the XZ plane, we don't have Y rotation
+		glm::vec3 cameraFrontXz = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
 
-		float dot = glm::dot(worldFront, cameraFrontXy);
-		// The angle between the world and camera fronts
+		float dot = glm::dot(worldFront, cameraFrontXz);
+		// The angle between the world and camera forward
 		float angle = acos(dot);
+
+		// We need to check if the angle is a clockwise or counter clockwise rotation
+		glm::vec3 cross = glm::cross(worldFront, cameraFrontXz);
+		if (glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), cameraFront) > 0.0f)
+			angle = -angle;
 
 		Logger::logDebug(std::to_string(angle), "mainGameState.cpp");
 
@@ -233,10 +241,15 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			gameEngine->popState();
 
 		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
-		walkDirection = btVector3(walkDirection.x() * sin(angle), 0.0f, walkDirection.z() * cos(angle));
+		//walkDirection = btVector3(walkDirection.x() * cos(angle), 0.0f, walkDirection.z() * sin(angle));
+
+		btScalar newX = walkDirection.x() * cos(angle) - walkDirection.z() * sin(angle);
+		btScalar newZ = walkDirection.z() * cos(angle) + walkDirection.x() * sin(angle);
+
+		walkDirection = btVector3(newX, 0.0f, newZ);
 
 		// Normalize the direction to avoid diagonal movement being faster
-		if (walkDirection != btVector3(0.0f, 0.0f, 0.0f))
+		if (!walkDirection.fuzzyZero())
 			walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
 
 		this->characterController->setWalkDirection(walkDirection);
