@@ -204,6 +204,16 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	CameraComponent* camera = this->scene.currentCamera;
 	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
+		glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
+		glm::vec3 cameraFront = this->getScene().currentCamera->getForward();
+		glm::vec3 cameraFrontXy = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
+
+		float dot = glm::dot(worldFront, cameraFrontXy);
+		// The angle between the world and camera fronts
+		float angle = acos(dot);
+
+		Logger::logDebug(std::to_string(angle), "mainGameState.cpp");
+
 		btVector3 walkDirection(0.0f, 0.0f, 0.0f);
 		btScalar walkSpeed = 5.0f;
 
@@ -214,13 +224,16 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			walkDirection += btVector3(0.0f, 0.0f, -1.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
+			walkDirection += btVector3(1.0f, 0.0f, 0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-			walkDirection += btVector3(1.0f, 0.0f, 0.0f);
+			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 			gameEngine->popState();
+
+		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
+		walkDirection = btVector3(walkDirection.x() * sin(angle), 0.0f, walkDirection.z() * cos(angle));
 
 		// Normalize the direction to avoid diagonal movement being faster
 		if (walkDirection != btVector3(0.0f, 0.0f, 0.0f))
@@ -244,10 +257,7 @@ void MainGameState::update(GameEngine* gameEngine, float deltaTime)
 	btPairCachingGhostObject* ghostObject = this->characterController->getGhostObject();
 	glm::mat4 transform;
 	ghostObject->getWorldTransform().getOpenGLMatrix(glm::value_ptr(transform));
-
 	this->scene.currentCamera->setPosition(glm::vec3(transform[3][0], transform[3][1], transform[3][2]));
-	glm::mat4 newMatrix = this->scene.currentCamera->getViewMatrix();
-	btTransform newBtMatrix = btTransform();
 
 	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }
