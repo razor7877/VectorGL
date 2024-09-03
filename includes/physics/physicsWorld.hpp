@@ -4,6 +4,7 @@
 #include <map>
 
 #include <btBulletDynamicsCommon.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <glm/glm.hpp>
 
 #include <components/physicsComponent.hpp>
@@ -57,6 +58,12 @@ private:
 class PhysicsWorld
 {
 public:
+	btDefaultCollisionConfiguration* collisionConfiguration;
+	btCollisionDispatcher* collisionDispatcher;
+	btBroadphaseInterface* overlappingPairCache;
+	btSequentialImpulseConstraintSolver* solver;
+	btDiscreteDynamicsWorld* world;
+
 	static constexpr float GRAVITY = -9.81f;
 	bool enableDebugDraw = false;
 
@@ -118,11 +125,6 @@ public:
 	void addCapsule(PhysicsComponent* component, float radius, float height, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 private:
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* collisionDispatcher;
-	btBroadphaseInterface* overlappingPairCache;
-	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld* world;
 	DebugDrawer* debugDrawer;
 
 	std::vector<btRigidBody*> rigidBodies;

@@ -5,6 +5,8 @@ PhysicsWorld::PhysicsWorld()
 	this->collisionConfiguration = new btDefaultCollisionConfiguration();
 	this->collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
 	this->overlappingPairCache = new btDbvtBroadphase();
+	btOverlappingPairCallback* m_ghostPairCallback = new btGhostPairCallback();
+	this->overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostPairCallback);
 	this->solver = new btSequentialImpulseConstraintSolver();
 	this->world = new btDiscreteDynamicsWorld(collisionDispatcher, overlappingPairCache, solver, collisionConfiguration);
 	this->world->setGravity(btVector3(0.0f, PhysicsWorld::GRAVITY, 0.0f));

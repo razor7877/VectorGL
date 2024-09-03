@@ -1,6 +1,8 @@
 #include <memory>
 #include <vector>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "game/mainGameState.hpp"
 #include "io/input.hpp"
 #include "shader.hpp"
@@ -158,6 +160,23 @@ void MainGameState::init()
 	this->scene.addEntity(std::move(planeEntity));
 	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
+	ghostObject = new btPairCachingGhostObject();
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(0, 10, 0)); // Start position
+
+	this->characterShape = new btCapsuleShape(0.5f, 2.0f); // radius, height
+
+	ghostObject->setWorldTransform(startTransform);
+	ghostObject->setCollisionShape(characterShape);
+	ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+	this->characterController = new btKinematicCharacterController(ghostObject, characterShape, 0.35f);
+	this->characterController->setGravity(btVector3(0.0f, -9.81f, 0.0f));
+
+	this->physicsWorld.world->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	this->physicsWorld.world->addAction(characterController);
+
 	// Initialize scene
 	this->scene.init();
 }
@@ -185,20 +204,35 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	CameraComponent* camera = this->scene.currentCamera;
 	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
+		btVector3 walkDirection(0.0f, 0.0f, 0.0f);
+		btScalar walkSpeed = 5.0f;
+
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
-			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
+			walkDirection += btVector3(0.0f, 0.0f, 1.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
-			camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
+			walkDirection += btVector3(0.0f, 0.0f, -1.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-			camera->processKeyboard(CameraMovement::LEFT, deltaTime);
+			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
+			walkDirection += btVector3(1.0f, 0.0f, 0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 			gameEngine->popState();
+
+		// Normalize the direction to avoid diagonal movement being faster
+		if (walkDirection != btVector3(0.0f, 0.0f, 0.0f))
+			walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
+
+		this->characterController->setWalkDirection(walkDirection);
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			if (this->characterController->onGround())
+				this->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
+		}
 	};
 
 	// Processes any mouse or keyboard input for camera movement
@@ -207,6 +241,14 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)
 {
+	btPairCachingGhostObject* ghostObject = this->characterController->getGhostObject();
+	glm::mat4 transform;
+	ghostObject->getWorldTransform().getOpenGLMatrix(glm::value_ptr(transform));
+
+	this->scene.currentCamera->setPosition(glm::vec3(transform[3][0], transform[3][1], transform[3][2]));
+	glm::mat4 newMatrix = this->scene.currentCamera->getViewMatrix();
+	btTransform newBtMatrix = btTransform();
+
 	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }
 
