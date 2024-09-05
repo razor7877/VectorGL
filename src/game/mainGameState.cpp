@@ -37,7 +37,7 @@ void MainGameState::init()
 	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 	
-	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(game.renderer.shaderManager.getShader(ShaderType::PBR)))
+	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
 		.addVertices(sphereOptimized.vertices)
 		.addIndices(sphereOptimized.indices)
 		.addNormals(sphereOptimized.normals)

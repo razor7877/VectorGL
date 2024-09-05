@@ -2,6 +2,8 @@
 
 #include "lightManager.hpp"
 
+// TODO : Get rid of this or make it better somehow
+
 LightManager LightManager::instance;
 
 LightManager& LightManager::getInstance()

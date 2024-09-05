@@ -5,6 +5,11 @@
 
 #include "game/gameEngine.hpp"
 
-extern GameEngine& game;
+namespace Main
+{
+	extern GameEngine& game;
+	extern float deltaTime;
+	extern float lastFrame;
+}
 
 #endif

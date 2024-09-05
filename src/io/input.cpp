@@ -69,7 +69,7 @@ namespace Input
 		inputData.lastCursorPosition.x = (float)xpos;
 		inputData.lastCursorPosition.y = (float)ypos;
 
-		game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
+		Main::game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
 	}
 
 	void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -79,7 +79,7 @@ namespace Input
 		{
 			return;
 		}
-		game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yoffset));
+		Main::game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yoffset));
 	}
 
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -91,7 +91,7 @@ namespace Input
 		}
 
 		// Toggle to show/hide mouse cursor
-		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && (isViewerFocused || !inputData.showCursor))
+		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && (Interface::isViewerFocused || !inputData.showCursor))
 		{
 			inputData.showCursor = !inputData.showCursor;
 			if (inputData.showCursor) // We only allow hiding cursor if viewer is focused
@@ -173,7 +173,7 @@ namespace Input
 			if (newEntity != nullptr)
 			{
 				newEntity->start();
-				game.getCurrentState()->getScene().addEntity(std::move(newEntity));
+				Main::game.getCurrentState()->getScene().addEntity(std::move(newEntity));
 			}
 		}
 	}

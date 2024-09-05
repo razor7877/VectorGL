@@ -12,35 +12,23 @@
 #include "game/gameEngine.hpp"
 #include "game/mainGameState.hpp"
 #include "game/startMenuState.hpp"
+#include "main.hpp"
 
-/// <summary>
-/// A reference to the game engine, which manages nearly all the state of the engine
-/// </summary>
-GameEngine& game = GameEngine();
-
-/// <summary>
-/// Stores the current elapsed time since the last frame
-/// </summary>
-float deltaTime = 0.0f;
-
-/// <summary>
-/// The timestamp of the previous frame
-/// </summary>
-float lastFrame = 0.0f;
+using namespace Main;
 
 int main()
 {
 	if (Input::setupGlfwContext() != 0)
 		return -1;
-	
+
 	// Initializes the ImGui UI system
-	ImGuiInit(Input::inputData.window, &game.renderer);
+	Interface::ImGuiInit(Input::inputData.window, &game.renderer);
 
 	// Start the game state
 	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);
 	game.init();
 	game.changeState(std::move(mainState));
-	
+
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
@@ -61,9 +49,9 @@ int main()
 		game.handleEvents(deltaTime);
 		game.update(deltaTime);
 		game.draw();
-		
+
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows();
+		Interface::ImGuiDrawWindows();
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
@@ -78,4 +66,22 @@ int main()
 
 	glfwTerminate();
 	return 0;
+}
+
+namespace Main
+{
+	/// <summary>
+	/// A reference to the game engine, which manages nearly all the state of the engine
+	/// </summary>
+	GameEngine& game = GameEngine();
+
+	/// <summary>
+	/// Stores the current elapsed time since the last frame
+	/// </summary>
+	float deltaTime = 0.0f;
+
+	/// <summary>
+	/// The timestamp of the previous frame
+	/// </summary>
+	float lastFrame = 0.0f;
 }
