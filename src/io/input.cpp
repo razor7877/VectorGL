@@ -3,191 +3,179 @@
 #include "main.hpp"
 #include "io/interface.hpp"
 #include "io/input.hpp"
-#include "components/cameraComponent.hpp"
 #include "utilities/resourceLoader.hpp"
 #include "logger.hpp"
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
 
-GLFWwindow* window;
-
-float lastX = (float)windowWidth / 2;
-float lastY = (float)windowHeight / 2;
-
-bool showCursor = true;
-bool wireframeMode = false;
-bool firstMouse = true;
-bool toggleFullscreen = false;
-
-// When toggling fullscreen on, save the resolution of window
-// If fullscreen is then toggled off, set window size to these values
-int lastWidth = WINDOW_WIDTH;
-int lastHeight = WINDOW_HEIGHT;
-// Used to save the last coordinates of the windowed mode window
-int lastXPos = 50;
-int lastYPos = 50;
-
-int setupGlfwContext()
+namespace Input
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	struct InputData inputData;
 
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-
-	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "VectorGL", NULL, NULL);
-	if (window == NULL)
+	int setupGlfwContext()
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
+		glfwInit();
+		// Set OpenGL 3.3 version
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		// Set OpenGL core profile
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		// Turn MSAA on, probably not useful now since MSAA is managed and resolved using framebuffers
+		glfwWindowHint(GLFW_SAMPLES, 4);
 
-	// Set callback functions for window resizing and handling input
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetDropCallback(window, drop_callback);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-	// Check if GLAD loaded successfully
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
-	return 0;
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	if (showCursor)
-		return;
-
-	if (firstMouse)
-	{
-		lastX = (float)xpos;
-		lastY = (float)ypos;
-		firstMouse = false;
-	}
-
-	float xoffset = (float)(xpos - lastX);
-	float yoffset = (float)(lastY - ypos);
-
-	lastX = (float)xpos;
-	lastY = (float)ypos;
-
-	game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	// If cursor is shown (interacting with UI), don't change FOV
-	if (showCursor)
-	{
-		return;
-	}
-	game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yoffset));
-}
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	// Quit program
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(window, true);
-	}
-
-	// Toggle to show/hide mouse cursor
-	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && (isViewerFocused || !showCursor))
-	{
-		showCursor = !showCursor;
-		if (showCursor) // We only allow hiding cursor if viewer is focused
+		inputData.window = glfwCreateWindow(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y, "VectorGL", NULL, NULL);
+		if (inputData.window == NULL)
 		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			firstMouse = true;
+			std::cout << "Failed to create GLFW window" << std::endl;
+			glfwTerminate();
+			return -1;
 		}
-		else
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
+		glfwMakeContextCurrent(inputData.window);
 
-	// Toggle to enable/disable wireframe drawing
-	if (key == GLFW_KEY_F10 && action == GLFW_PRESS)
-	{
-		wireframeMode = !wireframeMode;
-		if (wireframeMode)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
+		// Set callback functions for window resizing and handling input
+		glfwSetFramebufferSizeCallback(inputData.window, framebufferSizeCallback);
+		glfwSetCursorPosCallback(inputData.window, mouseCallback);
+		glfwSetScrollCallback(inputData.window, scrollCallback);
+		glfwSetKeyCallback(inputData.window, keyCallback);
+		glfwSetDropCallback(inputData.window, dropCallback);
 
-	// Toggle to go in or out of fullscreen mode
-	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
-	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-		toggleFullscreen = !toggleFullscreen;
-		if (toggleFullscreen)
+		// Check if GLAD loaded successfully
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-			// Saves windowed mode resolution
-			lastWidth = windowWidth;
-			lastHeight = windowHeight;
-			// Saves windowed mode coordinates
-			glfwGetWindowPos(window, &lastXPos, &lastYPos);
-
-			// Sets window to fullscreen mode and updates viewport
-			glfwSetWindowMonitor(window, monitor, 50, 50, mode->width, mode->height, mode->refreshRate);
-
-			// Sets window resolution values to monitor resolution
-			windowWidth = mode->width;
-			windowHeight = mode->height;
+			std::cout << "Failed to initialize GLAD" << std::endl;
+			return -1;
 		}
-		else
-		{
-			// Sets window to windowed mode and updates viewport
-			glfwSetWindowMonitor(window, nullptr, lastXPos, lastYPos, lastWidth, lastHeight, mode->refreshRate);
 
-			// Sets window resolution values to last saved windowed values
-			windowWidth = lastWidth;
-			windowHeight = lastHeight;
-		}
+		return 0;
 	}
-}
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	windowWidth = width;
-	windowHeight = height;
-	glViewport(0, 0, width, height);
-}
-
-void drop_callback(GLFWwindow* window, int count, const char** paths)
-{
-	int i;
-	for (i = 0; i < count; i++)
+	void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 	{
-		std::string newPath = std::string(paths[i]);
+		if (inputData.showCursor)
+			return;
 
-		int index = 0;
-		for (size_t i = 0; i < newPath.length(); ++i)
+		if (inputData.firstMouseCallback)
 		{
-			if (newPath[i] == '\\')
+			inputData.lastCursorPosition.x = (float)xpos;
+			inputData.lastCursorPosition.y = (float)ypos;
+			inputData.firstMouseCallback = false;
+		}
+
+		float xoffset = (float)(xpos - inputData.lastCursorPosition.x);
+		float yoffset = (float)(inputData.lastCursorPosition.y - ypos);
+
+		inputData.lastCursorPosition.x = (float)xpos;
+		inputData.lastCursorPosition.y = (float)ypos;
+
+		game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
+	}
+
+	void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		// If cursor is shown (interacting with UI), don't change FOV
+		if (inputData.showCursor)
+		{
+			return;
+		}
+		game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yoffset));
+	}
+
+	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		// Quit program
+		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		{
+			glfwSetWindowShouldClose(window, true);
+		}
+
+		// Toggle to show/hide mouse cursor
+		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS && (isViewerFocused || !inputData.showCursor))
+		{
+			inputData.showCursor = !inputData.showCursor;
+			if (inputData.showCursor) // We only allow hiding cursor if viewer is focused
 			{
-				newPath[i] = '/';
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				inputData.firstMouseCallback = true;
+			}
+			else
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+
+		// Toggle to enable/disable wireframe drawing
+		if (key == GLFW_KEY_F10 && action == GLFW_PRESS)
+		{
+			inputData.wireframeMode = !inputData.wireframeMode;
+			if (inputData.wireframeMode)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			else
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+
+		// Toggle to go in or out of fullscreen mode
+		if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+		{
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+			inputData.toggleFullscreen = !inputData.toggleFullscreen;
+			if (inputData.toggleFullscreen)
+			{
+				// Saves windowed mode resolution
+				inputData.lastWindowSize.x = inputData.windowSize.x;
+				inputData.lastWindowSize.y = inputData.windowSize.y;
+				// Saves windowed mode coordinates
+				glfwGetWindowPos(window, &inputData.lastPosition.x, &inputData.lastPosition.y);
+
+				// Sets window to fullscreen mode and updates viewport
+				glfwSetWindowMonitor(window, monitor, 50, 50, mode->width, mode->height, mode->refreshRate);
+
+				// Sets window resolution values to monitor resolution
+				inputData.windowSize.x = mode->width;
+				inputData.windowSize.y = mode->height;
+			}
+			else
+			{
+				// Sets window to windowed mode and updates viewport
+				glfwSetWindowMonitor(window, nullptr, inputData.lastPosition.x, inputData.lastPosition.y, inputData.lastWindowSize.x, inputData.lastWindowSize.y, mode->refreshRate);
+
+				// Sets window resolution values to last saved windowed values
+				inputData.windowSize.x = inputData.lastWindowSize.x;
+				inputData.windowSize.y = inputData.lastWindowSize.y;
 			}
 		}
-		std::cout << "Drop callback path: " << newPath << std::endl;
+	}
 
-		std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath(newPath, LightManager::getInstance().shaderProgram);
-		if (newEntity != nullptr)
+	void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		inputData.windowSize.x = width;
+		inputData.windowSize.y = height;
+		glViewport(0, 0, width, height);
+	}
+
+	void dropCallback(GLFWwindow* window, int count, const char** paths)
+	{
+		for (int i = 0; i < count; i++)
 		{
-			newEntity->start();
-			game.getCurrentState()->getScene().addEntity(std::move(newEntity));
+			std::string newPath = std::string(paths[i]);
+
+			int index = 0;
+			for (size_t i = 0; i < newPath.length(); ++i)
+			{
+				if (newPath[i] == '\\')
+					newPath[i] = '/';
+			}
+
+			Logger::logInfo("Drag & drop callback path: " + newPath, "input.cpp");
+
+			std::unique_ptr<Entity> newEntity = ResourceLoader::getInstance().loadModelFromFilepath(newPath, LightManager::getInstance().shaderProgram);
+			if (newEntity != nullptr)
+			{
+				newEntity->start();
+				game.getCurrentState()->getScene().addEntity(std::move(newEntity));
+			}
 		}
 	}
+
 }

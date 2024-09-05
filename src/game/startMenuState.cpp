@@ -101,8 +101,6 @@ void StartMenuState::resume()
 
 }
 
-extern GLFWwindow* window;
-
 void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
 	CameraComponent* camera = this->scene.currentCamera;
@@ -124,7 +122,7 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
 	};
 
-	processInput(lambda, window, deltaTime);
+	Input::processInput(lambda, Input::inputData.window, deltaTime);
 }
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)

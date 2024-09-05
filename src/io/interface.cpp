@@ -12,6 +12,7 @@
 
 #include "main.hpp"
 #include "entity.hpp"
+#include "io/input.hpp"
 #include "io/interface.hpp"
 #include "lightManager.hpp"
 #include "logger.hpp"
@@ -184,7 +185,7 @@ void ImGuiDrawWindows()
 
 	// We want to create a full size window
 	ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y));
-	ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight - mainMenuBarSize.y));
+	ImGui::SetNextWindowSize(ImVec2(Input::inputData.windowSize.x, Input::inputData.windowSize.y - mainMenuBarSize.y));
 	ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 	ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
@@ -296,10 +297,10 @@ void ShowConsole()
 {
 	ImGui::Begin("Console");
 
-	ImVec2 windowSize = ImGui::GetContentRegionAvail();
+	ImVec2 lastWindowSize = ImGui::GetContentRegionAvail();
 
 	// We keep 20px at the bottom for the buttons
-	ImGui::BeginChild("Logs", ImVec2(0, windowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::BeginChild("Logs", ImVec2(0, lastWindowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
 	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
 
 	int currentLogCount = Logger::getLogCount();

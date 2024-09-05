@@ -50,7 +50,7 @@ public:
 	/// Initializes the renderer data, this needs to be done once before the render loop
 	/// </summary>
 	/// <param name="windowSize">The window size in pixels</param>
-	void init(glm::vec2 windowSize);
+	void init(glm::vec2 lastWindowSize);
 
 	/// <summary>
 	/// Adds a line to draw for debugging raycasts etc.
@@ -164,7 +164,7 @@ private:
 	std::vector<float> storedLineVerts;
 
 	// Creates a framebuffer with the size specified
-	void createFramebuffers(glm::vec2 windowSize);
+	void createFramebuffers(glm::vec2 lastWindowSize);
 
 	/// <summary>
 	/// The pass responsible for generating the shadow map

@@ -2,6 +2,8 @@
 #include <vector>
 
 #include <glm/gtc/type_ptr.hpp>
+#include <utilities/glad.h>
+#include <glfw/glfw3.h>
 
 #include "game/mainGameState.hpp"
 #include "io/input.hpp"
@@ -196,9 +198,6 @@ void MainGameState::resume()
 
 }
 
-// TODO : Find a better way of handling inputs
-extern GLFWwindow* window;
-
 void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
 	CameraComponent* camera = this->scene.currentCamera;
@@ -229,11 +228,11 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
 			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
 			gameEngine->popState();
 
 		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
-		walkDirection = btVector3(walkDirection.x() * sin(angle), 0.0f, walkDirection.z() * cos(angle));
+		//walkDirection = btVector3(walkDirection.x() * sin(angle), 0.0f, walkDirection.z() * cos(angle));
 
 		// Normalize the direction to avoid diagonal movement being faster
 		if (walkDirection != btVector3(0.0f, 0.0f, 0.0f))
@@ -249,7 +248,7 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	};
 
 	// Processes any mouse or keyboard input for camera movement
-	processInput(lambda, window, deltaTime);
+	Input::processInput(lambda, Input::inputData.window, deltaTime);
 }
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)

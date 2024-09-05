@@ -13,26 +13,28 @@
 #include "game/mainGameState.hpp"
 #include "game/startMenuState.hpp"
 
-extern GLFWwindow* window;
-
-const int WINDOW_WIDTH = 1920;
-const int WINDOW_HEIGHT = 1080;
-
-int windowWidth = WINDOW_WIDTH;
-int windowHeight = WINDOW_HEIGHT;
-
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
+/// <summary>
+/// A reference to the game engine, which manages nearly all the state of the engine
+/// </summary>
 GameEngine& game = GameEngine();
+
+/// <summary>
+/// Stores the current elapsed time since the last frame
+/// </summary>
+float deltaTime = 0.0f;
+
+/// <summary>
+/// The timestamp of the previous frame
+/// </summary>
+float lastFrame = 0.0f;
 
 int main()
 {
-	if (setupGlfwContext() != 0)
+	if (Input::setupGlfwContext() != 0)
 		return -1;
 	
 	// Initializes the ImGui UI system
-	ImGuiInit(window, &game.renderer);
+	ImGuiInit(Input::inputData.window, &game.renderer);
 
 	// Start the game state
 	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);
@@ -45,7 +47,7 @@ int main()
 	float currentFrame;
 
 	// Render loop
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(Input::inputData.window))
 	{
 		// Clears the buffers and last frame before rendering the next one
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -68,7 +70,7 @@ int main()
 		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent), "main.cpp"); }
 
 		// Swaps buffers to screen to show the rendered frame
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(Input::inputData.window);
 		glfwPollEvents();
 	}
 

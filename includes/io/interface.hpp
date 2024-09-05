@@ -2,6 +2,7 @@
 #define INTERFACE_HPP
 
 #include <imgui.h>
+#include <glfw/glfw3.h>
 
 #include "renderer.hpp"
 
@@ -94,6 +95,9 @@ void HandleSceneGraphClick(Entity* object);
 /// <param name="component">The component for which the UI should be displayed</param>
 void ShowComponentUI(Component* component);
 
+/// <summary>
+/// Used for displaying the textures of a model
+/// </summary>
 void TextureViewer();
 
 #endif
