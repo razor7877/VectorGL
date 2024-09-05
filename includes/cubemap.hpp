@@ -12,9 +12,15 @@
 class Cubemap
 {
 public:
+	/// <summary>
+	/// The OpenGL handle for the cubemap texture
+	/// </summary>
 	GLuint texID = 0;
+
+	/// <summary>
+	/// A vector containing the file paths for the face images, if cubemap was loaded from image files
+	/// </summary>
 	std::vector<std::string> faces;
-	bool isSetUp = false;
 
 	Cubemap();
 
@@ -40,7 +46,14 @@ public:
 
 	~Cubemap();
 
+	/// <summary>
+	/// Binds the cubemap texture
+	/// </summary>
 	void bind();
+
+	/// <summary>
+	/// Generates mip levels for the cubemap
+	/// </summary>
 	void generateMipMaps();
 
 private:
