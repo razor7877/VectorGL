@@ -6,6 +6,9 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 find_package(OpenGL REQUIRED)
 
+set(BUILD_SHARED_LIBS OFF)
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF)
+
 # Add CMake library subfolders
 add_subdirectory(libs/assimp EXCLUDE_FROM_ALL)
 add_subdirectory(libs/glfw EXCLUDE_FROM_ALL)
