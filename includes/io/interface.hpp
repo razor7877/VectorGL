@@ -16,8 +16,7 @@ namespace Interface
 	/// Initializes ImGui
 	/// </summary>
 	/// <param name="window">A pointer to the application window</param>
-	/// <param name="rendererArg">The renderer used to render the scene</param>
-	void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
+	void ImGuiInit(GLFWwindow* window);
 
 	/// <summary>
 	/// Draws all the ImGui windows

@@ -31,12 +31,6 @@
 
 namespace Interface
 {
-	// Used for dynamically showing existing lights and enabling their realtime modification
-	Renderer* renderer = nullptr;
-
-	// The currently selected node in the scene graph
-	Entity* selectedSceneNode = nullptr;
-
 	std::string editLabel{};
 
 	bool isViewerFocused = false;
@@ -144,7 +138,7 @@ namespace Interface
 	} textureViewerParams;
 
 
-	void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
+	void ImGuiInit(GLFWwindow* window)
 	{
 		// OpenGL context needs to be initalized beforehand to call glGetString()
 		performanceParams.gpuVendor = (char*)glGetString(GL_VENDOR);
@@ -166,8 +160,6 @@ namespace Interface
 
 		SetupShaderEditor();
 		SetupScriptEditor();
-
-		renderer = rendererArg;
 	}
 
 	bool showTest = false;
@@ -220,7 +212,7 @@ namespace Interface
 		glm::vec2 imagePos = ImGui::GetCursorScreenPos();
 
 		ImGui::Image(
-			(ImTextureID)renderer->getRenderTexture(),
+			(ImTextureID)Main::game.renderer.getRenderTexture(),
 			viewerSize,
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -265,16 +257,16 @@ namespace Interface
 				//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 				PhysicsComponent* raycastResult = Main::game.getCurrentState()->getPhysicsWorld().raycastLine(rayStartPosWorld, rayEndPosWorld);
 
-				if (selectedSceneNode != nullptr)
-					selectedSceneNode->drawOutline = false;
+				if (Main::game.getCurrentState()->getScene().currentActiveEntity != nullptr)
+					Main::game.getCurrentState()->getScene().currentActiveEntity->drawOutline = false;
 
 				if (raycastResult != nullptr)
 				{
-					selectedSceneNode = raycastResult->parent;
-					selectedSceneNode->drawOutline = true;
+					Main::game.getCurrentState()->getScene().currentActiveEntity = raycastResult->parent;
+					Main::game.getCurrentState()->getScene().currentActiveEntity->drawOutline = true;
 				}
 				else
-					selectedSceneNode = nullptr;
+					Main::game.getCurrentState()->getScene().currentActiveEntity = nullptr;
 			}
 		}
 
@@ -284,7 +276,7 @@ namespace Interface
 		ImGui::Begin("Top view");
 
 		ImGui::Image(
-			(ImTextureID)renderer->getSkyRenderTexture(),
+			(ImTextureID)Main::game.renderer.getSkyRenderTexture(),
 			viewerSize,
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -415,14 +407,16 @@ namespace Interface
 
 		ImGui::Separator();
 
-		ImGui::Text("Mesh sorting time: %.2f ms", renderer->meshSortingTime * 1000);
-		ImGui::Text("Physics update time: %.2f ms", renderer->physicsUpdateTime * 1000);
-		ImGui::Text("Shadow pass time: %.2f ms", renderer->shadowPassTime * 1000);
-		ImGui::Text("gBuffer pass time: %.2f ms", renderer->gBufferPassTime * 1000);
-		ImGui::Text("SSAO pass time: %.2f ms", renderer->ssaoPassTime * 1000);
-		ImGui::Text("Render pass time: %.2f ms", renderer->renderPassTime * 1000);
-		ImGui::Text("Outline pass time: %.2f ms", renderer->outlinePassTime * 1000);
-		ImGui::Text("Blit pass time: %.2f ms", renderer->blitPassTime * 1000);
+		Renderer& renderer = Main::game.renderer;
+
+		ImGui::Text("Mesh sorting time: %.2f ms", renderer.meshSortingTime * 1000);
+		ImGui::Text("Physics update time: %.2f ms", renderer.physicsUpdateTime * 1000);
+		ImGui::Text("Shadow pass time: %.2f ms", renderer.shadowPassTime * 1000);
+		ImGui::Text("gBuffer pass time: %.2f ms", renderer.gBufferPassTime * 1000);
+		ImGui::Text("SSAO pass time: %.2f ms", renderer.ssaoPassTime * 1000);
+		ImGui::Text("Render pass time: %.2f ms", renderer.renderPassTime * 1000);
+		ImGui::Text("Outline pass time: %.2f ms", renderer.outlinePassTime * 1000);
+		ImGui::Text("Blit pass time: %.2f ms", renderer.blitPassTime * 1000);
 
 		if (performanceParams.isNvidiaGpu)
 		{
@@ -458,7 +452,7 @@ namespace Interface
 	{
 		ImGui::Begin("Shader settings");
 
-		Shader* pbr = renderer->shaderManager.getShader(ShaderType::PBR);
+		Shader* pbr = Main::game.renderer.shaderManager.getShader(ShaderType::PBR);
 
 		if (ImGui::DragFloat("Roughness", &shaderSettingsParams.roughness, 0.01f, 0.0f, 1.0f))
 			pbr->use()->setFloat("material.roughness", shaderSettingsParams.roughness);
@@ -469,7 +463,7 @@ namespace Interface
 		if (ImGui::DragFloat("AO", &shaderSettingsParams.ao, 0.01f, 0.0f, 1.0f))
 			pbr->use()->setFloat("material.ao", shaderSettingsParams.ao);
 
-		for (auto& [type, shader] : renderer->shaderManager.enumToShader)
+		for (auto& [type, shader] : Main::game.renderer.shaderManager.enumToShader)
 		{
 			std::string label;
 
@@ -534,14 +528,16 @@ namespace Interface
 
 			if (ImGui::CollapsingHeader(label.c_str()))
 			{
+				Renderer& renderer = Main::game.renderer;
+
 				ImGui::PushID(shader->vertexPath.c_str());
 				if (ImGui::Button("Edit vertex shader"))
 				{
-					shaderSettingsParams.currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->vertexPath;
+					shaderSettingsParams.currentEditedShaderPath = renderer.shaderManager.enumToShader[type]->vertexPath;
 					shaderSettingsParams.currentEditedShaderType = type;
 					shaderSettingsParams.isEditingVertexShader = true;
 					shaderSettingsParams.isEditingShader = true;
-					shaderSettingsParams.editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
+					shaderSettingsParams.editor.SetText(renderer.shaderManager.getVertexShaderContent(type));
 					ImGui::SetWindowFocus("Shader editor");
 				}
 				ImGui::PopID();
@@ -549,11 +545,11 @@ namespace Interface
 				ImGui::PushID(shader->fragmentPath.c_str());
 				if (ImGui::Button("Edit fragment shader"))
 				{
-					shaderSettingsParams.currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->fragmentPath;
+					shaderSettingsParams.currentEditedShaderPath = renderer.shaderManager.enumToShader[type]->fragmentPath;
 					shaderSettingsParams.currentEditedShaderType = type;
 					shaderSettingsParams.isEditingVertexShader = false;
 					shaderSettingsParams.isEditingShader = true;
-					shaderSettingsParams.editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
+					shaderSettingsParams.editor.SetText(renderer.shaderManager.getFragmentShaderContent(type));
 					ImGui::SetWindowFocus("Shader editor");
 				}
 				ImGui::PopID();
@@ -583,12 +579,13 @@ namespace Interface
 				auto textToSave = shaderSettingsParams.editor.GetText();
 				if (shaderSettingsParams.isEditingShader)
 				{
+					Renderer& renderer = Main::game.renderer;
 					if (shaderSettingsParams.isEditingVertexShader)
-						renderer->shaderManager.setVertexShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
+						renderer.shaderManager.setVertexShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
 					else
-						renderer->shaderManager.setFragmentShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
+						renderer.shaderManager.setFragmentShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
 
-					renderer->shaderManager.enumToShader[shaderSettingsParams.currentEditedShaderType]->compileShader();
+					renderer.shaderManager.enumToShader[shaderSettingsParams.currentEditedShaderType]->compileShader();
 				}
 			}
 			if (ImGui::BeginMenu("Edit"))
@@ -722,15 +719,15 @@ namespace Interface
 	{
 		ImGui::Begin("Node details");
 
-		if (selectedSceneNode != nullptr)
+		if (Main::game.getCurrentState()->getScene().currentActiveEntity != nullptr)
 		{
-			ImGui::Text(selectedSceneNode->getLabel().c_str());
+			ImGui::Text(Main::game.getCurrentState()->getScene().currentActiveEntity->getLabel().c_str());
 
-			bool isVisible = selectedSceneNode->getIsEnabled();
+			bool isVisible = Main::game.getCurrentState()->getScene().currentActiveEntity->getIsEnabled();
 			if (ImGui::Checkbox("Visible", &isVisible))
-				selectedSceneNode->setIsEnabled(isVisible);
+				Main::game.getCurrentState()->getScene().currentActiveEntity->setIsEnabled(isVisible);
 
-			for (auto& [type, component] : selectedSceneNode->getComponents())
+			for (auto& [type, component] : Main::game.getCurrentState()->getScene().currentActiveEntity->getComponents())
 				ShowComponentUI(component);
 		}
 
@@ -764,7 +761,7 @@ namespace Interface
 				flags |= ImGuiTreeNodeFlags_OpenOnArrow;
 
 			// Highlight selected node
-			if (selectedSceneNode == child)
+			if (Main::game.getCurrentState()->getScene().currentActiveEntity == child)
 				flags |= ImGuiTreeNodeFlags_Selected;
 
 			// Change text color for hidden nodes
@@ -798,9 +795,13 @@ namespace Interface
 	{
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 		{
-			if (selectedSceneNode != nullptr) selectedSceneNode->drawOutline = false;
-			selectedSceneNode = object;
-			selectedSceneNode->drawOutline = true;
+			Entity* activeEntity = Main::game.getCurrentState()->getScene().currentActiveEntity;
+
+			if (activeEntity != nullptr)
+				activeEntity->drawOutline = false;
+
+			Main::game.getCurrentState()->getScene().currentActiveEntity = object;
+			Main::game.getCurrentState()->getScene().currentActiveEntity->drawOutline = true;
 		}
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 			ImGui::OpenPopup("NodePopup");
@@ -825,8 +826,8 @@ namespace Interface
 
 			if (ImGui::Button("Delete"))
 			{
-				if (object == selectedSceneNode)
-					selectedSceneNode = nullptr;
+				if (object == Main::game.getCurrentState()->getScene().currentActiveEntity)
+					Main::game.getCurrentState()->getScene().currentActiveEntity = nullptr;
 
 				// TODO : Remove from scene
 				if (!Main::game.getCurrentState()->getScene().removeEntity(object))

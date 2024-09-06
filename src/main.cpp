@@ -40,7 +40,7 @@ int main()
 		return -1;
 
 	// Initializes the ImGui UI system
-	Interface::ImGuiInit(Input::inputData.window, &game.renderer);
+	Interface::ImGuiInit(Input::inputData.window);
 
 	// Start the game state
 	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);

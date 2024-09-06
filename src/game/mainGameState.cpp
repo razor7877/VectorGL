@@ -237,7 +237,10 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
+		{
 			gameEngine->popState();
+			return;
+		}
 
 		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
 

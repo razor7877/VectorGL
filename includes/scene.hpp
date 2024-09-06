@@ -59,6 +59,11 @@ public:
 	DirectionalLightComponent* directionalLight = nullptr;
 
 	/// <summary>
+	/// The currently selected entity, if there is one
+	/// </summary>
+	Entity* currentActiveEntity = nullptr;
+
+	/// <summary>
 	/// Returns a list of raw pointers to the entities in the renderer
 	/// </summary>
 	/// <returns>A vector containing all the raw entities pointers in the renderer</returns>
