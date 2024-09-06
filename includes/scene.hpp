@@ -99,7 +99,7 @@ public:
 	/// </summary>
 	/// <param name="cameraFrustum">The camera frustum for frustum culling</param>
 	/// <param name="entities">The entities to be recursed upon</param>
-	void getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities);
+	void getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entity*>& entities);
 
 private:
 	/// <summary>

@@ -10,9 +10,9 @@
 class MainGameState : public virtual GameState
 {
 public:
-	btKinematicCharacterController* characterController;
-	btPairCachingGhostObject* ghostObject;
-	btConvexShape* characterShape;
+	btKinematicCharacterController* characterController = nullptr;
+	btPairCachingGhostObject* ghostObject = nullptr;
+	btConvexShape* characterShape = nullptr;
 	
 	MainGameState(Renderer& renderer) : GameState(renderer) {};
 

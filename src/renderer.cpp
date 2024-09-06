@@ -5,6 +5,8 @@
 
 #include <glm/glm/ext/matrix_transform.hpp>
 #include <glm/glm/ext/matrix_clip_space.hpp>
+#include <utilities/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "main.hpp"
 #include "renderer.hpp"
@@ -52,7 +54,7 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize)
 }
 
 
-void Renderer::init(glm::vec2 windowSize)
+void Renderer::init(glm::vec2 lastWindowSize)
 {
 	// Sets up some parameters for the OpenGL context
 	// Depth test for depth buffering
@@ -134,7 +136,7 @@ void Renderer::init(glm::vec2 windowSize)
 
 	ssaoBlurQuadMesh->start();
 
-	this->createFramebuffers(windowSize);
+	this->createFramebuffers(lastWindowSize);
 }
 
 void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
@@ -180,8 +182,8 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	this->physicsUpdateTime = endTime - startTime;
 
 	// Update camera info
-	glm::vec2 windowSize = this->multiSampledTarget.size;
-	this->shaderManager.updateUniformBuffer(scene.currentCamera->getViewMatrix(), scene.currentCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+	glm::vec2 lastWindowSize = this->multiSampledTarget.size;
+	this->shaderManager.updateUniformBuffer(scene.currentCamera->getViewMatrix(), scene.currentCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
 	this->shaderManager.getShader(ShaderType::PHONG)->use()->setVec3("viewPos", scene.currentCamera->getPosition());
 	this->shaderManager.getShader(ShaderType::PBR)->use()->setVec3("camPos", scene.currentCamera->getPosition());
 	// Send light data to shader
@@ -234,7 +236,7 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 		this->skyTarget.bind();
 		this->skyTarget.clear();
 
-		this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(windowSize.x, windowSize.y));
+		this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
 		this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
 
 		this->skyTarget.unbind();
@@ -249,20 +251,20 @@ void Renderer::end()
 
 }
 
-void Renderer::createFramebuffers(glm::vec2 windowSize)
+void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 {
-	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
-	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
-	this->skyTarget = RenderTarget(TargetType::TEXTURE_2D, windowSize);
+	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, lastWindowSize);
+	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, lastWindowSize);
+	this->skyTarget = RenderTarget(TargetType::TEXTURE_2D, lastWindowSize);
 
 	// Shadow mapping
 	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
 	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap.renderTexture, TextureType::TEXTURE_ALBEDO);
 
 	// Screen space effects
-	this->gBuffer = RenderTarget(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
-	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize * this->SSAO_SCALE_FACTOR, GL_RED);
-	this->ssaoBlurTarget = RenderTarget(TargetType::TEXTURE_RED, windowSize * this->SSAO_SCALE_FACTOR, GL_RED);
+	this->gBuffer = RenderTarget(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
+	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
+	this->ssaoBlurTarget = RenderTarget(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
 	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 

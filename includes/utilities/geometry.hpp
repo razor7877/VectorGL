@@ -264,7 +264,7 @@ public:
 	/// <returns></returns>
 	static VertexDataIndices optimizeVertices(std::vector<float> vertices)
 	{
-		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
+		assert(vertices.size() % 9 == 0 && "Vector contains malformed vertice data!");
 
 		// We can't use std::set with a glm::vec3 since it lacks the "<" operator
 		// Therefore, we use an unordered set to keep track of what vertices are already present
@@ -315,7 +315,7 @@ public:
 	/// <returns></returns>
 	static VertexDataIndices optimizeVertices(std::vector<float> vertices, std::vector<float> normals)
 	{
-		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
+		assert(vertices.size() % 9 == 0 && "Vector contains malformed vertice data!");
 
 		// We can't use std::set with a glm::vec3 since it lacks the "<" operator
 		// Therefore, we use an unordered set to keep track of what vertices are already present
@@ -374,7 +374,7 @@ public:
 	/// <returns>A vector containing the normals for each vertex</returns>
 	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices)
 	{
-		assert(vertices.size() % 9 == 0, "Vector contains malformed vertice data!");
+		assert(vertices.size() % 9 == 0 && "Vector contains malformed vertice data!");
 
 		std::vector<float> normals;
 
@@ -417,7 +417,7 @@ public:
 	/// <returns></returns>
 	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices, std::vector<unsigned int> indices)
 	{
-		assert(indices.size() % 3 == 0, "Vector contains malformed vertice data!");
+		assert(indices.size() % 3 == 0 && "Vector contains malformed vertice data!");
 
 		std::vector<glm::vec3> normals(vertices.size() / 3, glm::vec3(0.0f));
 
@@ -461,7 +461,7 @@ public:
 
 	static BoundingBox getMeshBoundingBox(std::vector<float> vertices)
 	{
-		assert(vertices.size() % 3 == 0, "Vector contains malformed vertice data!");
+		assert(vertices.size() % 3 == 0 && "Vector contains malformed vertice data!");
 
 		float minX = INFINITY;
 		float minY = INFINITY;

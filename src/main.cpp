@@ -12,40 +12,48 @@
 #include "game/gameEngine.hpp"
 #include "game/mainGameState.hpp"
 #include "game/startMenuState.hpp"
+#include "main.hpp"
 
-extern GLFWwindow* window;
+using namespace Main;
 
-const int WINDOW_WIDTH = 1920;
-const int WINDOW_HEIGHT = 1080;
+namespace Main
+{
+	/// <summary>
+	/// A reference to the game engine, which manages nearly all the state of the engine
+	/// </summary>
+	GameEngine game = GameEngine();
 
-int windowWidth = WINDOW_WIDTH;
-int windowHeight = WINDOW_HEIGHT;
+	/// <summary>
+	/// Stores the current elapsed time since the last frame
+	/// </summary>
+	float deltaTime = 0.0f;
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
-GameEngine& game = GameEngine();
+	/// <summary>
+	/// The timestamp of the previous frame
+	/// </summary>
+	float lastFrame = 0.0f;
+}
 
 int main()
 {
-	if (setupGlfwContext() != 0)
+	if (Input::setupGlfwContext() != 0)
 		return -1;
-	
+
 	// Initializes the ImGui UI system
-	ImGuiInit(window, &game.renderer);
+	Interface::ImGuiInit(Input::inputData.window, &game.renderer);
 
 	// Start the game state
 	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);
 	game.init();
 	game.changeState(std::move(mainState));
-	
+
 	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
 	int glErrorCurrent;
 	// A variable that stores the current frame's timestamp, to calculate time between frames
 	float currentFrame;
 
 	// Render loop
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(Input::inputData.window))
 	{
 		// Clears the buffers and last frame before rendering the next one
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -59,16 +67,16 @@ int main()
 		game.handleEvents(deltaTime);
 		game.update(deltaTime);
 		game.draw();
-		
+
 		// Draws the ImGui interface windows
-		ImGuiDrawWindows();
+		Interface::ImGuiDrawWindows();
 
 		// Print error code to console if there is one
 		glErrorCurrent = glGetError();
 		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent), "main.cpp"); }
 
 		// Swaps buffers to screen to show the rendered frame
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(Input::inputData.window);
 		glfwPollEvents();
 	}
 

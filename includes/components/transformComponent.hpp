@@ -10,8 +10,8 @@ public:
 	TransformComponent(Entity* parent);
 	~TransformComponent();
 
-	void Component::start() override;
-	void Component::update(float deltaTime) override;
+	void start() override;
+	void update(float deltaTime) override;
 
 	glm::mat4 getModelMatrix();
 	glm::mat3 getNormalMatrix();

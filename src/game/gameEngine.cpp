@@ -1,8 +1,9 @@
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
 #include "main.hpp"
+#include "io/input.hpp"
 
-std::unique_ptr<GameState>& GameEngine::getCurrentState()
+const std::unique_ptr<GameState>& GameEngine::getCurrentState()
 {
 	if (!this->states.empty())
 		return this->states.back();
@@ -12,7 +13,7 @@ std::unique_ptr<GameState>& GameEngine::getCurrentState()
 
 void GameEngine::init()
 {
-	this->renderer.init(glm::vec2(windowHeight, windowWidth));
+	this->renderer.init(glm::vec2(Input::inputData.windowSize.x, Input::inputData.windowSize.y));
 }
 
 void GameEngine::cleanup()

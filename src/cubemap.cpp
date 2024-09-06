@@ -31,7 +31,6 @@ Cubemap::Cubemap(std::vector<std::string> faces)
 Cubemap::Cubemap(GLuint cubemap)
 {
 	this->texID = cubemap;
-	this->isSetUp = true;
 }
 
 Cubemap::Cubemap(GLenum format, int width, int height, bool mipMapFiltering)

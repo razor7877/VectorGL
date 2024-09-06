@@ -2,6 +2,8 @@
 #include <vector>
 
 #include <glm/gtc/type_ptr.hpp>
+#include <utilities/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "game/mainGameState.hpp"
 #include "io/input.hpp"
@@ -35,7 +37,7 @@ void MainGameState::init()
 	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 	
-	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(game.renderer.shaderManager.getShader(ShaderType::PBR)))
+	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
 		.addVertices(sphereOptimized.vertices)
 		.addIndices(sphereOptimized.indices)
 		.addNormals(sphereOptimized.normals)
@@ -196,9 +198,6 @@ void MainGameState::resume()
 
 }
 
-// TODO : Find a better way of handling inputs
-extern GLFWwindow* window;
-
 void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
 	CameraComponent* camera = this->scene.currentCamera;
@@ -237,10 +236,11 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
 			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
 			gameEngine->popState();
 
 		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
+
 		//walkDirection = btVector3(walkDirection.x() * cos(angle), 0.0f, walkDirection.z() * sin(angle));
 
 		btScalar newX = walkDirection.x() * cos(angle) - walkDirection.z() * sin(angle);
@@ -262,7 +262,7 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	};
 
 	// Processes any mouse or keyboard input for camera movement
-	processInput(lambda, window, deltaTime);
+	Input::processInput(lambda, Input::inputData.window, deltaTime);
 }
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)

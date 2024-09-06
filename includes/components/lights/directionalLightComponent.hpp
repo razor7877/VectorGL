@@ -10,5 +10,5 @@ public:
 
 	DirectionalLightComponent(Entity* parent);
 
-	void LightComponent::sendToShader(Shader* shaderProgram, unsigned int index) override;
+	void sendToShader(Shader* shaderProgram, unsigned int index) override;
 };

@@ -22,7 +22,7 @@ public:
 	/// Returns the active game state
 	/// </summary>
 	/// <returns>A pointer to the current state, or nullptr if no state is active</returns>
-	std::unique_ptr<GameState>& getCurrentState();
+	const std::unique_ptr<GameState>& getCurrentState();
 
 	/// <summary>
 	/// Initializes the game

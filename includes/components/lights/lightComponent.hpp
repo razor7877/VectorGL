@@ -20,8 +20,8 @@ public:
 
 	LightComponent(Entity* parent);
 
-	void Component::start() override;
-	void Component::update(float deltaTime) override;
+	void start() override;
+	void update(float deltaTime) override;
 
 	void virtual sendToShader(Shader* shaderProgram, unsigned int index) = 0;
 

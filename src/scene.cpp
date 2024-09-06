@@ -55,7 +55,7 @@ void Scene::end()
 		entity.reset();
 }
 
-void Scene::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& entities)
+void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entity*>& entities)
 {
 	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
 	// We start by sorting the entities depending on if they are renderable objects
@@ -88,7 +88,7 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, std::vector<Entity*>& e
 						this->sortedSceneData.outlineRenderList.push_back(entity);
 				}
 			}
-
+                        
 			this->getMeshesRecursively(cameraFrustum, entity->getChildren());
 		}
 	}

@@ -1,7 +1,7 @@
 #include <memory>
 
 #include <utilities/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "game/startMenuState.hpp"
 #include "game/mainGameState.hpp"
@@ -27,7 +27,7 @@ void StartMenuState::init()
 	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 
-	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(game.renderer.shaderManager.getShader(ShaderType::PBR)))
+	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
 		.addVertices(sphereOptimized.vertices)
 		.addIndices(sphereOptimized.indices)
 		.addNormals(sphereOptimized.normals)
@@ -101,8 +101,6 @@ void StartMenuState::resume()
 
 }
 
-extern GLFWwindow* window;
-
 void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
 	CameraComponent* camera = this->scene.currentCamera;
@@ -124,7 +122,7 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
 	};
 
-	processInput(lambda, window, deltaTime);
+	Input::processInput(lambda, Input::inputData.window, deltaTime);
 }
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)

@@ -23,8 +23,8 @@ public:
 	MeshComponent(Entity* parent);
 	~MeshComponent() override;
 
-	void Component::start() override;
-	void Component::update(float deltaTime) override;
+	void start() override;
+	void update(float deltaTime) override;
 
 	/// <summary>
 	/// Unlike the update method, this is a much simpler method that only sends model & normal matrices to the material shader before drawing

@@ -22,8 +22,8 @@ public:
 	SkyboxComponent(Entity* parent);
 	~SkyboxComponent();
 
-	void Component::start() override;
-	void Component::update(float deltaTime) override;
+	void start() override;
+	void update(float deltaTime) override;
 
 	/// <summary>
 	/// Sets up the component before it can be used
