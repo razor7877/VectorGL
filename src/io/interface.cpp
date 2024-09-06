@@ -4,10 +4,10 @@
 #include <vector>
 #include <fstream>
 
-#include "imgui/imgui.h"
-#include "imgui/misc/cpp/imgui_stdlib.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
+#include "ImGui/imgui.h"
+#include "ImGui/misc/cpp/imgui_stdlib.h"
+#include "ImGui/backends/imgui_impl_glfw.h"
+#include "ImGui/backends/imgui_impl_opengl3.h"
 #include "ImGuiColorTextEdit/TextEditor.h"
 
 #include "main.hpp"
@@ -48,7 +48,7 @@ namespace Interface
 		int current_skybox_id = (int)SkyboxComponent::DEFAULT_SKY;
 	} skyboxParams;
 
-	struct
+	struct PerformanceParams
 	{
 		static constexpr int GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX = 0x9048;
 		static constexpr int GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX = 0x9049;

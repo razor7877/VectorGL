@@ -11,8 +11,8 @@ public:
 	PhysicsComponent(Entity* parent);
 	~PhysicsComponent();
 
-	void Component::start() override;
-	void Component::update(float deltaTime) override;
+	void start() override;
+	void update(float deltaTime) override;
 
 	/// <summary>
 	/// Sets a collider for the component

@@ -1,7 +1,7 @@
 #include <memory>
 
 #include <utilities/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "game/startMenuState.hpp"
 #include "game/mainGameState.hpp"

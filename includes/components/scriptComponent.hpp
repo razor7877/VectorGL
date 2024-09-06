@@ -18,8 +18,8 @@ public:
 	ScriptComponent(Entity* parent);
 	~ScriptComponent() override;
 
-	void Component::start() override;
-	void Component::update(float deltaTime) override;
+	void start() override;
+	void update(float deltaTime) override;
 
 private:
 	lua_State* L;

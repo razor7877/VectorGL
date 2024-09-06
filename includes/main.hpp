@@ -7,7 +7,7 @@
 
 namespace Main
 {
-	extern GameEngine& game;
+	extern GameEngine game;
 	extern float deltaTime;
 	extern float lastFrame;
 }

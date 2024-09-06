@@ -6,7 +6,7 @@
 #include <glm/glm/ext/matrix_transform.hpp>
 #include <glm/glm/ext/matrix_clip_space.hpp>
 #include <utilities/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "main.hpp"
 #include "renderer.hpp"

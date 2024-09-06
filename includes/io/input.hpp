@@ -1,7 +1,7 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 // This file contains functions responsible for handling and processing the various user inputs

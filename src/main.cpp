@@ -16,6 +16,24 @@
 
 using namespace Main;
 
+namespace Main
+{
+	/// <summary>
+	/// A reference to the game engine, which manages nearly all the state of the engine
+	/// </summary>
+	GameEngine game = GameEngine();
+
+	/// <summary>
+	/// Stores the current elapsed time since the last frame
+	/// </summary>
+	float deltaTime = 0.0f;
+
+	/// <summary>
+	/// The timestamp of the previous frame
+	/// </summary>
+	float lastFrame = 0.0f;
+}
+
 int main()
 {
 	if (Input::setupGlfwContext() != 0)
@@ -66,22 +84,4 @@ int main()
 
 	glfwTerminate();
 	return 0;
-}
-
-namespace Main
-{
-	/// <summary>
-	/// A reference to the game engine, which manages nearly all the state of the engine
-	/// </summary>
-	GameEngine& game = GameEngine();
-
-	/// <summary>
-	/// Stores the current elapsed time since the last frame
-	/// </summary>
-	float deltaTime = 0.0f;
-
-	/// <summary>
-	/// The timestamp of the previous frame
-	/// </summary>
-	float lastFrame = 0.0f;
 }

@@ -3,7 +3,7 @@
 #include "main.hpp"
 #include "io/input.hpp"
 
-std::unique_ptr<GameState>& GameEngine::getCurrentState()
+const std::unique_ptr<GameState>& GameEngine::getCurrentState()
 {
 	if (!this->states.empty())
 		return this->states.back();
