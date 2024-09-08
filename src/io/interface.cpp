@@ -37,9 +37,17 @@ namespace Interface
 
 	struct
 	{
+		bool shaderEditorOn = false;
+		bool scriptEditorOn = false;
+		bool textureViewerOn = false;
+		bool topViewOn = false;
+	} toolbarParams;
+
+	struct
+	{
 		// An array containing the choice names for the different skyboxes
 		const char* comboSkyboxes[3] = { "Grass", "Night", "Sky" };
-		int current_skybox_id = (int)SkyboxComponent::DEFAULT_SKY;
+		int currentSkyboxId = (int)SkyboxComponent::DEFAULT_SKY;
 	} skyboxParams;
 
 	struct PerformanceParams
@@ -53,8 +61,8 @@ namespace Interface
 		float timeToFrame = 1;
 
 		// NVIDIA GPU only, serves to query the amount of total and available VRAM
-		int total_mem_kb = 0;
-		int cur_avail_mem_kb = 0;
+		int totalMemoryKb = 0;
+		int currentAvailableMemoryKb = 0;
 		const char* gpuVendor{};
 		std::string gpuVendorStr{};
 		bool isNvidiaGpu = false;
@@ -162,8 +170,6 @@ namespace Interface
 		SetupScriptEditor();
 	}
 
-	bool showTest = false;
-
 	void ImGuiDrawWindows()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
@@ -172,7 +178,17 @@ namespace Interface
 
 		ImGui::BeginMainMenuBar();
 		ImVec2 mainMenuBarSize = ImGui::GetWindowSize();
-		ImGui::MenuItem("Test", NULL, &showTest);
+		
+		if (ImGui::BeginMenu("Windows"))
+		{
+			ImGui::MenuItem("Shader editor", NULL, &toolbarParams.shaderEditorOn);
+			ImGui::MenuItem("Script editor", NULL, &toolbarParams.scriptEditorOn);
+			ImGui::MenuItem("Texture viewer", NULL, &toolbarParams.textureViewerOn);
+			ImGui::MenuItem("Top view", NULL, &toolbarParams.topViewOn);
+
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
 
 		// We want to create a full size window
@@ -274,6 +290,9 @@ namespace Interface
 
 		ImGui::End();
 
+		if (!toolbarParams.textureViewerOn)
+			return;
+		
 		// Second camera view
 		ImGui::Begin("Top view");
 
@@ -430,12 +449,12 @@ namespace Interface
 		{
 			ImGui::Separator();
 
-			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.total_mem_kb);
-			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.cur_avail_mem_kb);
+			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.totalMemoryKb);
+			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.currentAvailableMemoryKb);
 
-			ImGui::Text("Total VRAM (MB): %i", performanceParams.total_mem_kb / 1000);
-			ImGui::Text("Available VRAM (MB): %i", performanceParams.cur_avail_mem_kb / 1000);
-			ImGui::Text("Used VRAM (MB): %i", (performanceParams.total_mem_kb - performanceParams.cur_avail_mem_kb) / 1000);
+			ImGui::Text("Total VRAM (MB): %i", performanceParams.totalMemoryKb / 1000);
+			ImGui::Text("Available VRAM (MB): %i", performanceParams.currentAvailableMemoryKb / 1000);
+			ImGui::Text("Used VRAM (MB): %i", (performanceParams.totalMemoryKb - performanceParams.currentAvailableMemoryKb) / 1000);
 		}
 
 		ImGui::End();
@@ -546,6 +565,8 @@ namespace Interface
 					shaderSettingsParams.isEditingVertexShader = true;
 					shaderSettingsParams.isEditingShader = true;
 					shaderSettingsParams.editor.SetText(renderer.shaderManager.getVertexShaderContent(type));
+
+					toolbarParams.shaderEditorOn = true;
 					ImGui::SetWindowFocus("Shader editor");
 				}
 				ImGui::PopID();
@@ -558,6 +579,8 @@ namespace Interface
 					shaderSettingsParams.isEditingVertexShader = false;
 					shaderSettingsParams.isEditingShader = true;
 					shaderSettingsParams.editor.SetText(renderer.shaderManager.getFragmentShaderContent(type));
+
+					toolbarParams.shaderEditorOn = true;
 					ImGui::SetWindowFocus("Shader editor");
 				}
 				ImGui::PopID();
@@ -576,6 +599,9 @@ namespace Interface
 
 	void ShowShaderEditor()
 	{
+		if (!toolbarParams.shaderEditorOn)
+			return;
+
 		auto cpos = shaderSettingsParams.editor.GetCursorPosition();
 
 		ImGui::Begin("Shader editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -658,6 +684,9 @@ namespace Interface
 
 	void ShowScriptEditor()
 	{
+		if (!toolbarParams.scriptEditorOn)
+			return;
+
 		auto cpos = scriptEditorParams.editor.GetCursorPosition();
 
 		ImGui::Begin("Script editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -877,17 +906,17 @@ namespace Interface
 			{
 				SkyboxComponent* skyboxComponent = dynamic_cast<SkyboxComponent*>(component);
 
-				const char* combo_preview_value = skyboxParams.comboSkyboxes[skyboxParams.current_skybox_id];
+				const char* combo_preview_value = skyboxParams.comboSkyboxes[skyboxParams.currentSkyboxId];
 				if (ImGui::BeginCombo("##skySelector", combo_preview_value))
 				{
 					for (int i = 0; i < 3; i++)
 					{
-						const bool is_selected = (skyboxParams.current_skybox_id == i);
+						const bool is_selected = (skyboxParams.currentSkyboxId == i);
 						if (ImGui::Selectable(skyboxParams.comboSkyboxes[i], is_selected))
 						{
-							skyboxParams.current_skybox_id = i;
+							skyboxParams.currentSkyboxId = i;
 
-							switch (skyboxParams.current_skybox_id)
+							switch (skyboxParams.currentSkyboxId)
 							{
 								case (int)SkyboxType::GRASS:
 									skyboxComponent->changeSkybox(SkyboxType::GRASS);
@@ -1185,6 +1214,7 @@ namespace Interface
 					scriptEditorParams.currentEditedScript = scriptComponent;
 					scriptEditorParams.isEditingScript = true;
 					scriptEditorParams.editor.SetText(scriptComponent->scriptCode);
+					toolbarParams.scriptEditorOn = true;
 				}
 			}
 		}
@@ -1199,6 +1229,9 @@ namespace Interface
 
 	void TextureViewer()
 	{
+		if (!toolbarParams.textureViewerOn)
+			return;
+
 		ImGui::Begin("Texture viewer");
 
 		if (textureViewerParams.showTexture)

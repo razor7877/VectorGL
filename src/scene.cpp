@@ -58,19 +58,23 @@ void Scene::end()
 void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entity*>& entities)
 {
 	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
-	// We start by sorting the entities depending on if they are renderable objects
+	// TODO : Fix issues with frustum culling when using PhysicsComponent
+	// We start by iterating over the entities
 	for (Entity* entity : entities)
 	{
+		// We don't bother iterating over disabled entities
 		if (entity->getIsEnabled())
 		{
 			MeshComponent* mesh = entity->getComponent<MeshComponent>();
 
+			// Check whether we have an entity with a mesh or a purely logic entity
 			if (mesh == nullptr)
 				this->sortedSceneData.logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
 				this->sortedSceneData.allMeshes.push_back(mesh);
 
+				// Check if the mesh is within the camera frustum
 				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
 				{
 					this->sortedSceneData.meshes.push_back(mesh);
@@ -88,7 +92,8 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 						this->sortedSceneData.outlineRenderList.push_back(entity);
 				}
 			}
-                        
+
+			// Recurse over the children of the entity
 			this->getMeshesRecursively(cameraFrustum, entity->getChildren());
 		}
 	}
