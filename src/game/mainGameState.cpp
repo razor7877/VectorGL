@@ -203,6 +203,13 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	CameraComponent* camera = this->scene.currentCamera;
 	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
+		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
+		{
+			Logger::logDebug("Popped state at frame " + std::to_string(Main::frameCounter), "mainGameState.cpp");
+			gameEngine->popState();
+			return;
+		}
+
 		// Z forward vector
 		glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
 		// The camera forward vector
@@ -219,8 +226,6 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 		if (glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), cameraFront) > 0.0f)
 			angle = -angle;
 
-		Logger::logDebug(std::to_string(angle), "mainGameState.cpp");
-
 		btVector3 walkDirection(0.0f, 0.0f, 0.0f);
 		btScalar walkSpeed = 5.0f;
 
@@ -236,16 +241,7 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
 			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
-		{
-			gameEngine->popState();
-			return;
-		}
-
 		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
-
-		//walkDirection = btVector3(walkDirection.x() * cos(angle), 0.0f, walkDirection.z() * sin(angle));
-
 		btScalar newX = walkDirection.x() * cos(angle) - walkDirection.z() * sin(angle);
 		btScalar newZ = walkDirection.z() * cos(angle) + walkDirection.x() * sin(angle);
 
@@ -274,11 +270,9 @@ void MainGameState::update(GameEngine* gameEngine, float deltaTime)
 	glm::mat4 transform;
 	ghostObject->getWorldTransform().getOpenGLMatrix(glm::value_ptr(transform));
 	this->scene.currentCamera->setPosition(glm::vec3(transform[3][0], transform[3][1], transform[3][2]));
-
-	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }
 
-void MainGameState::draw(GameEngine* gameEngine)
+void MainGameState::draw(GameEngine* gameEngine, float deltaTime)
 {
-
+	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }

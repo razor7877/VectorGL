@@ -14,5 +14,5 @@ public:
 	void resume() override;
 	void handleEvents(GameEngine* gameEngine, float deltaTime) override;
 	void update(GameEngine* gameEngine, float deltaTime) override;
-	void draw(GameEngine* gameEngine) override;
+	void draw(GameEngine* gameEngine, float deltaTime) override;
 };

@@ -21,8 +21,6 @@ MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 
 MeshComponent::~MeshComponent()
 {
-	Logger::logDebug("Calling MeshComponent destructor", "meshComponent.cpp");
-	 
 	glDeleteBuffers(1, &this->VBO);
 	glDeleteBuffers(1, &this->texCoordBO);
 	glDeleteBuffers(1, &this->normalBO);

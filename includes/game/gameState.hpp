@@ -47,7 +47,7 @@ public:
 	/// Render logic
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
-	virtual void draw(GameEngine* gameEngine) = 0;
+	virtual void draw(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
 	/// Changes to a new state

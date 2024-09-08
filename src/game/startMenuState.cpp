@@ -11,6 +11,7 @@
 #include "components/skyboxComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
 #include "components/lights/pointLightComponent.hpp"
+#include "logger.hpp"
 
 void StartMenuState::init()
 {
@@ -107,7 +108,11 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
 	{
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+		{
+			Logger::logDebug("Pushed state at frame " + std::to_string(Main::frameCounter), "startMenuState.cpp");
 			gameEngine->pushState(std::make_unique<MainGameState>(this->renderer));
+			return;
+		}
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
 			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
@@ -127,10 +132,10 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)
 {
-	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
+	
 }
 
-void StartMenuState::draw(GameEngine* gameEngine)
+void StartMenuState::draw(GameEngine* gameEngine, float deltaTime)
 {
-
+	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }

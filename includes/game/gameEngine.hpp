@@ -64,7 +64,7 @@ public:
 	/// <summary>
 	/// Render logic
 	/// </summary>
-	void draw();
+	void draw(float deltaTime);
 
 	bool getIsRunning();
 	void quit();

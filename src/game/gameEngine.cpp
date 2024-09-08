@@ -76,10 +76,10 @@ void GameEngine::update(float deltaTime)
 		this->states.back()->update(this, deltaTime);
 }
 
-void GameEngine::draw()
+void GameEngine::draw(float deltaTime)
 {
 	if (!this->states.empty())
-		this->states.back()->draw(this);
+		this->states.back()->draw(this, deltaTime);
 }
 
 bool GameEngine::getIsRunning()
