@@ -47,6 +47,9 @@ void GameEngine::pushState(std::unique_ptr<GameState> state)
 	if (!this->states.empty())
 		this->states.back()->pause();
 
+	// We need to clear the state of all keys to avoid keys being handled by the new state before the release is registered
+	Input::clearAllKeys();
+
 	state->init();
 	this->states.push_back(std::move(state));
 }
@@ -59,6 +62,9 @@ void GameEngine::popState()
 		this->states.back()->cleanup();
 		this->states.pop_back();
 	}
+	
+	// We need to clear the state of all keys to avoid keys being handled by the previous state before the release is registered
+	Input::clearAllKeys();
 
 	// Resume the one that is now on top
 	if (!this->states.empty())

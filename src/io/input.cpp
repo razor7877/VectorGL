@@ -11,6 +11,20 @@
 namespace Input
 {
 	/// <summary>
+	/// Represents a single key event registered by GLFW
+	/// </summary>
+	struct KeyEvent
+	{
+		int key = 0;
+		int scancode = 0;
+		int action = GLFW_RELEASE;
+		int mods = 0;
+
+		KeyEvent() {}
+		KeyEvent(int key, int scancode, int action, int mods) : key(key), scancode(scancode), action(action), mods(mods) {}
+	};
+
+	/// <summary>
 	/// A struct used to store data relevant to the input.cpp file
 	/// Stores information on the window size, position, fullscreen status, cursor status etc.
 	/// </summary>
@@ -69,76 +83,57 @@ namespace Input
 		std::map<int, KeyEvent> lastKeyEvents;
 	} inputData;
 
-	int setupGlfwContext()
-	{
-		glfwInit();
-		// Set OpenGL 3.3 version
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		// Set OpenGL core profile
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		// Turn MSAA on, probably not useful now since MSAA is managed and resolved using framebuffers
-		glfwWindowHint(GLFW_SAMPLES, 4);
-
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-
-		inputData.window = glfwCreateWindow(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y, "VectorGL", NULL, NULL);
-		if (inputData.window == NULL)
-		{
-			std::cout << "Failed to create GLFW window" << std::endl;
-			glfwTerminate();
-			return -1;
-		}
-		glfwMakeContextCurrent(inputData.window);
-
-		// Set callback functions for window resizing and handling input
-		glfwSetFramebufferSizeCallback(inputData.window, framebufferSizeCallback);
-		glfwSetCursorPosCallback(inputData.window, mouseCallback);
-		glfwSetScrollCallback(inputData.window, scrollCallback);
-		glfwSetKeyCallback(inputData.window, keyCallback);
-		glfwSetDropCallback(inputData.window, dropCallback);
-
-		// Check if GLAD loaded successfully
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-		{
-			std::cout << "Failed to initialize GLAD" << std::endl;
-			return -1;
-		}
-
-		return 0;
-	}
-
-	void mouseCallback(GLFWwindow* window, double xpos, double ypos)
+	/// <summary>
+	/// Callback function to register mouse input
+	/// </summary>
+	/// <param name="window">The window for which the mouse event was registered</param>
+	/// <param name="xPos">The x position of the mouse</param>
+	/// <param name="yPos">The y position of the mouse</param>
+	void mouseCallback(GLFWwindow* window, double xPos, double yPos)
 	{
 		if (inputData.showCursor)
 			return;
 
 		if (inputData.firstMouseCallback)
 		{
-			inputData.lastCursorPosition.x = (float)xpos;
-			inputData.lastCursorPosition.y = (float)ypos;
+			inputData.lastCursorPosition.x = (float)xPos;
+			inputData.lastCursorPosition.y = (float)yPos;
 			inputData.firstMouseCallback = false;
 		}
 
-		float xoffset = (float)(xpos - inputData.lastCursorPosition.x);
-		float yoffset = (float)(inputData.lastCursorPosition.y - ypos);
+		float xoffset = (float)(xPos - inputData.lastCursorPosition.x);
+		float yoffset = (float)(inputData.lastCursorPosition.y - yPos);
 
-		inputData.lastCursorPosition.x = (float)xpos;
-		inputData.lastCursorPosition.y = (float)ypos;
+		inputData.lastCursorPosition.x = (float)xPos;
+		inputData.lastCursorPosition.y = (float)yPos;
 
 		Main::game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
 	}
 
-	void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	/// <summary>
+	/// Callback function to register scrolling
+	/// </summary>
+	/// <param name="window">The window for which the scroll event was registered</param>
+	/// <param name="xOffset">The scroll event x offset</param>
+	/// <param name="yOffset">The scroll event y offset</param>
+	void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 	{
 		// If cursor is shown (interacting with UI), don't change FOV
 		if (inputData.showCursor)
 		{
 			return;
 		}
-		Main::game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yoffset));
+		Main::game.getCurrentState()->getScene().currentCamera->processMouseScroll(static_cast<float>(yOffset));
 	}
 
+	/// <summary>
+	/// Used to register only first key press of a given key
+	/// </summary>
+	/// <param name="window">The window for which the key action was registered</param>
+	/// <param name="key">The key for which the action was registered</param>
+	/// <param name="scancode"></param>
+	/// <param name="action">The action registered for the key (PRESS/REPEAT/RELEASE)</param>
+	/// <param name="mods"></param>
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		// Quit program
@@ -205,8 +200,22 @@ namespace Input
 
 		KeyEvent event(key, scancode, action, mods);
 		inputData.lastKeyEvents[key] = event;
+
+		if (key == GLFW_KEY_ENTER)
+		{
+			if (action == GLFW_PRESS)
+				Logger::logDebug("Enter pressed", "input.cpp");
+			else if (action == GLFW_RELEASE)
+				Logger::logDebug("Enter release", "input.cpp");
+		}
 	}
 
+	/// <summary>
+	/// Callback function to handle window size change
+	/// </summary>
+	/// <param name="window">The window that was resized</param>
+	/// <param name="width">The new width of the window</param>
+	/// <param name="height">Te new height of the window</param>
 	void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 	{
 		inputData.windowSize.x = width;
@@ -214,6 +223,12 @@ namespace Input
 		glViewport(0, 0, width, height);
 	}
 
+	/// <summary>
+	/// Callback function to handle drag and dropping files
+	/// </summary>
+	/// <param name="window">The window for which files were drag and dropped</param>
+	/// <param name="count">How many files were dropped</param>
+	/// <param name="paths">The paths of the dropped files</param>
 	void dropCallback(GLFWwindow* window, int count, const char** paths)
 	{
 		for (int i = 0; i < count; i++)
@@ -238,15 +253,65 @@ namespace Input
 		}
 	}
 
+	int setupGlfwContext()
+	{
+		glfwInit();
+		// Set OpenGL 3.3 version
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		// Set OpenGL core profile
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		// Turn MSAA on, probably not useful now since MSAA is managed and resolved using framebuffers
+		glfwWindowHint(GLFW_SAMPLES, 4);
+
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
+		inputData.window = glfwCreateWindow(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y, "VectorGL", NULL, NULL);
+		if (inputData.window == NULL)
+		{
+			std::cout << "Failed to create GLFW window" << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+		glfwMakeContextCurrent(inputData.window);
+
+		// Set callback functions for window resizing and handling input
+		glfwSetFramebufferSizeCallback(inputData.window, framebufferSizeCallback);
+		glfwSetCursorPosCallback(inputData.window, mouseCallback);
+		glfwSetScrollCallback(inputData.window, scrollCallback);
+		glfwSetKeyCallback(inputData.window, keyCallback);
+		glfwSetDropCallback(inputData.window, dropCallback);
+
+		// Check if GLAD loaded successfully
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cout << "Failed to initialize GLAD" << std::endl;
+			return -1;
+		}
+
+		return 0;
+	}
+
+	void clearAllKeys()
+	{
+		for (auto& [key, event] : inputData.lastKeyEvents)
+			event.action = GLFW_RELEASE;
+	}
+
 	bool isKeyPressed(int key)
 	{
-		return inputData.lastKeyEvents[key].action == GLFW_PRESS;
+		bool isPressed = inputData.lastKeyEvents[key].action == GLFW_PRESS;
+
+		if (key == GLFW_KEY_ENTER && isPressed)
+			Logger::logDebug("Queried key " + std::to_string(key) + " with pressed state " + std::to_string(isPressed), "input.cpp");
+
+		return isPressed;
 	}
 
 	bool isKeyHeld(int key)
 	{
 		int action = inputData.lastKeyEvents[key].action;
-		if (action == GLFW_PRESS || action == GLFW_RELEASE)
+		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 			return true;
 
 		return false;

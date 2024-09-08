@@ -113,18 +113,6 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 
 	CameraComponent* camera = this->scene.currentCamera;
 
-	//if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
-	//	camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
-
-	//if (Input::isKeyHeld(GLFW_KEY_S)) // Backward movement
-	//	camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
-
-	//if (Input::isKeyHeld(GLFW_KEY_A)) // Left movement
-	//	camera->processKeyboard(CameraMovement::LEFT, deltaTime);
-
-	//if (Input::isKeyHeld(GLFW_KEY_D)) // Right movement
-	//	camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
-
 	if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
 		camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
 

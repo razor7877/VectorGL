@@ -14,39 +14,15 @@
 namespace Input
 {
 	/// <summary>
-	/// Represents a single key event registered by GLFW
-	/// </summary>
-	struct KeyEvent
-	{
-		int key = 0;
-		int scancode = 0;
-		int action = GLFW_RELEASE;
-		int mods = 0;
-
-		KeyEvent() {}
-		KeyEvent(int key, int scancode, int action, int mods) : key(key), scancode(scancode), action(action), mods(mods) {}
-	};
-
-	/// <summary>
 	/// Starts the GLFW context and loads GLAD for the OpenGL context
 	/// </summary>
 	/// <returns>0 if the setup was successful, -1 otherwise</returns>
 	int setupGlfwContext();
 
-	// Callback function to register mouse input
-	void mouseCallback(GLFWwindow* window, double xpos, double ypos);
-
-	// Callback function to register scrolling
-	void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-
-	// Used to register only first key press of a given key
-	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-	// Callback function to handle window size change
-	void framebufferSizeCallback(GLFWwindow* window, int width, int height);
-
-	// Callback function to handle drag and dropping files
-	void dropCallback(GLFWwindow* window, int count, const char** paths);
+	/// <summary>
+	/// Clears all the keys that are currently being pressed or held
+	/// </summary>
+	void clearAllKeys();
 
 	/// <summary>
 	/// Returns whether a given key is being pressed by the user or not
