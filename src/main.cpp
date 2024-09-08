@@ -63,7 +63,6 @@ int main()
 		lastFrame = currentFrame;
 
 		game.handleEvents(deltaTime);
-		glfwPollEvents();
 		game.update(deltaTime);
 		game.draw(deltaTime);
 

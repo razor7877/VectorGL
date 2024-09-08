@@ -104,15 +104,32 @@ void StartMenuState::resume()
 
 void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
-	CameraComponent* camera = this->scene.currentCamera;
-	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
+	auto lambda = [](GameEngine* gameEngine, GLFWwindow* window, float deltaTime)
 	{
+		void* windowUserPointer = glfwGetWindowUserPointer(window);
+
+		if (windowUserPointer == nullptr)
+		{
+			Logger::logWarning("Got nullptr when querying glfwGetWindowUserPointer in handleEvents", "mainGameState.cpp");
+			return;
+		}
+
+		StartMenuState* state = dynamic_cast<StartMenuState*>((GameState*)windowUserPointer);
+
+		if (state == nullptr)
+		{
+			Logger::logWarning("Got nullptr when trying to cast GLFW window user pointer to MainGameState", "mainGameState.cpp");
+			return;
+		}
+
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 		{
 			Logger::logDebug("Pushed state at frame " + std::to_string(Main::frameCounter), "startMenuState.cpp");
-			gameEngine->pushState(std::make_unique<MainGameState>(this->renderer));
+			gameEngine->pushState(std::make_unique<MainGameState>(state->renderer));
 			return;
 		}
+
+		CameraComponent* camera = state->scene.currentCamera;
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
 			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
@@ -127,7 +144,9 @@ void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
 	};
 
-	Input::processInput(lambda, Input::inputData.window, deltaTime);
+	Input::registerKeyLambda(this, lambda);
+
+	glfwPollEvents();
 }
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)

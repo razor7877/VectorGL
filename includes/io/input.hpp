@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "game/gameState.hpp"
+
 // This file contains functions responsible for handling and processing the various user inputs
 // such as mouse movement, clicking, scrolling, and keyboard presses
 
@@ -64,6 +66,8 @@ namespace Input
 		/// The position of the windowed window before switching to fullscreen mode
 		/// </summary>
 		glm::ivec2 lastPosition = glm::ivec2(50);
+
+		void (*lambda)(GameEngine* gameEngine, GLFWwindow* window, float deltaTime) = nullptr;
 	};
 
 	extern struct InputData inputData;
@@ -86,22 +90,21 @@ namespace Input
 	// Callback function to handle window size change
 	void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
-	// Callbakc function to handle drag and dropping files
+	// Callback function to handle drag and dropping files
 	void dropCallback(GLFWwindow* window, int count, const char** paths);
 
 	/// <summary>
-	/// A function that can receive any lambda function to process received inputs as needed depending
-	/// on game state etc.
+	/// Registers a new lambda to be executed whenever the GLFW key callback function is called.
+	/// This allows any game state to register inputs to do whatever it needs.
 	/// </summary>
-	/// <typeparam name="T">A lambda that receives a GLFWwindow* and a float as parameters</typeparam>
-	/// <param name="lambda">The lambda to use for processing the inputs</param>
-	/// <param name="window">A pointer to the GLFWwindow pointer object for querying inputs</param>
-	/// <param name="deltaTime">The time elapsed since the last frame</param>
-	template <typename T>
-	void processInput(T&& lambda, GLFWwindow* window, float deltaTime)
-	{
-		lambda(window, deltaTime);
-	}
+	/// <param name="state">The state from which data will be queried when the callback function is called</param>
+	/// <param name="lambda">The lambda function to register</param>
+	void registerKeyLambda(GameState* state, void (*lambda)(GameEngine* gameEngine, GLFWwindow* window, float deltaTime));
+
+	/// <summary>
+	/// Unregisters the active lambda function
+	/// </summary>
+	void unregisterKeyLambda();
 }
 
 #endif

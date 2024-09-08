@@ -200,9 +200,24 @@ void MainGameState::resume()
 
 void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
-	CameraComponent* camera = this->scene.currentCamera;
-	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
+	auto lambda = [](GameEngine* gameEngine, GLFWwindow* window, float deltaTime)
 	{
+		void* windowUserPointer = glfwGetWindowUserPointer(window);
+
+		if (windowUserPointer == nullptr)
+		{
+			Logger::logWarning("Got nullptr when querying glfwGetWindowUserPointer in handleEvents", "mainGameState.cpp");
+			return;
+		}
+
+		MainGameState* state = dynamic_cast<MainGameState*>((GameState*)windowUserPointer);
+
+		if (state == nullptr)
+		{
+			Logger::logWarning("Got nullptr when trying to cast GLFW window user pointer to MainGameState", "mainGameState.cpp");
+			return;
+		}
+
 		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
 		{
 			Logger::logDebug("Popped state at frame " + std::to_string(Main::frameCounter), "mainGameState.cpp");
@@ -210,10 +225,12 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 			return;
 		}
 
+		CameraComponent* camera = state->scene.currentCamera;
+
 		// Z forward vector
 		glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
 		// The camera forward vector
-		glm::vec3 cameraFront = this->getScene().currentCamera->getForward();
+		glm::vec3 cameraFront = state->getScene().currentCamera->getForward();
 		// The camera forward projected onto the XZ plane, we don't have Y rotation
 		glm::vec3 cameraFrontXz = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
 
@@ -251,17 +268,19 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 		if (!walkDirection.fuzzyZero())
 			walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
 
-		this->characterController->setWalkDirection(walkDirection);
+		state->characterController->setWalkDirection(walkDirection);
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
-			if (this->characterController->onGround())
-				this->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
+			if (state->characterController->onGround())
+				state->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
 		}
 	};
 
+	Input::registerKeyLambda(this, lambda);
+
 	// Processes any mouse or keyboard input for camera movement
-	Input::processInput(lambda, Input::inputData.window, deltaTime);
+	glfwPollEvents();
 }
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)

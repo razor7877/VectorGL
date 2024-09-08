@@ -145,6 +145,8 @@ namespace Input
 				inputData.windowSize.y = inputData.lastWindowSize.y;
 			}
 		}
+
+		inputData.lambda(&Main::game, inputData.window, 0.0f);
 	}
 
 	void framebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -178,4 +180,17 @@ namespace Input
 		}
 	}
 
+	void registerKeyLambda(GameState* state, void (*lambda)(GameEngine* gameEngine, GLFWwindow* window, float deltaTime))
+	{
+		// We set the game state as window user pointer so we can access it later from the lambda
+		glfwSetWindowUserPointer(inputData.window, state);
+		// Set the new key lambda to be executed whenever the key callback function is called
+		inputData.lambda = lambda;
+	}
+
+	void unregisterKeyLambda()
+	{
+		glfwSetWindowUserPointer(inputData.window, nullptr);
+		inputData.lambda = nullptr;
+	}
 }
