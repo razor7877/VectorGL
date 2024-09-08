@@ -42,7 +42,8 @@ int main()
 		return -1;
 
 	// Initializes the ImGui UI system
-	Interface::ImGuiInit(Input::inputData.window);
+	GLFWwindow* window = Input::getWindow();
+	Interface::ImGuiInit(window);
 
 	// Start the game state
 	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);
@@ -55,7 +56,7 @@ int main()
 	float currentFrame;
 
 	// Render loop
-	while (!glfwWindowShouldClose(Input::inputData.window))
+	while (!glfwWindowShouldClose(window))
 	{
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = (float)glfwGetTime();
@@ -74,7 +75,7 @@ int main()
 		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent), "main.cpp"); }
 
 		// Swaps buffers to screen to show the rendered frame
-		glfwSwapBuffers(Input::inputData.window);
+		glfwSwapBuffers(window);
 		frameCounter++;
 	}
 

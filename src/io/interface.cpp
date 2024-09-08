@@ -176,8 +176,10 @@ namespace Interface
 		ImGui::EndMainMenuBar();
 
 		// We want to create a full size window
+		glm::vec2 windowSize = Input::getWindowSize();
+
 		ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y));
-		ImGui::SetNextWindowSize(ImVec2(Input::inputData.windowSize.x, Input::inputData.windowSize.y - mainMenuBarSize.y));
+		ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y - mainMenuBarSize.y));
 		ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 		ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);

@@ -104,49 +104,38 @@ void StartMenuState::resume()
 
 void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
-	auto lambda = [](GameEngine* gameEngine, GLFWwindow* window, float deltaTime)
+	if (Input::isKeyPressed(GLFW_KEY_ENTER))
 	{
-		void* windowUserPointer = glfwGetWindowUserPointer(window);
+		Logger::logDebug("Pushed state at frame " + std::to_string(Main::frameCounter), "startMenuState.cpp");
+		gameEngine->pushState(std::make_unique<MainGameState>(this->renderer));
+		return;
+	}
 
-		if (windowUserPointer == nullptr)
-		{
-			Logger::logWarning("Got nullptr when querying glfwGetWindowUserPointer in handleEvents", "mainGameState.cpp");
-			return;
-		}
+	CameraComponent* camera = this->scene.currentCamera;
 
-		StartMenuState* state = dynamic_cast<StartMenuState*>((GameState*)windowUserPointer);
+	//if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
+	//	camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
 
-		if (state == nullptr)
-		{
-			Logger::logWarning("Got nullptr when trying to cast GLFW window user pointer to MainGameState", "mainGameState.cpp");
-			return;
-		}
+	//if (Input::isKeyHeld(GLFW_KEY_S)) // Backward movement
+	//	camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-		{
-			Logger::logDebug("Pushed state at frame " + std::to_string(Main::frameCounter), "startMenuState.cpp");
-			gameEngine->pushState(std::make_unique<MainGameState>(state->renderer));
-			return;
-		}
+	//if (Input::isKeyHeld(GLFW_KEY_A)) // Left movement
+	//	camera->processKeyboard(CameraMovement::LEFT, deltaTime);
 
-		CameraComponent* camera = state->scene.currentCamera;
+	//if (Input::isKeyHeld(GLFW_KEY_D)) // Right movement
+	//	camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
-			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
+	if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
+		camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
-			camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
+	if (Input::isKeyHeld(GLFW_KEY_S)) // Backward movement
+		camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-			camera->processKeyboard(CameraMovement::LEFT, deltaTime);
+	if (Input::isKeyHeld(GLFW_KEY_A)) // Left movement
+		camera->processKeyboard(CameraMovement::LEFT, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
-	};
-
-	Input::registerKeyLambda(this, lambda);
-
-	glfwPollEvents();
+	if (Input::isKeyHeld(GLFW_KEY_D)) // Right movement
+		camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
 }
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)

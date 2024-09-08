@@ -200,87 +200,63 @@ void MainGameState::resume()
 
 void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
-	auto lambda = [](GameEngine* gameEngine, GLFWwindow* window, float deltaTime)
+	if (Input::isKeyPressed(GLFW_KEY_ENTER)) // Quit to previous state
 	{
-		void* windowUserPointer = glfwGetWindowUserPointer(window);
+		Logger::logDebug("Popped state at frame " + std::to_string(Main::frameCounter), "mainGameState.cpp");
+		gameEngine->popState();
+		return;
+	}
 
-		if (windowUserPointer == nullptr)
-		{
-			Logger::logWarning("Got nullptr when querying glfwGetWindowUserPointer in handleEvents", "mainGameState.cpp");
-			return;
-		}
+	CameraComponent* camera = this->scene.currentCamera;
 
-		MainGameState* state = dynamic_cast<MainGameState*>((GameState*)windowUserPointer);
+	// Z forward vector
+	glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
+	// The camera forward vector
+	glm::vec3 cameraFront = this->getScene().currentCamera->getForward();
+	// The camera forward projected onto the XZ plane, we don't have Y rotation
+	glm::vec3 cameraFrontXz = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
 
-		if (state == nullptr)
-		{
-			Logger::logWarning("Got nullptr when trying to cast GLFW window user pointer to MainGameState", "mainGameState.cpp");
-			return;
-		}
+	float dot = glm::dot(worldFront, cameraFrontXz);
+	// The angle between the world and camera forward
+	float angle = acos(dot);
 
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
-		{
-			Logger::logDebug("Popped state at frame " + std::to_string(Main::frameCounter), "mainGameState.cpp");
-			gameEngine->popState();
-			return;
-		}
+	// We need to check if the angle is a clockwise or counter clockwise rotation
+	glm::vec3 cross = glm::cross(worldFront, cameraFrontXz);
+	if (glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), cameraFront) > 0.0f)
+		angle = -angle;
 
-		CameraComponent* camera = state->scene.currentCamera;
+	btVector3 walkDirection(0.0f, 0.0f, 0.0f);
+	btScalar walkSpeed = 5.0f;
 
-		// Z forward vector
-		glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
-		// The camera forward vector
-		glm::vec3 cameraFront = state->getScene().currentCamera->getForward();
-		// The camera forward projected onto the XZ plane, we don't have Y rotation
-		glm::vec3 cameraFrontXz = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
+	if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
+		walkDirection += btVector3(0.0f, 0.0f, 1.0f);
 
-		float dot = glm::dot(worldFront, cameraFrontXz);
-		// The angle between the world and camera forward
-		float angle = acos(dot);
+	if (Input::isKeyHeld(GLFW_KEY_S)) // Backward movement
+		walkDirection += btVector3(0.0f, 0.0f, -1.0f);
 
-		// We need to check if the angle is a clockwise or counter clockwise rotation
-		glm::vec3 cross = glm::cross(worldFront, cameraFrontXz);
-		if (glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), cameraFront) > 0.0f)
-			angle = -angle;
+	if (Input::isKeyHeld(GLFW_KEY_A)) // Left movement
+		walkDirection += btVector3(1.0f, 0.0f, 0.0f);
 
-		btVector3 walkDirection(0.0f, 0.0f, 0.0f);
-		btScalar walkSpeed = 5.0f;
+	if (Input::isKeyHeld(GLFW_KEY_D)) // Right movement
+		walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
-			walkDirection += btVector3(0.0f, 0.0f, 1.0f);
+	// We need to rotate the walk direction using the camera forward for the movement to be relative to it
+	btScalar newX = walkDirection.x() * cos(angle) - walkDirection.z() * sin(angle);
+	btScalar newZ = walkDirection.z() * cos(angle) + walkDirection.x() * sin(angle);
 
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
-			walkDirection += btVector3(0.0f, 0.0f, -1.0f);
+	walkDirection = btVector3(newX, 0.0f, newZ);
 
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-			walkDirection += btVector3(1.0f, 0.0f, 0.0f);
+	// Normalize the direction to avoid diagonal movement being faster
+	if (!walkDirection.fuzzyZero())
+		walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
 
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
+	this->characterController->setWalkDirection(walkDirection);
 
-		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
-		btScalar newX = walkDirection.x() * cos(angle) - walkDirection.z() * sin(angle);
-		btScalar newZ = walkDirection.z() * cos(angle) + walkDirection.x() * sin(angle);
-
-		walkDirection = btVector3(newX, 0.0f, newZ);
-
-		// Normalize the direction to avoid diagonal movement being faster
-		if (!walkDirection.fuzzyZero())
-			walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
-
-		state->characterController->setWalkDirection(walkDirection);
-
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		{
-			if (state->characterController->onGround())
-				state->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
-		}
-	};
-
-	Input::registerKeyLambda(this, lambda);
-
-	// Processes any mouse or keyboard input for camera movement
-	glfwPollEvents();
+	if (Input::isKeyPressed(GLFW_KEY_SPACE))
+	{
+		if (this->characterController->onGround())
+			this->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
+	}
 }
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)

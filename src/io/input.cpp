@@ -10,7 +10,64 @@
 
 namespace Input
 {
-	struct InputData inputData;
+	/// <summary>
+	/// A struct used to store data relevant to the input.cpp file
+	/// Stores information on the window size, position, fullscreen status, cursor status etc.
+	/// </summary>
+	struct InputData
+	{
+		/// <summary>
+		/// The default window size on startup
+		/// </summary>
+		static constexpr glm::ivec2 WINDOW_SIZE = glm::ivec2(1920, 1080);
+
+		/// <summary>
+		/// A pointer to the GLFW window object
+		/// </summary>
+		GLFWwindow* window = nullptr;
+
+		/// <summary>
+		/// Whether the cursor should be shown
+		/// </summary>
+		bool showCursor = true;
+
+		/// <summary>
+		/// Whether the OpenGL wireframe drawing mode is enabled
+		/// </summary>
+		bool wireframeMode = false;
+
+		/// <summary>
+		/// Whether a first mouse callback event was recorded
+		/// </summary>
+		bool firstMouseCallback = true;
+
+		/// <summary>
+		/// Whether the fullscreen mode is enabled or not
+		/// </summary>
+		bool toggleFullscreen = false;
+
+		/// <summary>
+		/// The last position of the mouse cursor
+		/// </summary>
+		glm::ivec2 lastCursorPosition = glm::ivec2((float)InputData::WINDOW_SIZE.x / 2.0f, (float)InputData::WINDOW_SIZE.y / 2.0f);
+
+		/// <summary>
+		/// The current size of the window
+		/// </summary>
+		glm::ivec2 windowSize = glm::ivec2(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y);
+
+		/// <summary>
+		/// The size of the windowed window before switching to fullscreen mode
+		/// </summary>
+		glm::ivec2 lastWindowSize = glm::ivec2(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y);
+
+		/// <summary>
+		/// The position of the windowed window before switching to fullscreen mode
+		/// </summary>
+		glm::ivec2 lastPosition = glm::ivec2(50);
+
+		std::map<int, KeyEvent> lastKeyEvents;
+	} inputData;
 
 	int setupGlfwContext()
 	{
@@ -146,7 +203,8 @@ namespace Input
 			}
 		}
 
-		inputData.lambda(&Main::game, inputData.window, 0.0f);
+		KeyEvent event(key, scancode, action, mods);
+		inputData.lastKeyEvents[key] = event;
 	}
 
 	void framebufferSizeCallback(GLFWwindow* window, int width, int height)
@@ -180,17 +238,27 @@ namespace Input
 		}
 	}
 
-	void registerKeyLambda(GameState* state, void (*lambda)(GameEngine* gameEngine, GLFWwindow* window, float deltaTime))
+	bool isKeyPressed(int key)
 	{
-		// We set the game state as window user pointer so we can access it later from the lambda
-		glfwSetWindowUserPointer(inputData.window, state);
-		// Set the new key lambda to be executed whenever the key callback function is called
-		inputData.lambda = lambda;
+		return inputData.lastKeyEvents[key].action == GLFW_PRESS;
 	}
 
-	void unregisterKeyLambda()
+	bool isKeyHeld(int key)
 	{
-		glfwSetWindowUserPointer(inputData.window, nullptr);
-		inputData.lambda = nullptr;
+		int action = inputData.lastKeyEvents[key].action;
+		if (action == GLFW_PRESS || action == GLFW_RELEASE)
+			return true;
+
+		return false;
+	}
+
+	GLFWwindow* getWindow()
+	{
+		return inputData.window;
+	}
+
+	glm::vec2 getWindowSize()
+	{
+		return inputData.windowSize;
 	}
 }

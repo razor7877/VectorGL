@@ -13,7 +13,8 @@ const std::unique_ptr<GameState>& GameEngine::getCurrentState()
 
 void GameEngine::init()
 {
-	this->renderer.init(glm::vec2(Input::inputData.windowSize.x, Input::inputData.windowSize.y));
+	glm::vec2 windowSize = Input::getWindowSize();
+	this->renderer.init(glm::vec2(windowSize.x, windowSize.y));
 }
 
 void GameEngine::cleanup()
@@ -68,6 +69,9 @@ void GameEngine::handleEvents(float deltaTime)
 {
 	if (!this->states.empty())
 		this->states.back()->handleEvents(this, deltaTime);
+
+	// Processes any mouse or keyboard input for camera movement
+	glfwPollEvents();
 }
 
 void GameEngine::update(float deltaTime)
