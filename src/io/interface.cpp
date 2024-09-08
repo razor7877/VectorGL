@@ -917,6 +917,19 @@ namespace Interface
 				ImGui::Text(verticesText.c_str());
 				ImGui::Text(indicesText.c_str());
 
+				if (ImGui::CollapsingHeader("Bounding box"))
+				{
+					BoundingBox meshBoundingBox = meshComponent->getWorldBoundingBox();
+					glm::vec3 minCorner = meshBoundingBox.minPosition;
+					glm::vec3 maxCorner = meshBoundingBox.maxPosition;
+
+					std::string minCornerText = "Min corner: %.2f - %.2f - %.2f";
+					std::string maxCornerText = "Max corner: %.2f - %.2f - %.2f";
+					
+					ImGui::Text(minCornerText.c_str(), minCorner.x, minCorner.y, minCorner.z);
+					ImGui::Text(maxCornerText.c_str(), maxCorner.x, maxCorner.y, maxCorner.z);
+				}
+
 				PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
 				PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
 
