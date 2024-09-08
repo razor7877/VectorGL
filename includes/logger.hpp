@@ -41,6 +41,11 @@ struct Log
 	/// </summary>
 	std::chrono::system_clock::time_point timestamp;
 
+	/// <summary>
+	/// How many times the log was received (used for repeated logs)
+	/// </summary>
+	int logCount = 1;
+
 	Log(std::string logMessage, LogLevel logLevel, std::string filename);
 };
 

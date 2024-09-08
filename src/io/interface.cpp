@@ -293,6 +293,19 @@ namespace Interface
 
 		ImVec2 lastWindowSize = ImGui::GetContentRegionAvail();
 
+		std::vector<std::string> sourceFiles = Logger::getSourceFiles();
+
+		// Refresh if there are any new source files
+		for (std::string file : sourceFiles)
+		{
+			if (consoleParams.sourceFileToggle.count(file) == 0)
+			{
+				// Any new source file starts as toggled on
+				consoleParams.selectedSourceFiles.insert(file);
+				consoleParams.sourceFileToggle[file] = true;
+			}
+		}
+
 		// We keep 20px at the bottom for the buttons
 		ImGui::BeginChild("Logs", ImVec2(0, lastWindowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
@@ -305,10 +318,16 @@ namespace Interface
 		}
 
 		// Display all the logs with their corresponding colors, with the earliest first
-		for (int i = consoleParams.shownLogs.size() - 1; i > 0; i--)
+		for (int i = consoleParams.shownLogs.size() - 1; i >= 0; i--)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.levelToColor[consoleParams.shownLogs[i].logLevel]);
-			ImGui::Text(consoleParams.shownLogs[i].logMessage.c_str());
+			Log log = consoleParams.shownLogs[i];
+
+			if (log.logCount > 1) // We display the log count as well for repeated logs
+				ImGui::Text((log.logMessage + " (x" + std::to_string(log.logCount) + ")").c_str());
+			else // Normal display if log was not repeated
+				ImGui::Text(consoleParams.shownLogs[i].logMessage.c_str());
+
 			ImGui::PopStyleColor();
 		}
 
@@ -340,19 +359,6 @@ namespace Interface
 			}
 
 			ImGui::EndCombo();
-		}
-
-		std::vector<std::string> sourceFiles = Logger::getSourceFiles();
-
-		// Refresh if there are any new source files
-		for (std::string file : sourceFiles)
-		{
-			if (consoleParams.sourceFileToggle.count(file) == 0)
-			{
-				// Any new source file starts as toggled on
-				consoleParams.selectedSourceFiles.insert(file);
-				consoleParams.sourceFileToggle[file] = true;
-			}
 		}
 
 		ImGui::SameLine();

@@ -89,7 +89,7 @@ std::vector<Log> Logger::getFilteredLogs(std::set<LogLevel> logLevels, std::set<
 		std::back_inserter(filteredLogs),
 		[&logLevels, &files](Log log)
 		{
-			bool inSourceFiles = std::find(files.begin(), files.end(), log.filename) != files.end();
+			bool inSourceFiles = files.size() == 0 || std::find(files.begin(), files.end(), log.filename) != files.end();
 			bool inLogLevels = logLevels.find(log.logLevel) != logLevels.end();
 			return inSourceFiles && inLogLevels;
 		}
@@ -111,7 +111,21 @@ void Logger::clearLogs()
 
 void Logger::addLog(Log log)
 {
-	Logger::logMessages.push_back(log);
+	bool previousLogIsSame = false;
+
+	if (Logger::logMessages.size() > 0)
+	{
+		Log& lastLog = Logger::logMessages.back();
+
+		if (lastLog.filename == log.filename && lastLog.logLevel == log.logLevel && lastLog.logMessage == log.logMessage)
+		{
+			lastLog.logCount++;
+			previousLogIsSame = true;
+		}
+	}
+	
+	if (!previousLogIsSame)
+		Logger::logMessages.push_back(log);
 
 	// Track the source files from which we got logs
 	Logger::sourceFiles.insert(log.filename);
