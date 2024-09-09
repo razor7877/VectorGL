@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene.hpp"
+#include "components/physicsComponent.hpp"
 
 std::vector<Entity*> Scene::getEntities()
 {
@@ -74,7 +75,7 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 			{
 				this->sortedSceneData.allMeshes.push_back(mesh);
 
-				// Check if the mesh is within the camera frustum
+				// Check if the mesh is within the camera frustum to determine if we should update it
 				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
 				{
 					this->sortedSceneData.meshes.push_back(mesh);
@@ -90,6 +91,13 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 
 					if (entity->drawOutline)
 						this->sortedSceneData.outlineRenderList.push_back(entity);
+				}
+				else // If it is outside of the frustum, we still want to update any physics
+				{
+					PhysicsComponent* physics = entity->getComponent<PhysicsComponent>();
+
+					if (physics != nullptr)
+						this->sortedSceneData.physicsComponents.push_back(physics);
 				}
 			}
 

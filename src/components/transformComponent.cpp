@@ -86,7 +86,7 @@ void TransformComponent::updateModelMatrix()
 	if (this->parent->getParent() != nullptr)
 		this->modelMatrix = this->parent->getParent()->transform->getModelMatrix() * this->modelMatrix;
 
-	this->normalMatrix = glm::mat3(glm::transpose(glm::inverse(this->modelMatrix)));
+	this->normalMatrix = glm::transpose(glm::inverse(glm::mat3(this->modelMatrix)));
 
 	// Since children inherit of the parent transform, they need to be updated too
 	for (Entity* child : this->parent->getChildren())

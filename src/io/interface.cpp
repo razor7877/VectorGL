@@ -444,6 +444,7 @@ namespace Interface
 		ImGui::Text("Render pass time: %.2f ms", renderer.renderPassTime * 1000);
 		ImGui::Text("Outline pass time: %.2f ms", renderer.outlinePassTime * 1000);
 		ImGui::Text("Blit pass time: %.2f ms", renderer.blitPassTime * 1000);
+		ImGui::Text("Debug pass time: %.2f ms", renderer.debugPassTime * 1000);
 
 		if (performanceParams.isNvidiaGpu)
 		{

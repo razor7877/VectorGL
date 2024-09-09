@@ -8,6 +8,7 @@
 #include "components/meshComponent.hpp"
 #include "physics/frustum.hpp"
 #include "components/lights/directionalLightComponent.hpp"
+#include "components/physicsComponent.hpp"
 
 struct SortedSceneData
 {
@@ -22,7 +23,10 @@ struct SortedSceneData
 	std::vector<Entity*> logicEntities;
 	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
 	std::vector<MeshComponent*> meshes;
+	// All meshes present in the scene, regardless of whether they are inside of the camera frustum
 	std::vector<MeshComponent*> allMeshes;
+	// The list of all physics component that are from entities not inside the camera frustum
+	std::vector<PhysicsComponent*> physicsComponents;
 
 	void clearCache()
 	{
@@ -32,6 +36,7 @@ struct SortedSceneData
 		logicEntities.clear();
 		meshes.clear();
 		allMeshes.clear();
+		physicsComponents.clear();
 	}
 };
 

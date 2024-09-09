@@ -162,16 +162,16 @@ void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 {
 	double frameStartTime = glfwGetTime();
+	double startTime = frameStartTime;
 
 	// Render & update the scene
-
+	
 	// All the entities at the top level of the scene
 	std::vector<Entity*> entities = scene.getEntities();
-
-	double startTime = glfwGetTime();
 	scene.sortedSceneData.clearCache();
 	Frustum frustum(scene.currentCamera, this->multiSampledTarget.size);
 	scene.getMeshesRecursively(frustum, entities);
+
 	double endTime = glfwGetTime();
 	this->meshSortingTime = endTime - startTime;
 
@@ -181,6 +181,9 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	endTime = glfwGetTime();
 	this->physicsUpdateTime = endTime - startTime;
 
+	// Render the shadow map
+	startTime = glfwGetTime();
+
 	// Update camera info
 	glm::vec2 lastWindowSize = this->multiSampledTarget.size;
 	this->shaderManager.updateUniformBuffer(scene.currentCamera->getViewMatrix(), scene.currentCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
@@ -188,10 +191,8 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	this->shaderManager.getShader(ShaderType::PBR)->use()->setVec3("camPos", scene.currentCamera->getPosition());
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
-
-	// Render the shadow map
-	startTime = glfwGetTime();
 	this->shadowPass(scene.sortedSceneData.allMeshes, scene);
+
 	endTime = glfwGetTime();
 	this->shadowPassTime = endTime - startTime;
 
@@ -206,30 +207,32 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	this->ssaoPass(scene.sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->ssaoPassTime = endTime - startTime;
-	
-	// We now want to draw to the MSAA framebuffer
-	this->multiSampledTarget.bind();
-	this->multiSampledTarget.clear();
 
 	// Render the scene
 	startTime = glfwGetTime();
+
+	// We now want to draw to the MSAA framebuffer
+	this->multiSampledTarget.bind();
+	this->multiSampledTarget.clear();
 	this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
+
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
 	// Render outlines
 	startTime = glfwGetTime();
 	this->outlinePass(scene.sortedSceneData.outlineRenderList);
+	this->multiSampledTarget.unbind();
 	endTime = glfwGetTime();
 	this->outlinePassTime = endTime - startTime;
-
-	this->multiSampledTarget.unbind();
 
 	// Resolve the multisampled framebuffer to the normal one for display
 	startTime = glfwGetTime();
 	this->blitPass();
 	endTime = glfwGetTime();
 	this->blitPassTime = endTime - startTime;
+
+	startTime = glfwGetTime();
 
 	if (this->enableDebugDraw && scene.skyCamera != nullptr)
 	{
@@ -242,8 +245,10 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 		this->skyTarget.unbind();
 	}
 
-	this->frameRenderTime = glfwGetTime() - frameStartTime;
+	endTime = glfwGetTime();
+	this->debugPassTime = endTime - startTime;
 
+	this->frameRenderTime = glfwGetTime() - frameStartTime;
 }
 
 void Renderer::end()
@@ -377,6 +382,9 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 	// We can simply update all entities that won't be rendered
 	for (Entity* nonRenderable : sceneData.logicEntities)
 		nonRenderable->update(deltaTime);
+
+	for (PhysicsComponent* physics : sceneData.physicsComponents)
+		physics->update(deltaTime);
 
 	glEnable(GL_DEPTH_TEST);
 	glStencilMask(0xFF);
@@ -544,5 +552,6 @@ void Renderer::blitPass()
 
 	glm::vec2 framebufferSize = this->multiSampledTarget.size;
 	// Resolve the multisampled texture to the second target
+	glScissor(0, 0, framebufferSize.x, framebufferSize.y);
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }

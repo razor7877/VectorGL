@@ -33,6 +33,7 @@ public:
 	float renderPassTime = 0.0f;
 	float outlinePassTime = 0.0f;
 	float blitPassTime = 0.0f;
+	float debugPassTime = 0.0f;
 
 	bool enableDebugDraw = false;
 
