@@ -108,7 +108,10 @@ bool Shader::compileShader()
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
-	glDeleteProgram(this->ID);
+	// Delete program if we had an old one (when recompiling)
+	if (this->ID != 0)
+		glDeleteProgram(this->ID);
+
 	// We can replace the new ID if everything succeeded
 	this->ID = newID;
 

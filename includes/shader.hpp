@@ -15,7 +15,7 @@ public:
 	/// <summary>
 	/// The OpenGL handle for this program
 	/// </summary>
-	GLuint ID;
+	GLuint ID = 0;
 
 	/// <summary>
 	/// The file system path to the vertex shader
