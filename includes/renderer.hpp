@@ -97,37 +97,37 @@ private:
 	/// <summary>
 	/// The render target in which everything is rendered
 	/// </summary>
-	RenderTarget multiSampledTarget;
+	std::unique_ptr<RenderTarget> multiSampledTarget;
 
 	/// <summary>
 	/// The final render target, the multisampled target is resolved into this one that can be used for displaying to screen
 	/// </summary>
-	RenderTarget finalTarget;
+	std::unique_ptr<RenderTarget> finalTarget;
 
 	/// <summary>
 	/// The render target for the top down view
 	/// </summary>
-	RenderTarget skyTarget;
+	std::unique_ptr<RenderTarget> skyTarget;
 
 	/// <summary>
 	/// The depth map for shadow mapping
 	/// </summary>
-	RenderTarget depthMap;
+	std::unique_ptr<RenderTarget> depthMap;
 
 	/// <summary>
 	/// The G-buffer for screen space effects
 	/// </summary>
-	RenderTarget gBuffer;
+	std::unique_ptr<RenderTarget> gBuffer;
 
 	/// <summary>
 	/// The render target for rendering the SSAO
 	/// </summary>
-	RenderTarget ssaoTarget;
+	std::unique_ptr<RenderTarget> ssaoTarget;
 
 	/// <summary>
 	/// The render target for rendering the blurred SSAO texture
 	/// </summary>
-	RenderTarget ssaoBlurTarget;
+	std::unique_ptr<RenderTarget> ssaoBlurTarget;
 
 	/// <summary>
 	/// The noise texture for SSAO sampling

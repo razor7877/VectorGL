@@ -13,7 +13,8 @@ ShaderManager::ShaderManager()
 
 ShaderManager::~ShaderManager()
 {
-
+	for (auto&& [type, shader] : this->enumToShader)
+		delete shader;
 }
 
 void ShaderManager::initUniformBuffer()
