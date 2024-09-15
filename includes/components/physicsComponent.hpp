@@ -25,5 +25,5 @@ private:
 	/// <summary>
 	/// The collider of the component
 	/// </summary>
-	Collider* collider;
+	Collider* collider = nullptr;
 };

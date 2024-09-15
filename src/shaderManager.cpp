@@ -8,11 +8,13 @@
 
 ShaderManager::ShaderManager()
 {
-	this->UBO = {};
+
 }
 
 ShaderManager::~ShaderManager()
 {
+	glDeleteBuffers(1, &this->UBO);
+
 	for (auto&& [type, shader] : this->enumToShader)
 		delete shader;
 }

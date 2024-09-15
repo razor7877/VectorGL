@@ -66,5 +66,5 @@ public:
 	void setFragmentShaderContent(ShaderType shader, std::string content);
 private:
 	// Uniform buffer object (for global uniforms between shaders)
-	GLuint UBO;
+	GLuint UBO = 0;
 };
