@@ -18,6 +18,11 @@ RenderTarget::RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum 
 RenderTarget::~RenderTarget()
 {
 	glDeleteFramebuffers(1, &this->framebuffer);
+	glDeleteRenderbuffers(1, &this->depthStencilBuffer);
+	glDeleteTextures(1, &this->renderTexture);
+	glDeleteTextures(1, &this->gPosition);
+	glDeleteTextures(1, &this->gNormal);
+	glDeleteTextures(1, &this->gAlbedo);
 }
 
 void RenderTarget::bind()

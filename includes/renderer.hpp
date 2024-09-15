@@ -38,6 +38,7 @@ public:
 	bool enableDebugDraw = false;
 
 	Renderer();
+	~Renderer();
 
 	/// <summary>
 	/// Returns the framebuffer that the renderer draws into

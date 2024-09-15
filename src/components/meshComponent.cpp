@@ -294,6 +294,7 @@ BoundingBox MeshComponent::getWorldBoundingBox()
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)
 {
+	// TODO : Pass this to the material instead
 	PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
 
 	if (phongMaterial != nullptr)

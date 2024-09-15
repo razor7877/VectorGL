@@ -23,6 +23,11 @@ Renderer::Renderer()
 	
 }
 
+Renderer::~Renderer()
+{
+
+}
+
 GLuint Renderer::getRenderTexture()
 {
 	return this->finalTarget->renderTexture;

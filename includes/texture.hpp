@@ -36,7 +36,7 @@ public:
 	/// <summary>
 	/// The OpenGL enum for the texture format
 	/// </summary>
-	GLenum format;
+	GLenum format = 0;
 
 	/// <summary>
 	/// An enum representing the type of texture
