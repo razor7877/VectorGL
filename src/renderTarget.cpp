@@ -226,6 +226,26 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			break;
 		}
 
+		case TargetType::TEXTURE_DEPTH_3D:
+		{
+			glGenTextures(1, &this->renderTexture);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, this->renderTexture);
+			constexpr int shadowCascadeLevels = 3;
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, this->size.x, this->size.y, shadowCascadeLevels + 1, 0, this->format, GL_FLOAT, 0);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, this->renderTexture, 0);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+			break;
+		}
+
 		case TargetType::G_BUFFER:
 		{
 			// Depth buffer for the FBO

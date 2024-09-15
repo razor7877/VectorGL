@@ -33,13 +33,13 @@ struct BoundingBox
 	/// <returns>A new bounding box with the transformation applied to it</returns>
 	BoundingBox operator*(glm::mat4 modelMatrix)
 	{
-		float xMin = INFINITY;
-		float yMin = INFINITY;
-		float zMin = INFINITY;
+		float xMin = std::numeric_limits<float>::max();
+		float yMin = std::numeric_limits<float>::max();
+		float zMin = std::numeric_limits<float>::max();
 
-		float xMax = -INFINITY;
-		float yMax = -INFINITY;
-		float zMax = -INFINITY;
+		float xMax = std::numeric_limits<float>::lowest();
+		float yMax = std::numeric_limits<float>::lowest();
+		float zMax = std::numeric_limits<float>::lowest();
 
 		std::vector<glm::vec3> corners = {
 			this->minPosition,

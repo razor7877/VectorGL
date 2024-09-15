@@ -280,6 +280,59 @@ void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 
 void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 {
+	glm::mat4 cameraProjection = scene.currentCamera->getProjectionMatrix(this->multiSampledTarget->size.x, this->multiSampledTarget->size.y);
+	glm::mat4 cameraView = scene.currentCamera->getViewMatrix();
+
+	// Get the corners of the camera frustum
+	std::vector<glm::vec4> frustumCorners = Frustum::getFrustumCornersWorldSpace(cameraProjection, cameraView);
+
+	glm::vec3 frustumCenter = glm::vec3(0.0f);
+
+	for (const auto& v : frustumCorners)
+		frustumCenter += glm::vec3(v);
+
+	// Average the positions to get the frustum center
+	frustumCenter /= frustumCorners.size();
+
+	glm::vec3 lightDir = scene.directionalLight->parent->getTransform()->getPosition();
+	const glm::mat4 lightView = glm::lookAt(
+		frustumCenter + lightDir,
+		frustumCenter,
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	);
+
+	float minX = std::numeric_limits<float>::max();
+	float maxX = std::numeric_limits<float>::lowest();
+	float minY = std::numeric_limits<float>::max();
+	float maxY = std::numeric_limits<float>::lowest();
+	float minZ = std::numeric_limits<float>::max();
+	float maxZ = std::numeric_limits<float>::lowest();
+
+	for (const auto& v : frustumCorners)
+	{
+		const auto trf = lightView * v;
+		minX = std::min(minX, trf.x);
+		maxX = std::max(maxX, trf.x);
+		minY = std::min(minY, trf.y);
+		maxY = std::max(maxY, trf.y);
+		minZ = std::min(minZ, trf.z);
+		maxZ = std::max(maxZ, trf.z);
+	}
+
+	constexpr float zMult = 10.0f;
+
+	if (minZ < 0)
+		minZ *= zMult;
+	else
+		minZ /= zMult;
+
+	if (maxZ < 0)
+		maxZ /= zMult;
+	else
+		maxZ *= zMult;
+
+	const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
 	// We prepare for the depth map rendering for shadow mapping
 	this->depthMap->bind();
 	this->depthMap->clear();
