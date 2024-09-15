@@ -28,7 +28,7 @@ const std::string PBRMaterial::SSAO_MAP = "ssaoMap";
 
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
-std::shared_ptr<Texture> PBRMaterial::brdfLut = nullptr;
+Texture* PBRMaterial::brdfLut = nullptr;
 std::shared_ptr<Texture> PBRMaterial::shadowMap = nullptr;
 std::shared_ptr<Texture> PBRMaterial::ssaoMap = nullptr;
 glm::mat4 PBRMaterial::lightSpaceMatrix = glm::mat4(1.0f);

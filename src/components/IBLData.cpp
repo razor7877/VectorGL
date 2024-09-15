@@ -156,12 +156,12 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+	this->brdfLut = std::make_unique<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 
 	cubemapEntity.reset();
 }
 
-IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
+IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environmentMap(std::move(cubemap))
 {
 	// We start by querying all the necessary shaders
 	Shader* irradianceShader = renderer.shaderManager.getShader(ShaderType::IRRADIANCE);
@@ -280,13 +280,10 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+	this->brdfLut = std::make_unique<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 }
 
 IBLData::~IBLData()
 {
-	delete this->environmentMap;
-	delete this->irradianceMap;
-	delete this->prefilterMap;
-	this->brdfLut.reset();
+
 }

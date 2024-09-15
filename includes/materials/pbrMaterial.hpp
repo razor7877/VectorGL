@@ -58,7 +58,7 @@ public:
 	/// <summary>
 	/// The BRDF look up table for specular IBL
 	/// </summary>
-	static std::shared_ptr<Texture> brdfLut;
+	static Texture* brdfLut;
 
 	/// <summary>
 	/// The shadow map for shadow calculations
