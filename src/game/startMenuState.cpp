@@ -25,7 +25,7 @@ void StartMenuState::init()
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
 	// Create the camera and set it up
-	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
+	std::unique_ptr<Entity> cameraEntity = std::make_unique<Entity>("Camera");
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 
 	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
@@ -39,7 +39,7 @@ void StartMenuState::init()
 	LightManager::getInstance().init();
 
 	// Directional light
-	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
+	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
@@ -62,7 +62,7 @@ void StartMenuState::init()
 	}
 
 	// Skybox
-	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
+	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	skyComponent->changeSkybox(SkyboxType::NIGHT);

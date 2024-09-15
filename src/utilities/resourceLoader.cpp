@@ -287,7 +287,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 					// Decompress image
 					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, channels);
 					// Create texture using image data
-					texture = std::shared_ptr<Texture>(new Texture(textureType, width, height, format, data));
+					texture = std::make_shared<Texture>(textureType, width, height, format, data);
 					stbi_image_free(data);
 				}
 				else // We have raw image data
@@ -301,13 +301,13 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 						if (embeddedTexture->achFormatHint[i] == 'A' && embeddedTexture->achFormatHint[i] != '0')
 							format = GL_RGBA;
 
-					texture = std::shared_ptr<Texture>(new Texture(textureType, embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData));
+					texture = std::make_shared<Texture>(textureType, embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData);
 				}
 			}
 			else // Not an embedded texture, load it from file system
 			{
 				Logger::logInfo(std::string("Loading texture path " + path), "resourceLoader.cpp");
-				texture = std::shared_ptr<Texture>(new Texture(path, textureType, false));
+				texture = std::make_shared<Texture>(path, textureType, false);
 				texture->path = str.C_Str();
 				this->loadedTextures[path] = texture;
 			}

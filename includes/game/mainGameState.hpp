@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
@@ -10,9 +12,9 @@
 class MainGameState : public virtual GameState
 {
 public:
-	btKinematicCharacterController* characterController = nullptr;
-	btPairCachingGhostObject* ghostObject = nullptr;
-	btConvexShape* characterShape = nullptr;
+	std::unique_ptr<btKinematicCharacterController> characterController = nullptr;
+	std::unique_ptr<btPairCachingGhostObject> ghostObject = nullptr;
+	std::unique_ptr<btConvexShape> characterShape = nullptr;
 	
 	MainGameState(Renderer& renderer) : GameState(renderer) {};
 

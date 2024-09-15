@@ -19,11 +19,11 @@ public:
 	/// </summary>
 	/// <param name="world">A reference to the physics world</param>
 	/// <param name="rigidBody">The collider to associate with the component</param>
-	void setCollider(std::unique_ptr<Collider> collider);
+	void setCollider(Collider* collider);
 
 private:
 	/// <summary>
 	/// The collider of the component
 	/// </summary>
-	std::unique_ptr<Collider> collider;
+	Collider* collider;
 };

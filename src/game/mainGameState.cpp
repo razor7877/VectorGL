@@ -34,7 +34,7 @@ void MainGameState::init()
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
 	// Create the camera and set it up
-	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
+	std::unique_ptr<Entity> cameraEntity = std::make_unique<Entity>("Camera");
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 	
 	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
@@ -45,7 +45,7 @@ void MainGameState::init()
 	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
 	this->scene.addEntity(std::move(cameraEntity));
 
-	std::unique_ptr<Entity> skyCameraEntity = std::unique_ptr<Entity>(new Entity("Sky Camera"));
+	std::unique_ptr<Entity> skyCameraEntity = std::make_unique<Entity>("Sky Camera");
 	this->scene.skyCamera = skyCameraEntity->addComponent<CameraComponent>();
 	this->scene.skyCamera->setPosition(glm::vec3(0.0f, 75.0f, 0.0f));
 	this->scene.skyCamera->setZoom(90.0f);
@@ -55,7 +55,7 @@ void MainGameState::init()
 	LightManager::getInstance().init();
 
 	// Directional light
-	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
+	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
@@ -116,7 +116,7 @@ void MainGameState::init()
 	}
 
 	// Skybox
-	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
+	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	this->scene.addEntity(std::move(skyEntity));
@@ -139,7 +139,7 @@ void MainGameState::init()
 	for (int i = 0; i < 4; i++)
 	{
 		// Add point light
-		std::unique_ptr<Entity> pointLightEntity = std::unique_ptr<Entity>(new Entity("Point light"));
+		std::unique_ptr<Entity> pointLightEntity = std::make_unique<Entity>("Point light");
 		pointLightEntity->getTransform()->setScale(glm::vec3(0.1f));
 		pointLightEntity->getTransform()->setPosition(lightPositions[i]);
 		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
@@ -162,22 +162,22 @@ void MainGameState::init()
 	this->scene.addEntity(std::move(planeEntity));
 	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
-	ghostObject = new btPairCachingGhostObject();
+	this->ghostObject = std::make_unique<btPairCachingGhostObject>();
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0, 10, 0)); // Start position
 
-	this->characterShape = new btCapsuleShape(0.5f, 2.0f); // radius, height
+	this->characterShape = std::make_unique<btCapsuleShape>(0.5f, 2.0f); // radius, height
 
 	ghostObject->setWorldTransform(startTransform);
-	ghostObject->setCollisionShape(characterShape);
+	ghostObject->setCollisionShape(characterShape.get());
 	ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
-	this->characterController = new btKinematicCharacterController(ghostObject, characterShape, 0.35f);
+	this->characterController = std::make_unique<btKinematicCharacterController>(this->ghostObject.get(), this->characterShape.get(), 0.35f);
 	this->characterController->setGravity(btVector3(0.0f, -9.81f, 0.0f));
 
-	this->physicsWorld.world->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	this->physicsWorld.world->addAction(characterController);
+	this->physicsWorld.world->addCollisionObject(this->ghostObject.get(), btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	this->physicsWorld.world->addAction(this->characterController.get());
 
 	// Initialize scene
 	this->scene.init();
@@ -186,6 +186,11 @@ void MainGameState::init()
 void MainGameState::cleanup()
 {
 	this->scene.end();
+
+	this->physicsWorld.world->removeCollisionObject(this->ghostObject.get());
+	this->ghostObject.reset();
+	this->characterController.reset();
+	this->characterShape.reset();
 }
 
 void MainGameState::pause()

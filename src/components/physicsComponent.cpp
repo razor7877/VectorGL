@@ -12,8 +12,7 @@ PhysicsComponent::PhysicsComponent(Entity* parent) : Component(parent)
 
 PhysicsComponent::~PhysicsComponent()
 {
-	if (this->collider != nullptr && this->collider->world != nullptr)
-		this->collider->world->removeRigidBody(this->collider->rigidBody.get());
+
 }
 
 void PhysicsComponent::start()
@@ -55,7 +54,7 @@ void PhysicsComponent::update(float deltaTime)
 	this->parent->getTransform()->setModelMatrix(glmMat);
 }
 
-void PhysicsComponent::setCollider(std::unique_ptr<Collider> collider)
+void PhysicsComponent::setCollider(Collider* collider)
 {
-	this->collider = std::move(collider);
+	this->collider = collider;
 }
