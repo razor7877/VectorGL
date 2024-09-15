@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -58,11 +59,12 @@ private:
 class PhysicsWorld
 {
 public:
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* collisionDispatcher;
-	btBroadphaseInterface* overlappingPairCache;
-	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld* world;
+	std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration;
+	std::unique_ptr<btCollisionDispatcher> collisionDispatcher;
+	std::unique_ptr<btBroadphaseInterface> overlappingPairCache;
+	std::unique_ptr<btGhostPairCallback> ghostPairCallback;
+	std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
+	std::unique_ptr<btDiscreteDynamicsWorld> world;
 
 	static constexpr float GRAVITY = -9.81f;
 	bool enableDebugDraw = false;
@@ -125,7 +127,7 @@ public:
 	void addCapsule(PhysicsComponent* component, float radius, float height, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 private:
-	DebugDrawer* debugDrawer;
+	std::unique_ptr<DebugDrawer> debugDrawer;
 
 	std::vector<btRigidBody*> rigidBodies;
 	std::map<btRigidBody*, PhysicsComponent*> rigidBodyToComponent;
