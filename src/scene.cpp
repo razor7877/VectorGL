@@ -76,7 +76,7 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 				this->sortedSceneData.allMeshes.push_back(mesh);
 
 				// Check if the mesh is within the camera frustum to determine if we should update it
-				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
+				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->getTransform()))
 				{
 					this->sortedSceneData.meshes.push_back(mesh);
 

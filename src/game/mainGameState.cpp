@@ -49,7 +49,7 @@ void MainGameState::init()
 	this->scene.skyCamera = skyCameraEntity->addComponent<CameraComponent>();
 	this->scene.skyCamera->setPosition(glm::vec3(0.0f, 75.0f, 0.0f));
 	this->scene.skyCamera->setZoom(90.0f);
-	skyCameraEntity->transform->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
+	skyCameraEntity->getTransform()->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
 	this->scene.addEntity(std::move(skyCameraEntity));
 
 	LightManager::getInstance().init();
@@ -100,7 +100,7 @@ void MainGameState::init()
 					.addNormals(sphereOptimized.normals);
 
 				sphereMesh->setDiffuseColor(glm::vec3((float)x / 13.0f, (float)y / 13.0f, 1.0f));
-				sphereEntity->transform->setPosition(x * 3, y * 3, z * 3);
+				sphereEntity->getTransform()->setPosition(x * 3, y * 3, z * 3);
 
 				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
 				if (pbrMat != nullptr)
@@ -140,8 +140,8 @@ void MainGameState::init()
 	{
 		// Add point light
 		std::unique_ptr<Entity> pointLightEntity = std::unique_ptr<Entity>(new Entity("Point light"));
-		pointLightEntity->transform->setScale(glm::vec3(0.1f));
-		pointLightEntity->transform->setPosition(lightPositions[i]);
+		pointLightEntity->getTransform()->setScale(glm::vec3(0.1f));
+		pointLightEntity->getTransform()->setPosition(lightPositions[i]);
 		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 		pointLightComponent->diffuseColor = lightColors[i];
 
@@ -155,9 +155,9 @@ void MainGameState::init()
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 		.addVertices(quadVertices);
-	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
-	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
+	planeEntity->getTransform()->setPosition(0.0f, -5.0f, 0.0f);
+	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
+	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
 	this->scene.addEntity(std::move(planeEntity));
 	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));

@@ -75,9 +75,9 @@ void StartMenuState::init()
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 		.addVertices(quadVertices);
-	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
-	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
+	planeEntity->getTransform()->setPosition(0.0f, -5.0f, 0.0f);
+	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
+	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
 	this->scene.addEntity(std::move(planeEntity));
 

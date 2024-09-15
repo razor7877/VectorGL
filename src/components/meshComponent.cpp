@@ -153,8 +153,8 @@ void MeshComponent::update(float deltaTime)
 
 		// Send the model matrix
 		this->material->shaderProgram
-			->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
-			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
+			->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
+			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
 	}
 
 	// Indexed drawing
@@ -174,8 +174,8 @@ void MeshComponent::drawGeometry()
 	{
 		// Send the model & normal matrices
 		this->material->shaderProgram
-			->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
-			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
+			->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
+			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
 	}
 
 	// Indexed drawing
@@ -280,7 +280,7 @@ BoundingBox MeshComponent::getLocalBoundingBox()
 
 BoundingBox MeshComponent::getWorldBoundingBox()
 {
-	glm::mat4 newModelMatrix = this->parent->transform->getModelMatrix();
+	glm::mat4 newModelMatrix = this->parent->getTransform()->getModelMatrix();
 	
 	// We only recalculate the AABB if the matrix changed, since it's fairly expensive to calculate it unnecessarily
 	if (this->lastModelMatrix != newModelMatrix)

@@ -32,7 +32,7 @@ void PhysicsComponent::update(float deltaTime)
 	btMatrix3x3& basis = trans.getBasis();
 	btVector3& origin = trans.getOrigin();
 
-	glm::mat4 glmMat = this->parent->transform->getModelMatrix();
+	glm::mat4 glmMat = this->parent->getTransform()->getModelMatrix();
 
 	// Set rotation part
 	glmMat[0][0] = basis[0][0];
@@ -50,9 +50,9 @@ void PhysicsComponent::update(float deltaTime)
 	glmMat[3][1] = origin.getY();
 	glmMat[3][2] = origin.getZ();
 
-	glmMat = glm::scale(glmMat, this->parent->transform->getScale());
+	glmMat = glm::scale(glmMat, this->parent->getTransform()->getScale());
 
-	this->parent->transform->setModelMatrix(glmMat);
+	this->parent->getTransform()->setModelMatrix(glmMat);
 }
 
 void PhysicsComponent::setCollider(std::unique_ptr<Collider> collider)

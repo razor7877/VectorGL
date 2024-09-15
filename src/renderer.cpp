@@ -282,7 +282,7 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 	glEnable(GL_DEPTH_TEST);
 
 	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, scene.currentCamera->NEAR, scene.currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->transform->getPosition(),
+	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->getTransform()->getPosition(),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
@@ -525,14 +525,14 @@ void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
 	for (Entity* outlinedEntity : outlineRenderList)
 	{
 		MeshComponent* mesh = outlinedEntity->getComponent<MeshComponent>();
-		glm::vec3 originalScale = outlinedEntity->transform->getScale();
+		glm::vec3 originalScale = outlinedEntity->getTransform()->getScale();
 		Shader* originalShader = mesh->material->shaderProgram;
 
 		mesh->material->shaderProgram = outlineShader;
 
-		outlinedEntity->transform->setScale(originalScale * 1.1f);
+		outlinedEntity->getTransform()->setScale(originalScale * 1.1f);
 		outlinedEntity->update(0);
-		outlinedEntity->transform->setScale(originalScale);
+		outlinedEntity->getTransform()->setScale(originalScale);
 
 		mesh->material->shaderProgram = originalShader;
 	}

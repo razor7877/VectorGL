@@ -6,8 +6,8 @@
 
 CameraComponent::CameraComponent(Entity* parent) : Component(parent)
 {
-	this->parent->transform->setPosition(glm::vec3(0.0f));
-	this->parent->transform->setRotation(YAW, PITCH, 0.0f);
+	this->parent->getTransform()->setPosition(glm::vec3(0.0f));
+	this->parent->getTransform()->setRotation(YAW, PITCH, 0.0f);
 
 	this->worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	this->front = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -33,7 +33,7 @@ glm::mat4 CameraComponent::getViewMatrix()
 {
 	this->updateCameraVectors();
 
-	return glm::lookAt(this->parent->transform->getPosition(), this->parent->transform->getPosition() + this->front, this->up);
+	return glm::lookAt(this->parent->getTransform()->getPosition(), this->parent->getTransform()->getPosition() + this->front, this->up);
 }
 
 glm::mat4 CameraComponent::getProjectionMatrix(float width, float height)
@@ -48,14 +48,16 @@ void CameraComponent::processKeyboard(CameraMovement direction, float deltaTime)
 
 	float velocity = movementSpeed * deltaTime;
 
+	TransformComponent* transform = this->parent->getTransform();
+
 	if (direction == CameraMovement::FORWARD)
-		this->parent->transform->setPosition(this->parent->transform->getPosition() + front * velocity);
+		transform->setPosition(transform->getPosition() + front * velocity);
 	else if (direction == CameraMovement::BACKWARD)
-		this->parent->transform->setPosition(this->parent->transform->getPosition() - front * velocity);
+		transform->setPosition(transform->getPosition() - front * velocity);
 	else if (direction == CameraMovement::LEFT)
-		this->parent->transform->setPosition(this->parent->transform->getPosition() - right * velocity);
+		transform->setPosition(transform->getPosition() - right * velocity);
 	else if (direction == CameraMovement::RIGHT)
-		this->parent->transform->setPosition(this->parent->transform->getPosition() + right * velocity);
+		transform->setPosition(transform->getPosition() + right * velocity);
 }
 
 void CameraComponent::processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
@@ -66,7 +68,7 @@ void CameraComponent::processMouseMovement(float xoffset, float yoffset, GLboole
 	xoffset *= mouseSensitivity;
 	yoffset *= mouseSensitivity;
 
-	glm::vec3 rotation = this->parent->transform->getRotation();
+	glm::vec3 rotation = this->parent->getTransform()->getRotation();
 	rotation.x += xoffset; // Yaw
 	rotation.y += yoffset; // Pitch
 
@@ -83,7 +85,7 @@ void CameraComponent::processMouseMovement(float xoffset, float yoffset, GLboole
 		}
 	}
 
-	this->parent->transform->setRotation(rotation);
+	this->parent->getTransform()->setRotation(rotation);
 
 	updateCameraVectors();
 }
@@ -118,7 +120,7 @@ float CameraComponent::getSensitivity()
 
 glm::vec3 CameraComponent::getPosition()
 {
-	return this->parent->transform->getPosition();
+	return this->parent->getTransform()->getPosition();
 }
 
 glm::vec3 CameraComponent::getForward()
@@ -153,12 +155,12 @@ void CameraComponent::setSensitivity(float sensitivity)
 
 void CameraComponent::setPosition(glm::vec3 position)
 {
-	this->parent->transform->setPosition(position);
+	this->parent->getTransform()->setPosition(position);
 }
 
 void CameraComponent::updateCameraVectors()
 {
-	glm::vec3 rotation = this->parent->transform->getRotation();
+	glm::vec3 rotation = this->parent->getTransform()->getRotation();
 
 	// Calculate the new front vector
 	glm::vec3 newFront{};
