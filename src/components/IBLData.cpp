@@ -63,7 +63,6 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Resize FBO to cubemap size
-	captureRT.bind();
 	captureRT.resize(glm::vec2(32, 32));
 
 	// Create irradiance map
@@ -147,7 +146,6 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	captureRT.bind();
 	captureRT.resize(glm::vec2(512, 512));
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
@@ -271,7 +269,6 @@ IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environ
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	captureRT.bind();
 	captureRT.resize(glm::vec2(512, 512));
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 

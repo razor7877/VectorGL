@@ -40,21 +40,11 @@ GLuint Renderer::getSkyRenderTexture()
 
 void Renderer::resizeFramebuffers(glm::vec2 newSize)
 {
-	this->multiSampledTarget->bind();
 	this->multiSampledTarget->resize(newSize);
-
-	this->finalTarget->bind();
 	this->finalTarget->resize(newSize);
-
-	this->gBuffer->bind();
 	this->gBuffer->resize(newSize);
-
-	this->ssaoTarget->bind();
 	this->ssaoTarget->resize(newSize * this->SSAO_SCALE_FACTOR);
-
-	this->ssaoBlurTarget->bind();
 	this->ssaoBlurTarget->resize(newSize * this->SSAO_SCALE_FACTOR);
-
 	this->ssaoBlurTarget->unbind();
 }
 

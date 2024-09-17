@@ -99,7 +99,8 @@ public:
 	void clear();
 
 	/// <summary>
-	/// Resizes the render target
+	/// Resizes the render target. The render target should not be bound when resizing to prevent API errors.
+	/// After the operation, the resized render target will be the active one, regardless of previous state.
 	/// </summary>
 	/// <param name="newSize">The new size of the render target</param>
 	void resize(glm::vec2 newSize);
