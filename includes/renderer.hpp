@@ -16,6 +16,7 @@
 #include "physics/frustum.hpp"
 #include "scene.hpp"
 
+// TODO : Render pass system
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
 /// </summary>
@@ -173,6 +174,8 @@ private:
 	/// </summary>
 	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
 	void shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene);
+
+	glm::mat4 getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane);
 
 	/// <summary>
 	/// The pass responsible for rendering position/normal/albedo informations to the G buffer textures

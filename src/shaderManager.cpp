@@ -91,6 +91,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			enumToShader[shader] = new Shader("shaders/depth.vert", "shaders/depth.frag");
 			break;
 
+		case ShaderType::DEPTH_CASCADED:
+			enumToShader[shader] = new Shader("shaders/depth.vert", "shaders/depth.frag", "shaders/depth.geom");
+			break;
+
 		case ShaderType::GBUFFER:
 			enumToShader[shader] = new Shader("shaders/gBuffer.vert", "shaders/gBuffer.frag");
 			break;

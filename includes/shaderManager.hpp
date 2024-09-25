@@ -20,6 +20,7 @@ enum class ShaderType
 	SOLID,
 	OUTLINE,
 	DEPTH,
+	DEPTH_CASCADED, // Depth + geometry shader
 	GBUFFER,
 	SSAO,
 	SSAOBLUR

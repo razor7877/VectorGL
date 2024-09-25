@@ -268,9 +268,14 @@ void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_ALBEDO);
 }
 
-void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
+glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane)
 {
-	glm::mat4 cameraProjection = scene.currentCamera->getProjectionMatrix(this->multiSampledTarget->size.x, this->multiSampledTarget->size.y);
+	glm::mat4 cameraProjection = glm::perspective(
+		glm::radians(scene.currentCamera->getZoom()),
+		(float)this->multiSampledTarget->size.x / (float)this->multiSampledTarget->size.y,
+		nearPlane,
+		farPlane
+	);
 	glm::mat4 cameraView = scene.currentCamera->getViewMatrix();
 
 	// Get the corners of the camera frustum
@@ -322,6 +327,24 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 		maxZ *= zMult;
 
 	const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
+	return lightProjection * lightView;
+}
+
+void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
+{
+	float near = scene.currentCamera->NEAR;
+	float far = scene.currentCamera->FAR;
+
+	float range = far - near;
+	float firstCascadeFar = near + (range / 3.0f);
+	float secondCascadeFar = near + 2.0f * (range / 3.0f);
+
+	std::vector<glm::mat4> lightSpaceMatrices = {
+		this->getLightSpaceMatrix(scene, near, firstCascadeFar),
+		this->getLightSpaceMatrix(scene, firstCascadeFar, secondCascadeFar),
+		this->getLightSpaceMatrix(scene, secondCascadeFar, far)
+	};
 
 	// We prepare for the depth map rendering for shadow mapping
 	this->depthMap->bind();
