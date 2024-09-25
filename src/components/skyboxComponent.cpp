@@ -31,7 +31,7 @@ void SkyboxComponent::start()
 
 void SkyboxComponent::update(float deltaTime)
 {
-	glUseProgram(this->shaderProgram->ID);
+	glUseProgram(this->shaderProgram->getID());
 
 	glDepthFunc(GL_LEQUAL);
 

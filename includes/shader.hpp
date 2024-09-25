@@ -13,11 +13,6 @@ class Shader
 {
 public:
 	/// <summary>
-	/// The OpenGL handle for this program
-	/// </summary>
-	GLuint ID = 0;
-
-	/// <summary>
 	/// The file system path to the vertex shader
 	/// </summary>
 	std::string vertexPath;
@@ -27,6 +22,14 @@ public:
 	/// </summary>
 	std::string fragmentPath;
 
+	/// <summary>
+	/// The file system path to the geometry shader, if there is one
+	/// </summary>
+	std::string geometryPath;
+
+	/// <summary>
+	/// Whether the shader has been recompiled
+	/// </summary>
 	bool wasRecompiled = false;
 
 	/// <summary>
@@ -34,7 +37,19 @@ public:
 	/// </summary>
 	/// <param name="vertexPath">A path to the vertex shader file</param>
 	/// <param name="fragmentPath">A path to the fragment shader file</param>
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(std::string vertexPath, std::string fragmentPath);
+
+	/// <summary>
+	/// Creates a new OpenGL shader
+	/// </summary>
+	/// <param name="vertexPath">A path to the vertex shader file</param>
+	/// <param name="fragmentPath">A path to the fragment shader file</param>
+	/// <param name="geometryPath">A path to the geometry shader file</param>
+	Shader(std::string vertexPath, std::string fragmentPath, std::string geometryPath);
+
+	/// <summary>
+	/// Deletes the OpenGL shader
+	/// </summary>
 	~Shader();
 
 	/// <summary>
@@ -48,8 +63,9 @@ public:
 	/// </summary>
 	/// <returns>True if the shader was successfully compiled, false otherwise</returns>
 	bool compileShader();
+
+	GLuint getID();
 	
-	// Various methods to set uniforms for the shader
 	Shader* setBool(const std::string& name, bool value);
 	Shader* setInt(const std::string& name, int value);
 	Shader* setFloat(const std::string& name, float value);
@@ -64,6 +80,11 @@ public:
 	Shader* setMat4(const std::string& name, const glm::mat4& value);
 
 private:
+	/// <summary>
+	/// The OpenGL handle for this program
+	/// </summary>
+	GLuint ID = 0;
+
 	/// <summary>
 	/// The shader keeps a cache of the uniform locations to improve runtime performance
 	/// </summary>

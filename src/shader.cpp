@@ -10,10 +10,19 @@
 #include "logger.hpp"
 #include "materials/pbrMaterial.hpp"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(std::string vertexPath, std::string fragmentPath)
 {
 	this->vertexPath = vertexPath;
 	this->fragmentPath = fragmentPath;
+
+	this->compileShader();
+}
+
+Shader::Shader(std::string vertexPath, std::string fragmentPath, std::string geometryPath)
+{
+	this->vertexPath = vertexPath;
+	this->fragmentPath = fragmentPath;
+	this->geometryPath = geometryPath;
 
 	this->compileShader();
 }
@@ -64,10 +73,14 @@ bool Shader::compileShader()
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
 
-	unsigned int vertex, fragment;
-	int success;
-	char infoLog[512];
+	unsigned int vertex{};
+	unsigned int fragment{};
+	unsigned int geometry{};
 
+	int success{};
+	char infoLog[512]{};
+
+	// Create and compile vertex shader
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
 	glCompileShader(vertex);
@@ -80,6 +93,7 @@ bool Shader::compileShader()
 		return false;
 	}
 
+	// Create and compile fragment shader
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
@@ -92,9 +106,28 @@ bool Shader::compileShader()
 		return false;
 	}
 
+	// If present, create and compile geometry shader
+	if (!this->geometryPath.empty())
+	{
+		const char* gShaderCode = this->geometryPath.c_str();
+		geometry = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry, 1, &gShaderCode, NULL);
+		
+		glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(fragment, 512, NULL, infoLog);
+			Logger::logError(std::string("ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
+			return false;
+		}
+	}
+
 	GLuint newID = glCreateProgram();
 	glAttachShader(newID, vertex);
 	glAttachShader(newID, fragment);
+	if (!this->geometryPath.empty())
+		glAttachShader(newID, geometry);
+
 	glLinkProgram(newID);
 
 	glGetProgramiv(newID, GL_LINK_STATUS, &success);
@@ -107,6 +140,8 @@ bool Shader::compileShader()
 
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	if (!this->geometryPath.empty())
+		glDeleteShader(geometry);
 
 	// Delete program if we had an old one (when recompiling)
 	if (this->ID != 0)
@@ -119,6 +154,11 @@ bool Shader::compileShader()
 	this->wasRecompiled = true;
 
 	return true;
+}
+
+GLuint Shader::getID()
+{
+	return this->ID;
 }
 
 Shader* Shader::setBool(const std::string& name, bool value)

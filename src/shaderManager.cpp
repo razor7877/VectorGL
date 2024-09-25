@@ -104,10 +104,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			break;
 	}
 
-	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->ID, "Matrices");
+	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->getID(), "Matrices");
 
 	if (UBIShader != GL_INVALID_INDEX)
-		glUniformBlockBinding(enumToShader[shader]->ID, UBIShader, 0);
+		glUniformBlockBinding(enumToShader[shader]->getID(), UBIShader, 0);
 
 	return enumToShader[shader];
 }
