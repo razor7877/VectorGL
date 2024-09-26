@@ -2,7 +2,6 @@
 #include <glm/glm/ext/matrix_clip_space.hpp>
 
 #include "components/cameraComponent.hpp"
-#include "main.hpp"
 
 CameraComponent::CameraComponent(Entity* parent) : Component(parent)
 {

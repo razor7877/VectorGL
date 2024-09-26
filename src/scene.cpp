@@ -1,7 +1,13 @@
 #pragma once
 
+#include <vector>
+
 #include "scene.hpp"
+#include "entity.hpp"
+#include "physics/frustum.hpp"
+#include "components/meshComponent.hpp"
 #include "components/physicsComponent.hpp"
+#include "materials/pbrMaterial.hpp"
 
 std::vector<Entity*> Scene::getEntities()
 {

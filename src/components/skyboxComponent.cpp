@@ -1,9 +1,9 @@
 #include <map>
 
 #include "components/skyboxComponent.hpp"
-#include "shaderManager.hpp"
 #include "utilities/geometry.hpp"
 #include "components/IBLData.hpp"
+#include "materials/pbrMaterial.hpp"
 
 SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Component(parent)
 {

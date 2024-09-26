@@ -8,9 +8,7 @@
 #include "io/input.hpp"
 #include "io/interface.hpp"
 #include "logger.hpp"
-#include "renderer.hpp"
 #include "game/gameEngine.hpp"
-#include "game/mainGameState.hpp"
 #include "game/startMenuState.hpp"
 #include "main.hpp"
 

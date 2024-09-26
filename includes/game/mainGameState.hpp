@@ -7,7 +7,6 @@
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 
 #include "game/gameState.hpp"
-#include "components/cameraComponent.hpp"
 
 class MainGameState : public virtual GameState
 {

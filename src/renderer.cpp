@@ -1,6 +1,4 @@
 #include <iostream>
-#include <set>
-#include <algorithm>
 #include <random>
 
 #include <glm/glm/ext/matrix_transform.hpp>
@@ -15,8 +13,8 @@
 #include "materials/pbrMaterial.hpp"
 #include "components/meshComponent.hpp"
 #include "utilities/geometry.hpp"
-#include "utilities/geometry.hpp"
 #include "physics/frustum.hpp"
+#include "lightManager.hpp"
 
 Renderer::Renderer()
 {

@@ -6,8 +6,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "game/gameState.hpp"
-
 // This file contains functions responsible for handling and processing the various user inputs
 // such as mouse movement, clicking, scrolling, and keyboard presses
 

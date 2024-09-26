@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "entity.hpp"
 #include "components/physicsComponent.hpp"
 

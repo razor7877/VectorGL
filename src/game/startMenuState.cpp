@@ -10,8 +10,9 @@
 #include "main.hpp"
 #include "components/skyboxComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
-#include "components/lights/pointLightComponent.hpp"
 #include "logger.hpp"
+#include "lightManager.hpp"
+#include "materials/pbrMaterial.hpp"
 
 void StartMenuState::init()
 {

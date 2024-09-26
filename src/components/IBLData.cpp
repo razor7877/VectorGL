@@ -2,10 +2,10 @@
 #include <glm/glm/ext/matrix_transform.hpp>
 
 #include "components/IBLData.hpp"
-#include "components/skyboxComponent.hpp"
 #include "components/meshComponent.hpp"
 #include "renderTarget.hpp"
 #include "utilities/geometry.hpp"
+#include "materials/pbrMaterial.hpp"
 
 IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 {

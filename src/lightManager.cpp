@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "lightManager.hpp"
 
 // TODO : Get rid of this or make it better somehow

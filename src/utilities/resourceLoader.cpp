@@ -9,8 +9,7 @@
 #include "components/physicsComponent.hpp"
 #include "logger.hpp"
 #include "utilities/geometry.hpp"
-#include "main.hpp"
-#include "logger.hpp"
+#include "materials/pbrMaterial.hpp"
 
 ResourceLoader ResourceLoader::instance;
 

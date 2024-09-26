@@ -1,6 +1,5 @@
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
-#include "main.hpp"
 #include "io/input.hpp"
 
 const std::unique_ptr<GameState>& GameEngine::getCurrentState()

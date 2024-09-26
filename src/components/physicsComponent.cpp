@@ -1,7 +1,6 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "logger.hpp"
 #include "entity.hpp"
 #include "components/physicsComponent.hpp"
 

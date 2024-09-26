@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "renderer.hpp"
-#include "components/cameraComponent.hpp"
 
 class GameState;
 

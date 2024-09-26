@@ -1,10 +1,10 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include <imgui.h>
 #include <GLFW/glfw3.h>
 
-#include "renderer.hpp"
+#include "entity.hpp"
+#include "components/component.hpp"
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library
 

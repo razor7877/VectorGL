@@ -1,5 +1,4 @@
 #include "materials/pbrMaterial.hpp"
-#include "main.hpp"
 
 const std::string PBRMaterial::USED_MAPS = "material.used_maps";
 

@@ -7,6 +7,7 @@
 #include "logger.hpp"
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
+#include "lightManager.hpp"
 
 namespace Input
 {

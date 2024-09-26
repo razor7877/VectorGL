@@ -2,18 +2,13 @@
 #define RENDERER_HPP
 
 #include <vector>
-#include <map>
 #include <memory>
 
 #include "entity.hpp"
-#include "lightManager.hpp"
 #include "shaderManager.hpp"
 #include "renderTarget.hpp"
-#include "components/cameraComponent.hpp"
 #include "components/meshComponent.hpp"
-#include "components/lights/directionalLightComponent.hpp"
 #include "physics/physicsWorld.hpp"
-#include "physics/frustum.hpp"
 #include "scene.hpp"
 
 // TODO : Render pass system

@@ -4,8 +4,6 @@
 
 #include "shaderManager.hpp"
 
-#include "materials/pbrMaterial.hpp"
-
 ShaderManager::ShaderManager()
 {
 

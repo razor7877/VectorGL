@@ -1,8 +1,5 @@
 #include <string>
-#include <cstring>
-#include <iostream>
 #include <vector>
-#include <fstream>
 
 #include "ImGui/imgui.h"
 #include "ImGui/misc/cpp/imgui_stdlib.h"
@@ -18,6 +15,8 @@
 #include "logger.hpp"
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
+#include "materials/pbrMaterial.hpp"
+#include "materials/phongMaterial.hpp"
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"

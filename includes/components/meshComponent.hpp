@@ -6,12 +6,8 @@
 #include <glm/glm.hpp>
 
 #include "materials/material.hpp"
-#include "materials/pbrMaterial.hpp"
-#include "materials/phongMaterial.hpp"
 #include "component.hpp"
-#include "transformComponent.hpp"
 #include "texture.hpp"
-#include "shader.hpp"
 #include "physics/boundingBox.hpp"
 
 class MeshComponent : public virtual Component
