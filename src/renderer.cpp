@@ -357,7 +357,7 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
 	PBRMaterial::lightSpaceMatrix = lightSpaceMatrix;
 
-	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH);
+	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH_CASCADED);
 
 	depthShader->use()
 		->setMat4("lightSpaceMatrix", lightSpaceMatrix);

@@ -42,26 +42,38 @@ bool Shader::compileShader()
 {
 	std::string vertexCode;
 	std::string fragmentCode;
+	std::string geometryCode;
+
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
+	std::ifstream gShaderFile;
 
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 	try
 	{
+		std::stringstream vShaderStream;
 		vShaderFile.open(this->vertexPath);
-		fShaderFile.open(this->fragmentPath);
-		std::stringstream vShaderStream, fShaderStream;
-
 		vShaderStream << vShaderFile.rdbuf();
-		fShaderStream << fShaderFile.rdbuf();
-
 		vShaderFile.close();
-		fShaderFile.close();
-
 		vertexCode = vShaderStream.str();
+
+		std::stringstream fShaderStream;
+		fShaderFile.open(this->fragmentPath);
+		fShaderStream << fShaderFile.rdbuf();
+		fShaderFile.close();
 		fragmentCode = fShaderStream.str();
+
+		if (!this->geometryPath.empty())
+		{
+			std::stringstream gShaderStream;
+			gShaderFile.open(this->geometryPath);
+			gShaderStream << gShaderFile.rdbuf();
+			gShaderFile.close();
+			geometryCode = gShaderStream.str();
+		}
 	}
 	catch (std::ifstream::failure e)
 	{
@@ -108,14 +120,15 @@ bool Shader::compileShader()
 	// If present, create and compile geometry shader
 	if (!this->geometryPath.empty())
 	{
-		const char* gShaderCode = this->geometryPath.c_str();
+		const char* gShaderCode = geometryCode.c_str();
 		geometry = glCreateShader(GL_GEOMETRY_SHADER);
 		glShaderSource(geometry, 1, &gShaderCode, NULL);
+		glCompileShader(geometry);
 		
 		glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(fragment, 512, NULL, infoLog);
+			glGetShaderInfoLog(geometry, 512, NULL, infoLog);
 			Logger::logError(std::string("ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
 			return false;
 		}
