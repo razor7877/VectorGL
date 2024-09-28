@@ -108,7 +108,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	this->ssaoNoiseTexture = std::make_unique<Texture>(noiseTexture, TextureType::TEXTURE_ALBEDO);
+	this->ssaoNoiseTexture = std::make_unique<Texture>(noiseTexture, TextureType::TEXTURE_2D);
 
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
@@ -257,13 +257,13 @@ void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 
 	// Shadow mapping
 	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
-	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap->renderTexture, TextureType::TEXTURE_ALBEDO);
+	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap->renderTexture, TextureType::TEXTURE_3D);
 
 	// Screen space effects
 	this->gBuffer = std::make_unique<RenderTarget>(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
 	this->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
 	this->ssaoBlurTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
-	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_ALBEDO);
+	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_2D);
 }
 
 glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane)
@@ -344,14 +344,27 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 		this->getLightSpaceMatrix(scene, secondCascadeFar, far)
 	};
 
-	//PBRMaterial::lightSpaceMatrix = lightSpaceMatrix;
+	for (int i = 0; i < 3; i++)
+		PBRMaterial::lightSpaceMatrices[i] = lightSpaceMatrices[i];
+
+	PBRMaterial::cascadePlaneDistances[0] = firstCascadeFar;
+	PBRMaterial::cascadePlaneDistances[1] = secondCascadeFar;
+	PBRMaterial::cascadePlaneDistances[2] = far;
+
+	PBRMaterial::farPlane = far;
 
 	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH_CASCADED);
 
+	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, scene.currentCamera->NEAR, scene.currentCamera->FAR);
+	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->getTransform()->getPosition(),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
+
 	depthShader->use()
-		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrices[0])
-		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrices[1])
-		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrices[2]);
+		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrix)
+		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrix)
+		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrix);
 
 	this->depthMap->bind();
 	this->depthMap->clear();

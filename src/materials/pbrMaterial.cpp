@@ -21,7 +21,10 @@ const std::string PBRMaterial::PREFILTER_MAP = "prefilterMap";
 const std::string PBRMaterial::BRDF_LUT = "brdfLUT";
 
 const std::string PBRMaterial::SHADOW_MAP = "shadowMap";
-const std::string PBRMaterial::LIGHT_SPACE_MATRIX = "lightSpaceMatrix";
+const std::string PBRMaterial::LIGHT_SPACE_MATRICES[3] = { "lightSpaceMatrices[0]", "lightSpaceMatrices[1]", "lightSpaceMatrices[2]" };
+const std::string PBRMaterial::CASCADE_PLANE_DISTANCES[3] = { "cascadePlaneDistances[0]", "cascadePlaneDistances[1]", "cascadePlaneDistances[2]" };
+const std::string PBRMaterial::CASCADE_COUNT = "cascadeCount";
+const std::string PBRMaterial::FAR_PLANE = "farPlane";
 
 const std::string PBRMaterial::SSAO_MAP = "ssaoMap";
 
@@ -30,7 +33,9 @@ Cubemap* PBRMaterial::prefilterMap = nullptr;
 Texture* PBRMaterial::brdfLut = nullptr;
 std::shared_ptr<Texture> PBRMaterial::shadowMap = nullptr;
 std::shared_ptr<Texture> PBRMaterial::ssaoMap = nullptr;
-glm::mat4 PBRMaterial::lightSpaceMatrix = glm::mat4(1.0f);
+glm::mat4 PBRMaterial::lightSpaceMatrices[3]{};
+float PBRMaterial::cascadePlaneDistances[3]{};
+float PBRMaterial::farPlane = 0.0f;
 
 PBRMaterial::PBRMaterial(Shader* shaderProgram) : Material(shaderProgram)
 {
@@ -140,7 +145,15 @@ void PBRMaterial::sendToShader()
 	{
 		glActiveTexture(GL_TEXTURE10);
 		this->shadowMap->bindTexture();
-		this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRIX, this->lightSpaceMatrix);
+
+		for (int i = 0; i < 3; i++)
+			this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRICES[i], this->lightSpaceMatrices[i]);
+
+		for (int i = 0; i < 3; i++)
+			this->shaderProgram->setFloat(PBRMaterial::CASCADE_PLANE_DISTANCES[i], this->cascadePlaneDistances[i]);
+
+		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, this->cascadeCount);
+		this->shaderProgram->setFloat(PBRMaterial::FAR_PLANE, this->farPlane);
 	}
 
 	if (this->ssaoMap != nullptr)

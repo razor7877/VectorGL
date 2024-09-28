@@ -7,16 +7,18 @@
 
 enum class TextureType
 {
-	TEXTURE_DIFFUSE = 0,
-	TEXTURE_ALBEDO = 0,
-	TEXTURE_SPECULAR = 1,
-	TEXTURE_NORMAL = 2,
-	TEXTURE_HEIGHT = 3,
-	TEXTURE_METALLIC = 4,
-	TEXTURE_ROUGHNESS = 5,
-	TEXTURE_AO = 6,
-	TEXTURE_OPACITY = 7,
-	TEXTURE_EMISSIVE = 8,
+	TEXTURE_DIFFUSE = 0, // Diffuse texture (Phong)
+	TEXTURE_ALBEDO = 0, // Albedo texture (PBR)
+	TEXTURE_SPECULAR = 1, // Specular map (Phong)
+	TEXTURE_NORMAL = 2, // Normal map
+	TEXTURE_HEIGHT = 3, // Height map
+	TEXTURE_METALLIC = 4, // Metallic map (PBR)
+	TEXTURE_ROUGHNESS = 5, // Roughness map (PBR)
+	TEXTURE_AO = 6, // Ambient occlusion map
+	TEXTURE_OPACITY = 7, // Opacity map
+	TEXTURE_EMISSIVE = 8, // Emissive map
+	TEXTURE_2D = 9, // Any 2D texture
+	TEXTURE_3D = 10, // Any 3D texture (layered textures)
 };
 
 // A helper class to easily load and use 2D textures
