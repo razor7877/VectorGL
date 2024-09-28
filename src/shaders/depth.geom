@@ -3,7 +3,7 @@
 layout (triangles, invocations = 5) in;
 layout (triangle_strip, max_vertices = 3) out;
 
-uniform mat4 lightSpaceMatrices[16];
+uniform mat4 lightSpaceMatrices[3];
 
 void main()
 {

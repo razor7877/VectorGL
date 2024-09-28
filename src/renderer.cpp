@@ -256,7 +256,7 @@ void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 	this->skyTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, lastWindowSize);
 
 	// Shadow mapping
-	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
+	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
 	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap->renderTexture, TextureType::TEXTURE_ALBEDO);
 
 	// Screen space effects
@@ -344,23 +344,19 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 		this->getLightSpaceMatrix(scene, secondCascadeFar, far)
 	};
 
-	// We prepare for the depth map rendering for shadow mapping
-	this->depthMap->bind();
-	this->depthMap->clear();
-
-	glEnable(GL_DEPTH_TEST);
-
-	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, scene.currentCamera->NEAR, scene.currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->getTransform()->getPosition(),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
-	PBRMaterial::lightSpaceMatrix = lightSpaceMatrix;
+	//PBRMaterial::lightSpaceMatrix = lightSpaceMatrix;
 
 	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH_CASCADED);
 
 	depthShader->use()
-		->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrices[0])
+		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrices[1])
+		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrices[2]);
+
+	this->depthMap->bind();
+	this->depthMap->clear();
+
+	glEnable(GL_DEPTH_TEST);
 
 	for (MeshComponent* mesh : meshes)
 	{
