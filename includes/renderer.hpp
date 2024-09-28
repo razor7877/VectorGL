@@ -31,7 +31,7 @@ public:
 	float blitPassTime = 0.0f;
 	float debugPassTime = 0.0f;
 
-	bool enableDebugDraw = false;
+	bool enableDebugDraw = true;
 
 	Renderer();
 	~Renderer();
@@ -79,12 +79,12 @@ private:
 	/// <summary>
 	/// The width in pixels of the shadow map
 	/// </summary>
-	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
+	static constexpr unsigned int SHADOW_MAP_WIDTH = 1024;
 
 	/// <summary>
 	/// The height in pixels of the shadow map
 	/// </summary>
-	static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
+	static constexpr unsigned int SHADOW_MAP_HEIGHT = 1024;
 
 	/// <summary>
 	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution

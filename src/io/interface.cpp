@@ -289,7 +289,7 @@ namespace Interface
 
 		ImGui::End();
 
-		if (!toolbarParams.textureViewerOn)
+		if (!toolbarParams.topViewOn)
 			return;
 		
 		// Second camera view

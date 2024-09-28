@@ -37,6 +37,12 @@ void StartMenuState::init()
 	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
 	this->scene.addEntity(std::move(cameraEntity));
 
+	cameraEntity = std::make_unique<Entity>("Sky Camera");
+	this->scene.skyCamera = cameraEntity->addComponent<CameraComponent>();
+	cameraEntity->getTransform()->setPosition(0.0f, 20.0f, 0.0f);
+	cameraEntity->getTransform()->setRotation(0.0f, -90.0f, 0.0f);
+	this->scene.addEntity(std::move(cameraEntity));
+
 	LightManager::getInstance().init();
 
 	// Directional light

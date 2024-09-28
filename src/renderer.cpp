@@ -287,7 +287,7 @@ glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlan
 	// Average the positions to get the frustum center
 	frustumCenter /= frustumCorners.size();
 
-	glm::vec3 lightDir = scene.directionalLight->parent->getTransform()->getPosition();
+	glm::vec3 lightDir = glm::normalize(scene.directionalLight->parent->getTransform()->getPosition());
 	const glm::mat4 lightView = glm::lookAt(
 		frustumCenter + lightDir,
 		frustumCenter,
@@ -333,33 +333,25 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 {
 	float near = scene.currentCamera->NEAR;
 	float far = scene.currentCamera->FAR;
-
-	float range = far - near;
-	float firstCascadeFar = near + (range / 3.0f);
-	float secondCascadeFar = near + 2.0f * (range / 3.0f);
+	float cascadeLevels[3] = { far * 0.10f, far * 0.25f, far * 0.50f };
 
 	std::vector<glm::mat4> lightSpaceMatrices = {
-		this->getLightSpaceMatrix(scene, near, firstCascadeFar),
-		this->getLightSpaceMatrix(scene, firstCascadeFar, secondCascadeFar),
-		this->getLightSpaceMatrix(scene, secondCascadeFar, far)
+		this->getLightSpaceMatrix(scene, near, cascadeLevels[0]),
+		this->getLightSpaceMatrix(scene, cascadeLevels[0], cascadeLevels[1]),
+		this->getLightSpaceMatrix(scene, cascadeLevels[1], cascadeLevels[2]),
+		this->getLightSpaceMatrix(scene, cascadeLevels[2], far)
 	};
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 		PBRMaterial::lightSpaceMatrices[i] = lightSpaceMatrices[i];
 
-	PBRMaterial::cascadePlaneDistances[0] = firstCascadeFar;
-	PBRMaterial::cascadePlaneDistances[1] = secondCascadeFar;
-	PBRMaterial::cascadePlaneDistances[2] = far;
+	PBRMaterial::cascadePlaneDistances[0] = cascadeLevels[0];
+	PBRMaterial::cascadePlaneDistances[1] = cascadeLevels[1];
+	PBRMaterial::cascadePlaneDistances[2] = cascadeLevels[2];
 
 	PBRMaterial::farPlane = far;
 
 	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH_CASCADED);
-
-	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, scene.currentCamera->NEAR, scene.currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->getTransform()->getPosition(),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
 
 	depthShader->use()
 		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrices[0])

@@ -21,7 +21,7 @@ const std::string PBRMaterial::PREFILTER_MAP = "prefilterMap";
 const std::string PBRMaterial::BRDF_LUT = "brdfLUT";
 
 const std::string PBRMaterial::SHADOW_MAP = "shadowMap";
-const std::string PBRMaterial::LIGHT_SPACE_MATRICES[3] = { "lightSpaceMatrices[0]", "lightSpaceMatrices[1]", "lightSpaceMatrices[2]" };
+const std::string PBRMaterial::LIGHT_SPACE_MATRICES[4] = { "lightSpaceMatrices[0]", "lightSpaceMatrices[1]", "lightSpaceMatrices[2]", "lightSpaceMatrices[3]"};
 const std::string PBRMaterial::CASCADE_PLANE_DISTANCES[3] = { "cascadePlaneDistances[0]", "cascadePlaneDistances[1]", "cascadePlaneDistances[2]" };
 const std::string PBRMaterial::CASCADE_COUNT = "cascadeCount";
 const std::string PBRMaterial::FAR_PLANE = "farPlane";
@@ -33,7 +33,7 @@ Cubemap* PBRMaterial::prefilterMap = nullptr;
 Texture* PBRMaterial::brdfLut = nullptr;
 std::shared_ptr<Texture> PBRMaterial::shadowMap = nullptr;
 std::shared_ptr<Texture> PBRMaterial::ssaoMap = nullptr;
-glm::mat4 PBRMaterial::lightSpaceMatrices[3]{};
+glm::mat4 PBRMaterial::lightSpaceMatrices[4]{};
 float PBRMaterial::cascadePlaneDistances[3]{};
 float PBRMaterial::farPlane = 0.0f;
 
@@ -146,7 +146,7 @@ void PBRMaterial::sendToShader()
 		glActiveTexture(GL_TEXTURE10);
 		this->shadowMap->bindTexture();
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 4; i++)
 			this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRICES[i], this->lightSpaceMatrices[i]);
 
 		for (int i = 0; i < 3; i++)

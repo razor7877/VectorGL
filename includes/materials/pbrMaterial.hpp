@@ -30,7 +30,7 @@ public:
 	static const std::string BRDF_LUT;
 
 	static const std::string SHADOW_MAP;
-	static const std::string LIGHT_SPACE_MATRICES[3];
+	static const std::string LIGHT_SPACE_MATRICES[4];
 	static const std::string CASCADE_PLANE_DISTANCES[3];
 	static const std::string CASCADE_COUNT;
 	static const std::string FAR_PLANE;
@@ -76,7 +76,7 @@ public:
 	/// <summary>
 	/// The light space matrix for shadow calculations
 	/// </summary>
-	static glm::mat4 lightSpaceMatrices[3];
+	static glm::mat4 lightSpaceMatrices[4];
 
 	/// <summary>
 	/// The distance for each cascade of the frustum for shadow calculations

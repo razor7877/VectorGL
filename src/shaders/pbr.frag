@@ -90,7 +90,7 @@ uniform sampler2D brdfLUT;
 
 // Shadow mapping
 uniform sampler2DArray shadowMap;
-uniform mat4 lightSpaceMatrices[3];
+uniform mat4 lightSpaceMatrices[4];
 uniform float cascadePlaneDistances[3];
 uniform int cascadeCount;
 uniform float farPlane;
@@ -239,7 +239,7 @@ vec3 calcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float 
 }
 
 // TODO : Word to light space calculations in vertex shader instead ?
-float ShadowCalculation(vec3 fragPosWorldSpace)
+float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normalVec)
 {
     vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
     float depthValue = abs(fragPosViewSpace.z);
@@ -257,7 +257,7 @@ float ShadowCalculation(vec3 fragPosWorldSpace)
     if (layer == -1)
         layer = cascadeCount;
 
-    vec4 FragPosLightSpace = lightSpaceMatrices[layer] * vec4 (fragPosWorldSpace, 1.0);
+    vec4 FragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
     // Perspective divide
     vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
     // Transform to [0,1] range
@@ -270,8 +270,9 @@ float ShadowCalculation(vec3 fragPosWorldSpace)
     if (currentDepth > 1.0)
         return 0.0;
 
-    float bias = 0.005; // TODO : Change bias depending on normal & light direction
-    const float biasModifier = 0.5f;
+    float bias = max(0.05 * (1.0 - dot(normalVec, dirLights[0].direction)), 0.005); // TODO : Change bias depending on normal & light direction
+    bias = 0.05;
+    const float biasModifier = 0.5;
 
     if (layer == cascadeCount)
         bias *= 1 / (farPlane * biasModifier);
@@ -350,7 +351,7 @@ void main()
         ao = material.ao;
     
     // Get the shadow value for the fragment
-    float shadow = ShadowCalculation(FragPos);
+    float shadow = ShadowCalculation(FragPos, normalVec);
     float shadowInverse = 1.0 - shadow;
     
     // Now we can start lighting calculations
@@ -410,4 +411,32 @@ void main()
     //color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, opacity);
+    return;
+    if (true)
+    {
+        vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
+        float depthValue = abs(fragPosViewSpace.z);
+
+        int layer = -1;
+        for (int i = 0; i < cascadeCount; i++)
+        {
+            if (depthValue < cascadePlaneDistances[i])
+            {
+                layer = i;
+                break;
+            }
+        }
+
+        if (layer == -1)
+            layer = cascadeCount;
+
+        if (layer == 0)
+            FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        else if (layer == 1)
+            FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        else if (layer == 2)
+            FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+        else
+            FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+    }
 }
