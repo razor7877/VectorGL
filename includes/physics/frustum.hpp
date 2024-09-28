@@ -91,7 +91,7 @@ struct Frustum
 							1.0f
 						);
 
-					frustumCorners.push_back(pt);
+					frustumCorners.push_back(pt / pt.w);
 				}
 			}
 		}

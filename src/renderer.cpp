@@ -362,9 +362,9 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
 
 	depthShader->use()
-		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrix)
-		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrix)
-		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrix);
+		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrices[0])
+		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrices[1])
+		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrices[2]);
 
 	this->depthMap->bind();
 	this->depthMap->clear();
