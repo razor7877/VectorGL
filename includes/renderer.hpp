@@ -18,6 +18,13 @@
 class Renderer
 {
 public:
+	static constexpr int SHADOW_CASCADE_LEVELS = 3;
+	static constexpr float SHADOW_CASCADE_DISTANCES[SHADOW_CASCADE_LEVELS] = {
+		0.05f,
+		0.15f,
+		0.35f
+	};
+
 	ShaderManager shaderManager;
 
 	float frameRenderTime = 0.0f;
@@ -31,7 +38,7 @@ public:
 	float blitPassTime = 0.0f;
 	float debugPassTime = 0.0f;
 
-	bool enableDebugDraw = true;
+	bool enableDebugDraw = false;
 
 	Renderer();
 	~Renderer();
@@ -79,12 +86,12 @@ private:
 	/// <summary>
 	/// The width in pixels of the shadow map
 	/// </summary>
-	static constexpr unsigned int SHADOW_MAP_WIDTH = 1024;
+	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
 
 	/// <summary>
 	/// The height in pixels of the shadow map
 	/// </summary>
-	static constexpr unsigned int SHADOW_MAP_HEIGHT = 1024;
+	static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
 
 	/// <summary>
 	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution

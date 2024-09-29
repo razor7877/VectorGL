@@ -1,4 +1,5 @@
 #include "materials/pbrMaterial.hpp"
+#include "renderer.hpp"
 
 const std::string PBRMaterial::USED_MAPS = "material.used_maps";
 
@@ -152,7 +153,7 @@ void PBRMaterial::sendToShader()
 		for (int i = 0; i < 3; i++)
 			this->shaderProgram->setFloat(PBRMaterial::CASCADE_PLANE_DISTANCES[i], this->cascadePlaneDistances[i]);
 
-		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, this->cascadeCount);
+		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, Renderer::SHADOW_CASCADE_LEVELS);
 		this->shaderProgram->setFloat(PBRMaterial::FAR_PLANE, this->farPlane);
 	}
 

@@ -271,7 +271,6 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normalVec)
         return 0.0;
 
     float bias = max(0.05 * (1.0 - dot(normalVec, dirLights[0].direction)), 0.005); // TODO : Change bias depending on normal & light direction
-    bias = 0.05;
     const float biasModifier = 0.5;
 
     if (layer == cascadeCount)
@@ -411,38 +410,5 @@ void main()
     //color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, opacity);
-    
-    vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
-    float depthValue = abs(fragPosViewSpace.z);
-
-    int layer = -1;
-    for (int i = 0; i < cascadeCount; i++)
-    {
-        if (depthValue < cascadePlaneDistances[i])
-        {
-            layer = i;
-            break;
-        }
-    }
-
-    if (layer == -1)
-        layer = cascadeCount;
-
-    vec4 FragPosLightSpace = lightSpaceMatrices[layer] * vec4(FragPos, 1.0);
-    // Perspective divide
-    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
-    // Transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    //FragColor = vec4(projCoords, 1.0);
-    //FragColor = vec4(vec3(shadow), 1.0);
-    return;
-
-    if (layer == 0)
-        FragColor *= vec4(1.0, 0.5, 0.5, 1.0);
-    else if (layer == 1)
-        FragColor = vec4(0.5, 1.0, 0.5, 1.0);
-    else if (layer == 2)
-        FragColor = vec4(0.5, 0.5, 1.0, 1.0);
-    else
-        FragColor = vec4(1.0, 0.5, 1.0, 1.0);
+    FragColor = vec4(vec3(1.0 - dot(normalVec, dirLights[0].direction)), 1.0);
 }

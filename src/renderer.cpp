@@ -333,7 +333,11 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 {
 	float near = scene.currentCamera->NEAR;
 	float far = scene.currentCamera->FAR;
-	float cascadeLevels[3] = { far * 0.10f, far * 0.25f, far * 0.50f };
+	float cascadeLevels[3] = {
+		far * this->SHADOW_CASCADE_DISTANCES[0],
+		far * this->SHADOW_CASCADE_DISTANCES[1],
+		far * this->SHADOW_CASCADE_DISTANCES[2]
+	};
 
 	std::vector<glm::mat4> lightSpaceMatrices = {
 		this->getLightSpaceMatrix(scene, near, cascadeLevels[0]),

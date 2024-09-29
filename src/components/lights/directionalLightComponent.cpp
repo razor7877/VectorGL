@@ -19,10 +19,11 @@ void DirectionalLightComponent::sendToShader(Shader* shaderProgram, unsigned int
 	std::string ambientLoc = lightLocation + ".ambientColor";
 	std::string diffuseLoc = lightLocation + ".diffuseColor";
 	std::string specularLoc = lightLocation + ".specularColor";
-	std::string directionLoc = lightLocation = ".direction";
+	std::string directionLoc = lightLocation + ".direction";
 
 	glUniform3fv(glGetUniformLocation(shaderProgram->getID(), ambientLoc.c_str()), 1, &this->ambientColor[0]);
 	glUniform3fv(glGetUniformLocation(shaderProgram->getID(), diffuseLoc.c_str()), 1, &this->diffuseColor[0]);
 	glUniform3fv(glGetUniformLocation(shaderProgram->getID(), specularLoc.c_str()), 1, &this->specularColor[0]);
+	this->direction = glm::normalize(this->parent->getTransform()->getPosition());
 	glUniform3fv(glGetUniformLocation(shaderProgram->getID(), directionLoc.c_str()), 1, &this->direction[0]);
 }
