@@ -356,7 +356,8 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 	depthShader->use()
 		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrices[0])
 		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrices[1])
-		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrices[2]);
+		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrices[2])
+		->setMat4("lightSpaceMatrices[3]", lightSpaceMatrices[3]);
 
 	this->depthMap->bind();
 	this->depthMap->clear();
@@ -364,12 +365,7 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 	glEnable(GL_DEPTH_TEST);
 
 	for (MeshComponent* mesh : meshes)
-	{
-		Shader* oldShader = mesh->material->shaderProgram;
-		mesh->material->shaderProgram = depthShader;
-		mesh->drawGeometry();
-		mesh->material->shaderProgram = oldShader;
-	}
+		mesh->drawGeometry(depthShader);
 
 	this->depthMap->unbind();
 }
@@ -384,12 +380,7 @@ void Renderer::gBufferPass(std::vector<MeshComponent*>& meshes)
 	gBufferShader->use();
 
 	for (MeshComponent* mesh : meshes)
-	{
-		Shader* oldShader = mesh->material->shaderProgram;
-		mesh->material->shaderProgram = gBufferShader;
-		mesh->drawGeometry();
-		mesh->material->shaderProgram = oldShader;
-	}
+		mesh->drawGeometry(gBufferShader);
 
 	this->gBuffer->unbind();
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <string>
+#include <memory>
 
 #include <utilities/glad.h>
 #include <glm/glm.hpp>
@@ -9,6 +11,8 @@
 #include "component.hpp"
 #include "texture.hpp"
 #include "physics/boundingBox.hpp"
+#include "shader.hpp"
+#include "entity.hpp"
 
 class MeshComponent : public virtual Component
 {
@@ -23,10 +27,10 @@ public:
 	void update(float deltaTime) override;
 
 	/// <summary>
-	/// Unlike the update method, this is a much simpler method that only sends model & normal matrices to the material shader before drawing
+	/// Unlike the update method, this is a much simpler method that only sends model & normal matrices to the shader before drawing
 	/// Much faster to run, used for passes that only need to draw the geometry of the mesh
 	/// </summary>
-	void drawGeometry();
+	void drawGeometry(Shader* shaderProgram);
 
 	/// <summary>
 	/// Adds vertices to the mesh

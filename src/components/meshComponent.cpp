@@ -164,19 +164,16 @@ void MeshComponent::update(float deltaTime)
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 }
 
-void MeshComponent::drawGeometry()
+void MeshComponent::drawGeometry(Shader* shaderProgram)
 {
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
 	// Send only required data for geometry draw
-	if (this->material != nullptr)
-	{
-		// Send the model & normal matrices
-		this->material->shaderProgram
-			->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
-			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
-	}
+	// Send the model & normal matrices
+	shaderProgram
+		->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
+		->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
 
 	// Indexed drawing
 	if (this->hasIndices)
