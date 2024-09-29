@@ -71,6 +71,7 @@ void RenderTarget::resize(glm::vec2 newSize)
 	this->gAlbedo = 0;
 
 	this->attachTexture(this->targetTextureType, this->size);
+	glViewport(0, 0, this->size.x, this->size.y);
 }
 
 void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
