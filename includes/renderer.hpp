@@ -96,7 +96,7 @@ private:
 	/// <summary>
 	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution
 	/// </summary>
-	static constexpr float SSAO_SCALE_FACTOR = 0.5;
+	static constexpr float SSAO_SCALE_FACTOR = 0.75;
 
 	/// <summary>
 	/// The render target in which everything is rendered
