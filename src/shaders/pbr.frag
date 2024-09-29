@@ -411,32 +411,38 @@ void main()
     //color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, opacity);
-    return;
-    if (true)
+    
+    vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
+    float depthValue = abs(fragPosViewSpace.z);
+
+    int layer = -1;
+    for (int i = 0; i < cascadeCount; i++)
     {
-        vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
-        float depthValue = abs(fragPosViewSpace.z);
-
-        int layer = -1;
-        for (int i = 0; i < cascadeCount; i++)
+        if (depthValue < cascadePlaneDistances[i])
         {
-            if (depthValue < cascadePlaneDistances[i])
-            {
-                layer = i;
-                break;
-            }
+            layer = i;
+            break;
         }
-
-        if (layer == -1)
-            layer = cascadeCount;
-
-        if (layer == 0)
-            FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        else if (layer == 1)
-            FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-        else if (layer == 2)
-            FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-        else
-            FragColor = vec4(1.0, 0.0, 1.0, 1.0);
     }
+
+    if (layer == -1)
+        layer = cascadeCount;
+
+    vec4 FragPosLightSpace = lightSpaceMatrices[layer] * vec4(FragPos, 1.0);
+    // Perspective divide
+    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
+    // Transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    //FragColor = vec4(projCoords, 1.0);
+    //FragColor = vec4(vec3(shadow), 1.0);
+    return;
+
+    if (layer == 0)
+        FragColor *= vec4(1.0, 0.5, 0.5, 1.0);
+    else if (layer == 1)
+        FragColor = vec4(0.5, 1.0, 0.5, 1.0);
+    else if (layer == 2)
+        FragColor = vec4(0.5, 0.5, 1.0, 1.0);
+    else
+        FragColor = vec4(1.0, 0.5, 1.0, 1.0);
 }
