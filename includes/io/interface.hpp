@@ -12,6 +12,8 @@ namespace Interface
 {
 	extern bool isViewerFocused;
 
+	extern float interfaceDrawTime;
+
 	/// <summary>
 	/// Initializes ImGui
 	/// </summary>

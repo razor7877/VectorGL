@@ -34,6 +34,8 @@ namespace Interface
 
 	bool isViewerFocused = false;
 
+	float interfaceDrawTime = 0.0f;
+
 	struct
 	{
 		bool shaderEditorOn = false;
@@ -171,6 +173,8 @@ namespace Interface
 
 	void ImGuiDrawWindows()
 	{
+		float startTime = glfwGetTime();
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -215,6 +219,8 @@ namespace Interface
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		interfaceDrawTime = glfwGetTime() - startTime;
 	}
 
 	void ShowViewer()
@@ -411,9 +417,13 @@ namespace Interface
 
 	void PerformanceMenu()
 	{
+		Renderer& renderer = Main::game.renderer;
+
 		ImGui::Begin("Performance");
 
-		ImGui::Text("Frame render time: %.2f ms", Main::deltaTime * 1000);
+		ImGui::Text("Total frame time: %.2f ms", Main::deltaTime * 1000);
+		ImGui::Text("Render time: %.2f ms", renderer.frameRenderTime * 1000);
+		ImGui::Text("UI Draw time: %.2f ms", interfaceDrawTime * 1000);
 
 		performanceParams.lastFrames[performanceParams.frameIndex] = Main::deltaTime;
 		performanceParams.frameIndex++;
@@ -432,8 +442,6 @@ namespace Interface
 		ImGui::Text("Framerate: %i", (int)(1 / performanceParams.timeToFrame));
 
 		ImGui::Separator();
-
-		Renderer& renderer = Main::game.renderer;
 
 		ImGui::Text("Mesh sorting time: %.2f ms", renderer.meshSortingTime * 1000);
 		ImGui::Text("Physics update time: %.2f ms", renderer.physicsUpdateTime * 1000);
@@ -1002,7 +1010,7 @@ namespace Interface
 						}
 					}
 					else
-						ImGui::ColorEdit3("Albedo color:", &pbrMaterial->albedoColor[0]);
+						ImGui::ColorEdit3("Albedo color:", &pbrMaterial->materialData.albedo[0]);
 
 					if (pbrMaterial->useNormalMap)
 					{
@@ -1036,7 +1044,7 @@ namespace Interface
 						}
 					}
 					else
-						ImGui::DragFloat("Metallic:", &pbrMaterial->metallic, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat("Metallic:", &pbrMaterial->materialData.metallic, 0.01f, 0.0f, 1.0f);
 
 					if (pbrMaterial->useRoughnessMap)
 					{
@@ -1054,7 +1062,7 @@ namespace Interface
 						}
 					}
 					else
-						ImGui::DragFloat("Roughness:", &pbrMaterial->roughness, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat("Roughness:", &pbrMaterial->materialData.roughness, 0.01f, 0.0f, 1.0f);
 
 					if (pbrMaterial->useAoMap)
 					{
@@ -1072,7 +1080,7 @@ namespace Interface
 						}
 					}
 					else
-						ImGui::DragFloat("Ambient occlusion:", &pbrMaterial->ao, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat("Ambient occlusion:", &pbrMaterial->materialData.ao, 0.01f, 0.0f, 1.0f);
 
 					if (pbrMaterial->useOpacityMap)
 					{
@@ -1090,7 +1098,7 @@ namespace Interface
 						}
 					}
 					else
-						ImGui::DragFloat("Opacity:", &pbrMaterial->opacity, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat("Opacity:", &pbrMaterial->materialData.opacity, 0.01f, 0.0f, 1.0f);
 
 					if (pbrMaterial->useEmissiveMap)
 					{
