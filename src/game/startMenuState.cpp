@@ -10,7 +10,9 @@
 #include "main.hpp"
 #include "components/skyboxComponent.hpp"
 #include "components/lights/directionalLightComponent.hpp"
-#include "components/lights/pointLightComponent.hpp"
+#include "logger.hpp"
+#include "lightManager.hpp"
+#include "materials/pbrMaterial.hpp"
 
 void StartMenuState::init()
 {
@@ -24,7 +26,7 @@ void StartMenuState::init()
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
 	// Create the camera and set it up
-	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
+	std::unique_ptr<Entity> cameraEntity = std::make_unique<Entity>("Camera");
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 
 	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
@@ -35,10 +37,16 @@ void StartMenuState::init()
 	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
 	this->scene.addEntity(std::move(cameraEntity));
 
+	cameraEntity = std::make_unique<Entity>("Sky Camera");
+	this->scene.skyCamera = cameraEntity->addComponent<CameraComponent>();
+	cameraEntity->getTransform()->setPosition(0.0f, 20.0f, 0.0f);
+	cameraEntity->getTransform()->setRotation(0.0f, -90.0f, 0.0f);
+	this->scene.addEntity(std::move(cameraEntity));
+
 	LightManager::getInstance().init();
 
 	// Directional light
-	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
+	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
@@ -61,7 +69,7 @@ void StartMenuState::init()
 	}
 
 	// Skybox
-	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
+	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	skyComponent->changeSkybox(SkyboxType::NIGHT);
@@ -74,9 +82,9 @@ void StartMenuState::init()
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 		.addVertices(quadVertices);
-	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
-	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
+	planeEntity->getTransform()->setPosition(0.0f, -5.0f, 0.0f);
+	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
+	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
 	this->scene.addEntity(std::move(planeEntity));
 
@@ -103,34 +111,34 @@ void StartMenuState::resume()
 
 void StartMenuState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
-	CameraComponent* camera = this->scene.currentCamera;
-	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
+	if (Input::isKeyPressed(GLFW_KEY_ENTER))
 	{
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-			gameEngine->pushState(std::make_unique<MainGameState>(this->renderer));
+		Logger::logDebug("Pushed state at frame " + std::to_string(Main::frameCounter), "startMenuState.cpp");
+		gameEngine->pushState(std::make_unique<MainGameState>(this->renderer));
+		return;
+	}
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
-			camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
+	CameraComponent* camera = this->scene.currentCamera;
 
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
-			camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
+	if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
+		camera->processKeyboard(CameraMovement::FORWARD, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-			camera->processKeyboard(CameraMovement::LEFT, deltaTime);
+	if (Input::isKeyHeld(GLFW_KEY_S)) // Backward movement
+		camera->processKeyboard(CameraMovement::BACKWARD, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-			camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
-	};
+	if (Input::isKeyHeld(GLFW_KEY_A)) // Left movement
+		camera->processKeyboard(CameraMovement::LEFT, deltaTime);
 
-	Input::processInput(lambda, Input::inputData.window, deltaTime);
+	if (Input::isKeyHeld(GLFW_KEY_D)) // Right movement
+		camera->processKeyboard(CameraMovement::RIGHT, deltaTime);
 }
 
 void StartMenuState::update(GameEngine* gameEngine, float deltaTime)
 {
-	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
+	
 }
 
-void StartMenuState::draw(GameEngine* gameEngine)
+void StartMenuState::draw(GameEngine* gameEngine, float deltaTime)
 {
-
+	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }

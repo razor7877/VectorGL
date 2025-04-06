@@ -2,10 +2,10 @@
 #include <glm/glm/ext/matrix_transform.hpp>
 
 #include "components/IBLData.hpp"
-#include "components/skyboxComponent.hpp"
 #include "components/meshComponent.hpp"
 #include "renderTarget.hpp"
 #include "utilities/geometry.hpp"
+#include "materials/pbrMaterial.hpp"
 
 IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 {
@@ -63,7 +63,6 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Resize FBO to cubemap size
-	captureRT.bind();
 	captureRT.resize(glm::vec2(32, 32));
 
 	// Create irradiance map
@@ -147,7 +146,6 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	captureRT.bind();
 	captureRT.resize(glm::vec2(512, 512));
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
@@ -156,12 +154,12 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+	this->brdfLut = std::make_unique<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 
 	cubemapEntity.reset();
 }
 
-IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
+IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environmentMap(std::move(cubemap))
 {
 	// We start by querying all the necessary shaders
 	Shader* irradianceShader = renderer.shaderManager.getShader(ShaderType::IRRADIANCE);
@@ -271,7 +269,6 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	captureRT.bind();
 	captureRT.resize(glm::vec2(512, 512));
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
@@ -280,13 +277,10 @@ IBLData::IBLData(Renderer& renderer, Cubemap* cubemap) : environmentMap(cubemap)
 	quadEntity->update(0);
 	captureRT.unbind();
 
-	this->brdfLut = std::make_shared<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
+	this->brdfLut = std::make_unique<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
 }
 
 IBLData::~IBLData()
 {
-	delete this->environmentMap;
-	delete this->irradianceMap;
-	delete this->prefilterMap;
-	this->brdfLut.reset();
+
 }

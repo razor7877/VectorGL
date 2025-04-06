@@ -1,6 +1,4 @@
 #include <iostream>
-#include <set>
-#include <algorithm>
 #include <random>
 
 #include <glm/glm/ext/matrix_transform.hpp>
@@ -15,42 +13,37 @@
 #include "materials/pbrMaterial.hpp"
 #include "components/meshComponent.hpp"
 #include "utilities/geometry.hpp"
-#include "utilities/geometry.hpp"
 #include "physics/frustum.hpp"
+#include "lightManager.hpp"
 
 Renderer::Renderer()
 {
 	
 }
 
+Renderer::~Renderer()
+{
+
+}
+
 GLuint Renderer::getRenderTexture()
 {
-	return this->finalTarget.renderTexture;
+	return this->finalTarget->renderTexture;
 }
 
 GLuint Renderer::getSkyRenderTexture()
 {
-	return this->skyTarget.renderTexture;
+	return this->skyTarget->renderTexture;
 }
 
 void Renderer::resizeFramebuffers(glm::vec2 newSize)
 {
-	this->multiSampledTarget.bind();
-	this->multiSampledTarget.resize(newSize);
-
-	this->finalTarget.bind();
-	this->finalTarget.resize(newSize);
-
-	this->gBuffer.bind();
-	this->gBuffer.resize(newSize);
-
-	this->ssaoTarget.bind();
-	this->ssaoTarget.resize(newSize * this->SSAO_SCALE_FACTOR);
-
-	this->ssaoBlurTarget.bind();
-	this->ssaoBlurTarget.resize(newSize * this->SSAO_SCALE_FACTOR);
-
-	this->ssaoBlurTarget.unbind();
+	this->multiSampledTarget->resize(newSize);
+	this->finalTarget->resize(newSize);
+	this->gBuffer->resize(newSize);
+	this->ssaoTarget->resize(newSize * this->SSAO_SCALE_FACTOR);
+	this->ssaoBlurTarget->resize(newSize * this->SSAO_SCALE_FACTOR);
+	this->ssaoBlurTarget->unbind();
 }
 
 
@@ -115,7 +108,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	this->ssaoNoiseTexture = std::make_unique<Texture>(noiseTexture, TextureType::TEXTURE_ALBEDO);
+	this->ssaoNoiseTexture = std::make_unique<Texture>(noiseTexture, TextureType::TEXTURE_2D);
 
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
@@ -162,16 +155,16 @@ void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
 void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 {
 	double frameStartTime = glfwGetTime();
+	double startTime = frameStartTime;
 
 	// Render & update the scene
-
+	
 	// All the entities at the top level of the scene
 	std::vector<Entity*> entities = scene.getEntities();
-
-	double startTime = glfwGetTime();
 	scene.sortedSceneData.clearCache();
-	Frustum frustum(scene.currentCamera, this->multiSampledTarget.size);
+	Frustum frustum(scene.currentCamera, this->multiSampledTarget->size);
 	scene.getMeshesRecursively(frustum, entities);
+
 	double endTime = glfwGetTime();
 	this->meshSortingTime = endTime - startTime;
 
@@ -181,17 +174,18 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	endTime = glfwGetTime();
 	this->physicsUpdateTime = endTime - startTime;
 
+	// Render the shadow map
+	startTime = glfwGetTime();
+
 	// Update camera info
-	glm::vec2 lastWindowSize = this->multiSampledTarget.size;
+	glm::vec2 lastWindowSize = this->multiSampledTarget->size;
 	this->shaderManager.updateUniformBuffer(scene.currentCamera->getViewMatrix(), scene.currentCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
 	this->shaderManager.getShader(ShaderType::PHONG)->use()->setVec3("viewPos", scene.currentCamera->getPosition());
 	this->shaderManager.getShader(ShaderType::PBR)->use()->setVec3("camPos", scene.currentCamera->getPosition());
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
-
-	// Render the shadow map
-	startTime = glfwGetTime();
 	this->shadowPass(scene.sortedSceneData.allMeshes, scene);
+
 	endTime = glfwGetTime();
 	this->shadowPassTime = endTime - startTime;
 
@@ -206,24 +200,24 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	this->ssaoPass(scene.sortedSceneData.meshes);
 	endTime = glfwGetTime();
 	this->ssaoPassTime = endTime - startTime;
-	
-	// We now want to draw to the MSAA framebuffer
-	this->multiSampledTarget.bind();
-	this->multiSampledTarget.clear();
 
 	// Render the scene
 	startTime = glfwGetTime();
+
+	// We now want to draw to the MSAA framebuffer
+	this->multiSampledTarget->bind();
+	this->multiSampledTarget->clear();
 	this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
+
 	endTime = glfwGetTime();
 	this->renderPassTime = endTime - startTime;
 
 	// Render outlines
 	startTime = glfwGetTime();
 	this->outlinePass(scene.sortedSceneData.outlineRenderList);
+	this->multiSampledTarget->unbind();
 	endTime = glfwGetTime();
 	this->outlinePassTime = endTime - startTime;
-
-	this->multiSampledTarget.unbind();
 
 	// Resolve the multisampled framebuffer to the normal one for display
 	startTime = glfwGetTime();
@@ -231,19 +225,23 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	endTime = glfwGetTime();
 	this->blitPassTime = endTime - startTime;
 
+	startTime = glfwGetTime();
+
 	if (this->enableDebugDraw && scene.skyCamera != nullptr)
 	{
-		this->skyTarget.bind();
-		this->skyTarget.clear();
+		this->skyTarget->bind();
+		this->skyTarget->clear();
 
 		this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
 		this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
 
-		this->skyTarget.unbind();
+		this->skyTarget->unbind();
 	}
 
-	this->frameRenderTime = glfwGetTime() - frameStartTime;
+	endTime = glfwGetTime();
+	this->debugPassTime = endTime - startTime;
 
+	this->frameRenderTime = glfwGetTime() - frameStartTime;
 }
 
 void Renderer::end()
@@ -253,76 +251,148 @@ void Renderer::end()
 
 void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 {
-	this->multiSampledTarget = RenderTarget(TargetType::TEXTURE_2D_MULTISAMPLE, lastWindowSize);
-	this->finalTarget = RenderTarget(TargetType::TEXTURE_2D, lastWindowSize);
-	this->skyTarget = RenderTarget(TargetType::TEXTURE_2D, lastWindowSize);
+	this->multiSampledTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D_MULTISAMPLE, lastWindowSize);
+	this->finalTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, lastWindowSize);
+	this->skyTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, lastWindowSize);
 
 	// Shadow mapping
-	this->depthMap = RenderTarget(TargetType::TEXTURE_DEPTH, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
-	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap.renderTexture, TextureType::TEXTURE_ALBEDO);
+	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
+	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap->renderTexture, TextureType::TEXTURE_3D);
 
 	// Screen space effects
-	this->gBuffer = RenderTarget(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
-	this->ssaoTarget = RenderTarget(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
-	this->ssaoBlurTarget = RenderTarget(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
-	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget.renderTexture, TextureType::TEXTURE_ALBEDO);
+	this->gBuffer = std::make_unique<RenderTarget>(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
+	this->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
+	this->ssaoBlurTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
+	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_2D);
+}
+
+glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane)
+{
+	glm::mat4 cameraProjection = glm::perspective(
+		glm::radians(scene.currentCamera->getZoom()),
+		(float)this->multiSampledTarget->size.x / (float)this->multiSampledTarget->size.y,
+		nearPlane,
+		farPlane
+	);
+	glm::mat4 cameraView = scene.currentCamera->getViewMatrix();
+
+	// Get the corners of the camera frustum
+	std::vector<glm::vec4> frustumCorners = Frustum::getFrustumCornersWorldSpace(cameraProjection, cameraView);
+
+	glm::vec3 frustumCenter = glm::vec3(0.0f);
+
+	for (const auto& v : frustumCorners)
+		frustumCenter += glm::vec3(v);
+
+	// Average the positions to get the frustum center
+	frustumCenter /= frustumCorners.size();
+
+	glm::vec3 lightDir = glm::normalize(scene.directionalLight->parent->getTransform()->getPosition());
+	const glm::mat4 lightView = glm::lookAt(
+		frustumCenter + lightDir,
+		frustumCenter,
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	);
+
+	float minX = std::numeric_limits<float>::max();
+	float maxX = std::numeric_limits<float>::lowest();
+	float minY = std::numeric_limits<float>::max();
+	float maxY = std::numeric_limits<float>::lowest();
+	float minZ = std::numeric_limits<float>::max();
+	float maxZ = std::numeric_limits<float>::lowest();
+
+	for (const auto& v : frustumCorners)
+	{
+		const auto trf = lightView * v;
+		minX = std::min(minX, trf.x);
+		maxX = std::max(maxX, trf.x);
+		minY = std::min(minY, trf.y);
+		maxY = std::max(maxY, trf.y);
+		minZ = std::min(minZ, trf.z);
+		maxZ = std::max(maxZ, trf.z);
+	}
+
+	constexpr float zMult = 10.0f;
+
+	if (minZ < 0)
+		minZ *= zMult;
+	else
+		minZ /= zMult;
+
+	if (maxZ < 0)
+		maxZ /= zMult;
+	else
+		maxZ *= zMult;
+
+	const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
+	return lightProjection * lightView;
 }
 
 void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 {
-	// We prepare for the depth map rendering for shadow mapping
-	this->depthMap.bind();
-	this->depthMap.clear();
+	float near = scene.currentCamera->NEAR;
+	float far = scene.currentCamera->FAR;
+	float cascadeLevels[3] = {
+		far * this->SHADOW_CASCADE_DISTANCES[0],
+		far * this->SHADOW_CASCADE_DISTANCES[1],
+		far * this->SHADOW_CASCADE_DISTANCES[2]
+	};
+
+	std::vector<glm::mat4> lightSpaceMatrices = {
+		this->getLightSpaceMatrix(scene, near, cascadeLevels[0]),
+		this->getLightSpaceMatrix(scene, cascadeLevels[0], cascadeLevels[1]),
+		this->getLightSpaceMatrix(scene, cascadeLevels[1], cascadeLevels[2]),
+		this->getLightSpaceMatrix(scene, cascadeLevels[2], far)
+	};
+
+	for (int i = 0; i < 4; i++)
+		PBRMaterial::lightSpaceMatrices[i] = lightSpaceMatrices[i];
+
+	PBRMaterial::cascadePlaneDistances[0] = cascadeLevels[0];
+	PBRMaterial::cascadePlaneDistances[1] = cascadeLevels[1];
+	PBRMaterial::cascadePlaneDistances[2] = cascadeLevels[2];
+
+	PBRMaterial::farPlane = far;
+
+	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH_CASCADED);
+
+	depthShader->use()
+		->setMat4("lightSpaceMatrices[0]", lightSpaceMatrices[0])
+		->setMat4("lightSpaceMatrices[1]", lightSpaceMatrices[1])
+		->setMat4("lightSpaceMatrices[2]", lightSpaceMatrices[2])
+		->setMat4("lightSpaceMatrices[3]", lightSpaceMatrices[3]);
+
+	this->depthMap->bind();
+	this->depthMap->clear();
 
 	glEnable(GL_DEPTH_TEST);
 
-	glm::mat4 dirLightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, scene.currentCamera->NEAR, scene.currentCamera->FAR);
-	glm::mat4 dirLightView = glm::lookAt(scene.directionalLight->parent->transform->getPosition(),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = dirLightProjection * dirLightView;
-	PBRMaterial::lightSpaceMatrix = lightSpaceMatrix;
-
-	Shader* depthShader = this->shaderManager.getShader(ShaderType::DEPTH);
-
-	depthShader->use()
-		->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-
 	for (MeshComponent* mesh : meshes)
-	{
-		Shader* oldShader = mesh->material->shaderProgram;
-		mesh->material->shaderProgram = depthShader;
-		mesh->drawGeometry();
-		mesh->material->shaderProgram = oldShader;
-	}
+		mesh->drawGeometry(depthShader);
 
-	this->depthMap.unbind();
+	this->depthMap->unbind();
 }
 
 void Renderer::gBufferPass(std::vector<MeshComponent*>& meshes)
 {
-	this->gBuffer.bind();
-	this->gBuffer.clear();
+	this->gBuffer->bind();
+	this->gBuffer->clear();
 
 	// Use G-buffer shader
 	Shader* gBufferShader = this->shaderManager.getShader(ShaderType::GBUFFER);
 	gBufferShader->use();
 
 	for (MeshComponent* mesh : meshes)
-	{
-		Shader* oldShader = mesh->material->shaderProgram;
-		mesh->material->shaderProgram = gBufferShader;
-		mesh->drawGeometry();
-		mesh->material->shaderProgram = oldShader;
-	}
+		mesh->drawGeometry(gBufferShader);
 
-	this->gBuffer.unbind();
+	this->gBuffer->unbind();
 }
 
 void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 {
-	this->ssaoTarget.bind();
-	this->ssaoTarget.clear();
+	this->ssaoTarget->bind();
+	this->ssaoTarget->clear();
 
 	Shader* ssaoShader = this->shaderManager.getShader(ShaderType::SSAO);
 	// Setup required uniforms
@@ -330,17 +400,17 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 		->setInt("gPosition", 0)
 		->setInt("gNormal", 1)
 		->setInt("texNoise", 2)
-		->setVec2("noiseScale", glm::vec2(this->ssaoTarget.size.x / 4.0f, this->ssaoTarget.size.y / 4.0f));
+		->setVec2("noiseScale", glm::vec2(this->ssaoTarget->size.x / 4.0f, this->ssaoTarget->size.y / 4.0f));
 
 	for (unsigned int i = 0; i < 64; i++)
 		ssaoShader->setVec3("samples[" + std::to_string(i) + "]", this->ssaoKernel[i]);
 
 	// Bind the G buffer textures
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, this->gBuffer.gPosition);
+	glBindTexture(GL_TEXTURE_2D, this->gBuffer->gPosition);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, this->gBuffer.gNormal);
+	glBindTexture(GL_TEXTURE_2D, this->gBuffer->gNormal);
 
 	glActiveTexture(GL_TEXTURE2);
 	this->ssaoNoiseTexture->bindTexture();
@@ -348,22 +418,22 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	// Render SSAO to quad
 	this->ssaoQuad->update(0);
 
-	this->ssaoTarget.unbind();
+	this->ssaoTarget->unbind();
 
 	// Now we want to blur the result to correct the repeating noise pattern
-	this->ssaoBlurTarget.bind();
-	this->ssaoBlurTarget.clear();
+	this->ssaoBlurTarget->bind();
+	this->ssaoBlurTarget->clear();
 
 	Shader* ssaoBlurShader = this->shaderManager.getShader(ShaderType::SSAOBLUR);
 	ssaoBlurShader->use()
 		->setInt("ssaoInput", 0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, this->ssaoTarget.renderTexture);
+	glBindTexture(GL_TEXTURE_2D, this->ssaoTarget->renderTexture);
 
 	this->ssaoBlurQuad->update(0);
 
-	this->ssaoBlurTarget.unbind();
+	this->ssaoBlurTarget->unbind();
 }
 
 void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSceneData& sceneData)
@@ -372,11 +442,14 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 
 	this->shaderManager.getShader(ShaderType::PBR)
 		->use()
-		->setVec2("windowSize", this->ssaoTarget.size);
+		->setVec2("windowSize", this->ssaoTarget->size);
 
 	// We can simply update all entities that won't be rendered
 	for (Entity* nonRenderable : sceneData.logicEntities)
 		nonRenderable->update(deltaTime);
+
+	for (PhysicsComponent* physics : sceneData.physicsComponents)
+		physics->update(deltaTime);
 
 	glEnable(GL_DEPTH_TEST);
 	glStencilMask(0xFF);
@@ -517,14 +590,14 @@ void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
 	for (Entity* outlinedEntity : outlineRenderList)
 	{
 		MeshComponent* mesh = outlinedEntity->getComponent<MeshComponent>();
-		glm::vec3 originalScale = outlinedEntity->transform->getScale();
+		glm::vec3 originalScale = outlinedEntity->getTransform()->getScale();
 		Shader* originalShader = mesh->material->shaderProgram;
 
 		mesh->material->shaderProgram = outlineShader;
 
-		outlinedEntity->transform->setScale(originalScale * 1.1f);
+		outlinedEntity->getTransform()->setScale(originalScale * 1.1f);
 		outlinedEntity->update(0);
-		outlinedEntity->transform->setScale(originalScale);
+		outlinedEntity->getTransform()->setScale(originalScale);
 
 		mesh->material->shaderProgram = originalShader;
 	}
@@ -539,10 +612,11 @@ void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
 void Renderer::blitPass()
 {
 	// Bind the second target that will contain the mixed multisampled textures
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->multiSampledTarget.framebuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalTarget.framebuffer);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->multiSampledTarget->framebuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalTarget->framebuffer);
 
-	glm::vec2 framebufferSize = this->multiSampledTarget.size;
+	glm::vec2 framebufferSize = this->multiSampledTarget->size;
 	// Resolve the multisampled texture to the second target
+	glScissor(0, 0, framebufferSize.x, framebufferSize.y);
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }

@@ -10,6 +10,7 @@ namespace Main
 	extern GameEngine game;
 	extern float deltaTime;
 	extern float lastFrame;
+	extern int frameCounter;
 }
 
 #endif

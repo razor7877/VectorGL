@@ -1,10 +1,10 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include <imgui.h>
 #include <GLFW/glfw3.h>
 
-#include "renderer.hpp"
+#include "entity.hpp"
+#include "components/component.hpp"
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library
 
@@ -12,12 +12,13 @@ namespace Interface
 {
 	extern bool isViewerFocused;
 
+	extern float interfaceDrawTime;
+
 	/// <summary>
 	/// Initializes ImGui
 	/// </summary>
 	/// <param name="window">A pointer to the application window</param>
-	/// <param name="rendererArg">The renderer used to render the scene</param>
-	void ImGuiInit(GLFWwindow* window, Renderer* rendererArg);
+	void ImGuiInit(GLFWwindow* window);
 
 	/// <summary>
 	/// Draws all the ImGui windows

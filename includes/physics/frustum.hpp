@@ -37,14 +37,10 @@ struct Frustum
 		this->bottomFace = { camPos, glm::cross(frontMultFar + camUp * halfVSide, camRight) };
 	}
 
-	bool isOnFrustum(BoundingBox element, TransformComponent* transform)
+	bool isOnFrustum(BoundingBox element)
 	{
-		glm::mat4 globalModelMatrix = transform->getModelMatrix();
-
 		glm::vec3 bbCenter = (element.maxPosition + element.minPosition) * 0.5f;
 		glm::vec3 bbExtents = (element.maxPosition - element.minPosition) * 0.5f;
-
-		glm::vec3 globalCenter(globalModelMatrix[3][0], globalModelMatrix[3][1], globalModelMatrix[3][2]);
 
 		glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f) * bbExtents.x;
 		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f) * bbExtents.y;
@@ -64,11 +60,38 @@ struct Frustum
 
 		glm::vec3 newExtents(newIi, newIj, newIk);
 
-		return (this->leftFace.isOnOrForwardPlane(newExtents, globalCenter) &&
-			this->rightFace.isOnOrForwardPlane(newExtents, globalCenter) &&
-			this->topFace.isOnOrForwardPlane(newExtents, globalCenter) &&
-			this->bottomFace.isOnOrForwardPlane(newExtents, globalCenter) &&
-			this->nearFace.isOnOrForwardPlane(newExtents, globalCenter) &&
-			this->farFace.isOnOrForwardPlane(newExtents, globalCenter));
+		return (this->leftFace.isOnOrForwardPlane(newExtents, bbCenter) &&
+			this->rightFace.isOnOrForwardPlane(newExtents, bbCenter) &&
+			this->topFace.isOnOrForwardPlane(newExtents, bbCenter) &&
+			this->bottomFace.isOnOrForwardPlane(newExtents, bbCenter) &&
+			this->nearFace.isOnOrForwardPlane(newExtents, bbCenter) &&
+			this->farFace.isOnOrForwardPlane(newExtents, bbCenter));
+	}
+
+	static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
+	{
+		const auto inv = glm::inverse(proj * view);
+
+		std::vector<glm::vec4> frustumCorners;
+		for (unsigned int x = 0; x < 2; x++)
+		{
+			for (unsigned int y = 0; y < 2; y++)
+			{
+				for (unsigned int z = 0; z < 2; z++)
+				{
+					const glm::vec4 pt =
+						inv * glm::vec4(
+							2.0f * x - 1.0f,
+							2.0f * y - 1.0f,
+							2.0f * z - 1.0f,
+							1.0f
+						);
+
+					frustumCorners.push_back(pt / pt.w);
+				}
+			}
+		}
+
+		return frustumCorners;
 	}
 };

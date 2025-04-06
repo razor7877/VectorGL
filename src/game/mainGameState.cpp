@@ -34,7 +34,7 @@ void MainGameState::init()
 	VertexDataIndices sphereOptimized = Geometry::optimizeVertices(sphere.vertices, sphere.normals);
 
 	// Create the camera and set it up
-	std::unique_ptr<Entity> cameraEntity = std::unique_ptr<Entity>(new Entity("Camera"));
+	std::unique_ptr<Entity> cameraEntity = std::make_unique<Entity>("Camera");
 	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 	
 	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
@@ -45,17 +45,17 @@ void MainGameState::init()
 	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
 	this->scene.addEntity(std::move(cameraEntity));
 
-	std::unique_ptr<Entity> skyCameraEntity = std::unique_ptr<Entity>(new Entity("Sky Camera"));
+	std::unique_ptr<Entity> skyCameraEntity = std::make_unique<Entity>("Sky Camera");
 	this->scene.skyCamera = skyCameraEntity->addComponent<CameraComponent>();
 	this->scene.skyCamera->setPosition(glm::vec3(0.0f, 75.0f, 0.0f));
 	this->scene.skyCamera->setZoom(90.0f);
-	skyCameraEntity->transform->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
+	skyCameraEntity->getTransform()->setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
 	this->scene.addEntity(std::move(skyCameraEntity));
 
 	LightManager::getInstance().init();
 
 	// Directional light
-	std::unique_ptr<Entity> dirLightEntity = std::unique_ptr<Entity>(new Entity("Directional light"));
+	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
@@ -100,7 +100,7 @@ void MainGameState::init()
 					.addNormals(sphereOptimized.normals);
 
 				sphereMesh->setDiffuseColor(glm::vec3((float)x / 13.0f, (float)y / 13.0f, 1.0f));
-				sphereEntity->transform->setPosition(x * 3, y * 3, z * 3);
+				sphereEntity->getTransform()->setPosition(x * 3, y * 3, z * 3);
 
 				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
 				if (pbrMat != nullptr)
@@ -116,7 +116,7 @@ void MainGameState::init()
 	}
 
 	// Skybox
-	std::unique_ptr<Entity> skyEntity = std::unique_ptr<Entity>(new Entity("Skybox"));
+	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	this->scene.addEntity(std::move(skyEntity));
@@ -139,9 +139,9 @@ void MainGameState::init()
 	for (int i = 0; i < 4; i++)
 	{
 		// Add point light
-		std::unique_ptr<Entity> pointLightEntity = std::unique_ptr<Entity>(new Entity("Point light"));
-		pointLightEntity->transform->setScale(glm::vec3(0.1f));
-		pointLightEntity->transform->setPosition(lightPositions[i]);
+		std::unique_ptr<Entity> pointLightEntity = std::make_unique<Entity>("Point light");
+		pointLightEntity->getTransform()->setScale(glm::vec3(0.1f));
+		pointLightEntity->getTransform()->setPosition(lightPositions[i]);
 		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 		pointLightComponent->diffuseColor = lightColors[i];
 
@@ -155,29 +155,29 @@ void MainGameState::init()
 	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 		.addVertices(quadVertices);
-	planeEntity->transform->setPosition(0.0f, -5.0f, 0.0f);
-	planeEntity->transform->setRotation(-90.0f, 0.0f, 0.0f);
-	planeEntity->transform->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
+	planeEntity->getTransform()->setPosition(0.0f, -5.0f, 0.0f);
+	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
+	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
 	this->scene.addEntity(std::move(planeEntity));
 	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 
-	ghostObject = new btPairCachingGhostObject();
+	this->ghostObject = std::make_unique<btPairCachingGhostObject>();
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(0, 10, 0)); // Start position
 
-	this->characterShape = new btCapsuleShape(0.5f, 2.0f); // radius, height
+	this->characterShape = std::make_unique<btCapsuleShape>(0.5f, 2.0f); // radius, height
 
 	ghostObject->setWorldTransform(startTransform);
-	ghostObject->setCollisionShape(characterShape);
+	ghostObject->setCollisionShape(characterShape.get());
 	ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
-	this->characterController = new btKinematicCharacterController(ghostObject, characterShape, 0.35f);
+	this->characterController = std::make_unique<btKinematicCharacterController>(this->ghostObject.get(), this->characterShape.get(), 0.35f);
 	this->characterController->setGravity(btVector3(0.0f, -9.81f, 0.0f));
 
-	this->physicsWorld.world->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	this->physicsWorld.world->addAction(characterController);
+	this->physicsWorld.world->addCollisionObject(this->ghostObject.get(), btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	this->physicsWorld.world->addAction(this->characterController.get());
 
 	// Initialize scene
 	this->scene.init();
@@ -186,6 +186,11 @@ void MainGameState::init()
 void MainGameState::cleanup()
 {
 	this->scene.end();
+
+	this->physicsWorld.world->removeCollisionObject(this->ghostObject.get());
+	this->ghostObject.reset();
+	this->characterController.reset();
+	this->characterShape.reset();
 }
 
 void MainGameState::pause()
@@ -200,55 +205,63 @@ void MainGameState::resume()
 
 void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 {
-	CameraComponent* camera = this->scene.currentCamera;
-	auto lambda = [camera, this, gameEngine](GLFWwindow* window, float deltaTime)
+	if (Input::isKeyPressed(GLFW_KEY_ENTER)) // Quit to previous state
 	{
-		glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
-		glm::vec3 cameraFront = this->getScene().currentCamera->getForward();
-		glm::vec3 cameraFrontXy = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
+		Logger::logDebug("Popped state at frame " + std::to_string(Main::frameCounter), "mainGameState.cpp");
+		gameEngine->popState();
+		return;
+	}
 
-		float dot = glm::dot(worldFront, cameraFrontXy);
-		// The angle between the world and camera fronts
-		float angle = acos(dot);
+	CameraComponent* camera = this->scene.currentCamera;
 
-		Logger::logDebug(std::to_string(angle), "mainGameState.cpp");
+	// Z forward vector
+	glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
+	// The camera forward vector
+	glm::vec3 cameraFront = this->getScene().currentCamera->getForward();
+	// The camera forward projected onto the XZ plane, we don't have Y rotation
+	glm::vec3 cameraFrontXz = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
 
-		btVector3 walkDirection(0.0f, 0.0f, 0.0f);
-		btScalar walkSpeed = 5.0f;
+	float dot = glm::dot(worldFront, cameraFrontXz);
+	// The angle between the world and camera forward
+	float angle = acos(dot);
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) // Forward movement
-			walkDirection += btVector3(0.0f, 0.0f, 1.0f);
+	// We need to check if the angle is a clockwise or counter clockwise rotation
+	glm::vec3 cross = glm::cross(worldFront, cameraFrontXz);
+	if (glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), cameraFront) > 0.0f)
+		angle = -angle;
 
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) // Backward movement
-			walkDirection += btVector3(0.0f, 0.0f, -1.0f);
+	btVector3 walkDirection(0.0f, 0.0f, 0.0f);
+	btScalar walkSpeed = 5.0f;
 
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) // Left movement
-			walkDirection += btVector3(1.0f, 0.0f, 0.0f);
+	if (Input::isKeyHeld(GLFW_KEY_W)) // Forward movement
+		walkDirection += btVector3(0.0f, 0.0f, 1.0f);
 
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) // Right movement
-			walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
+	if (Input::isKeyHeld(GLFW_KEY_S)) // Backward movement
+		walkDirection += btVector3(0.0f, 0.0f, -1.0f);
 
-		if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) // Quit to previous state
-			gameEngine->popState();
+	if (Input::isKeyHeld(GLFW_KEY_A)) // Left movement
+		walkDirection += btVector3(1.0f, 0.0f, 0.0f);
 
-		// We need to rotate the walk direction using the camera forward for the movement to be relative to it
-		//walkDirection = btVector3(walkDirection.x() * sin(angle), 0.0f, walkDirection.z() * cos(angle));
+	if (Input::isKeyHeld(GLFW_KEY_D)) // Right movement
+		walkDirection += btVector3(-1.0f, 0.0f, 0.0f);
 
-		// Normalize the direction to avoid diagonal movement being faster
-		if (walkDirection != btVector3(0.0f, 0.0f, 0.0f))
-			walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
+	// We need to rotate the walk direction using the camera forward for the movement to be relative to it
+	btScalar newX = walkDirection.x() * cos(angle) - walkDirection.z() * sin(angle);
+	btScalar newZ = walkDirection.z() * cos(angle) + walkDirection.x() * sin(angle);
 
-		this->characterController->setWalkDirection(walkDirection);
+	walkDirection = btVector3(newX, 0.0f, newZ);
 
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		{
-			if (this->characterController->onGround())
-				this->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
-		}
-	};
+	// Normalize the direction to avoid diagonal movement being faster
+	if (!walkDirection.fuzzyZero())
+		walkDirection = walkDirection.normalize() * walkSpeed * deltaTime;
 
-	// Processes any mouse or keyboard input for camera movement
-	Input::processInput(lambda, Input::inputData.window, deltaTime);
+	this->characterController->setWalkDirection(walkDirection);
+
+	if (Input::isKeyPressed(GLFW_KEY_SPACE))
+	{
+		if (this->characterController->onGround())
+			this->characterController->jump(btVector3(0.0f, 10.0f, 0.0f));
+	}
 }
 
 void MainGameState::update(GameEngine* gameEngine, float deltaTime)
@@ -257,11 +270,9 @@ void MainGameState::update(GameEngine* gameEngine, float deltaTime)
 	glm::mat4 transform;
 	ghostObject->getWorldTransform().getOpenGLMatrix(glm::value_ptr(transform));
 	this->scene.currentCamera->setPosition(glm::vec3(transform[3][0], transform[3][1], transform[3][2]));
-
-	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }
 
-void MainGameState::draw(GameEngine* gameEngine)
+void MainGameState::draw(GameEngine* gameEngine, float deltaTime)
 {
-
+	this->renderer.render(this->scene, this->physicsWorld, deltaTime);
 }

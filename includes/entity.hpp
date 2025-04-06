@@ -15,8 +15,6 @@
 class Entity
 {
 public:
-	TransformComponent* transform = nullptr;
-
 	bool drawOutline = false;
 
 	Entity();
@@ -47,38 +45,109 @@ public:
 	/// <returns>A pointer to the component, or nullptr it it doesn't have one</returns>
 	template <typename T> T* getComponent();
 
+	/// <summary>
+	/// Returns the map containing the entries for each of the entity's components
+	/// </summary>
+	/// <returns>A map where each existing entry maps the type_index of a component to the instance of the entity's said component</returns>
 	std::map<std::type_index, Component*> getComponents();
 
-	// Returns a label to identify the object in the scene graph
+	/// <summary>
+	/// Returns the entity's transform component
+	/// </summary>
+	/// <returns>A pointer to the transform component</returns>
+	TransformComponent* getTransform();
+
+	/// <summary>
+	/// Returns a label to identify the object in the scene graph
+	/// </summary>
+	/// <returns>A string with the entity's label</returns>
 	std::string getLabel();
-	// Sets the label of the object
+
+	/// <summary>
+	/// Sets the label of the entity
+	/// </summary>
+	/// <param name="label">The new label for the entity</param>
 	void setLabel(std::string label);
 
-	// Returns the object's parent
+	/// <summary>
+	/// Returns the entity's parent
+	/// </summary>
+	/// <returns>A pointer to the parent if there is one, or nullptr otherwise</returns>
 	Entity* getParent();
-	// Returns a vector containing the object's children
+
+	/// <summary>
+	/// Returns the entity's children
+	/// </summary>
+	/// <returns>A vector containing pointers to each of the entity's children</returns>
 	std::vector<Entity*> getChildren();
-	// Sets the parent of the object
+
+	/// <summary>
+	/// Sets the parent of the entity
+	/// </summary>
+	/// <param name="parent">A pointer to the entity to be set as parent</param>
 	void setParent(Entity* parent);
-	// Adds a child to the object
+
+	/// <summary>
+	/// Adds a child to the entity
+	/// </summary>
+	/// <param name="child">A pointer to the entity to be added as child</param>
 	void addChild(Entity* child);
-	// Removes a child from the object
+
+	/// <summary>
+	/// Removes a child from the entity
+	/// </summary>
+	/// <param name="child">A pointer to the entity to be removed from the children</param>
 	void removeChild(Entity* child);
 
+	/// <summary>
+	/// Returns whether the entity is currently enabled
+	/// </summary>
+	/// <returns>True if the entity is enabled, false otherwise</returns>
 	bool getIsEnabled();
+
+	/// <summary>
+	/// Sets whether the entity is currently enabled
+	/// </summary>
+	/// <param name="isEnabled">Whether the entity should be enabled</param>
 	void setIsEnabled(bool isEnabled);
 
 private:
+	/// <summary>
+	/// A map where each existing entry maps the type_index of a component to the instance of the entity's said component
+	/// </summary>
 	std::map<std::type_index, Component*> components;
 
+	/// <summary>
+	/// A pointer to the entity's transform component, which always exist
+	/// </summary>
+	TransformComponent* transform = nullptr;
+
+	/// <summary>
+	/// A label identifying the entity
+	/// </summary>
 	std::string label = "Entity";
 
+	/// <summary>
+	/// The parent of the entity, if it has one
+	/// </summary>
 	Entity* parent = nullptr;
+
+	/// <summary>
+	/// A list of children of the entity
+	/// </summary>
 	std::vector<Entity*> children;
 
+	/// <summary>
+	/// Whether the entity is currently enabled
+	/// </summary>
 	bool isEnabled = true;
 };
 
+/// <summary>
+/// Adds a component to the entity, or returns the existing one if the type already exists
+/// </summary>
+/// <typeparam name="T">The type of component to create</typeparam>
+/// <returns>A pointer to the component</returns>
 template <typename T>
 T* Entity::addComponent()
 {
@@ -92,6 +161,11 @@ T* Entity::addComponent()
 	return dynamic_cast<T*>(this->components[componentType]);
 }
 
+/// <summary>
+/// Tries to get the pointer to a component of the entity
+/// </summary>
+/// <typeparam name="T">The type of component to query</typeparam>
+/// <returns>A pointer to the component, or nullptr it no such component exists</returns>
 template <typename T>
 T* Entity::getComponent()
 {

@@ -1,6 +1,5 @@
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
-#include "main.hpp"
 #include "io/input.hpp"
 
 const std::unique_ptr<GameState>& GameEngine::getCurrentState()
@@ -13,7 +12,8 @@ const std::unique_ptr<GameState>& GameEngine::getCurrentState()
 
 void GameEngine::init()
 {
-	this->renderer.init(glm::vec2(Input::inputData.windowSize.x, Input::inputData.windowSize.y));
+	glm::vec2 windowSize = Input::getWindowSize();
+	this->renderer.init(glm::vec2(windowSize.x, windowSize.y));
 }
 
 void GameEngine::cleanup()
@@ -46,6 +46,9 @@ void GameEngine::pushState(std::unique_ptr<GameState> state)
 	if (!this->states.empty())
 		this->states.back()->pause();
 
+	// We need to clear the state of all keys to avoid keys being handled by the new state before the release is registered
+	Input::clearAllKeys();
+
 	state->init();
 	this->states.push_back(std::move(state));
 }
@@ -58,6 +61,9 @@ void GameEngine::popState()
 		this->states.back()->cleanup();
 		this->states.pop_back();
 	}
+	
+	// We need to clear the state of all keys to avoid keys being handled by the previous state before the release is registered
+	Input::clearAllKeys();
 
 	// Resume the one that is now on top
 	if (!this->states.empty())
@@ -68,6 +74,9 @@ void GameEngine::handleEvents(float deltaTime)
 {
 	if (!this->states.empty())
 		this->states.back()->handleEvents(this, deltaTime);
+
+	// Processes any mouse or keyboard input for camera movement
+	glfwPollEvents();
 }
 
 void GameEngine::update(float deltaTime)
@@ -76,10 +85,10 @@ void GameEngine::update(float deltaTime)
 		this->states.back()->update(this, deltaTime);
 }
 
-void GameEngine::draw()
+void GameEngine::draw(float deltaTime)
 {
 	if (!this->states.empty())
-		this->states.back()->draw(this);
+		this->states.back()->draw(this, deltaTime);
 }
 
 bool GameEngine::getIsRunning()

@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "renderer.hpp"
-#include "components/cameraComponent.hpp"
 
 class GameState;
 
@@ -64,7 +63,7 @@ public:
 	/// <summary>
 	/// Render logic
 	/// </summary>
-	void draw();
+	void draw(float deltaTime);
 
 	bool getIsRunning();
 	void quit();

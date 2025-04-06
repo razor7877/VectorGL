@@ -2,30 +2,31 @@
 
 PhysicsWorld::PhysicsWorld()
 {
-	this->collisionConfiguration = new btDefaultCollisionConfiguration();
-	this->collisionDispatcher = new btCollisionDispatcher(collisionConfiguration);
-	this->overlappingPairCache = new btDbvtBroadphase();
-	btOverlappingPairCallback* m_ghostPairCallback = new btGhostPairCallback();
-	this->overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(m_ghostPairCallback);
-	this->solver = new btSequentialImpulseConstraintSolver();
-	this->world = new btDiscreteDynamicsWorld(collisionDispatcher, overlappingPairCache, solver, collisionConfiguration);
+	this->collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
+	this->collisionDispatcher = std::make_unique<btCollisionDispatcher>(this->collisionConfiguration.get());
+	this->overlappingPairCache = std::make_unique<btDbvtBroadphase>();
+	this->ghostPairCallback = std::make_unique<btGhostPairCallback>();
+	this->overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(this->ghostPairCallback.get());
+	this->solver = std::make_unique<btSequentialImpulseConstraintSolver>();
+	this->world = std::make_unique<btDiscreteDynamicsWorld>(this->collisionDispatcher.get(), this->overlappingPairCache.get(), this->solver.get(), this->collisionConfiguration.get());
 	this->world->setGravity(btVector3(0.0f, PhysicsWorld::GRAVITY, 0.0f));
 
-	this->debugDrawer = new DebugDrawer();
-	this->world->setDebugDrawer(debugDrawer);
+	this->debugDrawer = std::make_unique<DebugDrawer>();
+	this->world->setDebugDrawer(this->debugDrawer.get());
 }
 
 PhysicsWorld::~PhysicsWorld()
 {
-	delete debugDrawer;
-	delete world;
-	delete solver;
-	delete overlappingPairCache;
-	delete collisionDispatcher;
-	delete collisionConfiguration;
+	this->debugDrawer.reset();
+	this->world.reset();
+	this->solver.reset();
+	this->overlappingPairCache.reset();
+	this->ghostPairCallback.reset();
+	this->collisionDispatcher.reset();
+	this->collisionConfiguration.reset();
 
-	for (btRigidBody* rigidBody : this->rigidBodies)
-		delete rigidBody;
+	for (auto& collider : this->rigidBodies)
+		collider.reset();
 }
 
 void PhysicsWorld::update(float deltaTime)
@@ -72,7 +73,14 @@ void PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, planeShape, btVector3(0.0f, 0.0f, 0.0f));
 	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 
-	// TODO : Properly manage deletion of plane colliders too
+	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
+		this->world.get(),
+		std::unique_ptr<btCollisionShape>(planeShape),
+		std::unique_ptr<btDefaultMotionState>(groundMotionState),
+		std::unique_ptr<btRigidBody>(groundRigidBody)
+	);
+
+	this->rigidBodies.push_back(std::move(collider));
 	this->world->addRigidBody(groundRigidBody);
 }
 
@@ -93,14 +101,16 @@ void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, gl
 		boxRigidBody->setCollisionFlags(boxRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
-		this->world,
+		this->world.get(),
 		std::unique_ptr<btCollisionShape>(boxShape),
 		std::unique_ptr<btDefaultMotionState>(boxMotionState),
 		std::unique_ptr<btRigidBody>(boxRigidBody)
 	);
 
 	this->world->addRigidBody(boxRigidBody);
-	component->setCollider(std::move(collider));
+	component->setCollider(collider.get());
+
+	this->rigidBodies.push_back(std::move(collider));
 	this->rigidBodyToComponent[boxRigidBody] = component;
 }
 
@@ -120,14 +130,16 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 		sphereRigidBody->setCollisionFlags(sphereRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
-		this->world,
+		this->world.get(),
 		std::unique_ptr<btCollisionShape>(sphereShape),
 		std::unique_ptr<btDefaultMotionState>(motionState),
 		std::unique_ptr<btRigidBody>(sphereRigidBody)
 	);
 
 	this->world->addRigidBody(sphereRigidBody);
-	component->setCollider(std::move(collider));
+	component->setCollider(collider.get());
+
+	this->rigidBodies.push_back(std::move(collider));
 	this->rigidBodyToComponent[sphereRigidBody] = component;
 }		
 
@@ -147,13 +159,15 @@ void PhysicsWorld::addCapsule(PhysicsComponent* component, float radius, float h
 		capsuleRigidBody->setCollisionFlags(capsuleRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
 	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
-		this->world,
+		this->world.get(),
 		std::unique_ptr<btCollisionShape>(capsuleShape),
 		std::unique_ptr<btDefaultMotionState>(motionState),
 		std::unique_ptr<btRigidBody>(capsuleRigidBody)
 		);
 
 	this->world->addRigidBody(capsuleRigidBody);
-	component->setCollider(std::move(collider));
+	component->setCollider(collider.get());
+
+	this->rigidBodies.push_back(std::move(collider));
 	this->rigidBodyToComponent[capsuleRigidBody] = component;
 }

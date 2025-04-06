@@ -7,7 +7,7 @@ ScriptComponent::ScriptComponent(Entity* parent) : Component(parent)
 	this->L = luaL_newstate();
 	luaL_openlibs(this->L);
 
-	lua_pushnumber(L, this->parent->transform->getPosition().x);
+	lua_pushnumber(L, this->parent->getTransform()->getPosition().x);
 	lua_setglobal(L, "xPos");
 }
 
@@ -42,7 +42,7 @@ void ScriptComponent::update(float deltaTime)
 	if (lua_isnumber(L, -1))
 	{
 		float newX = lua_tonumber(L, -1);
-		glm::vec3 transformPos = this->parent->transform->getPosition();
-		this->parent->transform->setPosition(glm::vec3(newX, transformPos.y, transformPos.z));
+		glm::vec3 transformPos = this->parent->getTransform()->getPosition();
+		this->parent->getTransform()->setPosition(glm::vec3(newX, transformPos.y, transformPos.z));
 	}
 }

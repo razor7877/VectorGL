@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "entity.hpp"
 #include "components/physicsComponent.hpp"
 
@@ -51,6 +49,11 @@ std::map<std::type_index, Component*> Entity::getComponents()
 	return this->components;
 }
 
+TransformComponent* Entity::getTransform()
+{
+	return this->transform;
+}
+
 std::string Entity::getLabel()
 {
 	return this->label;
@@ -79,7 +82,6 @@ void Entity::setParent(Entity* parent)
 void Entity::addChild(Entity* child)
 {
 	this->children.push_back(child);
-	std::cout << "Parent " << this->label << " now has child " << child->getLabel() << std::endl;
 }
 
 void Entity::removeChild(Entity* child)

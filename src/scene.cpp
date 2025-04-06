@@ -1,4 +1,10 @@
+#include <vector>
 #include "scene.hpp"
+#include "entity.hpp"
+#include "physics/frustum.hpp"
+#include "components/meshComponent.hpp"
+#include "components/physicsComponent.hpp"
+#include "materials/pbrMaterial.hpp"
 
 std::vector<Entity*> Scene::getEntities()
 {
@@ -56,20 +62,24 @@ void Scene::end()
 void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entity*>& entities)
 {
 	// TODO : Don't unnecessarily sort the scene every frame if there are no updates in between
-	// We start by sorting the entities depending on if they are renderable objects
+	// TODO : Fix issues with frustum culling when using PhysicsComponent
+	// We start by iterating over the entities
 	for (Entity* entity : entities)
 	{
+		// We don't bother iterating over disabled entities
 		if (entity->getIsEnabled())
 		{
 			MeshComponent* mesh = entity->getComponent<MeshComponent>();
 
+			// Check whether we have an entity with a mesh or a purely logic entity
 			if (mesh == nullptr)
 				this->sortedSceneData.logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
 				this->sortedSceneData.allMeshes.push_back(mesh);
 
-				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox(), mesh->parent->transform))
+				// Check if the mesh is within the camera frustum to determine if we should update it
+				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox()))
 				{
 					this->sortedSceneData.meshes.push_back(mesh);
 
@@ -85,8 +95,16 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 					if (entity->drawOutline)
 						this->sortedSceneData.outlineRenderList.push_back(entity);
 				}
+				else // If it is outside of the frustum, we still want to update any physics
+				{
+					PhysicsComponent* physics = entity->getComponent<PhysicsComponent>();
+
+					if (physics != nullptr)
+						this->sortedSceneData.physicsComponents.push_back(physics);
+				}
 			}
-                        
+
+			// Recurse over the children of the entity
 			this->getMeshesRecursively(cameraFrustum, entity->getChildren());
 		}
 	}

@@ -70,13 +70,17 @@ in vec3 FragPos;
 in vec2 TexCoord;
 in vec3 Normal;
 in mat3 TBN;
-in vec4 FragPosLightSpace;
-in vec2 FragPosScreenSpace;
 
 // DEFINING OUTPUT VALUES
 out vec4 FragColor;
 
 // DEFINING UNIFORMS
+layout (std140) uniform Matrices
+{
+	mat4 view;
+	mat4 projection;
+};
+
 uniform vec3 camPos;
 
 // IBL
@@ -85,7 +89,11 @@ uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
 // Shadow mapping
-uniform sampler2D shadowMap;
+uniform sampler2DArray shadowMap;
+uniform mat4 lightSpaceMatrices[4];
+uniform float cascadePlaneDistances[3];
+uniform int cascadeCount;
+uniform float farPlane;
 
 // SSAO
 uniform sampler2D ssaoMap;
@@ -230,35 +238,58 @@ vec3 calcSpotLight(SpotLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float 
     return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace)
+// TODO : Word to light space calculations in vertex shader instead ?
+float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normalVec)
 {
-    // Perspective divide
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // Get values in range [0, 1]
-    projCoords = projCoords * 0.5 + 0.5;
-    // Get closest depth value from light's perspective
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-    // Get depth of fragment from light's perspective
-    float currentDepth = projCoords.z;
+    vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
+    float depthValue = abs(fragPosViewSpace.z);
 
-    float bias = 0.005;
-    
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-
-    for (int x = -1; x <= 1; ++x)
+    int layer = -1;
+    for (int i = 0; i < cascadeCount; i++)
     {
-        for (int y = -1; y <= 1; ++y)
+        if (depthValue < cascadePlaneDistances[i])
         {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+            layer = i;
+            break;
         }
     }
 
-    shadow /= 9.0;
+    if (layer == -1)
+        layer = cascadeCount;
 
-    if (projCoords.z > 1.0)
-        shadow = 0.0;
+    vec4 FragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
+    // Perspective divide
+    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
+    // Transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // Get current fragment depth from light's perspective
+    float currentDepth = projCoords.z;
+
+    // Keep shadow at 0.0 when outside the frustum
+    if (currentDepth > 1.0)
+        return 0.0;
+
+    float bias = max(0.05 * (1.0 - dot(normalVec, dirLights[0].direction)), 0.005); // TODO : Change bias depending on normal & light direction
+    const float biasModifier = 0.5;
+
+    if (layer == cascadeCount)
+        bias *= 1 / (farPlane * biasModifier);
+    else
+        bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
+    
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
+    for (int x = -1; x <= 1; x++)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
+            float pcfDepth = texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
 
     return shadow;
 }
@@ -267,7 +298,7 @@ void main()
 {
 	float opacity = material.opacity;
 	
-    // We start by sampling all the values we need from textures or uniforms
+    // Get albedo from texture or material data
     vec3 albedo;
     if ((material.used_maps & ALBEDO_MAP) != 0)
     {
@@ -282,7 +313,8 @@ void main()
     }
     else
         albedo = material.albedo;
-        
+    
+    // Get normal from normal map or from vertex inputs
     vec3 normalVec;
     if ((material.used_maps & NORMAL_MAP) != 0)
     {
@@ -293,27 +325,32 @@ void main()
     else
         normalVec = Normal;
     
+    // Get metallic from metallic map or from material data
     float metallic;
     if ((material.used_maps & METALLIC_MAP) != 0)
         metallic = texture(material.texture_metallic, TexCoord).b;
     else
         metallic = material.metallic;
-        
+    
+    // Get roughness from roughness map or from material data
     float roughness;
     if ((material.used_maps & ROUGHNESS_MAP) != 0)
         roughness = texture(material.texture_metallic, TexCoord).g;
     else
         roughness = material.roughness;
     
+    // Roughness generally works better when we square the value
     roughness *= roughness;
     
+    // Get ambient occlusion from AO map or from material data
     float ao;
     if ((material.used_maps & AO_MAP) != 0)
         ao = texture(material.texture_ao, TexCoord).r;
     else
         ao = material.ao;
     
-    float shadow = ShadowCalculation(FragPosLightSpace);
+    // Get the shadow value for the fragment
+    float shadow = ShadowCalculation(FragPos, normalVec);
     float shadowInverse = 1.0 - shadow;
     
     // Now we can start lighting calculations
@@ -356,13 +393,14 @@ void main()
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     // Sample the SSAO value
-    // Coordinate vector is divided because SSAO map is scaled down by a factor of 2
-    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize / 2.0).r;
+    const float SSAO_SCALE_FACTOR = 0.75;
+    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize * SSAO_SCALE_FACTOR).r;
     vec3 ambient = (kD * diffuse + specular) * ao;
     // SSAO weighs for 50% of the ambient color to avoid the effect being too strong
     // Don't use SSAO if we are using an AO map
+    const float SSAO_FACTOR = 0.5;
     if ((material.used_maps & AO_MAP) == 0)
-        ambient = 0.5 * ambient + 0.5 * ambient * ssao;
+        ambient *= mix(1.0, ssao, 0.5);
 	
     vec3 color = ambient + Lo;
 

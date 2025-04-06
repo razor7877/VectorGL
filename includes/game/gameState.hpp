@@ -47,7 +47,7 @@ public:
 	/// Render logic
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
-	virtual void draw(GameEngine* gameEngine) = 0;
+	virtual void draw(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
 	/// Changes to a new state
@@ -59,18 +59,37 @@ public:
 		gameEngine->changeState(std::move(gameState));
 	}
 
+	/// <summary>
+	/// Returns a reference to this state's scene
+	/// </summary>
+	/// <returns>A reference to a Scene object</returns>
 	Scene& getScene()
 	{
 		return this->scene;
 	}
 
+	/// <summary>
+	/// Returns a reference to this state's physics world
+	/// </summary>
+	/// <returns>A reference to a PhysicsWorld object</returns>
 	PhysicsWorld& getPhysicsWorld()
 	{
 		return this->physicsWorld;
 	}
 
 protected:
+	/// <summary>
+	/// A reference to the global renderer
+	/// </summary>
 	Renderer& renderer;
+
+	/// <summary>
+	/// The scene used by the state
+	/// </summary>
 	Scene scene;
+
+	/// <summary>
+	/// The physics world used by the state
+	/// </summary>
 	PhysicsWorld physicsWorld;
 };

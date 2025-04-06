@@ -21,8 +21,6 @@ MeshComponent::MeshComponent(Entity* parent) : Component(parent)
 
 MeshComponent::~MeshComponent()
 {
-	Logger::logDebug("Calling MeshComponent destructor", "meshComponent.cpp");
-	 
 	glDeleteBuffers(1, &this->VBO);
 	glDeleteBuffers(1, &this->texCoordBO);
 	glDeleteBuffers(1, &this->normalBO);
@@ -155,8 +153,8 @@ void MeshComponent::update(float deltaTime)
 
 		// Send the model matrix
 		this->material->shaderProgram
-			->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
-			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
+			->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
+			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
 	}
 
 	// Indexed drawing
@@ -166,19 +164,16 @@ void MeshComponent::update(float deltaTime)
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 }
 
-void MeshComponent::drawGeometry()
+void MeshComponent::drawGeometry(Shader* shaderProgram)
 {
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
 
 	// Send only required data for geometry draw
-	if (this->material != nullptr)
-	{
-		// Send the model & normal matrices
-		this->material->shaderProgram
-			->setMat4(MeshComponent::MODEL, this->parent->transform->getModelMatrix())
-			->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->transform->getNormalMatrix());
-	}
+	// Send the model & normal matrices
+	shaderProgram
+		->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
+		->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
 
 	// Indexed drawing
 	if (this->hasIndices)
@@ -282,7 +277,7 @@ BoundingBox MeshComponent::getLocalBoundingBox()
 
 BoundingBox MeshComponent::getWorldBoundingBox()
 {
-	glm::mat4 newModelMatrix = this->parent->transform->getModelMatrix();
+	glm::mat4 newModelMatrix = this->parent->getTransform()->getModelMatrix();
 	
 	// We only recalculate the AABB if the matrix changed, since it's fairly expensive to calculate it unnecessarily
 	if (this->lastModelMatrix != newModelMatrix)
@@ -296,6 +291,7 @@ BoundingBox MeshComponent::getWorldBoundingBox()
 
 void MeshComponent::setDiffuseColor(glm::vec3 color)
 {
+	// TODO : Pass this to the material instead
 	PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
 
 	if (phongMaterial != nullptr)

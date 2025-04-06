@@ -4,16 +4,17 @@
 
 #include "shaderManager.hpp"
 
-#include "materials/pbrMaterial.hpp"
-
 ShaderManager::ShaderManager()
 {
-	this->UBO = {};
+
 }
 
 ShaderManager::~ShaderManager()
 {
+	glDeleteBuffers(1, &this->UBO);
 
+	for (auto&& [type, shader] : this->enumToShader)
+		delete shader;
 }
 
 void ShaderManager::initUniformBuffer()
@@ -88,6 +89,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			enumToShader[shader] = new Shader("shaders/depth.vert", "shaders/depth.frag");
 			break;
 
+		case ShaderType::DEPTH_CASCADED:
+			enumToShader[shader] = new Shader("shaders/depth.vert", "shaders/depth.frag", "shaders/depth.geom");
+			break;
+
 		case ShaderType::GBUFFER:
 			enumToShader[shader] = new Shader("shaders/gBuffer.vert", "shaders/gBuffer.frag");
 			break;
@@ -101,8 +106,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			break;
 	}
 
-	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->ID, "Matrices");
-	glUniformBlockBinding(enumToShader[shader]->ID, UBIShader, 0);
+	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->getID(), "Matrices");
+
+	if (UBIShader != GL_INVALID_INDEX)
+		glUniformBlockBinding(enumToShader[shader]->getID(), UBIShader, 0);
 
 	return enumToShader[shader];
 }

@@ -20,6 +20,7 @@ enum class ShaderType
 	SOLID,
 	OUTLINE,
 	DEPTH,
+	DEPTH_CASCADED, // Depth + geometry shader
 	GBUFFER,
 	SSAO,
 	SSAOBLUR
@@ -66,5 +67,5 @@ public:
 	void setFragmentShaderContent(ShaderType shader, std::string content);
 private:
 	// Uniform buffer object (for global uniforms between shaders)
-	GLuint UBO;
+	GLuint UBO = 0;
 };

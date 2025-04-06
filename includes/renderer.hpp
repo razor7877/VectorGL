@@ -2,26 +2,29 @@
 #define RENDERER_HPP
 
 #include <vector>
-#include <map>
 #include <memory>
 
 #include "entity.hpp"
-#include "lightManager.hpp"
 #include "shaderManager.hpp"
 #include "renderTarget.hpp"
-#include "components/cameraComponent.hpp"
 #include "components/meshComponent.hpp"
-#include "components/lights/directionalLightComponent.hpp"
 #include "physics/physicsWorld.hpp"
-#include "physics/frustum.hpp"
 #include "scene.hpp"
 
+// TODO : Render pass system
 /// <summary>
 /// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
 /// </summary>
 class Renderer
 {
 public:
+	static constexpr int SHADOW_CASCADE_LEVELS = 3;
+	static constexpr float SHADOW_CASCADE_DISTANCES[SHADOW_CASCADE_LEVELS] = {
+		0.05f,
+		0.15f,
+		0.35f
+	};
+
 	ShaderManager shaderManager;
 
 	float frameRenderTime = 0.0f;
@@ -33,10 +36,12 @@ public:
 	float renderPassTime = 0.0f;
 	float outlinePassTime = 0.0f;
 	float blitPassTime = 0.0f;
+	float debugPassTime = 0.0f;
 
 	bool enableDebugDraw = false;
 
 	Renderer();
+	~Renderer();
 
 	/// <summary>
 	/// Returns the framebuffer that the renderer draws into
@@ -91,42 +96,42 @@ private:
 	/// <summary>
 	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution
 	/// </summary>
-	static constexpr float SSAO_SCALE_FACTOR = 0.5;
+	static constexpr float SSAO_SCALE_FACTOR = 0.75;
 
 	/// <summary>
 	/// The render target in which everything is rendered
 	/// </summary>
-	RenderTarget multiSampledTarget;
+	std::unique_ptr<RenderTarget> multiSampledTarget;
 
 	/// <summary>
 	/// The final render target, the multisampled target is resolved into this one that can be used for displaying to screen
 	/// </summary>
-	RenderTarget finalTarget;
+	std::unique_ptr<RenderTarget> finalTarget;
 
 	/// <summary>
 	/// The render target for the top down view
 	/// </summary>
-	RenderTarget skyTarget;
+	std::unique_ptr<RenderTarget> skyTarget;
 
 	/// <summary>
 	/// The depth map for shadow mapping
 	/// </summary>
-	RenderTarget depthMap;
+	std::unique_ptr<RenderTarget> depthMap;
 
 	/// <summary>
 	/// The G-buffer for screen space effects
 	/// </summary>
-	RenderTarget gBuffer;
+	std::unique_ptr<RenderTarget> gBuffer;
 
 	/// <summary>
 	/// The render target for rendering the SSAO
 	/// </summary>
-	RenderTarget ssaoTarget;
+	std::unique_ptr<RenderTarget> ssaoTarget;
 
 	/// <summary>
 	/// The render target for rendering the blurred SSAO texture
 	/// </summary>
-	RenderTarget ssaoBlurTarget;
+	std::unique_ptr<RenderTarget> ssaoBlurTarget;
 
 	/// <summary>
 	/// The noise texture for SSAO sampling
@@ -171,6 +176,8 @@ private:
 	/// </summary>
 	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
 	void shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene);
+
+	glm::mat4 getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane);
 
 	/// <summary>
 	/// The pass responsible for rendering position/normal/albedo informations to the G buffer textures

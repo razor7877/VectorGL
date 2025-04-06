@@ -84,13 +84,13 @@ void TransformComponent::updateModelMatrix()
 	// A node should inherit the transform of the parent entity
 	// The parent is the entity that contains this component, we want the entity above
 	if (this->parent->getParent() != nullptr)
-		this->modelMatrix = this->parent->getParent()->transform->getModelMatrix() * this->modelMatrix;
+		this->modelMatrix = this->parent->getParent()->getTransform()->getModelMatrix() * this->modelMatrix;
 
-	this->normalMatrix = glm::mat3(glm::transpose(glm::inverse(this->modelMatrix)));
+	this->normalMatrix = glm::transpose(glm::inverse(glm::mat3(this->modelMatrix)));
 
 	// Since children inherit of the parent transform, they need to be updated too
 	for (Entity* child : this->parent->getChildren())
-		child->transform->updateModelMatrix();
+		child->getTransform()->updateModelMatrix();
 }
 
 void TransformComponent::setModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)

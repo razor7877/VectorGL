@@ -1,8 +1,6 @@
 #ifndef LIGHTMANAGER_HPP
 #define LIGHTMANAGER_HPP
 
-#include <vector>
-
 #include <utilities/glad.h>
 
 #include "shader.hpp"

@@ -9,6 +9,7 @@ enum class TargetType
 	TEXTURE_2D_MULTISAMPLE, // Depth + stencil + one color attachment with MSAA x4
 	TEXTURE_CUBEMAP, // Color only?
 	TEXTURE_DEPTH, // Depth only
+	TEXTURE_DEPTH_3D, // 3D Depth only, for cascaded shadow maps
 	G_BUFFER, // 3 color attachments + depth
 	TEXTURE_RED, // 1 color attachment, single channel
 };
@@ -98,7 +99,8 @@ public:
 	void clear();
 
 	/// <summary>
-	/// Resizes the render target
+	/// Resizes the render target. The render target should not be bound when resizing to prevent API errors.
+	/// After the operation, the resized render target will be the active one, regardless of previous state.
 	/// </summary>
 	/// <param name="newSize">The new size of the render target</param>
 	void resize(glm::vec2 newSize);

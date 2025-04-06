@@ -1,9 +1,9 @@
 #include <map>
 
 #include "components/skyboxComponent.hpp"
-#include "shaderManager.hpp"
 #include "utilities/geometry.hpp"
 #include "components/IBLData.hpp"
+#include "materials/pbrMaterial.hpp"
 
 SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Component(parent)
 {
@@ -17,7 +17,7 @@ SkyboxComponent::~SkyboxComponent()
 	PBRMaterial::brdfLut = nullptr;
 
 	for (auto& [type, iblData] : this->skyboxes)
-		delete iblData;
+		iblData.reset();
 }
 
 void SkyboxComponent::start()
@@ -31,7 +31,7 @@ void SkyboxComponent::start()
 
 void SkyboxComponent::update(float deltaTime)
 {
-	glUseProgram(this->shaderProgram->ID);
+	glUseProgram(this->shaderProgram->getID());
 
 	glDepthFunc(GL_LEQUAL);
 
@@ -56,23 +56,25 @@ void SkyboxComponent::setupSkybox(Shader* shaderProgram, Renderer& renderer)
 {
 	this->shaderProgram = shaderProgram;
 
-	this->skyboxes = {
-		{ SkyboxType::GRASS, new IBLData(renderer, new Cubemap("img/skybox/grass/")) },
-		{ SkyboxType::NIGHT, new IBLData(renderer, new Cubemap("img/skybox/night/")) },
-		{ SkyboxType::SKY, new IBLData(renderer, new Cubemap("img/skybox/sky/")) },
-	};
+	std::unique_ptr<IBLData> grass = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/grass/")));
+	std::unique_ptr<IBLData> night = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/night/")));
+	std::unique_ptr<IBLData> sky = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/sky/")));
+
+	this->skyboxes[SkyboxType::GRASS] = std::move(grass);
+	this->skyboxes[SkyboxType::NIGHT] = std::move(night);
+	this->skyboxes[SkyboxType::SKY] = std::move(sky);
 
 	this->changeSkybox(SkyboxComponent::DEFAULT_SKY);
 }
 
 void SkyboxComponent::changeSkybox(SkyboxType sky)
 {
-	this->currentSky = this->skyboxes[sky];
+	this->currentSky = this->skyboxes[sky].get();
 	this->useIBL = true;
 
-	PBRMaterial::irradianceMap = this->currentSky->irradianceMap;
-	PBRMaterial::prefilterMap = this->currentSky->prefilterMap;
-	PBRMaterial::brdfLut = this->currentSky->brdfLut;
+	PBRMaterial::irradianceMap = this->currentSky->irradianceMap.get();
+	PBRMaterial::prefilterMap = this->currentSky->prefilterMap.get();
+	PBRMaterial::brdfLut = this->currentSky->brdfLut.get();
 }
 
 void SkyboxComponent::setCubemap(Cubemap* cubemap)

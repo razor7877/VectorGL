@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "cubemap.hpp"
 #include "texture.hpp"
 #include "renderer.hpp"
@@ -12,22 +14,23 @@ struct IBLData
 	/// <summary>
 	/// The environment map (skybox)
 	/// </summary>
-	Cubemap* const environmentMap = new Cubemap(GL_RGB16F, 512, 512);
+	std::unique_ptr<Cubemap> const environmentMap = std::make_unique<Cubemap>(GL_RGB16F, 512, 512);
 
 	/// <summary>
 	/// The irradiance map for diffuse lighting
 	/// </summary>
-	Cubemap* const irradianceMap = new Cubemap(GL_RGB16F, 32, 32);
+	std::unique_ptr<Cubemap> const irradianceMap = std::make_unique<Cubemap>(GL_RGB16F, 32, 32);
 
 	/// <summary>
 	/// The prefiltered map for specular lighting
 	/// </summary>
-	Cubemap* const prefilterMap = new Cubemap(GL_RGB16F, 1024, 1024, true);
+	std::unique_ptr<Cubemap> const prefilterMap = std::make_unique<Cubemap>(GL_RGB16F, 1024, 1024, true);
 
+	// TODO : Make this const
 	/// <summary>
 	/// The BRDF lookup texture for specular lighting
 	/// </summary>
-	std::shared_ptr<Texture> brdfLut = nullptr;
+	std::unique_ptr<Texture> brdfLut = nullptr;
 
 	/// <summary>
 	/// Generates an environment map and IBL data from a 2D HDR map
@@ -41,7 +44,7 @@ struct IBLData
 	/// </summary>
 	/// <param name="renderer">A reference to the renderer</param>
 	/// <param name="cubemap">The cubemap for the sky</param>
-	IBLData(Renderer& renderer, Cubemap* cubemap);
+	IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap);
 
 	~IBLData();
 };

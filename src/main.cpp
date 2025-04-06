@@ -8,9 +8,7 @@
 #include "io/input.hpp"
 #include "io/interface.hpp"
 #include "logger.hpp"
-#include "renderer.hpp"
 #include "game/gameEngine.hpp"
-#include "game/mainGameState.hpp"
 #include "game/startMenuState.hpp"
 #include "main.hpp"
 
@@ -32,6 +30,8 @@ namespace Main
 	/// The timestamp of the previous frame
 	/// </summary>
 	float lastFrame = 0.0f;
+
+	int frameCounter = 0;
 }
 
 int main()
@@ -40,7 +40,8 @@ int main()
 		return -1;
 
 	// Initializes the ImGui UI system
-	Interface::ImGuiInit(Input::inputData.window, &game.renderer);
+	GLFWwindow* window = Input::getWindow();
+	Interface::ImGuiInit(window);
 
 	// Start the game state
 	std::unique_ptr<StartMenuState> mainState = std::make_unique<StartMenuState>(game.renderer);
@@ -53,12 +54,8 @@ int main()
 	float currentFrame;
 
 	// Render loop
-	while (!glfwWindowShouldClose(Input::inputData.window))
+	while (!glfwWindowShouldClose(window))
 	{
-		// Clears the buffers and last frame before rendering the next one
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 		// Calculates elapsed time since last frame for time-based calculations
 		currentFrame = (float)glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -66,7 +63,7 @@ int main()
 
 		game.handleEvents(deltaTime);
 		game.update(deltaTime);
-		game.draw();
+		game.draw(deltaTime);
 
 		// Draws the ImGui interface windows
 		Interface::ImGuiDrawWindows();
@@ -76,8 +73,8 @@ int main()
 		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent), "main.cpp"); }
 
 		// Swaps buffers to screen to show the rendered frame
-		glfwSwapBuffers(Input::inputData.window);
-		glfwPollEvents();
+		glfwSwapBuffers(window);
+		frameCounter++;
 	}
 
 	game.cleanup();

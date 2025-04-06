@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 #include <btBulletDynamicsCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -9,6 +10,7 @@
 
 #include <components/physicsComponent.hpp>
 
+// TODO : Make this cleaner
 class DebugDrawer : public btIDebugDraw
 {
 public:
@@ -58,13 +60,19 @@ private:
 class PhysicsWorld
 {
 public:
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* collisionDispatcher;
-	btBroadphaseInterface* overlappingPairCache;
-	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld* world;
+	/// <summary>
+	/// The Bullet world object
+	/// </summary>
+	std::unique_ptr<btDiscreteDynamicsWorld> world;
 
+	/// <summary>
+	/// The gravity constant applied to the objects of the physics world
+	/// </summary>
 	static constexpr float GRAVITY = -9.81f;
+
+	/// <summary>
+	/// Whether debug drawing is enabled
+	/// </summary>
 	bool enableDebugDraw = false;
 
 	PhysicsWorld();
@@ -84,6 +92,10 @@ public:
 	/// <returns>A pointer to the first object that was hit, or nullptr if not hit found</returns>
 	PhysicsComponent* raycastLine(glm::vec3 from, glm::vec3 to);
 
+	/// <summary>
+	/// Returns the debug drawer lines
+	/// </summary>
+	/// <returns>A vector containing the float for the vertices of the debug lines</returns>
 	std::vector<float> getDebugLines();
 
 	/// <summary>
@@ -125,8 +137,43 @@ public:
 	void addCapsule(PhysicsComponent* component, float radius, float height, glm::vec3 position, float mass = 1.0f, bool disableCollision = false);
 
 private:
-	DebugDrawer* debugDrawer;
+	/// <summary>
+	/// The Bullet collision configuration
+	/// </summary>
+	std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration;
 
-	std::vector<btRigidBody*> rigidBodies;
+	/// <summary>
+	/// The Bullet collision dispatcher
+	/// </summary>
+	std::unique_ptr<btCollisionDispatcher> collisionDispatcher;
+
+	/// <summary>
+	/// The Bullet broadphase interface
+	/// </summary>
+	std::unique_ptr<btBroadphaseInterface> overlappingPairCache;
+
+	/// <summary>
+	/// The Bullet ghost pair callback
+	/// </summary>
+	std::unique_ptr<btGhostPairCallback> ghostPairCallback;
+
+	/// <summary>
+	/// The Bullet physics solver
+	/// </summary>
+	std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
+
+	/// <summary>
+	/// The debug drawer for drawing collision boxes
+	/// </summary>
+	std::unique_ptr<DebugDrawer> debugDrawer;
+
+	/// <summary>
+	/// The list of colliders created by the physics world
+	/// </summary>
+	std::vector<std::unique_ptr<Collider>> rigidBodies;
+
+	/// <summary>
+	/// A map where each entries returns the associated PhysicsComponent for a btRigidBody object
+	/// </summary>
 	std::map<btRigidBody*, PhysicsComponent*> rigidBodyToComponent;
 };

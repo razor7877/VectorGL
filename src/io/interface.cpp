@@ -1,8 +1,5 @@
 #include <string>
-#include <cstring>
-#include <iostream>
 #include <vector>
-#include <fstream>
 
 #include "ImGui/imgui.h"
 #include "ImGui/misc/cpp/imgui_stdlib.h"
@@ -18,6 +15,8 @@
 #include "logger.hpp"
 #include "game/gameEngine.hpp"
 #include "game/gameState.hpp"
+#include "materials/pbrMaterial.hpp"
+#include "materials/phongMaterial.hpp"
 
 #include "components/meshComponent.hpp"
 #include "components/transformComponent.hpp"
@@ -31,21 +30,25 @@
 
 namespace Interface
 {
-	// Used for dynamically showing existing lights and enabling their realtime modification
-	Renderer* renderer = nullptr;
-
-	// The currently selected node in the scene graph
-	Entity* selectedSceneNode = nullptr;
-
 	std::string editLabel{};
 
 	bool isViewerFocused = false;
+
+	float interfaceDrawTime = 0.0f;
+
+	struct
+	{
+		bool shaderEditorOn = false;
+		bool scriptEditorOn = false;
+		bool textureViewerOn = false;
+		bool topViewOn = false;
+	} toolbarParams;
 
 	struct
 	{
 		// An array containing the choice names for the different skyboxes
 		const char* comboSkyboxes[3] = { "Grass", "Night", "Sky" };
-		int current_skybox_id = (int)SkyboxComponent::DEFAULT_SKY;
+		int currentSkyboxId = (int)SkyboxComponent::DEFAULT_SKY;
 	} skyboxParams;
 
 	struct PerformanceParams
@@ -59,8 +62,8 @@ namespace Interface
 		float timeToFrame = 1;
 
 		// NVIDIA GPU only, serves to query the amount of total and available VRAM
-		int total_mem_kb = 0;
-		int cur_avail_mem_kb = 0;
+		int totalMemoryKb = 0;
+		int currentAvailableMemoryKb = 0;
 		const char* gpuVendor{};
 		std::string gpuVendorStr{};
 		bool isNvidiaGpu = false;
@@ -144,7 +147,7 @@ namespace Interface
 	} textureViewerParams;
 
 
-	void ImGuiInit(GLFWwindow* window, Renderer* rendererArg)
+	void ImGuiInit(GLFWwindow* window)
 	{
 		// OpenGL context needs to be initalized beforehand to call glGetString()
 		performanceParams.gpuVendor = (char*)glGetString(GL_VENDOR);
@@ -166,26 +169,36 @@ namespace Interface
 
 		SetupShaderEditor();
 		SetupScriptEditor();
-
-		renderer = rendererArg;
 	}
-
-	bool showTest = false;
 
 	void ImGuiDrawWindows()
 	{
+		float startTime = glfwGetTime();
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		ImGui::BeginMainMenuBar();
 		ImVec2 mainMenuBarSize = ImGui::GetWindowSize();
-		ImGui::MenuItem("Test", NULL, &showTest);
+		
+		if (ImGui::BeginMenu("Windows"))
+		{
+			ImGui::MenuItem("Shader editor", NULL, &toolbarParams.shaderEditorOn);
+			ImGui::MenuItem("Script editor", NULL, &toolbarParams.scriptEditorOn);
+			ImGui::MenuItem("Texture viewer", NULL, &toolbarParams.textureViewerOn);
+			ImGui::MenuItem("Top view", NULL, &toolbarParams.topViewOn);
+
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
 
 		// We want to create a full size window
+		glm::vec2 windowSize = Input::getWindowSize();
+
 		ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y));
-		ImGui::SetNextWindowSize(ImVec2(Input::inputData.windowSize.x, Input::inputData.windowSize.y - mainMenuBarSize.y));
+		ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y - mainMenuBarSize.y));
 		ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 		ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
@@ -206,6 +219,8 @@ namespace Interface
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		interfaceDrawTime = glfwGetTime() - startTime;
 	}
 
 	void ShowViewer()
@@ -220,7 +235,7 @@ namespace Interface
 		glm::vec2 imagePos = ImGui::GetCursorScreenPos();
 
 		ImGui::Image(
-			(ImTextureID)renderer->getRenderTexture(),
+			(ImTextureID)Main::game.renderer.getRenderTexture(),
 			viewerSize,
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -265,26 +280,29 @@ namespace Interface
 				//defaultRenderer.addLine(rayStartPosWorld, rayEndPosWorld, true);
 				PhysicsComponent* raycastResult = Main::game.getCurrentState()->getPhysicsWorld().raycastLine(rayStartPosWorld, rayEndPosWorld);
 
-				if (selectedSceneNode != nullptr)
-					selectedSceneNode->drawOutline = false;
+				if (Main::game.getCurrentState()->getScene().currentActiveEntity != nullptr)
+					Main::game.getCurrentState()->getScene().currentActiveEntity->drawOutline = false;
 
 				if (raycastResult != nullptr)
 				{
-					selectedSceneNode = raycastResult->parent;
-					selectedSceneNode->drawOutline = true;
+					Main::game.getCurrentState()->getScene().currentActiveEntity = raycastResult->parent;
+					Main::game.getCurrentState()->getScene().currentActiveEntity->drawOutline = true;
 				}
 				else
-					selectedSceneNode = nullptr;
+					Main::game.getCurrentState()->getScene().currentActiveEntity = nullptr;
 			}
 		}
 
 		ImGui::End();
 
+		if (!toolbarParams.topViewOn)
+			return;
+		
 		// Second camera view
 		ImGui::Begin("Top view");
 
 		ImGui::Image(
-			(ImTextureID)renderer->getSkyRenderTexture(),
+			(ImTextureID)Main::game.renderer.getSkyRenderTexture(),
 			viewerSize,
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -299,6 +317,19 @@ namespace Interface
 
 		ImVec2 lastWindowSize = ImGui::GetContentRegionAvail();
 
+		std::vector<std::string> sourceFiles = Logger::getSourceFiles();
+
+		// Refresh if there are any new source files
+		for (std::string file : sourceFiles)
+		{
+			if (consoleParams.sourceFileToggle.count(file) == 0)
+			{
+				// Any new source file starts as toggled on
+				consoleParams.selectedSourceFiles.insert(file);
+				consoleParams.sourceFileToggle[file] = true;
+			}
+		}
+
 		// We keep 20px at the bottom for the buttons
 		ImGui::BeginChild("Logs", ImVec2(0, lastWindowSize.y - 20), 0, ImGuiWindowFlags_HorizontalScrollbar);
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.2f, 0.2f, 0.5f));
@@ -311,10 +342,16 @@ namespace Interface
 		}
 
 		// Display all the logs with their corresponding colors, with the earliest first
-		for (int i = consoleParams.shownLogs.size() - 1; i > 0; i--)
+		for (int i = consoleParams.shownLogs.size() - 1; i >= 0; i--)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.levelToColor[consoleParams.shownLogs[i].logLevel]);
-			ImGui::Text("%s", consoleParams.shownLogs[i].logMessage.c_str());
+			Log log = consoleParams.shownLogs[i];
+
+			if (log.logCount > 1) // We display the log count as well for repeated logs
+				ImGui::Text("%s", (log.logMessage + " (x" + std::to_string(log.logCount) + ")").c_str());
+			else // Normal display if log was not repeated
+				ImGui::Text("%s", consoleParams.shownLogs[i].logMessage.c_str());
+
 			ImGui::PopStyleColor();
 		}
 
@@ -346,19 +383,6 @@ namespace Interface
 			}
 
 			ImGui::EndCombo();
-		}
-
-		std::vector<std::string> sourceFiles = Logger::getSourceFiles();
-
-		// Refresh if there are any new source files
-		for (std::string file : sourceFiles)
-		{
-			if (consoleParams.sourceFileToggle.count(file) == 0)
-			{
-				// Any new source file starts as toggled on
-				consoleParams.selectedSourceFiles.insert(file);
-				consoleParams.sourceFileToggle[file] = true;
-			}
 		}
 
 		ImGui::SameLine();
@@ -393,9 +417,13 @@ namespace Interface
 
 	void PerformanceMenu()
 	{
+		Renderer& renderer = Main::game.renderer;
+
 		ImGui::Begin("Performance");
 
-		ImGui::Text("Frame render time: %.2f ms", Main::deltaTime * 1000);
+		ImGui::Text("Total frame time: %.2f ms", Main::deltaTime * 1000);
+		ImGui::Text("Render time: %.2f ms", renderer.frameRenderTime * 1000);
+		ImGui::Text("UI Draw time: %.2f ms", interfaceDrawTime * 1000);
 
 		performanceParams.lastFrames[performanceParams.frameIndex] = Main::deltaTime;
 		performanceParams.frameIndex++;
@@ -415,25 +443,26 @@ namespace Interface
 
 		ImGui::Separator();
 
-		ImGui::Text("Mesh sorting time: %.2f ms", renderer->meshSortingTime * 1000);
-		ImGui::Text("Physics update time: %.2f ms", renderer->physicsUpdateTime * 1000);
-		ImGui::Text("Shadow pass time: %.2f ms", renderer->shadowPassTime * 1000);
-		ImGui::Text("gBuffer pass time: %.2f ms", renderer->gBufferPassTime * 1000);
-		ImGui::Text("SSAO pass time: %.2f ms", renderer->ssaoPassTime * 1000);
-		ImGui::Text("Render pass time: %.2f ms", renderer->renderPassTime * 1000);
-		ImGui::Text("Outline pass time: %.2f ms", renderer->outlinePassTime * 1000);
-		ImGui::Text("Blit pass time: %.2f ms", renderer->blitPassTime * 1000);
+		ImGui::Text("Mesh sorting time: %.2f ms", renderer.meshSortingTime * 1000);
+		ImGui::Text("Physics update time: %.2f ms", renderer.physicsUpdateTime * 1000);
+		ImGui::Text("Shadow pass time: %.2f ms", renderer.shadowPassTime * 1000);
+		ImGui::Text("gBuffer pass time: %.2f ms", renderer.gBufferPassTime * 1000);
+		ImGui::Text("SSAO pass time: %.2f ms", renderer.ssaoPassTime * 1000);
+		ImGui::Text("Render pass time: %.2f ms", renderer.renderPassTime * 1000);
+		ImGui::Text("Outline pass time: %.2f ms", renderer.outlinePassTime * 1000);
+		ImGui::Text("Blit pass time: %.2f ms", renderer.blitPassTime * 1000);
+		ImGui::Text("Debug pass time: %.2f ms", renderer.debugPassTime * 1000);
 
 		if (performanceParams.isNvidiaGpu)
 		{
 			ImGui::Separator();
 
-			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.total_mem_kb);
-			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.cur_avail_mem_kb);
+			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.totalMemoryKb);
+			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.currentAvailableMemoryKb);
 
-			ImGui::Text("Total VRAM (MB): %i", performanceParams.total_mem_kb / 1000);
-			ImGui::Text("Available VRAM (MB): %i", performanceParams.cur_avail_mem_kb / 1000);
-			ImGui::Text("Used VRAM (MB): %i", (performanceParams.total_mem_kb - performanceParams.cur_avail_mem_kb) / 1000);
+			ImGui::Text("Total VRAM (MB): %i", performanceParams.totalMemoryKb / 1000);
+			ImGui::Text("Available VRAM (MB): %i", performanceParams.currentAvailableMemoryKb / 1000);
+			ImGui::Text("Used VRAM (MB): %i", (performanceParams.totalMemoryKb - performanceParams.currentAvailableMemoryKb) / 1000);
 		}
 
 		ImGui::End();
@@ -458,7 +487,7 @@ namespace Interface
 	{
 		ImGui::Begin("Shader settings");
 
-		Shader* pbr = renderer->shaderManager.getShader(ShaderType::PBR);
+		Shader* pbr = Main::game.renderer.shaderManager.getShader(ShaderType::PBR);
 
 		if (ImGui::DragFloat("Roughness", &shaderSettingsParams.roughness, 0.01f, 0.0f, 1.0f))
 			pbr->use()->setFloat("material.roughness", shaderSettingsParams.roughness);
@@ -469,7 +498,7 @@ namespace Interface
 		if (ImGui::DragFloat("AO", &shaderSettingsParams.ao, 0.01f, 0.0f, 1.0f))
 			pbr->use()->setFloat("material.ao", shaderSettingsParams.ao);
 
-		for (auto& [type, shader] : renderer->shaderManager.enumToShader)
+		for (auto& [type, shader] : Main::game.renderer.shaderManager.enumToShader)
 		{
 			std::string label;
 
@@ -534,14 +563,18 @@ namespace Interface
 
 			if (ImGui::CollapsingHeader(label.c_str()))
 			{
+				Renderer& renderer = Main::game.renderer;
+
 				ImGui::PushID(shader->vertexPath.c_str());
 				if (ImGui::Button("Edit vertex shader"))
 				{
-					shaderSettingsParams.currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->vertexPath;
+					shaderSettingsParams.currentEditedShaderPath = renderer.shaderManager.enumToShader[type]->vertexPath;
 					shaderSettingsParams.currentEditedShaderType = type;
 					shaderSettingsParams.isEditingVertexShader = true;
 					shaderSettingsParams.isEditingShader = true;
-					shaderSettingsParams.editor.SetText(renderer->shaderManager.getVertexShaderContent(type));
+					shaderSettingsParams.editor.SetText(renderer.shaderManager.getVertexShaderContent(type));
+
+					toolbarParams.shaderEditorOn = true;
 					ImGui::SetWindowFocus("Shader editor");
 				}
 				ImGui::PopID();
@@ -549,11 +582,13 @@ namespace Interface
 				ImGui::PushID(shader->fragmentPath.c_str());
 				if (ImGui::Button("Edit fragment shader"))
 				{
-					shaderSettingsParams.currentEditedShaderPath = renderer->shaderManager.enumToShader[type]->fragmentPath;
+					shaderSettingsParams.currentEditedShaderPath = renderer.shaderManager.enumToShader[type]->fragmentPath;
 					shaderSettingsParams.currentEditedShaderType = type;
 					shaderSettingsParams.isEditingVertexShader = false;
 					shaderSettingsParams.isEditingShader = true;
-					shaderSettingsParams.editor.SetText(renderer->shaderManager.getFragmentShaderContent(type));
+					shaderSettingsParams.editor.SetText(renderer.shaderManager.getFragmentShaderContent(type));
+
+					toolbarParams.shaderEditorOn = true;
 					ImGui::SetWindowFocus("Shader editor");
 				}
 				ImGui::PopID();
@@ -572,6 +607,9 @@ namespace Interface
 
 	void ShowShaderEditor()
 	{
+		if (!toolbarParams.shaderEditorOn)
+			return;
+
 		auto cpos = shaderSettingsParams.editor.GetCursorPosition();
 
 		ImGui::Begin("Shader editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -583,12 +621,13 @@ namespace Interface
 				auto textToSave = shaderSettingsParams.editor.GetText();
 				if (shaderSettingsParams.isEditingShader)
 				{
+					Renderer& renderer = Main::game.renderer;
 					if (shaderSettingsParams.isEditingVertexShader)
-						renderer->shaderManager.setVertexShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
+						renderer.shaderManager.setVertexShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
 					else
-						renderer->shaderManager.setFragmentShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
+						renderer.shaderManager.setFragmentShaderContent(shaderSettingsParams.currentEditedShaderType, textToSave);
 
-					renderer->shaderManager.enumToShader[shaderSettingsParams.currentEditedShaderType]->compileShader();
+					renderer.shaderManager.enumToShader[shaderSettingsParams.currentEditedShaderType]->compileShader();
 				}
 			}
 			if (ImGui::BeginMenu("Edit"))
@@ -654,6 +693,9 @@ namespace Interface
 
 	void ShowScriptEditor()
 	{
+		if (!toolbarParams.scriptEditorOn)
+			return;
+
 		auto cpos = scriptEditorParams.editor.GetCursorPosition();
 
 		ImGui::Begin("Script editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
@@ -724,15 +766,16 @@ namespace Interface
 	{
 		ImGui::Begin("Node details");
 
-		if (selectedSceneNode != nullptr)
+		if (Main::game.getCurrentState()->getScene().currentActiveEntity != nullptr)
 		{
-			ImGui::Text("%s", selectedSceneNode->getLabel().c_str());
 
-			bool isVisible = selectedSceneNode->getIsEnabled();
+			ImGui::Text("%s", Main::game.getCurrentState()->getScene().currentActiveEntity->getLabel().c_str());
+
+			bool isVisible = Main::game.getCurrentState()->getScene().currentActiveEntity->getIsEnabled();
 			if (ImGui::Checkbox("Visible", &isVisible))
-				selectedSceneNode->setIsEnabled(isVisible);
+				Main::game.getCurrentState()->getScene().currentActiveEntity->setIsEnabled(isVisible);
 
-			for (auto& [type, component] : selectedSceneNode->getComponents())
+			for (auto& [type, component] : Main::game.getCurrentState()->getScene().currentActiveEntity->getComponents())
 				ShowComponentUI(component);
 		}
 
@@ -766,7 +809,7 @@ namespace Interface
 				flags |= ImGuiTreeNodeFlags_OpenOnArrow;
 
 			// Highlight selected node
-			if (selectedSceneNode == child)
+			if (Main::game.getCurrentState()->getScene().currentActiveEntity == child)
 				flags |= ImGuiTreeNodeFlags_Selected;
 
 			// Change text color for hidden nodes
@@ -800,9 +843,13 @@ namespace Interface
 	{
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 		{
-			if (selectedSceneNode != nullptr) selectedSceneNode->drawOutline = false;
-			selectedSceneNode = object;
-			selectedSceneNode->drawOutline = true;
+			Entity* activeEntity = Main::game.getCurrentState()->getScene().currentActiveEntity;
+
+			if (activeEntity != nullptr)
+				activeEntity->drawOutline = false;
+
+			Main::game.getCurrentState()->getScene().currentActiveEntity = object;
+			Main::game.getCurrentState()->getScene().currentActiveEntity->drawOutline = true;
 		}
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 			ImGui::OpenPopup("NodePopup");
@@ -827,8 +874,8 @@ namespace Interface
 
 			if (ImGui::Button("Delete"))
 			{
-				if (object == selectedSceneNode)
-					selectedSceneNode = nullptr;
+				if (object == Main::game.getCurrentState()->getScene().currentActiveEntity)
+					Main::game.getCurrentState()->getScene().currentActiveEntity = nullptr;
 
 				// TODO : Remove from scene
 				if (!Main::game.getCurrentState()->getScene().removeEntity(object))
@@ -870,17 +917,17 @@ namespace Interface
 			{
 				SkyboxComponent* skyboxComponent = dynamic_cast<SkyboxComponent*>(component);
 
-				const char* combo_preview_value = skyboxParams.comboSkyboxes[skyboxParams.current_skybox_id];
+				const char* combo_preview_value = skyboxParams.comboSkyboxes[skyboxParams.currentSkyboxId];
 				if (ImGui::BeginCombo("##skySelector", combo_preview_value))
 				{
 					for (int i = 0; i < 3; i++)
 					{
-						const bool is_selected = (skyboxParams.current_skybox_id == i);
+						const bool is_selected = (skyboxParams.currentSkyboxId == i);
 						if (ImGui::Selectable(skyboxParams.comboSkyboxes[i], is_selected))
 						{
-							skyboxParams.current_skybox_id = i;
+							skyboxParams.currentSkyboxId = i;
 
-							switch (skyboxParams.current_skybox_id)
+							switch (skyboxParams.currentSkyboxId)
 							{
 								case (int)SkyboxType::GRASS:
 									skyboxComponent->changeSkybox(SkyboxType::GRASS);
@@ -915,6 +962,19 @@ namespace Interface
 
 				ImGui::Text("%s", verticesText.c_str());
 				ImGui::Text("%s", indicesText.c_str());
+
+				if (ImGui::CollapsingHeader("Bounding box"))
+				{
+					BoundingBox meshBoundingBox = meshComponent->getWorldBoundingBox();
+					glm::vec3 minCorner = meshBoundingBox.minPosition;
+					glm::vec3 maxCorner = meshBoundingBox.maxPosition;
+
+					std::string minCornerText = "Min corner: %.2f - %.2f - %.2f";
+					std::string maxCornerText = "Max corner: %.2f - %.2f - %.2f";
+					
+					ImGui::Text(minCornerText.c_str(), minCorner.x, minCorner.y, minCorner.z);
+					ImGui::Text(maxCornerText.c_str(), maxCorner.x, maxCorner.y, maxCorner.z);
+				}
 
 				PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
 				PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
@@ -1058,7 +1118,7 @@ namespace Interface
 							ImGui::SetWindowFocus("Texture viewer");
 						}
 					}
-				}
+				}//
 			}
 		}
 		else if (dynamic_cast<CameraComponent*>(component))
@@ -1165,6 +1225,7 @@ namespace Interface
 					scriptEditorParams.currentEditedScript = scriptComponent;
 					scriptEditorParams.isEditingScript = true;
 					scriptEditorParams.editor.SetText(scriptComponent->scriptCode);
+					toolbarParams.scriptEditorOn = true;
 				}
 			}
 		}
@@ -1179,6 +1240,9 @@ namespace Interface
 
 	void TextureViewer()
 	{
+		if (!toolbarParams.textureViewerOn)
+			return;
+
 		ImGui::Begin("Texture viewer");
 
 		if (textureViewerParams.showTexture)

@@ -55,7 +55,10 @@ Texture::~Texture()
 
 void Texture::bindTexture()
 {
-	glBindTexture(GL_TEXTURE_2D, texID);
+	if (this->type == TextureType::TEXTURE_3D)
+		glBindTexture(GL_TEXTURE_2D_ARRAY, this->texID);
+	else
+		glBindTexture(GL_TEXTURE_2D, this->texID);
 }
 
 void Texture::createTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)

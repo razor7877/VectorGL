@@ -3,7 +3,6 @@
 #include <utilities/glad.h>
 
 #include "entity.hpp"
-#include "shaderManager.hpp"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum class CameraMovement
@@ -24,7 +23,7 @@ public:
 	static constexpr float SENSITIVITY = 0.1f;
 	static constexpr float ZOOM = 45.0f;
 	static constexpr float NEAR = 0.01f;
-	static constexpr float FAR = 250.0f;
+	static constexpr float FAR = 125.0f;
 
 	CameraComponent(Entity* parent);
 
