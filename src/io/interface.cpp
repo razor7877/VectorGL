@@ -314,7 +314,7 @@ namespace Interface
 		for (int i = consoleParams.shownLogs.size() - 1; i > 0; i--)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, consoleParams.levelToColor[consoleParams.shownLogs[i].logLevel]);
-			ImGui::Text(consoleParams.shownLogs[i].logMessage.c_str());
+			ImGui::Text("%s", consoleParams.shownLogs[i].logMessage.c_str());
 			ImGui::PopStyleColor();
 		}
 
@@ -638,7 +638,8 @@ namespace Interface
 		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, shaderSettingsParams.editor.GetTotalLines(),
 			shaderSettingsParams.editor.IsOverwrite() ? "Ovr" : "Ins",
 			shaderSettingsParams.editor.CanUndo() ? "*" : " ",
-			shaderSettingsParams.editor.GetLanguageDefinition().mName.c_str(), shaderSettingsParams.currentEditedShaderPath);
+			shaderSettingsParams.editor.GetLanguageDefinition().mName.c_str(),
+			shaderSettingsParams.currentEditedShaderPath.c_str());
 
 		shaderSettingsParams.editor.Render("Shader Editor");
 		ImGui::End();
@@ -712,7 +713,8 @@ namespace Interface
 		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, scriptEditorParams.editor.GetTotalLines(),
 			scriptEditorParams.editor.IsOverwrite() ? "Ovr" : "Ins",
 			scriptEditorParams.editor.CanUndo() ? "*" : " ",
-			scriptEditorParams.editor.GetLanguageDefinition().mName.c_str(), scriptEditorParams.currrentEditedScriptName);
+			scriptEditorParams.editor.GetLanguageDefinition().mName.c_str(),
+			scriptEditorParams.currrentEditedScriptName.c_str());
 
 		scriptEditorParams.editor.Render("Script Editor");
 		ImGui::End();
@@ -724,7 +726,7 @@ namespace Interface
 
 		if (selectedSceneNode != nullptr)
 		{
-			ImGui::Text(selectedSceneNode->getLabel().c_str());
+			ImGui::Text("%s", selectedSceneNode->getLabel().c_str());
 
 			bool isVisible = selectedSceneNode->getIsEnabled();
 			if (ImGui::Checkbox("Visible", &isVisible))
@@ -911,8 +913,8 @@ namespace Interface
 				std::string verticesText = "Vertices: " + std::to_string(meshComponent->getVerticesCount());
 				std::string indicesText = "Indices: " + std::to_string(meshComponent->getIndicesCount());
 
-				ImGui::Text(verticesText.c_str());
-				ImGui::Text(indicesText.c_str());
+				ImGui::Text("%s", verticesText.c_str());
+				ImGui::Text("%s", indicesText.c_str());
 
 				PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
 				PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
@@ -1189,7 +1191,7 @@ namespace Interface
 			ImGui::Image((ImTextureID)textureViewerParams.currentTexture->texID, ImVec2(width, height));
 
 			std::string dimensions = "Size: " + std::to_string((int)textureViewerParams.currentTexture->width) + "x" + std::to_string((int)textureViewerParams.currentTexture->height) + " px";
-			ImGui::Text(dimensions.c_str());
+			ImGui::Text("%s", dimensions.c_str());
 		}
 
 		ImGui::End();

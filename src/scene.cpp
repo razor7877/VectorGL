@@ -1,5 +1,3 @@
-#pragma once
-
 #include "scene.hpp"
 
 std::vector<Entity*> Scene::getEntities()
