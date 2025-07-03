@@ -70,7 +70,7 @@ public:
 	/// </summary>
 	/// <param name="message">The message to log</param>
 	/// <param name="filename">The file name of the log emitter</param>
-	static void logInfo(const std::string& message, const std::string &filename)
+	static void logInfo(const std::string& message, const std::string &filename);
 
 	/// <summary>
 	/// Adds a new warning log message
@@ -84,7 +84,7 @@ public:
 	/// </summary>
 	/// <param name="message">The message to log</param>
 	/// <param name="filename">The file name of the log emitter</param>
-	static void logError(const std::string& message, const std::string &filename)
+	static void logError(const std::string& message, const std::string &filename);
 
 	/// <summary>
 	/// Adds a new debug log message

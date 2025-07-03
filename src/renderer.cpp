@@ -250,13 +250,13 @@ void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 
 	// Shadow mapping
 	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(Renderer::SHADOW_MAP_WIDTH, Renderer::SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
-	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap->renderTexture, TextureType::TEXTURE_3D);
+	PBRMaterial::shadowMap = std::make_shared<TextureView>(this->depthMap->renderTexture, TextureType::TEXTURE_3D);
 
 	// Screen space effects
 	this->gBuffer = std::make_unique<RenderTarget>(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
 	this->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * Renderer::SSAO_SCALE_FACTOR, GL_RED);
 	this->ssaoBlurTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * Renderer::SSAO_SCALE_FACTOR, GL_RED);
-	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_2D);
+	PBRMaterial::ssaoMap = std::make_unique<TextureView>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_2D);
 }
 
 glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane) const
@@ -280,6 +280,7 @@ glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlan
 	// Average the positions to get the frustum center
 	frustumCenter /= frustumCorners.size();
 
+	printf("Directional light ptr is %x\n", scene.directionalLight);
 	glm::vec3 lightDir = glm::normalize(scene.directionalLight->parent->getTransform()->getPosition());
 	const glm::mat4 lightView = glm::lookAt(
 		frustumCenter + lightDir,

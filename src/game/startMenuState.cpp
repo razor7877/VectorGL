@@ -33,14 +33,14 @@ void StartMenuState::init()
 		.addIndices(sphereOptimized.indices)
 		.addNormals(sphereOptimized.normals)
 		.setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
-	//this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
-	//this->scene.addEntity(std::move(cameraEntity));
+	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
+	this->scene.addEntity(std::move(cameraEntity));
 
 	cameraEntity = std::make_unique<Entity>("Sky Camera");
 	this->scene.skyCamera = cameraEntity->addComponent<CameraComponent>();
 	cameraEntity->getTransform()->setPosition(0.0f, 20.0f, 0.0f);
 	cameraEntity->getTransform()->setRotation(0.0f, -90.0f, 0.0f);
-	//this->scene.addEntity(std::move(cameraEntity));
+	this->scene.addEntity(std::move(cameraEntity));
 
 	LightManager::getInstance().init();
 
@@ -48,7 +48,7 @@ void StartMenuState::init()
 	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
 	auto* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
-	//this->scene.addEntity(std::move(dirLightEntity));
+	this->scene.addEntity(std::move(dirLightEntity));
 
 	// Sphere
 	for (int i = 0; i < 10; i++)

@@ -5,6 +5,7 @@
 #include "materials/material.hpp"
 #include "cubemap.hpp"
 #include "texture.hpp"
+#include "textureView.hpp"
 
 struct PBRMaterial : public virtual Material
 {
@@ -66,12 +67,12 @@ public:
 	/// <summary>
 	/// The shadow map for shadow calculations
 	/// </summary>
-	static std::shared_ptr<Texture> shadowMap;
+	static std::shared_ptr<TextureView> shadowMap;
 
 	/// <summary>
 	/// The SSAO map for applying screen space ambient occlusion
 	/// </summary>
-	static std::shared_ptr<Texture> ssaoMap;
+	static std::unique_ptr<TextureView> ssaoMap;
 
 	/// <summary>
 	/// The light space matrix for shadow calculations

@@ -1,6 +1,7 @@
 #include "materials/pbrMaterial.hpp"
 #include "renderer.hpp"
 #include "logger.hpp"
+#include "textureView.hpp"
 
 const std::string PBRMaterial::USED_MAPS = "material.used_maps";
 
@@ -33,8 +34,8 @@ const std::string PBRMaterial::SSAO_MAP = "ssaoMap";
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
 Texture* PBRMaterial::brdfLut = nullptr;
-std::shared_ptr<Texture> PBRMaterial::shadowMap = nullptr;
-std::shared_ptr<Texture> PBRMaterial::ssaoMap = nullptr;
+std::shared_ptr<TextureView> PBRMaterial::shadowMap = nullptr;
+std::unique_ptr<TextureView> PBRMaterial::ssaoMap = nullptr;
 glm::mat4 PBRMaterial::lightSpaceMatrices[4]{};
 float PBRMaterial::cascadePlaneDistances[3]{};
 float PBRMaterial::farPlane = 0.0f;

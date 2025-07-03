@@ -6,7 +6,7 @@
 
 #include "utilities/resourceLoader.hpp"
 #include "components/meshComponent.hpp"
-#include "components/physicsComponent.hpp"
+//#include "components/physicsComponent.hpp"
 #include "logger.hpp"
 #include "utilities/geometry.hpp"
 #include "materials/pbrMaterial.hpp"
@@ -30,7 +30,7 @@ ResourceLoader& ResourceLoader::getInstance()
 	return ResourceLoader::instance;
 }
 
-std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(std::string path, Shader* shaderProgram)
+std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(const std::string& path, Shader* shaderProgram)
 {
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace);
@@ -43,8 +43,8 @@ std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(std::string path, 
 
 	std::string sceneName = std::string(scene->mName.C_Str());
 
-	// We create an entity that will contains all the necessary data
-	Entity* modelEntity = new Entity(sceneName);
+	// We create an entity that will contain all the necessary data
+	auto* modelEntity = new Entity(sceneName);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -59,12 +59,9 @@ std::unique_ptr<Entity> ResourceLoader::loadModelFromFilepath(std::string path, 
 	return std::unique_ptr<Entity>(modelEntity);
 }
 
-ResourceLoader::ResourceLoader()
-{
+ResourceLoader::ResourceLoader() = default;
 
-}
-
-void ResourceLoader::processNode(aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent)
+void ResourceLoader::processNode(const aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent)
 {
 	// Process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -141,7 +138,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 		}
 	}
 
-	glm::vec3 diffuseColor = glm::vec3(1.0f);
+	auto diffuseColor = glm::vec3(1.0f);
 	float metalness = 0.0f;
 	float roughness = 0.5f;
 	float opacity = 1.0f;
@@ -202,16 +199,16 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 			opacity = opacityVec.r;
 	}
 
-	Entity* entity = new Entity();
-	MeshComponent* meshComponent = entity->addComponent<MeshComponent>();
-	PhysicsComponent* physicsComponent = entity->addComponent<PhysicsComponent>();
+	auto* entity = new Entity();
+	auto* meshComponent = entity->addComponent<MeshComponent>();
+	//auto* physicsComponent = entity->addComponent<PhysicsComponent>();
 
-	BoundingBox meshBoundingBox = Geometry::getMeshBoundingBox(vertices);
-	glm::vec3 halfExtents = (meshBoundingBox.maxPosition - meshBoundingBox.minPosition) * 0.5f;
-	glm::vec3 position = (meshBoundingBox.maxPosition + meshBoundingBox.minPosition) * 0.5f;
+	//BoundingBox meshBoundingBox = Geometry::getMeshBoundingBox(vertices);
+	//glm::vec3 halfExtents = (meshBoundingBox.maxPosition - meshBoundingBox.minPosition) * 0.5f;
+	//glm::vec3 position = (meshBoundingBox.maxPosition + meshBoundingBox.minPosition) * 0.5f;
 	//defaultRenderer.physicsWorld->addBox(physicsComponent, halfExtents, position, 0.0f, true);
 
-	if (normals.size() == 0)
+	if (normals.empty())
 		normals = Geometry::calculateVerticesNormals(vertices, indices);
 
 	meshComponent->setMaterial(std::make_unique<PBRMaterial>(shaderProgram))
@@ -225,7 +222,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 
 	meshComponent->setDiffuseColor(diffuseColor);
 
-	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
+	auto* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
 	if (pbrMaterial != nullptr)
 	{
 		pbrMaterial->metallic = metalness;
@@ -236,7 +233,7 @@ Entity* ResourceLoader::processMesh(aiMesh* mesh, const aiScene* scene, Shader* 
 	return entity;
 }
 
-std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const aiScene* scene, const aiMaterial* mat, aiTextureType type, const std::string& typeName)
 {
 	std::vector<std::shared_ptr<Texture>> textures;
 
@@ -265,7 +262,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 				// This means we have a compressed texture that we need to decompress
 				if (embeddedTexture->mHeight == 0)
 				{
-					Logger::logInfo(std::string("Loadding embedded compressed texture path " + path), "resourceLoader.cpp");
+					Logger::logInfo(std::string("Loading embedded compressed texture path " + path), "resourceLoader.cpp");
 
 					int width = embeddedTexture->mWidth;
 					int height = 1;
@@ -284,7 +281,7 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 					stbi_set_flip_vertically_on_load(false);
 
 					// Decompress image
-					unsigned char* data = stbi_load_from_memory((const stbi_uc*)embeddedTexture->pcData, len, &width, &height, &channels, channels);
+					unsigned char* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(embeddedTexture->pcData), len, &width, &height, &channels, channels);
 					// Create texture using image data
 					texture = std::make_shared<Texture>(textureType, width, height, format, data);
 					stbi_image_free(data);
@@ -296,8 +293,8 @@ std::vector<std::shared_ptr<Texture>> ResourceLoader::loadMaterialTextures(const
 					GLenum format = GL_RGB;
 
 					// Check the format hint for a transparency layer
-					for (int i = 0; i < 4; i++)
-						if (embeddedTexture->achFormatHint[i] == 'A' && embeddedTexture->achFormatHint[i] != '0')
+					for (int j = 0; j < 4; j++)
+						if (embeddedTexture->achFormatHint[j] == 'A' && embeddedTexture->achFormatHint[j] != '0')
 							format = GL_RGBA;
 
 					texture = std::make_shared<Texture>(textureType, embeddedTexture->mWidth, embeddedTexture->mHeight, format, embeddedTexture->pcData);

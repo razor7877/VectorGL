@@ -13,7 +13,7 @@ class ResourceLoader
 public:
 	static ResourceLoader& getInstance();
 
-	std::unique_ptr<Entity> loadModelFromFilepath(std::string path, Shader* shaderProgram);
+	std::unique_ptr<Entity> loadModelFromFilepath(const std::string& path, Shader* shaderProgram);
 	
 private:
 	static ResourceLoader instance;
@@ -26,7 +26,7 @@ private:
 	ResourceLoader(ResourceLoader const&) = delete;
 	ResourceLoader& operator=(ResourceLoader const&) = delete;
 
-	void processNode(aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent);
+	void processNode(const aiNode* node, const aiScene* scene, Shader* shaderProgram, Entity* parent);
 	Entity* processMesh(aiMesh* mesh, const aiScene* scene, Shader* shaderProgram, Entity* parent);
-	std::vector<std::shared_ptr<Texture>> loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, std::string typeName);
+	std::vector<std::shared_ptr<Texture>> loadMaterialTextures(const aiScene* scene, const aiMaterial* mat, aiTextureType type, const std::string& typeName);
 };
