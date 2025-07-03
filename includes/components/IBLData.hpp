@@ -37,7 +37,7 @@ struct IBLData
 	/// </summary>
 	/// <param name="renderer">A reference to the renderer</param>
 	/// <param name="hdrMap">The HDR map for the sky</param>
-	IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap);
+	IBLData(Renderer& renderer, const std::shared_ptr<Texture>& hdrMap);
 
 	/// <summary>
 	/// Generates IBL data for an existing cubemap
@@ -46,5 +46,5 @@ struct IBLData
 	/// <param name="cubemap">The cubemap for the sky</param>
 	IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap);
 
-	~IBLData();
+	~IBLData() = default;
 };

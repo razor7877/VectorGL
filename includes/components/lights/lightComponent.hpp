@@ -1,9 +1,7 @@
 #pragma once
 
-#include <utilities/glad.h>
 #include <glm/glm.hpp>
 
-#include "entity.hpp"
 #include "shader.hpp"
 #include "components/component.hpp"
 

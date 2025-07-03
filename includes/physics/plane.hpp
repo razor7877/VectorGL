@@ -7,14 +7,14 @@ struct Plane
 	glm::vec3 normal = { 0.0f, 1.0f, 0.0f };
 	float distance = 0.0f;
 
-	Plane() {}
+	Plane() = default;
 	Plane(glm::vec3 position, glm::vec3 normal)
 	{
 		this->normal = glm::normalize(normal);
 		this->distance = glm::dot(this->normal, position);
 	}
 
-	bool isOnOrForwardPlane(glm::vec3 extents, glm::vec3 center)
+	[[nodiscard]] bool isOnOrForwardPlane(glm::vec3 extents, glm::vec3 center) const
 	{
 		// Compute the projection interval radius of b onto L(t) = b.c + t * p.n
 		const float r =
@@ -25,7 +25,7 @@ struct Plane
 		return -r <= this->getSignedDistanceToPlane(center);
 	}
 
-	float getSignedDistanceToPlane(glm::vec3 point)
+	[[nodiscard]] float getSignedDistanceToPlane(glm::vec3 point) const
 	{
 		return glm::dot(this->normal, point) - this->distance;
 	}

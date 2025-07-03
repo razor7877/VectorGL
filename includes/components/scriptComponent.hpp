@@ -13,9 +13,9 @@ extern "C" {
 class ScriptComponent : public virtual Component
 {
 public:
-	std::string scriptCode = "";
+	std::string scriptCode;
 
-	ScriptComponent(Entity* parent);
+	explicit ScriptComponent(Entity* parent);
 	~ScriptComponent() override;
 
 	void start() override;

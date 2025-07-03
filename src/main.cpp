@@ -57,7 +57,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculates elapsed time since last frame for time-based calculations
-		currentFrame = (float)glfwGetTime();
+		currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 

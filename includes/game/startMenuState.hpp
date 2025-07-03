@@ -6,7 +6,7 @@
 class StartMenuState : public virtual GameState
 {
 public:
-	StartMenuState(Renderer& renderer) : GameState(renderer) {};
+	explicit StartMenuState(Renderer& renderer) : GameState(renderer) {};
 
 	void init() override;
 	void cleanup() override;

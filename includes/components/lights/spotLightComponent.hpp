@@ -16,7 +16,7 @@ public:
 	float cutOff;
 	float outerCutOff;
 
-	SpotLightComponent(Entity* parent);
+	explicit SpotLightComponent(Entity* parent);
 
 	void sendToShader(Shader* shaderProgram, unsigned int index) override;
 };

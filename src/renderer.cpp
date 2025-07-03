@@ -18,7 +18,7 @@
 
 Renderer::Renderer()
 {
-	
+
 }
 
 Renderer::~Renderer()
@@ -80,7 +80,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 
 		sample = glm::normalize(sample);
 
-		float scale = (float)i / 64.0f;
+		float scale = static_cast<float>(i) / 64.0f;
 		// Lerp
 		scale = 0.1f + (scale * scale) * (1.0f - 0.1f);
 		sample *= scale;
@@ -158,7 +158,7 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	double startTime = frameStartTime;
 
 	// Render & update the scene
-	
+
 	// All the entities at the top level of the scene
 	std::vector<Entity*> entities = scene.getEntities();
 	scene.sortedSceneData.clearCache();
@@ -473,8 +473,6 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 		}
 	}
 
-	Shader* lastShaderProgram = nullptr;
-
 	for (auto& [shader, meshesByDistance] : sceneData.transparentRenderList)
 	{
 		shader->use();
@@ -560,7 +558,7 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 			glBindVertexArray(lineVAO);
 			glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
 			glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 			glEnableVertexAttribArray(0);
 
 			this->shaderManager.getShader(ShaderType::SOLID)->use();

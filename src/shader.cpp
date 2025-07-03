@@ -175,7 +175,7 @@ GLuint Shader::getID()
 
 Shader* Shader::setBool(const std::string& name, bool value)
 {
-	glUniform1i(this->getUniformLocation(name), (int)value);
+	glUniform1i(this->getUniformLocation(name), static_cast<int>(value));
 	return this;
 }
 

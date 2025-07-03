@@ -18,7 +18,7 @@ public:
 
 	DebugDrawer() : m_debugMode(DBG_DrawWireframe) {}
 
-	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+	void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override
 	{
 		this->debugLines.push_back(from.x());
 		this->debugLines.push_back(from.y());
@@ -28,27 +28,27 @@ public:
 		this->debugLines.push_back(to.z());
 	}
 
-	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+	void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override
 	{
 		// Optionally implement this to draw contact points
 	}
 
-	virtual void reportErrorWarning(const char* warningString)
+	void reportErrorWarning(const char* warningString) override
 	{
 		printf("%s\n", warningString);
 	}
 
-	virtual void draw3dText(const btVector3& location, const char* textString)
+	void draw3dText(const btVector3& location, const char* textString) override
 	{
 		// Optionally implement this to draw 3D text
 	}
 
-	virtual void setDebugMode(int debugMode)
+	void setDebugMode(int debugMode) override
 	{
 		m_debugMode = debugMode;
 	}
 
-	virtual int getDebugMode() const
+	[[nodiscard]] int getDebugMode() const override
 	{
 		return m_debugMode;
 	}

@@ -85,6 +85,7 @@ public:
 	/// Creates a new texture using an existing OpenGL texture handle
 	/// </summary>
 	/// <param name="texture">The OpenGL texture handle</param>
+	/// <param name="textureType">The type of texture to create</param>
 	Texture(GLuint texture, TextureType textureType);
 
 	~Texture();

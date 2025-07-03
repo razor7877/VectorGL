@@ -8,7 +8,7 @@
 class GameState
 {
 public:
-	GameState(Renderer& renderer) : renderer(renderer) {}
+	explicit GameState(Renderer& renderer) : renderer(renderer) {}
 	virtual ~GameState() = default;
 
 	/// <summary>
@@ -35,18 +35,21 @@ public:
 	/// Handles any events
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
+	/// <param name="deltaTime">The delta time since the last frame update</param>
 	virtual void handleEvents(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
 	/// Game logic
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
+	/// /// <param name="deltaTime">The delta time since the last frame update</param>
 	virtual void update(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
 	/// Render logic
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
+	/// <param name="deltaTime">The delta time since the last frame update</param>
 	virtual void draw(GameEngine* gameEngine, float deltaTime) = 0;
 
 	/// <summary>
@@ -54,7 +57,7 @@ public:
 	/// </summary>
 	/// <param name="gameEngine">A reference to the game engine for state changes</param>
 	/// <param name="gameState">The new state to change to</param>
-	void changeState(GameEngine* gameEngine, std::unique_ptr<GameState> gameState)
+	static void changeState(GameEngine* gameEngine, std::unique_ptr<GameState> gameState)
 	{
 		gameEngine->changeState(std::move(gameState));
 	}

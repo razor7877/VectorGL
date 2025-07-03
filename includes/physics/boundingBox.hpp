@@ -19,7 +19,7 @@ struct BoundingBox
 	/// </summary>
 	glm::vec3 center = glm::vec3(0.0f);
 
-	BoundingBox() {}
+	BoundingBox() = default;
 
 	BoundingBox(glm::vec3 minPosition, glm::vec3 maxPosition) : minPosition(minPosition), maxPosition(maxPosition)
 	{
@@ -31,7 +31,7 @@ struct BoundingBox
 	/// </summary>
 	/// <param name="modelMatrix">The matrix to multiply the corners with</param>
 	/// <returns>A new bounding box with the transformation applied to it</returns>
-	BoundingBox operator*(glm::mat4 modelMatrix)
+	BoundingBox operator*(const glm::mat4 &modelMatrix) const
 	{
 		float xMin = std::numeric_limits<float>::max();
 		float yMin = std::numeric_limits<float>::max();
@@ -41,7 +41,7 @@ struct BoundingBox
 		float yMax = std::numeric_limits<float>::lowest();
 		float zMax = std::numeric_limits<float>::lowest();
 
-		std::vector<glm::vec3> corners = {
+		const std::vector<glm::vec3> corners = {
 			this->minPosition,
 			glm::vec3(this->minPosition.x, this->minPosition.y, this->maxPosition.z),
 			glm::vec3(this->minPosition.x, this->maxPosition.y, this->minPosition.z),
@@ -68,6 +68,6 @@ struct BoundingBox
 		glm::vec3 minPosition = glm::vec3(xMin, yMin, zMin);
 		glm::vec3 maxPosition = glm::vec3(xMax, yMax, zMax);
 
-		return BoundingBox(minPosition, maxPosition);
+		return {minPosition, maxPosition};
 	}
 };

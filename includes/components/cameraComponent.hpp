@@ -25,7 +25,7 @@ public:
 	static constexpr float NEAR = 0.01f;
 	static constexpr float FAR = 125.0f;
 
-	CameraComponent(Entity* parent);
+	explicit CameraComponent(Entity* parent);
 
 	void start() override;
 	void update(float deltaTime) override;

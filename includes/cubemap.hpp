@@ -28,19 +28,19 @@ public:
 	/// A constructor that builds a cubemap from a path that contains 6 PNG files named: right left top bottom front back .png
 	/// </summary>
 	/// <param name="facesPath">The path to the PNG files</param>
-	Cubemap(std::string facesPath);
+	explicit Cubemap(std::string facesPath);
 
 	/// <summary>
 	/// A constructor that builds a cubemap directly from any 6 given images path
 	/// </summary>
 	/// <param name="faces">A vector contaning the paths to 6 images</param>
-	Cubemap(std::vector<std::string> faces);
+	explicit Cubemap(std::vector<std::string> faces);
 
 	/// <summary>
 	/// Creates a cubemap object from an OpenGL cubemap texture handle
 	/// </summary>
 	/// <param name="cubemap">An OpenGL handle for a cubemap</param>
-	Cubemap(GLuint cubemap);
+	explicit Cubemap(GLuint cubemap);
 
 	Cubemap(GLenum format, int width, int height, bool mipMapFiltering = false);
 

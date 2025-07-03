@@ -1,8 +1,6 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
-#include <map>
-
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 

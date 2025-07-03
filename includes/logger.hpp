@@ -69,24 +69,28 @@ public:
 	/// Adds a new info log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
+	/// <param name="filename">The file name of the log emitter</param>
 	static void logInfo(std::string message, std::string filename);
 
 	/// <summary>
 	/// Adds a new warning log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
+	/// <param name="filename">The file name of the log emitter</param>
 	static void logWarning(std::string message, std::string filename);
 
 	/// <summary>
 	/// Adds a new error log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
+	/// <param name="filename">The file name of the log emitter</param>
 	static void logError(std::string message, std::string filename);
 
 	/// <summary>
 	/// Adds a new debug log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
+	/// <param name="filename">The file name of the log emitter</param>
 	static void logDebug(std::string message, std::string filename);
 
 	/// <summary>

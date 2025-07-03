@@ -51,7 +51,7 @@ namespace Interface
 	void ShaderSettings();
 
 	/// <summary>
-	/// Called to setup the shader editor
+	/// Called to set up the shader editor
 	/// </summary>
 	void SetupShaderEditor();
 
@@ -61,7 +61,7 @@ namespace Interface
 	void ShowShaderEditor();
 
 	/// <summary>
-	/// Called to setup the script editor
+	/// Called to set up the script editor
 	/// </summary>
 	void SetupScriptEditor();
 

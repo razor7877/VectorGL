@@ -34,14 +34,14 @@ void StartMenuState::init()
 		.addIndices(sphereOptimized.indices)
 		.addNormals(sphereOptimized.normals)
 		.setDiffuseColor(glm::vec3(1.0f, 0.0f, 0.0f));
-	this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
-	this->scene.addEntity(std::move(cameraEntity));
+	//this->scene.currentCamera = cameraEntity->addComponent<CameraComponent>();
+	//this->scene.addEntity(std::move(cameraEntity));
 
 	cameraEntity = std::make_unique<Entity>("Sky Camera");
 	this->scene.skyCamera = cameraEntity->addComponent<CameraComponent>();
 	cameraEntity->getTransform()->setPosition(0.0f, 20.0f, 0.0f);
 	cameraEntity->getTransform()->setRotation(0.0f, -90.0f, 0.0f);
-	this->scene.addEntity(std::move(cameraEntity));
+	//this->scene.addEntity(std::move(cameraEntity));
 
 	LightManager::getInstance().init();
 
@@ -49,7 +49,7 @@ void StartMenuState::init()
 	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
 	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
-	this->scene.addEntity(std::move(dirLightEntity));
+	//this->scene.addEntity(std::move(dirLightEntity));
 
 	// Sphere
 	for (int i = 0; i < 10; i++)
@@ -65,7 +65,7 @@ void StartMenuState::init()
 		PhysicsComponent* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
 		this->physicsWorld.addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
 
-		this->scene.addEntity(std::move(sphereEntity));
+		//this->scene.addEntity(std::move(sphereEntity));
 	}
 
 	// Skybox
@@ -73,7 +73,7 @@ void StartMenuState::init()
 	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	skyComponent->changeSkybox(SkyboxType::NIGHT);
-	this->scene.addEntity(std::move(skyEntity));
+	//this->scene.addEntity(std::move(skyEntity));
 
 	// Plane
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
@@ -86,7 +86,7 @@ void StartMenuState::init()
 	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
 	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
-	this->scene.addEntity(std::move(planeEntity));
+	//this->scene.addEntity(std::move(planeEntity));
 
 	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 

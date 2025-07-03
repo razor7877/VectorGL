@@ -13,7 +13,7 @@
 
 // TODO : Render pass system
 /// <summary>
-/// The renderer is responsible for storing and managing the scene data and setting up it's own framebuffer
+/// The renderer is responsible for storing and managing the scene data and setting up its own framebuffer
 /// </summary>
 class Renderer
 {
@@ -54,7 +54,7 @@ public:
 	/// <summary>
 	/// Initializes the renderer data, this needs to be done once before the render loop
 	/// </summary>
-	/// <param name="windowSize">The window size in pixels</param>
+	/// <param name="lastWindowSize">The window size in pixels</param>
 	void init(glm::vec2 lastWindowSize);
 
 	/// <summary>
@@ -68,6 +68,8 @@ public:
 	/// <summary>
 	/// Draws the scene and updates all the entities
 	/// </summary>
+	/// <param name="scene">The scene to be rendered</param>
+	/// <param name="physicsWorld">The physics world associated with the scene</param>
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
 	void render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime);
 
@@ -109,7 +111,7 @@ private:
 	std::unique_ptr<RenderTarget> finalTarget;
 
 	/// <summary>
-	/// The render target for the top down view
+	/// The render target for the top-down view
 	/// </summary>
 	std::unique_ptr<RenderTarget> skyTarget;
 
@@ -175,12 +177,13 @@ private:
 	/// The pass responsible for generating the shadow map
 	/// </summary>
 	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
+	/// <param name="scene">The scene to use for generating the shadows</param>
 	void shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene);
 
-	glm::mat4 getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane);
+	glm::mat4 getLightSpaceMatrix(const Scene& scene, float nearPlane, float farPlane);
 
 	/// <summary>
-	/// The pass responsible for rendering position/normal/albedo informations to the G buffer textures
+	/// The pass responsible for rendering position/normal/albedo information to the G buffer textures
 	/// </summary>
 	void gBufferPass(std::vector<MeshComponent*>& meshes);
 
@@ -193,8 +196,8 @@ private:
 	/// The main pass, responsible for rendering all the objects in the scene
 	/// </summary>
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
-	/// <param name="renderables">A vector containing all the entities that are rendered to the screen</param>
-	/// <param name="nonRenderables">A vector containing all the entities that are not rendered to the screen</param>
+	/// <param name="physicsWorld">A reference to the physics world</param>
+	/// <param name="sceneData">The prepared scene data for rendering</param>
 	void renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSceneData& sceneData);
 	
 	/// <summary>

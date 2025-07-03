@@ -19,8 +19,8 @@ class SkyboxComponent : public MeshComponent
 public:
 	static constexpr SkyboxType DEFAULT_SKY = SkyboxType::SKY;
 	
-	SkyboxComponent(Entity* parent);
-	~SkyboxComponent();
+	explicit SkyboxComponent(Entity* parent);
+	~SkyboxComponent() override;
 
 	void start() override;
 	void update(float deltaTime) override;
@@ -29,6 +29,7 @@ public:
 	/// Sets up the component before it can be used
 	/// </summary>
 	/// <param name="shaderProgram">Assigns the shader the component should use to be drawn</param>
+	/// <param name="renderer">A reference to the renderer that will use the skybox</param>
 	void setupSkybox(Shader* shaderProgram, Renderer& renderer);
 
 	/// <summary>

@@ -1,15 +1,13 @@
 #pragma once
 
-#include <btBulletDynamicsCommon.h>
-
 #include "components/component.hpp"
 #include "physics/collider.hpp"
 
 class PhysicsComponent : public virtual Component
 {
 public:
-	PhysicsComponent(Entity* parent);
-	~PhysicsComponent();
+	explicit PhysicsComponent(Entity* parent);
+	~PhysicsComponent() override;
 
 	void start() override;
 	void update(float deltaTime) override;
@@ -17,8 +15,7 @@ public:
 	/// <summary>
 	/// Sets a collider for the component
 	/// </summary>
-	/// <param name="world">A reference to the physics world</param>
-	/// <param name="rigidBody">The collider to associate with the component</param>
+	/// <param name="collider">The collider to associate to the component</param>
 	void setCollider(Collider* collider);
 
 private:

@@ -33,7 +33,7 @@ public:
 	/// Returns a vector containing the vertices for a cube
 	/// </summary>
 	/// <returns>A vector of floats</returns>
-	static const std::vector<float> getCubeVertices()
+	static std::vector<float> getCubeVertices()
 	{
 		std::vector<float> cubeVertices = {
 			-1.0f, -1.0f, -1.0f,
@@ -92,7 +92,7 @@ public:
 	/// Returns a vector containing the vertices for a cube arranged in clockwise order (face culling only shows the interior faces, used for skyboxes for example)
 	/// </summary>
 	/// <returns>A vector of floats</returns>
-	static const std::vector<float> getClockwiseCubeVertices()
+	static std::vector<float> getClockwiseCubeVertices()
 	{
 		std::vector<float> cubeVertices = { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, 1.0f, -1.0f,  1.0f };
 
@@ -103,7 +103,7 @@ public:
 	/// Returns a vector containing the vertices for a quad
 	/// </summary>
 	/// <returns>A vector of floats</returns>
-	static const std::vector<float> getQuadVertices()
+	static std::vector<float> getQuadVertices()
 	{
 		std::vector<float> quadVertices = {
 			-1.0f, 1.0f, 0.0f, // Top left
@@ -121,7 +121,7 @@ public:
 	/// Returns a vector containing the texture coordinates for a quad
 	/// </summary>
 	/// <returns>A vector of floats</returns>
-	static const std::vector<float> getQuadTexCoords()
+	static std::vector<float> getQuadTexCoords()
 	{
 		std::vector<float> quadTexCoords = {
 			0.0f, 1.0f, // Top left
@@ -153,15 +153,15 @@ public:
 		// Generate vertices per stack / slice
 		for (int i = 0; i < stacks - 1; i++)
 		{
-			float phi = glm::pi<float>() * (i + 1) / stacks;
+			float phi = glm::pi<float>() * static_cast<float>(i + 1) / static_cast<float>(stacks);
 
 			for (int j = 0; j < slices; j++)
 			{
-				float theta = 2.0f * glm::pi<float>() * j / slices;
+				float theta = 2.0f * glm::pi<float>() * static_cast<float>(j) / static_cast<float>(slices);
 				float x = std::sin(phi) * std::cos(theta);
 				float y = std::cos(phi);
 				float z = std::sin(phi) * std::sin(theta);
-				vertices.push_back(glm::vec3(x, y, z));
+				vertices.emplace_back(x, y, z);
 			}
 		}
 
@@ -262,7 +262,7 @@ public:
 	/// </summary>
 	/// <param name="vertices"></param>
 	/// <returns></returns>
-	static VertexDataIndices optimizeVertices(std::vector<float> vertices)
+	static VertexDataIndices optimizeVertices(const std::vector<float> &vertices)
 	{
 		assert(vertices.size() % 9 == 0 && "Vector contains malformed vertice data!");
 
@@ -372,7 +372,7 @@ public:
 	/// </summary>
 	/// <param name="vertices">The vertices for which normals should be calculated</param>
 	/// <returns>A vector containing the normals for each vertex</returns>
-	static std::vector<float> calculateVerticesNormals(std::vector<float> vertices)
+	static std::vector<float> calculateVerticesNormals(const std::vector<float> &vertices)
 	{
 		assert(vertices.size() % 9 == 0 && "Vector contains malformed vertice data!");
 
@@ -447,9 +447,9 @@ public:
 		std::vector<float> normalsAsFloats;
 
 		// Normalize all normals and them to the vector as floats
-		for (int i = 0; i < normals.size(); i++)
+		for (auto normal : normals)
 		{
-			glm::vec3 normalized = glm::normalize(normals[i]);
+			glm::vec3 normalized = glm::normalize(normal);
 
 			normalsAsFloats.push_back(normalized.x);
 			normalsAsFloats.push_back(normalized.y);
@@ -459,7 +459,7 @@ public:
 		return normalsAsFloats;
 	}
 
-	static BoundingBox getMeshBoundingBox(std::vector<float> vertices)
+	static BoundingBox getMeshBoundingBox(const std::vector<float> &vertices)
 	{
 		assert(vertices.size() % 3 == 0 && "Vector contains malformed vertice data!");
 
@@ -482,6 +482,6 @@ public:
 			if (vertices[i + 2] > maxZ) maxZ = vertices[i + 2];
 		}
 
-		return BoundingBox(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
+		return {glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ)};
 	}
 };

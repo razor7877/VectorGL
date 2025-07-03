@@ -19,17 +19,17 @@ struct Frustum
 
 	Frustum(CameraComponent* camera, glm::vec2 screenSize)
 	{
-		float halfVSide = camera->FAR * tanf(glm::radians(camera->getZoom()) * 0.5f);
+		float halfVSide = CameraComponent::FAR * tanf(glm::radians(camera->getZoom()) * 0.5f);
 		float halfHSide = halfVSide * (screenSize.x / screenSize.y);
 
-		glm::vec3 frontMultFar = camera->FAR * camera->getForward();
+		glm::vec3 frontMultFar = CameraComponent::FAR * camera->getForward();
 
 		glm::vec3 camPos = camera->getPosition();
 		glm::vec3 camForward = camera->getForward();
 		glm::vec3 camRight = glm::normalize(glm::cross(camera->getForward(), glm::vec3(0.0f, 1.0f, 0.0f)));
 		glm::vec3 camUp = glm::normalize(glm::cross(camRight, camForward));
 
-		this->nearFace = { camPos + camera->NEAR * camForward, camForward };
+		this->nearFace = { camPos + CameraComponent::NEAR * camForward, camForward };
 		this->farFace = { camPos + frontMultFar, -camForward };
 		this->rightFace = { camPos, glm::cross(frontMultFar - camRight * halfHSide, camUp) };
 		this->leftFace = { camPos, glm::cross(camUp, frontMultFar + camRight * halfHSide) };
@@ -81,9 +81,9 @@ struct Frustum
 				{
 					const glm::vec4 pt =
 						inv * glm::vec4(
-							2.0f * x - 1.0f,
-							2.0f * y - 1.0f,
-							2.0f * z - 1.0f,
+							2.0f * static_cast<float>(x) - 1.0f,
+							2.0f * static_cast<float>(y) - 1.0f,
+							2.0f * static_cast<float>(z) - 1.0f,
 							1.0f
 						);
 

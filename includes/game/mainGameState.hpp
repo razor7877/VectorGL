@@ -15,7 +15,7 @@ public:
 	std::unique_ptr<btPairCachingGhostObject> ghostObject = nullptr;
 	std::unique_ptr<btConvexShape> characterShape = nullptr;
 	
-	MainGameState(Renderer& renderer) : GameState(renderer) {};
+	explicit MainGameState(Renderer& renderer) : GameState(renderer) {};
 
 	void init() override;
 	void cleanup() override;

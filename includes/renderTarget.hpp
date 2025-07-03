@@ -77,8 +77,9 @@ public:
 	/// <summary>
 	/// Creates a new render target
 	/// </summary>
+	/// <param name="targetTextureType">The type of texture to be used for the render target</param>
 	/// <param name="size">The size of the render target in pixels</param>
-	/// <param name="useMultiSampling">Whether the render target is multisampled or not</param>
+	/// <param name="format">The OpenGL format for the texture</param>
 	RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum format = GL_RGB);
 
 	~RenderTarget();

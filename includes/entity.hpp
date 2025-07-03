@@ -18,7 +18,7 @@ public:
 	bool drawOutline = false;
 
 	Entity();
-	Entity(std::string label);
+	explicit Entity(std::string label);
 	~Entity();
 
 	/// <summary>
@@ -151,7 +151,7 @@ private:
 template <typename T>
 T* Entity::addComponent()
 {
-	static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+	static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
 	const std::type_info& componentType = typeid(T);
 
@@ -169,7 +169,7 @@ T* Entity::addComponent()
 template <typename T>
 T* Entity::getComponent()
 {
-	static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+	static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
 	const std::type_info& componentType = typeid(T);
 

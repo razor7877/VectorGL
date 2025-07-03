@@ -12,7 +12,6 @@
 #include "texture.hpp"
 #include "physics/boundingBox.hpp"
 #include "shader.hpp"
-#include "entity.hpp"
 
 class MeshComponent : public virtual Component
 {
@@ -20,7 +19,7 @@ public:
 	static const std::string MODEL;
 	static const std::string NORMAL_MATRIX;
 
-	MeshComponent(Entity* parent);
+	explicit MeshComponent(Entity* parent);
 	~MeshComponent() override;
 
 	void start() override;

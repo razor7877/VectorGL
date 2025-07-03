@@ -30,7 +30,7 @@ public:
 	static const std::string TEXTURE_HEIGHT;
 	static const std::string TEXTURE_EMISSIVE;
 
-	PhongMaterial(Shader* shaderProgram);
+	explicit PhongMaterial(Shader* shaderProgram);
 	PhongMaterial(Shader* shaderProgram, std::shared_ptr<Texture> texture);
 	PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture);
 	~PhongMaterial() override;
@@ -45,7 +45,7 @@ public:
 
 	bool getIsTransparent() override;
 
-	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
+	void addTextures(const std::vector<std::shared_ptr<Texture>>& textures) override;
 
 	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);
 	void addSpecularMap(std::shared_ptr<Texture> specularTexture);

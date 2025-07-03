@@ -7,7 +7,7 @@
 #include "utilities/geometry.hpp"
 #include "materials/pbrMaterial.hpp"
 
-IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
+IBLData::IBLData(Renderer& renderer, const std::shared_ptr<Texture>& hdrMap)
 {
 	// We start by querying all the necessary shaders
 	Shader* hdrToCubemapShader = renderer.shaderManager.getShader(ShaderType::HDRTOCUBEMAP);
@@ -19,7 +19,7 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 
 	// Create an entity that will contain a box mesh to display the HDR map
 	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
-	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
+	auto* lightMesh = cubemapEntity->addComponent<MeshComponent>();
 	lightMesh->setMaterial(std::make_unique<PBRMaterial>(hdrToCubemapShader))
 		.addVertices(boxVertices)
 		.addTexture(hdrMap);
@@ -99,14 +99,14 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	captureRT.bind();
 	unsigned int maxMipLevels = 5;
 
-	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+	for (int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// Resize framebuffer according to mip-level size
-		unsigned int mipWidth = 1024 * std::pow(0.5, mip);
-		unsigned int mipHeight = 1024 * std::pow(0.5, mip);
+		const auto mipWidth = static_cast<unsigned int>(1024 * std::pow(0.5, mip));
+		const auto mipHeight = static_cast<unsigned int>(1024 * std::pow(0.5, mip));
 		captureRT.resize(glm::vec2(mipWidth, mipHeight));
 
-		float roughness = (float)mip / (float)(maxMipLevels - 1);
+		float roughness = static_cast<float>(mip) / static_cast<float>(maxMipLevels - 1);
 		prefilterShader->setFloat("roughness", roughness);
 
 		for (unsigned int i = 0; i < 6; ++i)
@@ -127,7 +127,7 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
 	std::unique_ptr<Entity> quadEntity = std::make_unique<Entity>("Quad");
-	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
+	auto* quadMesh = quadEntity->addComponent<MeshComponent>();
 	quadMesh->setMaterial(std::make_unique<PBRMaterial>(brdfShader))
 		.addVertices(quadVertices)
 		.addTexCoords(quadTexCoords)
@@ -140,7 +140,7 @@ IBLData::IBLData(Renderer& renderer, std::shared_ptr<Texture> hdrMap)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -170,7 +170,7 @@ IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environ
 
 	// Create an entity that will contain a box mesh to display the HDR map
 	std::unique_ptr<Entity> cubemapEntity = std::make_unique<Entity>("HDR Cubemap");
-	MeshComponent* lightMesh = cubemapEntity->addComponent<MeshComponent>();
+	auto* lightMesh = cubemapEntity->addComponent<MeshComponent>();
 	lightMesh->setMaterial(std::make_unique<PBRMaterial>(irradianceShader))
 		.addVertices(boxVertices);
 
@@ -223,14 +223,14 @@ IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environ
 	captureRT.bind();
 	unsigned int maxMipLevels = 5;
 
-	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+	for (int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// Resize framebuffer according to mip-level size
-		unsigned int mipWidth = 1024 * std::pow(0.5, mip);
-		unsigned int mipHeight = 1024 * std::pow(0.5, mip);
+		const auto mipWidth = static_cast<unsigned int>(1024 * std::pow(0.5, mip));
+		const auto mipHeight = static_cast<unsigned int>(1024 * std::pow(0.5, mip));
 		captureRT.resize(glm::vec2(mipWidth, mipHeight));
 
-		float roughness = (float)mip / (float)(maxMipLevels - 1);
+		float roughness = static_cast<float>(mip) / static_cast<float>(maxMipLevels - 1);
 		prefilterShader->setFloat("roughness", roughness);
 
 		for (unsigned int i = 0; i < 6; ++i)
@@ -251,7 +251,7 @@ IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environ
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
 	std::unique_ptr<Entity> quadEntity = std::make_unique<Entity>("Quad");
-	MeshComponent* quadMesh = quadEntity->addComponent<MeshComponent>();
+	auto* quadMesh = quadEntity->addComponent<MeshComponent>();
 	quadMesh->setMaterial(std::make_unique<PBRMaterial>(brdfShader))
 		.addVertices(quadVertices)
 		.addTexCoords(quadTexCoords);
@@ -263,7 +263,7 @@ IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environ
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -278,9 +278,4 @@ IBLData::IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap) : environ
 	captureRT.unbind();
 
 	this->brdfLut = std::make_unique<Texture>(brdfLUTTexture, TextureType::TEXTURE_ALBEDO);
-}
-
-IBLData::~IBLData()
-{
-
 }

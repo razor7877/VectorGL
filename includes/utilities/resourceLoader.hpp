@@ -2,7 +2,6 @@
 
 #include <memory>
 
-#include <utilities/glad.h>
 #include <assimp/scene.h>
 
 #include "shader.hpp"

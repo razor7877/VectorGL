@@ -23,7 +23,7 @@ struct SortedSceneData
 	std::vector<Entity*> logicEntities;
 	// The list of all meshes in the scene, for drawing geometry in the shadow or SSAO render passes
 	std::vector<MeshComponent*> meshes;
-	// All meshes present in the scene, regardless of whether they are inside of the camera frustum
+	// All meshes present in the scene, regardless of whether they are inside the camera frustum
 	std::vector<MeshComponent*> allMeshes;
 	// The list of all physics component that are from entities not inside the camera frustum
 	std::vector<PhysicsComponent*> physicsComponents;
@@ -84,7 +84,7 @@ public:
 	/// Removes an entity from the renderer
 	/// </summary>
 	/// <param name="objectPtr">The entity to be removed</param>
-	/// <returns>True if the entity was successfully removed, false otherwise</return>
+	/// <returns>True if the entity was successfully removed, false otherwise</returns>
 	bool removeEntity(std::unique_ptr<Entity> objectPtr);
 
 	/// <summary>

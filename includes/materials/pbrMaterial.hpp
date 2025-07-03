@@ -83,7 +83,7 @@ public:
 	/// </summary>
 	static float cascadePlaneDistances[3];
 
-	static const int cascadeCount = 3;
+	static constexpr int cascadeCount = 3;
 
 	static float farPlane;
 
@@ -155,13 +155,13 @@ public:
 	int useOpacityMap = 0;
 	int useEmissiveMap = 0;
 
-	PBRMaterial(Shader* shaderProgram);
+	explicit PBRMaterial(Shader* shaderProgram);
 	~PBRMaterial() override;
 
 	void init() override;
 	void sendToShader() override;
 	bool getIsTransparent() override;
-	void addTextures(std::vector<std::shared_ptr<Texture>> textures) override;
+	void addTextures(const std::vector<std::shared_ptr<Texture>>& textures) override;
 
 	void addAlbedoMap(std::shared_ptr<Texture> albedoTexture);
 	void addNormalMap(std::shared_ptr<Texture> normalTexture);

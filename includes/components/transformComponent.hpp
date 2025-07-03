@@ -7,8 +7,8 @@
 class TransformComponent : public virtual Component
 {
 public:
-	TransformComponent(Entity* parent);
-	~TransformComponent();
+	explicit TransformComponent(Entity* parent);
+	~TransformComponent() override;
 
 	void start() override;
 	void update(float deltaTime) override;

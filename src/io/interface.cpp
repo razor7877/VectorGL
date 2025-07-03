@@ -244,7 +244,7 @@ namespace Interface
 		isViewerFocused = ImGui::IsWindowFocused();
 
 		// If we have a click inside the viewer window
-		if (isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		if (true || isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			glm::vec2 mousePos = ImGui::GetMousePos();
 			// Get mouse position inside of the viewer
