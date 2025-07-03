@@ -3,11 +3,9 @@
 #include <utilities/glad.h>
 
 #include "shaderManager.hpp"
+#include "logger.hpp"
 
-ShaderManager::ShaderManager()
-{
-
-}
+ShaderManager::ShaderManager() = default;
 
 ShaderManager::~ShaderManager()
 {
@@ -22,14 +20,14 @@ void ShaderManager::initUniformBuffer()
 	glGenBuffers(1, &this->UBO);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, this->UBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Make sure buffer range corresponds to actual buffer size!
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, this->UBO, 0, 2 * sizeof(glm::mat4));
 }
 
-void ShaderManager::updateUniformBuffer(glm::mat4 view, glm::mat4 projection)
+void ShaderManager::updateUniformBuffer(glm::mat4 view, glm::mat4 projection) const
 {
 	glBindBuffer(GL_UNIFORM_BUFFER, this->UBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &view[0][0]);
@@ -104,6 +102,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 		case ShaderType::SSAOBLUR:
 			enumToShader[shader] = new Shader("shaders/ssaoBlur.vert", "shaders/ssaoBlur.frag");
 			break;
+
+		default:
+			Logger::logError("ShaderManager::getShader called with an unhandled ShaderType!", "shaderManager.cpp");
+			return nullptr;
 	}
 
 	unsigned int UBIShader = glGetUniformBlockIndex(enumToShader[shader]->getID(), "Matrices");
@@ -144,7 +146,7 @@ std::string ShaderManager::getFragmentShaderContent(ShaderType shader)
 	return "";
 }
 
-void ShaderManager::setVertexShaderContent(ShaderType shader, std::string content)
+void ShaderManager::setVertexShaderContent(const ShaderType shader, const std::string& content)
 {
 	if (enumToShader.count(shader) == 0)
 		return;
@@ -156,7 +158,7 @@ void ShaderManager::setVertexShaderContent(ShaderType shader, std::string conten
 	ofs.close();
 }
 
-void ShaderManager::setFragmentShaderContent(ShaderType shader, std::string content)
+void ShaderManager::setFragmentShaderContent(const ShaderType shader, const std::string& content)
 {
 	if (enumToShader.count(shader) == 0)
 		return;

@@ -1,4 +1,5 @@
 #include "materials/phongMaterial.hpp"
+#include "logger.hpp"
 
 const std::string PhongMaterial::AMBIENT_COLOR = "material.ambient";
 const std::string PhongMaterial::DIFFUSE_COLOR = "material.diffuse";
@@ -19,16 +20,16 @@ const std::string PhongMaterial::TEXTURE_EMISSIVE = "material.texture_emissive";
 
 PhongMaterial::PhongMaterial(Shader* shaderProgram) : Material(shaderProgram)
 {
-	this->init();
+	this->PhongMaterial::init();
 }
 
-PhongMaterial::PhongMaterial(Shader* shaderProgram, std::shared_ptr<Texture> texture) : Material(shaderProgram)
+PhongMaterial::PhongMaterial(Shader* shaderProgram, const std::shared_ptr<Texture>& texture) : Material(shaderProgram)
 {
-	this->init();
+	this->PhongMaterial::init();
 	this->addDiffuseMap(texture);
 }
 
-PhongMaterial::PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture)
+PhongMaterial::PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, const std::shared_ptr<Texture>& texture)
 	: Material(shaderProgram)
 {
 	this->ambientColor = ambient;
@@ -38,10 +39,7 @@ PhongMaterial::PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3
 	this->diffuseTexture = texture;
 }
 
-PhongMaterial::~PhongMaterial()
-{
-
-}
+PhongMaterial::~PhongMaterial() = default;
 
 void PhongMaterial::init()
 {
@@ -104,60 +102,64 @@ bool PhongMaterial::getIsTransparent()
 	return false;
 }
 
-void PhongMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
+void PhongMaterial::addTextures(const std::vector<std::shared_ptr<Texture>>& textures)
 {
 	// We sort the textures from the vector into their own members in the mesh for easier use later
-	for (int i = 0; i < textures.size(); i++)
+	for (const auto & texture : textures)
 	{
-		switch (textures[i]->type)
+		switch (texture->type)
 		{
 			case TextureType::TEXTURE_DIFFUSE:
-				this->addDiffuseMap(textures[i]);
+				this->addDiffuseMap(texture);
 				break;
 
 			case TextureType::TEXTURE_SPECULAR:
-				this->addSpecularMap(textures[i]);
+				this->addSpecularMap(texture);
 				break;
 
 			case TextureType::TEXTURE_NORMAL:
-				this->addNormalMap(textures[i]);
+				this->addNormalMap(texture);
 				break;
 
 			case TextureType::TEXTURE_HEIGHT:
-				this->addHeightMap(textures[i]);
+				this->addHeightMap(texture);
 				break;
 
 			case TextureType::TEXTURE_EMISSIVE:
-				this->addEmissiveMap(textures[i]);
+				this->addEmissiveMap(texture);
+
+			default:
+				Logger::logError("Got incorrect texture type while adding textures to PhongMaterial!", "phongMaterial.cpp");
+				break;
 		}
 	}
 }
 
-void PhongMaterial::addDiffuseMap(std::shared_ptr<Texture> diffuseTexture)
+void PhongMaterial::addDiffuseMap(const std::shared_ptr<Texture> &diffuseTexture)
 {
 	this->useDiffuseMap = true;
 	this->diffuseTexture = diffuseTexture;
 }
 
-void PhongMaterial::addSpecularMap(std::shared_ptr<Texture> specularTexture)
+void PhongMaterial::addSpecularMap(const std::shared_ptr<Texture> &specularTexture)
 {
 	this->useSpecularMap = true;
 	this->specularTexture = specularTexture;
 }
 
-void PhongMaterial::addNormalMap(std::shared_ptr<Texture> normalTexture)
+void PhongMaterial::addNormalMap(const std::shared_ptr<Texture> &normalTexture)
 {
 	this->useNormalMap = true;
 	this->normalTexture = normalTexture;
 }
 
-void PhongMaterial::addHeightMap(std::shared_ptr<Texture> heightTexture)
+void PhongMaterial::addHeightMap(const std::shared_ptr<Texture> &heightTexture)
 {
 	this->useHeightMap = true;
 	this->heightTexture = heightTexture;
 }
 
-void PhongMaterial::addEmissiveMap(std::shared_ptr<Texture> emissiveTexture)
+void PhongMaterial::addEmissiveMap(const std::shared_ptr<Texture> &emissiveTexture)
 {
 	this->useEmissiveMap = true;
 	this->emissiveTexture = emissiveTexture;

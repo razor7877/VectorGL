@@ -8,7 +8,7 @@
 class SpotLightComponent : public LightComponent
 {
 public:
-	glm::vec3 direction;
+	glm::vec3 direction{};
 
 	float constant;
 	float linear;

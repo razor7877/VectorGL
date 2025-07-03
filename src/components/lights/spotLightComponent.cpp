@@ -2,9 +2,11 @@
 #include <glm/glm/ext/matrix_transform.hpp>
 
 #include "components/lights/spotLightComponent.hpp"
+
+#include "entity.hpp"
 #include "lightManager.hpp"
 
-SpotLightComponent::SpotLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
+SpotLightComponent::SpotLightComponent(Entity* parent) : Component(parent), LightComponent(parent)
 {
 	this->constant = 1.0f;
 	this->linear = 0.045f;
@@ -38,9 +40,9 @@ void SpotLightComponent::sendToShader(Shader* shaderProgram, unsigned int index)
 
 	// Calculate the new front vector
 	glm::vec3 newDirection{};
-	newDirection.x = cos(glm::radians(rotation.x)) * cos(glm::radians(rotation.y));
-	newDirection.y = sin(glm::radians(rotation.y));
-	newDirection.z = sin(glm::radians(rotation.x)) * cos(glm::radians(rotation.y));
+	newDirection.x = static_cast<float>(cos(glm::radians(rotation.x)) * cos(glm::radians(rotation.y)));
+	newDirection.y = static_cast<float>(sin(glm::radians(rotation.y)));
+	newDirection.z = static_cast<float>(sin(glm::radians(rotation.x)) * cos(glm::radians(rotation.y)));
 	newDirection = glm::normalize(newDirection);
 
 	glUniform3fv(glGetUniformLocation(shaderProgram->getID(), ambientLoc.c_str()), 1, &this->ambientColor[0]);

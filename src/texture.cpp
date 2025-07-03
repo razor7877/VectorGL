@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <utilities/glad.h>
 #include <utilities/stb_image.h>
 
@@ -11,7 +9,7 @@ Texture::Texture()
 	this->texID = {};
 }
 
-Texture::Texture(std::string filename, TextureType textureType, bool isHDR, bool stbiFlipOnLoad)
+Texture::Texture(const std::string& filename, TextureType textureType, bool isHDR, bool stbiFlipOnLoad)
 {
 	this->type = textureType;
 	this->isHDR = isHDR;
@@ -22,7 +20,7 @@ Texture::Texture(std::string filename, TextureType textureType, bool isHDR, bool
 		this->createTexture(filename, textureType, stbiFlipOnLoad);
 }
 
-Texture::Texture(TextureType textureType, int width, int height, GLenum format, void* textureData)
+Texture::Texture(TextureType textureType, int width, int height, GLenum format, const void* textureData)
 {
 	this->type = textureType;
 	this->width = width;
@@ -53,7 +51,7 @@ Texture::~Texture()
 	glDeleteTextures(1, &this->texID);
 }
 
-void Texture::bindTexture()
+void Texture::bindTexture() const
 {
 	if (this->type == TextureType::TEXTURE_3D)
 		glBindTexture(GL_TEXTURE_2D_ARRAY, this->texID);
@@ -61,15 +59,14 @@ void Texture::bindTexture()
 		glBindTexture(GL_TEXTURE_2D, this->texID);
 }
 
-void Texture::createTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
+void Texture::createTexture(const std::string& filename, TextureType textureType, bool stbiFlipOnLoad)
 {
 	int width, height, nrChannels;
 
 	stbi_set_flip_vertically_on_load(stbiFlipOnLoad);
 
 	// Attempts loading image data from given filename
-	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
-	if (data)
+	if (unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0))
 	{
 		GLenum format = GL_RGB;
 		if (nrChannels == 1)
@@ -105,15 +102,14 @@ void Texture::createTexture(std::string filename, TextureType textureType, bool 
 	this->height = height;
 }
 
-void Texture::createHDRTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad)
+void Texture::createHDRTexture(const std::string& filename, TextureType textureType, bool stbiFlipOnLoad)
 {
 	int width, height, nrChannels;
 
 	stbi_set_flip_vertically_on_load(stbiFlipOnLoad);
 
 	// Attempts loading image data from given filename
-	float* data = stbi_loadf(filename.c_str(), &width, &height, &nrChannels, 0);
-	if (data)
+	if (float* data = stbi_loadf(filename.c_str(), &width, &height, &nrChannels, 0))
 	{
 		// Create OpenGL texture
 		glGenTextures(1, &this->texID);

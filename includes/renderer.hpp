@@ -47,9 +47,9 @@ public:
 	/// Returns the framebuffer that the renderer draws into
 	/// </summary>
 	/// <returns>A GLuint pointing to the render texture on the GPU</returns>
-	GLuint getRenderTexture();
+	GLuint getRenderTexture() const;
 
-	GLuint getSkyRenderTexture();
+	GLuint getSkyRenderTexture() const;
 
 	/// <summary>
 	/// Initializes the renderer data, this needs to be done once before the render loop
@@ -76,13 +76,13 @@ public:
 	/// <summary>
 	/// Stops the renderer, this cleans up all the resources it contains (not implemented yet)
 	/// </summary>
-	void end();
+	static void end();
 
 	/// <summary>
 	/// Resizes the existing framebuffer with the size specified
 	/// </summary>
 	/// <param name="newSize">The new size in pixels</param>
-	void resizeFramebuffers(glm::vec2 newSize);
+	void resizeFramebuffers(glm::vec2 newSize) const;
 
 private:
 	/// <summary>
@@ -178,14 +178,14 @@ private:
 	/// </summary>
 	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
 	/// <param name="scene">The scene to use for generating the shadows</param>
-	void shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene);
+	void shadowPass(const std::vector<MeshComponent*>& meshes, const Scene& scene);
 
-	glm::mat4 getLightSpaceMatrix(const Scene& scene, float nearPlane, float farPlane);
+	glm::mat4 getLightSpaceMatrix(const Scene& scene, float nearPlane, float farPlane) const;
 
 	/// <summary>
 	/// The pass responsible for rendering position/normal/albedo information to the G buffer textures
 	/// </summary>
-	void gBufferPass(std::vector<MeshComponent*>& meshes);
+	void gBufferPass(const std::vector<MeshComponent*>& meshes);
 
 	/// <summary>
 	/// The pass responsible for calculating SSAO
@@ -204,12 +204,12 @@ private:
 	/// The outline pass, responsible for rendering the outline of selected objects
 	/// </summary>
 	/// <param name="outlineRenderables"></param>
-	void outlinePass(std::vector<Entity*>& outlineRenderables);
+	void outlinePass(const std::vector<Entity*>& outlineRenderables);
 
 	/// <summary>
 	/// The final pass, reponsible for resolving the multisampled framebuffer texture to the final texture for display
 	/// </summary>
-	void blitPass();
+	void blitPass() const;
 };
 
 #endif

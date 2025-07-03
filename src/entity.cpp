@@ -6,7 +6,7 @@ Entity::Entity()
 	this->transform = this->addComponent<TransformComponent>();
 }
 
-Entity::Entity(std::string label)
+Entity::Entity(const std::string &label)
 {
 	this->transform = this->addComponent<TransformComponent>();
 	this->label = label;
@@ -36,7 +36,7 @@ void Entity::update(float deltaTime)
 	if (!this->isEnabled)
 		return;
 
-	std::type_index physics = std::type_index(typeid(PhysicsComponent));
+	auto physics = std::type_index(typeid(PhysicsComponent));
 	if (this->components.count(physics))
 		this->components[physics]->update(deltaTime);
 
@@ -49,7 +49,7 @@ std::map<std::type_index, Component*> Entity::getComponents()
 	return this->components;
 }
 
-TransformComponent* Entity::getTransform()
+TransformComponent* Entity::getTransform() const
 {
 	return this->transform;
 }
@@ -59,12 +59,12 @@ std::string Entity::getLabel()
 	return this->label;
 }
 
-void Entity::setLabel(std::string label)
+void Entity::setLabel(const std::string &label)
 {
 	this->label = label;
 }
 
-Entity* Entity::getParent()
+Entity* Entity::getParent() const
 {
 	return this->parent;
 }
@@ -89,7 +89,7 @@ void Entity::removeChild(Entity* child)
 	this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
 }
 
-bool Entity::getIsEnabled()
+bool Entity::getIsEnabled() const
 {
 	return this->isEnabled;
 }

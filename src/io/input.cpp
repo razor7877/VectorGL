@@ -21,7 +21,7 @@ namespace Input
 		int action = GLFW_RELEASE;
 		int mods = 0;
 
-		KeyEvent() {}
+		KeyEvent() = default;
 		KeyEvent(int key, int scancode, int action, int mods) : key(key), scancode(scancode), action(action), mods(mods) {}
 	};
 
@@ -64,7 +64,7 @@ namespace Input
 		/// <summary>
 		/// The last position of the mouse cursor
 		/// </summary>
-		glm::ivec2 lastCursorPosition = glm::ivec2((float)InputData::WINDOW_SIZE.x / 2.0f, (float)InputData::WINDOW_SIZE.y / 2.0f);
+		glm::ivec2 lastCursorPosition = glm::ivec2(static_cast<float>(InputData::WINDOW_SIZE.x) / 2.0f, static_cast<float>(InputData::WINDOW_SIZE.y) / 2.0f);
 
 		/// <summary>
 		/// The current size of the window
@@ -97,16 +97,16 @@ namespace Input
 
 		if (inputData.firstMouseCallback)
 		{
-			inputData.lastCursorPosition.x = (float)xPos;
-			inputData.lastCursorPosition.y = (float)yPos;
+			inputData.lastCursorPosition.x = static_cast<int>(xPos);
+			inputData.lastCursorPosition.y = static_cast<int>(yPos);
 			inputData.firstMouseCallback = false;
 		}
 
-		float xoffset = (float)(xPos - inputData.lastCursorPosition.x);
-		float yoffset = (float)(inputData.lastCursorPosition.y - yPos);
+		auto xoffset = static_cast<float>(xPos - inputData.lastCursorPosition.x);
+		auto yoffset = static_cast<float>(inputData.lastCursorPosition.y - yPos);
 
-		inputData.lastCursorPosition.x = (float)xPos;
-		inputData.lastCursorPosition.y = (float)yPos;
+		inputData.lastCursorPosition.x = static_cast<int>(xPos);
+		inputData.lastCursorPosition.y = static_cast<int>(yPos);
 
 		Main::game.getCurrentState()->getScene().currentCamera->processMouseMovement(xoffset, yoffset);
 	}
@@ -236,11 +236,10 @@ namespace Input
 		{
 			std::string newPath = std::string(paths[i]);
 
-			int index = 0;
-			for (size_t i = 0; i < newPath.length(); ++i)
+			for (size_t j = 0; j < newPath.length(); j++)
 			{
-				if (newPath[i] == '\\')
-					newPath[i] = '/';
+				if (newPath[j] == '\\')
+					newPath[j] = '/';
 			}
 
 			Logger::logInfo("Drag & drop callback path: " + newPath, "input.cpp");
@@ -267,8 +266,8 @@ namespace Input
 
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-		inputData.window = glfwCreateWindow(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y, "VectorGL", NULL, NULL);
-		if (inputData.window == NULL)
+		inputData.window = glfwCreateWindow(InputData::WINDOW_SIZE.x, InputData::WINDOW_SIZE.y, "VectorGL", nullptr, nullptr);
+		if (inputData.window == nullptr)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
@@ -284,7 +283,7 @@ namespace Input
 		glfwSetDropCallback(inputData.window, dropCallback);
 
 		// Check if GLAD loaded successfully
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 		{
 			std::cout << "Failed to initialize GLAD" << std::endl;
 			return -1;

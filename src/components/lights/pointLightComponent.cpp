@@ -3,9 +3,11 @@
 #include <utilities/glad.h>
 
 #include "components/lights/pointLightComponent.hpp"
+
+#include "entity.hpp"
 #include "lightManager.hpp"
 
-PointLightComponent::PointLightComponent(Entity* parent) : LightComponent(parent), Component(parent)
+PointLightComponent::PointLightComponent(Entity* parent) : Component(parent), LightComponent(parent)
 {
 	this->constant = 1.0f;
 	this->linear = 0.045f;

@@ -2,10 +2,7 @@
 #include "logger.hpp"
 #include "renderer.hpp"
 
-RenderTarget::RenderTarget()
-{
-
-}
+RenderTarget::RenderTarget() = default;
 
 RenderTarget::RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum format)
 {
@@ -14,7 +11,7 @@ RenderTarget::RenderTarget(TargetType targetTextureType, glm::vec2 size, GLenum 
 	this->targetTextureType = targetTextureType;
 
 	this->attachTexture(targetTextureType, size);
-	this->unbind();
+	RenderTarget::unbind();
 }
 
 RenderTarget::~RenderTarget()
@@ -27,7 +24,7 @@ RenderTarget::~RenderTarget()
 	glDeleteTextures(1, &this->gAlbedo);
 }
 
-void RenderTarget::bind()
+void RenderTarget::bind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, this->framebuffer);
 	glViewport(0, 0, this->size.x, this->size.y);
@@ -38,7 +35,7 @@ void RenderTarget::unbind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderTarget::clear()
+void RenderTarget::clear() const
 {
 	if (this->targetTextureType == TargetType::TEXTURE_CUBEMAP || this->targetTextureType == TargetType::TEXTURE_DEPTH || this->targetTextureType == TargetType::TEXTURE_DEPTH_3D)
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -92,7 +89,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			// Render texture
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, nullptr);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -138,7 +135,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 		{
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->size.x, this->size.y, 0, this->format, GL_UNSIGNED_BYTE, nullptr);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -157,7 +154,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 		{
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, this->renderTexture);
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, this->size.x, this->size.y, Renderer::SHADOW_CASCADE_LEVELS + 1, 0, this->format, GL_FLOAT, 0);
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, this->size.x, this->size.y, Renderer::SHADOW_CASCADE_LEVELS + 1, 0, this->format, GL_FLOAT, nullptr);
 
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -183,7 +180,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			// G-buffer position texture
 			glGenTextures(1, &this->gPosition);
 			glBindTexture(GL_TEXTURE_2D, this->gPosition);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -193,7 +190,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			// G-buffer normal texture
 			glGenTextures(1, &this->gNormal);
 			glBindTexture(GL_TEXTURE_2D, this->gNormal);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -203,7 +200,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 			// G-buffer albedo texture
 			glGenTextures(1, &this->gAlbedo);
 			glBindTexture(GL_TEXTURE_2D, this->gAlbedo);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, this->size.x, this->size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -220,7 +217,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 		case TargetType::TEXTURE_RED:
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D, this->renderTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, this->size.x, this->size.y, 0, GL_RED, GL_FLOAT, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, this->size.x, this->size.y, 0, GL_RED, GL_FLOAT, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

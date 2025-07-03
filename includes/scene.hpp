@@ -72,7 +72,7 @@ public:
 	/// Returns a list of raw pointers to the entities in the renderer
 	/// </summary>
 	/// <returns>A vector containing all the raw entities pointers in the renderer</returns>
-	std::vector<Entity*> getEntities();
+	std::vector<Entity*> getEntities() const;
 
 	/// <summary>
 	/// Adds an entity to the renderer
@@ -85,19 +85,19 @@ public:
 	/// </summary>
 	/// <param name="objectPtr">The entity to be removed</param>
 	/// <returns>True if the entity was successfully removed, false otherwise</returns>
-	bool removeEntity(std::unique_ptr<Entity> objectPtr);
+	bool removeEntity(const std::unique_ptr<Entity> &objectPtr);
 
 	/// <summary>
 	/// Removes an entity from the renderer using a raw pointer
 	/// </summary>
 	/// <param name="rawObjectPtr">The raw pointer to the object</param>
 	/// <returns>True if the entity was successfully removed, false otherwise</returns>
-	bool removeEntity(Entity* rawObjectPtr);
+	bool removeEntity(const Entity* rawObjectPtr);
 
 	/// <summary>
 	/// Starts all the entities in the scene
 	/// </summary>
-	void init();
+	void init() const;
 
 	/// <summary>
 	/// Stops all the entities in the scene

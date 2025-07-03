@@ -82,7 +82,7 @@ public:
 	/// Updates the physics simulation
 	/// </summary>
 	/// <param name="deltaTime">The time elapsed since the last frame</param>
-	void update(float deltaTime);
+	void update(float deltaTime) const;
 
 	/// <summary>
 	/// Projects a ray and checks for collisions
@@ -96,7 +96,7 @@ public:
 	/// Returns the debug drawer lines
 	/// </summary>
 	/// <returns>A vector containing the float for the vertices of the debug lines</returns>
-	std::vector<float> getDebugLines();
+	std::vector<float> getDebugLines() const;
 
 	/// <summary>
 	/// Creates a new plane collider

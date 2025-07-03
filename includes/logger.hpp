@@ -46,7 +46,7 @@ struct Log
 	/// </summary>
 	int logCount = 1;
 
-	Log(std::string logMessage, LogLevel logLevel, std::string filename);
+	Log(const std::string &logMessage, LogLevel logLevel, const std::string &filename);
 };
 
 /// <summary>
@@ -70,28 +70,28 @@ public:
 	/// </summary>
 	/// <param name="message">The message to log</param>
 	/// <param name="filename">The file name of the log emitter</param>
-	static void logInfo(std::string message, std::string filename);
+	static void logInfo(const std::string& message, const std::string &filename)
 
 	/// <summary>
 	/// Adds a new warning log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
 	/// <param name="filename">The file name of the log emitter</param>
-	static void logWarning(std::string message, std::string filename);
+	static void logWarning(const std::string& message, const std::string& filename);
 
 	/// <summary>
 	/// Adds a new error log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
 	/// <param name="filename">The file name of the log emitter</param>
-	static void logError(std::string message, std::string filename);
+	static void logError(const std::string& message, const std::string &filename)
 
 	/// <summary>
 	/// Adds a new debug log message
 	/// </summary>
 	/// <param name="message">The message to log</param>
 	/// <param name="filename">The file name of the log emitter</param>
-	static void logDebug(std::string message, std::string filename);
+	static void logDebug(const std::string& message, const std::string& filename);
 
 	/// <summary>
 	/// Returns all the logs
@@ -151,5 +151,5 @@ private:
 	/// Adds a log message, clears old messages if needed etc.
 	/// </summary>
 	/// <param name="log">The log to be added</param>
-	static void addLog(Log log);
+	static void addLog(const Log& log);
 };

@@ -21,7 +21,7 @@ public:
 
 	void init();
 	// Sends the current number of each type of light to the shader
-	void sendToShader();
+	void sendToShader() const;
 
 private:
 	static LightManager instance;

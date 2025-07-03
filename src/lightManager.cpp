@@ -25,7 +25,7 @@ void LightManager::init()
 	this->sendToShader();
 }
 
-void LightManager::sendToShader()
+void LightManager::sendToShader() const
 {
 	this->shaderProgram->use();
 

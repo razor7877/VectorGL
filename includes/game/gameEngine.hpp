@@ -65,7 +65,7 @@ public:
 	/// </summary>
 	void draw(float deltaTime);
 
-	bool getIsRunning();
+	bool getIsRunning() const;
 	void quit();
 
 private:

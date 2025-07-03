@@ -9,10 +9,8 @@ PhysicsComponent::PhysicsComponent(Entity* parent) : Component(parent)
 
 }
 
-PhysicsComponent::~PhysicsComponent()
-{
-
-}
+// Placeholder since we might need some custom behavior later on
+PhysicsComponent::~PhysicsComponent() = default;
 
 void PhysicsComponent::start()
 {

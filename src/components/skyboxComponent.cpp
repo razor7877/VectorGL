@@ -5,7 +5,7 @@
 #include "components/IBLData.hpp"
 #include "materials/pbrMaterial.hpp"
 
-SkyboxComponent::SkyboxComponent(Entity* parent) : MeshComponent(parent), Component(parent)
+SkyboxComponent::SkyboxComponent(Entity* parent) : Component(parent), MeshComponent(parent)
 {
 
 }
@@ -45,9 +45,9 @@ void SkyboxComponent::update(float deltaTime)
 
 	// Indexed drawing
 	if (this->hasIndices)
-		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->indicesCount), GL_UNSIGNED_INT, nullptr);
 	else // Normal drawing
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
+		glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(this->verticesCount));
 
 	glDepthFunc(GL_LESS);
 }

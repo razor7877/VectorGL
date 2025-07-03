@@ -84,7 +84,7 @@ namespace Interface
 	/// Called to recursively get and display the children of a node
 	/// </summary>
 	/// <param name="children">The list of children of a node</param>
-	void SceneGraphRecurse(std::vector<Entity*> children);
+	void SceneGraphRecurse(const std::vector<Entity*>& children);
 
 	/// <summary>
 	/// Handles selection and right-clicking menus on scene nodes in scene graph

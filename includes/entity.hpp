@@ -18,7 +18,7 @@ public:
 	bool drawOutline = false;
 
 	Entity();
-	explicit Entity(std::string label);
+	explicit Entity(const std::string &label);
 	~Entity();
 
 	/// <summary>
@@ -55,7 +55,7 @@ public:
 	/// Returns the entity's transform component
 	/// </summary>
 	/// <returns>A pointer to the transform component</returns>
-	TransformComponent* getTransform();
+	TransformComponent* getTransform() const;
 
 	/// <summary>
 	/// Returns a label to identify the object in the scene graph
@@ -67,13 +67,13 @@ public:
 	/// Sets the label of the entity
 	/// </summary>
 	/// <param name="label">The new label for the entity</param>
-	void setLabel(std::string label);
+	void setLabel(const std::string &label);
 
 	/// <summary>
 	/// Returns the entity's parent
 	/// </summary>
 	/// <returns>A pointer to the parent if there is one, or nullptr otherwise</returns>
-	Entity* getParent();
+	Entity* getParent() const;
 
 	/// <summary>
 	/// Returns the entity's children
@@ -103,7 +103,7 @@ public:
 	/// Returns whether the entity is currently enabled
 	/// </summary>
 	/// <returns>True if the entity is enabled, false otherwise</returns>
-	bool getIsEnabled();
+	bool getIsEnabled() const;
 
 	/// <summary>
 	/// Sets whether the entity is currently enabled

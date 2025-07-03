@@ -29,7 +29,7 @@ PhysicsWorld::~PhysicsWorld()
 		collider.reset();
 }
 
-void PhysicsWorld::update(float deltaTime)
+void PhysicsWorld::update(float deltaTime) const
 {
 	this->world->stepSimulation(deltaTime, 10);
 	if (this->enableDebugDraw)
@@ -47,7 +47,7 @@ PhysicsComponent* PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
 	if (rayCallback.hasHit())
 	{
 		btVector3 hitPoint = rayCallback.m_hitPointWorld;
-		btCollisionObject* hitObject = const_cast<btCollisionObject*>(rayCallback.m_collisionObject);
+		auto* hitObject = const_cast<btCollisionObject*>(rayCallback.m_collisionObject);
 		btRigidBody* hitRigidBody = btRigidBody::upcast(hitObject);
 
 		if (this->rigidBodyToComponent.count(hitRigidBody) != 0)
@@ -57,7 +57,7 @@ PhysicsComponent* PhysicsWorld::raycastLine(glm::vec3 from, glm::vec3 to)
 	return nullptr;
 }
 
-std::vector<float> PhysicsWorld::getDebugLines()
+std::vector<float> PhysicsWorld::getDebugLines() const
 {
 	std::vector<float> lines = this->debugDrawer->debugLines;
 	this->debugDrawer->debugLines.clear();
@@ -69,9 +69,9 @@ void PhysicsWorld::addPlane(glm::vec3 normal, glm::vec3 position)
 	btVector3 initialPosition(position.x, position.y, position.z);
 
 	btCollisionShape* planeShape = new btStaticPlaneShape(btVector3(0.0f, 1.0f, 0.0f), -5.0f);
-	btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), initialPosition));
+	auto* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, planeShape, btVector3(0.0f, 0.0f, 0.0f));
-	btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
+	auto* groundRigidBody = new btRigidBody(groundRigidBodyCI);
 
 	std::unique_ptr<Collider> collider = std::make_unique<Collider>(
 		this->world.get(),
@@ -93,9 +93,9 @@ void PhysicsWorld::addBox(PhysicsComponent* component, glm::vec3 halfExtents, gl
 	btCollisionShape* boxShape = new btBoxShape(btHalfExtents);
 	boxShape->calculateLocalInertia(mass, boxInertia);
 
-	btDefaultMotionState* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), initialPosition));
+	auto* boxMotionState = new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo boxRigidBodyCI(mass, boxMotionState, boxShape, boxInertia);
-	btRigidBody* boxRigidBody = new btRigidBody(boxRigidBodyCI);
+	auto* boxRigidBody = new btRigidBody(boxRigidBodyCI);
 
 	if (disableCollision)
 		boxRigidBody->setCollisionFlags(boxRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -122,9 +122,9 @@ void PhysicsWorld::addSphere(PhysicsComponent* component, float radius, glm::vec
 	btCollisionShape* sphereShape = new btSphereShape(radius);
 	sphereShape->calculateLocalInertia(mass, localInertia);
 
-	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
+	auto* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, sphereShape, localInertia);
-	btRigidBody* sphereRigidBody = new btRigidBody(rigidBodyCI);
+	auto* sphereRigidBody = new btRigidBody(rigidBodyCI);
 
 	if (disableCollision)
 		sphereRigidBody->setCollisionFlags(sphereRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
@@ -151,9 +151,9 @@ void PhysicsWorld::addCapsule(PhysicsComponent* component, float radius, float h
 	btCollisionShape* capsuleShape = new btCapsuleShape(radius, height);
 	capsuleShape->calculateLocalInertia(mass, localInertia);
 
-	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
+	auto* motionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), initialPosition));
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(mass, motionState, capsuleShape, localInertia);
-	btRigidBody* capsuleRigidBody = new btRigidBody(rigidBodyCI);
+	auto* capsuleRigidBody = new btRigidBody(rigidBodyCI);
 
 	if (disableCollision)
 		capsuleRigidBody->setCollisionFlags(capsuleRigidBody->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);

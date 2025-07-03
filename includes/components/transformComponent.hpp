@@ -13,15 +13,15 @@ public:
 	void start() override;
 	void update(float deltaTime) override;
 
-	glm::mat4 getModelMatrix();
-	glm::mat3 getNormalMatrix();
+	glm::mat4 getModelMatrix() const;
+	glm::mat3 getNormalMatrix() const;
 	glm::vec3 getPosition();
-	glm::vec3 getRotation();
-	glm::vec3 getScale();
+	glm::vec3 getRotation() const;
+	glm::vec3 getScale() const;
 
 	void updateModelMatrix();
 	void setModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
-	void setModelMatrix(glm::mat4 modelMatrix);
+	void setModelMatrix(const glm::mat4 &modelMatrix);
 
 	// Rotates the object's model matrix using a vec3 (relative transform)
 	TransformComponent* rotateObject(glm::vec3 rotation);

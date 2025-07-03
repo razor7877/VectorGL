@@ -10,21 +10,18 @@ TransformComponent::TransformComponent(Entity* parent) : Component(parent)
 
 }
 
-TransformComponent::~TransformComponent()
-{
-
-}
+TransformComponent::~TransformComponent() = default;
 
 void TransformComponent::start() { }
 
 void TransformComponent::update(float deltaTime) { }
 
-glm::mat4 TransformComponent::getModelMatrix()
+glm::mat4 TransformComponent::getModelMatrix() const
 {
 	return this->modelMatrix;
 }
 
-glm::mat3 TransformComponent::getNormalMatrix()
+glm::mat3 TransformComponent::getNormalMatrix() const
 {
 	return this->normalMatrix;
 }
@@ -32,17 +29,17 @@ glm::mat3 TransformComponent::getNormalMatrix()
 glm::vec3 TransformComponent::getPosition()
 {
 	if (this->useRawModelMatrix)
-		return glm::vec3(this->manualModelMatrix[3][0], this->manualModelMatrix[3][1], this->manualModelMatrix[3][2]);
+		return {this->manualModelMatrix[3][0], this->manualModelMatrix[3][1], this->manualModelMatrix[3][2]};
 
 	return this->position;
 }
 
-glm::vec3 TransformComponent::getRotation()
+glm::vec3 TransformComponent::getRotation() const
 {
 	return this->rotation;
 }
 
-glm::vec3 TransformComponent::getScale()
+glm::vec3 TransformComponent::getScale() const
 {
 	return this->scale;
 }
@@ -102,7 +99,7 @@ void TransformComponent::setModelMatrix(glm::vec3 position, glm::vec3 rotation, 
 	this->updateModelMatrix();
 }
 
-void TransformComponent::setModelMatrix(glm::mat4 modelMatrix)
+void TransformComponent::setModelMatrix(const glm::mat4 &modelMatrix)
 {
 	this->manualModelMatrix = modelMatrix;
 	this->useRawModelMatrix = true;

@@ -51,7 +51,7 @@ public:
 	/// </summary>
 	/// <param name="view">The camera's view matrix</param>
 	/// <param name="projection">The camera's projection matrix</param>
-	void updateUniformBuffer(glm::mat4 view, glm::mat4 projection);
+	void updateUniformBuffer(glm::mat4 view, glm::mat4 projection) const;
 
 	/// <summary>
 	/// Returns a shader of a given type and creates it if wasn't queried before
@@ -63,8 +63,8 @@ public:
 	std::string getVertexShaderContent(ShaderType shader);
 	std::string getFragmentShaderContent(ShaderType shader);
 
-	void setVertexShaderContent(ShaderType shader, std::string content);
-	void setFragmentShaderContent(ShaderType shader, std::string content);
+	void setVertexShaderContent(ShaderType shader, const std::string& content);
+	void setFragmentShaderContent(ShaderType shader, const std::string& content);
 private:
 	// Uniform buffer object (for global uniforms between shaders)
 	GLuint UBO = 0;

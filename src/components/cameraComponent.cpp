@@ -35,12 +35,12 @@ glm::mat4 CameraComponent::getViewMatrix()
 	return glm::lookAt(this->parent->getTransform()->getPosition(), this->parent->getTransform()->getPosition() + this->front, this->up);
 }
 
-glm::mat4 CameraComponent::getProjectionMatrix(float width, float height)
+glm::mat4 CameraComponent::getProjectionMatrix(float width, float height) const
 {
 	return glm::perspective(glm::radians(this->zoom), width / height, NEAR, FAR);
 }
 
-void CameraComponent::processKeyboard(CameraMovement direction, float deltaTime)
+void CameraComponent::processKeyboard(CameraMovement direction, float deltaTime) const
 {
 	if (!this->parent->getIsEnabled())
 		return;
@@ -102,58 +102,57 @@ void CameraComponent::processMouseScroll(float yoffset)
 		this->zoom = 90.0f;
 }
 
-float CameraComponent::getZoom()
+float CameraComponent::getZoom() const
 {
 	return this->zoom;
 }
 
-float CameraComponent::getSpeed()
+float CameraComponent::getSpeed() const
 {
 	return this->movementSpeed;
 }
 
-float CameraComponent::getSensitivity()
+float CameraComponent::getSensitivity() const
 {
 	return this->mouseSensitivity;
 }
 
-glm::vec3 CameraComponent::getPosition()
+glm::vec3 CameraComponent::getPosition() const
 {
 	return this->parent->getTransform()->getPosition();
 }
 
-glm::vec3 CameraComponent::getForward()
+glm::vec3 CameraComponent::getForward() const
 {
 	return this->front;
 }
 
-glm::vec3 CameraComponent::getRight()
+glm::vec3 CameraComponent::getRight() const
 {
 	return this->right;
 }
 
-glm::vec3 CameraComponent::getUp()
+glm::vec3 CameraComponent::getUp() const
 {
 	return this->up;
 }
 
-void CameraComponent::setZoom(float zoom)
+void CameraComponent::setZoom(const float zoom)
 {
 	this->zoom = zoom;
 }
 
-void CameraComponent::setSpeed(float speed)
+void CameraComponent::setSpeed(const float speed)
 {
 	this->movementSpeed = speed;
 }
 
-void CameraComponent::setSensitivity(float sensitivity)
+void CameraComponent::setSensitivity(const float sensitivity)
 {
 	this->mouseSensitivity = sensitivity;
 }
 
-void CameraComponent::setPosition(glm::vec3 position)
-{
+void CameraComponent::setPosition(const glm::vec3 position) const {
 	this->parent->getTransform()->setPosition(position);
 }
 
@@ -163,9 +162,9 @@ void CameraComponent::updateCameraVectors()
 
 	// Calculate the new front vector
 	glm::vec3 newFront{};
-	newFront.x = cos(glm::radians(rotation.x)) * cos(glm::radians(rotation.y));
-	newFront.y = sin(glm::radians(rotation.y));
-	newFront.z = sin(glm::radians(rotation.x)) * cos(glm::radians(rotation.y));
+	newFront.x = static_cast<float>(cos(glm::radians(rotation.x)) * cos(glm::radians(rotation.y)));
+	newFront.y = static_cast<float>(sin(glm::radians(rotation.y)));
+	newFront.z = static_cast<float>(sin(glm::radians(rotation.x)) * cos(glm::radians(rotation.y)));
 	this->front = glm::normalize(newFront);
 
 	this->right = glm::normalize(glm::cross(this->front, this->worldUp));

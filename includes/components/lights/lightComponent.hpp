@@ -12,11 +12,11 @@ class LightComponent : public virtual Component
 {
 public:
 	// The colors of each of the light's components
-	glm::vec3 ambientColor;
-	glm::vec3 diffuseColor;
-	glm::vec3 specularColor;
+	glm::vec3 ambientColor{};
+	glm::vec3 diffuseColor{};
+	glm::vec3 specularColor{};
 
-	LightComponent(Entity* parent);
+	explicit LightComponent(Entity* parent);
 
 	void start() override;
 	void update(float deltaTime) override;
@@ -25,7 +25,7 @@ public:
 
 protected:
 	Shader* shaderProgram;
-	int index;
+	unsigned int index;
 
-	bool isEnabled;
+	bool isEnabled{};
 };

@@ -24,7 +24,6 @@
 
 void MainGameState::init()
 {
-	Shader* phongShader = this->renderer.shaderManager.getShader(ShaderType::PHONG);
 	Shader* pbrShader = this->renderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* skyboxShader = this->renderer.shaderManager.getShader(ShaderType::SKYBOX);
 
@@ -35,7 +34,7 @@ void MainGameState::init()
 
 	// Create the camera and set it up
 	std::unique_ptr<Entity> cameraEntity = std::make_unique<Entity>("Camera");
-	MeshComponent* cameraMesh = cameraEntity->addComponent<MeshComponent>();
+	auto* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 	
 	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
 		.addVertices(sphereOptimized.vertices)
@@ -56,19 +55,19 @@ void MainGameState::init()
 
 	// Directional light
 	std::unique_ptr<Entity> dirLightEntity = std::make_unique<Entity>("Directional light");
-	DirectionalLightComponent* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
+	auto* directionalLightComponent = dirLightEntity->addComponent<DirectionalLightComponent>();
 	this->scene.directionalLight = directionalLightComponent;
 	this->scene.addEntity(std::move(dirLightEntity));
 
 	// Cube
 	std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
 
-	MeshComponent* cubeMesh = cubeEntity->addComponent<MeshComponent>();
+	auto* cubeMesh = cubeEntity->addComponent<MeshComponent>();
 	std::vector<float> cubeVertices = Geometry::getCubeVertices();
 	cubeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 		.addVertices(cubeVertices);
 
-	PhysicsComponent* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
+	auto* cubeCollider = cubeEntity->addComponent<PhysicsComponent>();
 	this->physicsWorld.addBox(cubeCollider, glm::vec3(1.0f), glm::vec3(0.0f));
 
 	this->scene.addEntity(std::move(cubeEntity));
@@ -93,20 +92,20 @@ void MainGameState::init()
 			{
 				std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
 
-				MeshComponent* sphereMesh = sphereEntity->addComponent<MeshComponent>();
+				auto* sphereMesh = sphereEntity->addComponent<MeshComponent>();
 				sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 					.addVertices(sphereOptimized.vertices)
 					.addIndices(sphereOptimized.indices)
 					.addNormals(sphereOptimized.normals);
 
-				sphereMesh->setDiffuseColor(glm::vec3((float)x / 13.0f, (float)y / 13.0f, 1.0f));
+				sphereMesh->setDiffuseColor(glm::vec3(static_cast<float>(x) / 13.0f, static_cast<float>(y) / 13.0f, 1.0f));
 				sphereEntity->getTransform()->setPosition(x * 3, y * 3, z * 3);
 
-				PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
+				auto* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
 				if (pbrMat != nullptr)
 				{
-					pbrMat->roughness = (float)y / 13.0f + 0.001f;
-					pbrMat->metallic = (float)z / 13.0f;
+					pbrMat->roughness = static_cast<float>(y) / 13.0f + 0.001f;
+					pbrMat->metallic = static_cast<float>(z) / 13.0f;
 					pbrMat->opacity = 0.5f;
 				}
 
@@ -117,7 +116,7 @@ void MainGameState::init()
 
 	// Skybox
 	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
-	SkyboxComponent* skyComponent = skyEntity->addComponent<SkyboxComponent>();
+	auto* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	this->scene.addEntity(std::move(skyEntity));
 
@@ -142,7 +141,7 @@ void MainGameState::init()
 		std::unique_ptr<Entity> pointLightEntity = std::make_unique<Entity>("Point light");
 		pointLightEntity->getTransform()->setScale(glm::vec3(0.1f));
 		pointLightEntity->getTransform()->setPosition(lightPositions[i]);
-		PointLightComponent* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
+		auto* pointLightComponent = pointLightEntity->addComponent<PointLightComponent>();
 		pointLightComponent->diffuseColor = lightColors[i];
 
 		this->scene.addEntity(std::move(pointLightEntity));
@@ -152,7 +151,7 @@ void MainGameState::init()
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::unique_ptr<Entity> planeEntity = std::make_unique<Entity>("Plane");
 
-	MeshComponent* planeMesh = planeEntity->addComponent<MeshComponent>();
+	auto* planeMesh = planeEntity->addComponent<MeshComponent>();
 	planeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
 		.addVertices(quadVertices);
 	planeEntity->getTransform()->setPosition(0.0f, -5.0f, 0.0f);
@@ -212,8 +211,6 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 		return;
 	}
 
-	CameraComponent* camera = this->scene.currentCamera;
-
 	// Z forward vector
 	glm::vec3 worldFront = glm::vec3(0.0f, 0.0f, 1.0f);
 	// The camera forward vector
@@ -226,7 +223,6 @@ void MainGameState::handleEvents(GameEngine* gameEngine, float deltaTime)
 	float angle = acos(dot);
 
 	// We need to check if the angle is a clockwise or counter clockwise rotation
-	glm::vec3 cross = glm::cross(worldFront, cameraFrontXz);
 	if (glm::dot(glm::vec3(1.0f, 0.0f, 0.0f), cameraFront) > 0.0f)
 		angle = -angle;
 

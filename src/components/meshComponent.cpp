@@ -36,9 +36,9 @@ MeshComponent::~MeshComponent()
 void MeshComponent::start()
 {
 	// We calculate the normals if none are provided
-	if (normals.size() == 0)
+	if (normals.empty())
 	{
-		if (indices.size() > 0)
+		if (!indices.empty())
 			this->normals = Geometry::calculateVerticesNormals(this->vertices, this->indices);
 		else
 			this->normals = Geometry::calculateVerticesNormals(this->vertices);
@@ -53,7 +53,7 @@ void MeshComponent::start()
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
 	// Send the indices
-	if (indices.size() > 0)
+	if (!indices.empty())
 	{
 		this->hasIndices = true;
 
@@ -63,15 +63,15 @@ void MeshComponent::start()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 	}
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
 
 	// If the MeshComponent uses textures, send them to the material
-	if (textures.size() > 0 && this->material != nullptr)
+	if (!textures.empty() && this->material != nullptr)
 		this->material->addTextures(this->textures);
 
 	// Send texture coordinates if present
-	if (texCoords.size() > 0)
+	if (!texCoords.empty())
 	{
 		// Generates a buffer to store texture coordinates data
 		glGenBuffers(1, &texCoordBO);
@@ -79,46 +79,46 @@ void MeshComponent::start()
 		glBindBuffer(GL_ARRAY_BUFFER, texCoordBO);
 		glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), &texCoords[0], GL_STATIC_DRAW);
 
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 		glEnableVertexAttribArray(1);
 	}
-	else if (textures.size() > 0)
+	else if (!textures.empty())
 		Logger::logWarning("MeshComponent has texture but no associated texture coordinates!", "meshComponent.cpp");
 
 	// Send normals for lighting calculations
-	if (normals.size() > 0)
+	if (!normals.empty())
 	{
 		glGenBuffers(1, &normalBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, normalBO);
 		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(float), &normals[0], GL_STATIC_DRAW);
 
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 		glEnableVertexAttribArray(2);
 	}
 
 	// Send tangents for normal mapping
-	if (tangents.size() > 0)
+	if (!tangents.empty())
 	{
 		glGenBuffers(1, &tangentsBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, tangentsBO);
 		glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(float), &tangents[0], GL_STATIC_DRAW);
 
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 		glEnableVertexAttribArray(3);
 	}
 
 	// Send bitangents for normal mapping
-	if (bitangents.size() > 0)
+	if (!bitangents.empty())
 	{
 		glGenBuffers(1, &bitangentsBO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, bitangentsBO);
 		glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(float), &bitangents[0], GL_STATIC_DRAW);
 
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	}
 
 	this->localBoundingBox = Geometry::getMeshBoundingBox(this->vertices);
@@ -159,12 +159,12 @@ void MeshComponent::update(float deltaTime)
 
 	// Indexed drawing
 	if (this->hasIndices)
-		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->indicesCount), GL_UNSIGNED_INT, nullptr);
 	else // Normal drawing
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
+		glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(this->verticesCount));
 }
 
-void MeshComponent::drawGeometry(Shader* shaderProgram)
+void MeshComponent::drawGeometry(Shader* shaderProgram) const
 {
 	// Make sure the object's VAO is bound
 	glBindVertexArray(VAO);
@@ -177,12 +177,12 @@ void MeshComponent::drawGeometry(Shader* shaderProgram)
 
 	// Indexed drawing
 	if (this->hasIndices)
-		glDrawElements(GL_TRIANGLES, (GLsizei)this->indicesCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->indicesCount), GL_UNSIGNED_INT, nullptr);
 	else // Normal drawing
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
+		glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(this->verticesCount));
 }
 
-MeshComponent& MeshComponent::addVertices(std::vector<float> vertices)
+MeshComponent& MeshComponent::addVertices(const std::vector<float> &vertices)
 {
 	this->vertices = vertices;
 	return *this;
@@ -194,7 +194,7 @@ MeshComponent& MeshComponent::addVertices(float vertices[], unsigned int vertSiz
 	return *this;
 }
 
-MeshComponent& MeshComponent::MeshComponent::addTexCoords(std::vector<float> texCoords)
+MeshComponent& MeshComponent::MeshComponent::addTexCoords(const std::vector<float> &texCoords)
 {
 	this->texCoords = texCoords;
 	return *this;
@@ -206,7 +206,7 @@ MeshComponent& MeshComponent::addTexCoords(float texCoords[], unsigned int texSi
 	return *this;
 }
 
-MeshComponent& MeshComponent::addNormals(std::vector<float> normals)
+MeshComponent& MeshComponent::addNormals(const std::vector<float> &normals)
 {
 	this->normals = normals;
 	return *this;
@@ -218,7 +218,7 @@ MeshComponent& MeshComponent::addNormals(float normals[], unsigned int normalSiz
 	return *this;
 }
 
-MeshComponent& MeshComponent::addIndices(std::vector<unsigned int> indices)
+MeshComponent& MeshComponent::addIndices(const std::vector<unsigned int> &indices)
 {
 	this->indices = indices;
 	return *this;
@@ -230,19 +230,19 @@ MeshComponent& MeshComponent::addIndices(unsigned int indices[], unsigned int in
 	return *this;
 }
 
-MeshComponent& MeshComponent::addTangents(std::vector<float> tangents)
+MeshComponent& MeshComponent::addTangents(const std::vector<float> &tangents)
 {
 	this->tangents = tangents;
 	return *this;
 }
 
-MeshComponent& MeshComponent::addBitangents(std::vector<float> bitangents)
+MeshComponent& MeshComponent::addBitangents(const std::vector<float> &bitangents)
 {
 	this->bitangents = bitangents;
 	return *this;
 }
 
-MeshComponent& MeshComponent::addTexture(std::shared_ptr<Texture> texture)
+MeshComponent& MeshComponent::addTexture(const std::shared_ptr<Texture>& texture)
 {
 	this->textures.insert(textures.end(), texture);
 	return *this;
@@ -260,17 +260,17 @@ MeshComponent& MeshComponent::setMaterial(std::unique_ptr<Material> material)
 	return *this;
 }
 
-int MeshComponent::getVerticesCount()
+unsigned long MeshComponent::getVerticesCount() const
 {
 	return this->verticesCount;
 }
 
-int MeshComponent::getIndicesCount()
+unsigned long MeshComponent::getIndicesCount() const
 {
 	return this->indicesCount;
 }
 
-BoundingBox MeshComponent::getLocalBoundingBox()
+BoundingBox MeshComponent::getLocalBoundingBox() const
 {
 	return this->localBoundingBox;
 }
@@ -289,10 +289,10 @@ BoundingBox MeshComponent::getWorldBoundingBox()
 	return this->worldBoundingBox;
 }
 
-void MeshComponent::setDiffuseColor(glm::vec3 color)
+void MeshComponent::setDiffuseColor(glm::vec3 color) const
 {
 	// TODO : Pass this to the material instead
-	PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
+	auto* phongMaterial = dynamic_cast<PhongMaterial*>(this->material.get());
 
 	if (phongMaterial != nullptr)
 	{
@@ -300,7 +300,7 @@ void MeshComponent::setDiffuseColor(glm::vec3 color)
 		return;
 	}
 
-	PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material.get());
+	auto* pbrMaterial = dynamic_cast<PBRMaterial*>(this->material.get());
 
 	if (pbrMaterial != nullptr)
 		pbrMaterial->albedoColor = color;

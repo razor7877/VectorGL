@@ -87,17 +87,17 @@ public:
 	/// <summary>
 	/// Binds the render target
 	/// </summary>
-	void bind();
+	void bind() const;
 
 	/// <summary>
 	/// Unbinds the render target
 	/// </summary>
-	void unbind();
+	static void unbind();
 
 	/// <summary>
 	/// Clears the render target buffers
 	/// </summary>
-	void clear();
+	void clear() const;
 
 	/// <summary>
 	/// Resizes the render target. The render target should not be bound when resizing to prevent API errors.

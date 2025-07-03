@@ -37,7 +37,7 @@ public:
 	/// </summary>
 	/// <param name="vertexPath">A path to the vertex shader file</param>
 	/// <param name="fragmentPath">A path to the fragment shader file</param>
-	Shader(std::string vertexPath, std::string fragmentPath);
+	Shader(const std::string &vertexPath, const std::string &fragmentPath);
 
 	/// <summary>
 	/// Creates a new OpenGL shader
@@ -45,7 +45,7 @@ public:
 	/// <param name="vertexPath">A path to the vertex shader file</param>
 	/// <param name="fragmentPath">A path to the fragment shader file</param>
 	/// <param name="geometryPath">A path to the geometry shader file</param>
-	Shader(std::string vertexPath, std::string fragmentPath, std::string geometryPath);
+	Shader(const std::string &vertexPath, const std::string &fragmentPath, const std::string &geometryPath);
 
 	/// <summary>
 	/// Deletes the OpenGL shader
@@ -64,7 +64,7 @@ public:
 	/// <returns>True if the shader was successfully compiled, false otherwise</returns>
 	bool compileShader();
 
-	GLuint getID();
+	GLuint getID() const;
 	
 	Shader* setBool(const std::string& name, bool value);
 	Shader* setInt(const std::string& name, int value);

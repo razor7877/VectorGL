@@ -7,7 +7,7 @@ std::vector<Log> Logger::logMessages;
 
 std::set<std::string> Logger::sourceFiles;
 
-Log::Log(std::string logMessage, LogLevel logLevel, std::string filename)
+Log::Log(const std::string &logMessage, LogLevel logLevel, const std::string &filename)
 {
 	this->logMessage = logMessage;
 	this->logLevel = logLevel;
@@ -15,22 +15,22 @@ Log::Log(std::string logMessage, LogLevel logLevel, std::string filename)
 	this->timestamp = std::chrono::system_clock::now();
 }
 
-void Logger::logInfo(std::string message, std::string filename)
+void Logger::logInfo(const std::string& message, const std::string& filename)
 {
 	Logger::addLog(Log("Info: " + message, LogLevel::LOG_INFO, filename));
 }
 
-void Logger::logWarning(std::string message, std::string filename)
+void Logger::logWarning(const std::string& message, const std::string& filename)
 {
 	Logger::addLog(Log("Warning: " + message, LogLevel::LOG_WARNING, filename));
 }
 
-void Logger::logError(std::string message, std::string filename)
+void Logger::logError(const std::string& message, const std::string &filename)
 {
 	Logger::addLog(Log("Error: " + message, LogLevel::LOG_ERROR, filename));
 }
 
-void Logger::logDebug(std::string message, std::string filename)
+void Logger::logDebug(const std::string& message, const std::string& filename)
 {
 	Logger::addLog(Log("Debug: " + message, LogLevel::LOG_DEBUG, filename));
 }
@@ -53,7 +53,7 @@ std::vector<Log> Logger::getLogsByLevel(LogLevel logLevel)
 		Logger::logMessages.begin(),
 		Logger::logMessages.end(),
 		std::back_inserter(filteredLogs),
-		[&logLevel](Log log)
+		[&logLevel](const Log& log)
 		{
 			return log.logLevel == logLevel;
 		}
@@ -70,7 +70,7 @@ std::vector<Log> Logger::getLogsFromFiles(std::vector<std::string> files)
 		Logger::logMessages.begin(),
 		Logger::logMessages.end(),
 		std::back_inserter(filteredLogs),
-		[&files](Log log)
+		[&files](const Log& log)
 		{
 			return std::find(files.begin(), files.end(), log.filename) != files.end();
 		}
@@ -87,10 +87,10 @@ std::vector<Log> Logger::getFilteredLogs(std::set<LogLevel> logLevels, std::set<
 		Logger::logMessages.begin(),
 		Logger::logMessages.end(),
 		std::back_inserter(filteredLogs),
-		[&logLevels, &files](Log log)
+		[&logLevels, &files](const Log& log)
 		{
-			bool inSourceFiles = files.size() == 0 || std::find(files.begin(), files.end(), log.filename) != files.end();
-			bool inLogLevels = logLevels.find(log.logLevel) != logLevels.end();
+			const bool inSourceFiles = files.empty() || files.find(log.filename) != files.end();
+			const bool inLogLevels = logLevels.find(log.logLevel) != logLevels.end();
 			return inSourceFiles && inLogLevels;
 		}
 	);
@@ -100,7 +100,7 @@ std::vector<Log> Logger::getFilteredLogs(std::set<LogLevel> logLevels, std::set<
 
 std::vector<std::string> Logger::getSourceFiles()
 {
-	return std::vector<std::string>(Logger::sourceFiles.begin(), Logger::sourceFiles.end());
+	return std::vector(Logger::sourceFiles.begin(), Logger::sourceFiles.end());
 }
 
 void Logger::clearLogs()
@@ -109,11 +109,11 @@ void Logger::clearLogs()
 	Logger::sourceFiles.clear();
 }
 
-void Logger::addLog(Log log)
+void Logger::addLog(const Log& log)
 {
 	bool previousLogIsSame = false;
 
-	if (Logger::logMessages.size() > 0)
+	if (!Logger::logMessages.empty())
 	{
 		Log& lastLog = Logger::logMessages.back();
 

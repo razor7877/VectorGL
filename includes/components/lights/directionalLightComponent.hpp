@@ -6,7 +6,7 @@
 class DirectionalLightComponent : public virtual LightComponent
 {
 public:
-	glm::vec3 direction;
+	glm::vec3 direction{};
 
 	explicit DirectionalLightComponent(Entity* parent);
 

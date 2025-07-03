@@ -6,7 +6,7 @@
 #include "components/physicsComponent.hpp"
 #include "materials/pbrMaterial.hpp"
 
-std::vector<Entity*> Scene::getEntities()
+std::vector<Entity*> Scene::getEntities() const
 {
 	std::vector<Entity*> rawPointers;
 
@@ -21,7 +21,7 @@ void Scene::addEntity(std::unique_ptr<Entity> objectPtr)
 	this->entities.push_back(std::move(objectPtr));
 }
 
-bool Scene::removeEntity(std::unique_ptr<Entity> objectPtr)
+bool Scene::removeEntity(const std::unique_ptr<Entity> &objectPtr)
 {
 	const int startSize = this->entities.size();
 
@@ -31,7 +31,7 @@ bool Scene::removeEntity(std::unique_ptr<Entity> objectPtr)
 	return this->entities.size() != startSize;
 }
 
-bool Scene::removeEntity(Entity* rawObjectPtr)
+bool Scene::removeEntity(const Entity* rawObjectPtr)
 {
 	for (auto&& entity : this->entities)
 	{
@@ -45,7 +45,7 @@ bool Scene::removeEntity(Entity* rawObjectPtr)
 	return false;
 }
 
-void Scene::init()
+void Scene::init() const
 {
 	// Start all the entities on the scene
 	for (auto&& entity : this->entities)
@@ -69,9 +69,9 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 		// We don't bother iterating over disabled entities
 		if (entity->getIsEnabled())
 		{
-			MeshComponent* mesh = entity->getComponent<MeshComponent>();
+			auto* mesh = entity->getComponent<MeshComponent>();
 
-			// Check whether we have an entity with a mesh or a purely logic entity
+			// Check whether we have an entity with a mesh or a logic-only entity
 			if (mesh == nullptr)
 				this->sortedSceneData.logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
@@ -83,7 +83,7 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 				{
 					this->sortedSceneData.meshes.push_back(mesh);
 
-					PBRMaterial* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
+					auto* pbrMat = dynamic_cast<PBRMaterial*>(mesh->material.get());
 					if (pbrMat->getIsTransparent())
 					{
 						float distance = glm::length(this->currentCamera->getPosition() - mesh->getWorldBoundingBox().center);
@@ -95,9 +95,9 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 					if (entity->drawOutline)
 						this->sortedSceneData.outlineRenderList.push_back(entity);
 				}
-				else // If it is outside of the frustum, we still want to update any physics
+				else // If it is outside the frustum, we still want to update any physics
 				{
-					PhysicsComponent* physics = entity->getComponent<PhysicsComponent>();
+					auto* physics = entity->getComponent<PhysicsComponent>();
 
 					if (physics != nullptr)
 						this->sortedSceneData.physicsComponents.push_back(physics);

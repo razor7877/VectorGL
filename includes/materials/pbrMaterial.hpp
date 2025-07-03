@@ -163,11 +163,11 @@ public:
 	bool getIsTransparent() override;
 	void addTextures(const std::vector<std::shared_ptr<Texture>>& textures) override;
 
-	void addAlbedoMap(std::shared_ptr<Texture> albedoTexture);
-	void addNormalMap(std::shared_ptr<Texture> normalTexture);
-	void addMetallicMap(std::shared_ptr<Texture> metallicTexture);
-	void addRoughnessMap(std::shared_ptr<Texture> roughnessTexture);
-	void addAoMap(std::shared_ptr<Texture> aoTexture);
-	void addOpacityMap(std::shared_ptr<Texture> opacityTexture);
-	void addEmissiveMap(std::shared_ptr<Texture> emissiveTexture);
+	void addAlbedoMap(const std::shared_ptr<Texture> &albedoTexture);
+	void addNormalMap(const std::shared_ptr<Texture> &normalTexture);
+	void addMetallicMap(const std::shared_ptr<Texture> &metallicTexture);
+	void addRoughnessMap(const std::shared_ptr<Texture> &roughnessTexture);
+	void addAoMap(const std::shared_ptr<Texture> &aoTexture);
+	void addOpacityMap(const std::shared_ptr<Texture> &opacityTexture);
+	void addEmissiveMap(const std::shared_ptr<Texture> &emissiveTexture);
 };

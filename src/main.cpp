@@ -48,16 +48,11 @@ int main()
 	game.init();
 	game.changeState(std::move(mainState));
 
-	// A simple variable to retrieve the current glGetError() code and decide whether to print it to console
-	int glErrorCurrent;
-	// A variable that stores the current frame's timestamp, to calculate time between frames
-	float currentFrame;
-
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
 		// Calculates elapsed time since last frame for time-based calculations
-		currentFrame = static_cast<float>(glfwGetTime());
+		auto currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -69,7 +64,7 @@ int main()
 		Interface::ImGuiDrawWindows();
 
 		// Print error code to console if there is one
-		glErrorCurrent = glGetError();
+		int glErrorCurrent = glGetError();
 		if (glErrorCurrent != 0) { Logger::logError(std::string("OpenGL error code: ") + std::to_string(glErrorCurrent), "main.cpp"); }
 
 		// Swaps buffers to screen to show the rendered frame

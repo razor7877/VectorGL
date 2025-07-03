@@ -6,7 +6,6 @@
 #include <utilities/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "main.hpp"
 #include "renderer.hpp"
 #include "shaderManager.hpp"
 #include "entity.hpp"
@@ -16,33 +15,27 @@
 #include "physics/frustum.hpp"
 #include "lightManager.hpp"
 
-Renderer::Renderer()
-{
+Renderer::Renderer() = default;
 
-}
+Renderer::~Renderer() = default;
 
-Renderer::~Renderer()
-{
-
-}
-
-GLuint Renderer::getRenderTexture()
+GLuint Renderer::getRenderTexture() const
 {
 	return this->finalTarget->renderTexture;
 }
 
-GLuint Renderer::getSkyRenderTexture()
+GLuint Renderer::getSkyRenderTexture() const
 {
 	return this->skyTarget->renderTexture;
 }
 
-void Renderer::resizeFramebuffers(glm::vec2 newSize)
+void Renderer::resizeFramebuffers(glm::vec2 newSize) const
 {
 	this->multiSampledTarget->resize(newSize);
 	this->finalTarget->resize(newSize);
 	this->gBuffer->resize(newSize);
-	this->ssaoTarget->resize(newSize * this->SSAO_SCALE_FACTOR);
-	this->ssaoBlurTarget->resize(newSize * this->SSAO_SCALE_FACTOR);
+	this->ssaoTarget->resize(newSize * Renderer::SSAO_SCALE_FACTOR);
+	this->ssaoBlurTarget->resize(newSize * Renderer::SSAO_SCALE_FACTOR);
 	this->ssaoBlurTarget->unbind();
 }
 
@@ -114,7 +107,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
 	this->ssaoQuad = std::make_unique<Entity>("Quad");
-	MeshComponent* ssaoQuadMesh = ssaoQuad->addComponent<MeshComponent>();
+	auto* ssaoQuadMesh = ssaoQuad->addComponent<MeshComponent>();
 	ssaoQuadMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::SSAO)))
 		.addVertices(quadVertices)
 		.addTexCoords(quadTexCoords);
@@ -122,7 +115,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	ssaoQuadMesh->start();
 
 	this->ssaoBlurQuad = std::make_unique<Entity>("Quad");
-	MeshComponent* ssaoBlurQuadMesh = ssaoBlurQuad->addComponent<MeshComponent>();
+	auto* ssaoBlurQuadMesh = ssaoBlurQuad->addComponent<MeshComponent>();
 	ssaoBlurQuadMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::SSAOBLUR)))
 		.addVertices(quadVertices)
 		.addTexCoords(quadTexCoords);
@@ -256,17 +249,17 @@ void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
 	this->skyTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, lastWindowSize);
 
 	// Shadow mapping
-	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(this->SHADOW_MAP_WIDTH, this->SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
+	this->depthMap = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(Renderer::SHADOW_MAP_WIDTH, Renderer::SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
 	PBRMaterial::shadowMap = std::make_shared<Texture>(this->depthMap->renderTexture, TextureType::TEXTURE_3D);
 
 	// Screen space effects
 	this->gBuffer = std::make_unique<RenderTarget>(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
-	this->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
-	this->ssaoBlurTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * this->SSAO_SCALE_FACTOR, GL_RED);
+	this->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * Renderer::SSAO_SCALE_FACTOR, GL_RED);
+	this->ssaoBlurTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * Renderer::SSAO_SCALE_FACTOR, GL_RED);
 	PBRMaterial::ssaoMap = std::make_shared<Texture>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_2D);
 }
 
-glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane)
+glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlane, const float farPlane) const
 {
 	glm::mat4 cameraProjection = glm::perspective(
 		glm::radians(scene.currentCamera->getZoom()),
@@ -279,7 +272,7 @@ glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlan
 	// Get the corners of the camera frustum
 	std::vector<glm::vec4> frustumCorners = Frustum::getFrustumCornersWorldSpace(cameraProjection, cameraView);
 
-	glm::vec3 frustumCenter = glm::vec3(0.0f);
+	auto frustumCenter = glm::vec3(0.0f);
 
 	for (const auto& v : frustumCorners)
 		frustumCenter += glm::vec3(v);
@@ -329,14 +322,14 @@ glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlan
 	return lightProjection * lightView;
 }
 
-void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
+void Renderer::shadowPass(const std::vector<MeshComponent*>& meshes, const Scene& scene)
 {
-	float near = scene.currentCamera->NEAR;
-	float far = scene.currentCamera->FAR;
+	float near = CameraComponent::NEAR;
+	float far = CameraComponent::FAR;
 	float cascadeLevels[3] = {
-		far * this->SHADOW_CASCADE_DISTANCES[0],
-		far * this->SHADOW_CASCADE_DISTANCES[1],
-		far * this->SHADOW_CASCADE_DISTANCES[2]
+		far * Renderer::SHADOW_CASCADE_DISTANCES[0],
+		far * Renderer::SHADOW_CASCADE_DISTANCES[1],
+		far * Renderer::SHADOW_CASCADE_DISTANCES[2]
 	};
 
 	std::vector<glm::mat4> lightSpaceMatrices = {
@@ -374,7 +367,7 @@ void Renderer::shadowPass(std::vector<MeshComponent*>& meshes, Scene& scene)
 	this->depthMap->unbind();
 }
 
-void Renderer::gBufferPass(std::vector<MeshComponent*>& meshes)
+void Renderer::gBufferPass(const std::vector<MeshComponent*>& meshes)
 {
 	this->gBuffer->bind();
 	this->gBuffer->clear();
@@ -525,15 +518,16 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 			vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_max, z_max)
 
 			// The indices for creating lines that links all the points of the bounding box using the 8 previous vertices
-			int edgeIndices[12][2] = {
-				{0, 1}, {0, 2}, {1, 3}, {2, 3}, // Left side edges
-				{4, 5}, {4, 6}, {5, 7}, {6, 7}, // Right side edges
-				{0, 4}, {2, 6}, {1, 5}, {3, 7}, // Connect the two sides
-			};
 
 			// Add the vertices to draw each line of the bounding box
 			for (int i = 0; i < 12; ++i)
 			{
+				int edgeIndices[12][2] = {
+					{0, 1}, {0, 2}, {1, 3}, {2, 3}, // Left side edges
+					{4, 5}, {4, 6}, {5, 7}, {6, 7}, // Right side edges
+					{0, 4}, {2, 6}, {1, 5}, {3, 7}, // Connect the two sides
+				};
+
 				int v1 = edgeIndices[i][0];
 				int v2 = edgeIndices[i][1];
 
@@ -548,7 +542,7 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 			}
 		}
 
-		if (lineVerts.size() > 0)
+		if (!lineVerts.empty())
 		{
 			GLuint lineVAO;
 			GLuint lineVBO;
@@ -576,7 +570,7 @@ void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSce
 	glStencilMask(0x00);
 }
 
-void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
+void Renderer::outlinePass(const std::vector<Entity*>& outlineRenderList)
 {
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	// Disable depth test before drawing outlines
@@ -587,7 +581,7 @@ void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
 
 	for (Entity* outlinedEntity : outlineRenderList)
 	{
-		MeshComponent* mesh = outlinedEntity->getComponent<MeshComponent>();
+		auto* mesh = outlinedEntity->getComponent<MeshComponent>();
 		glm::vec3 originalScale = outlinedEntity->getTransform()->getScale();
 		Shader* originalShader = mesh->material->shaderProgram;
 
@@ -607,7 +601,7 @@ void Renderer::outlinePass(std::vector<Entity*>& outlineRenderList)
 	glStencilMask(0xFF);
 }
 
-void Renderer::blitPass()
+void Renderer::blitPass() const
 {
 	// Bind the second target that will contain the mixed multisampled textures
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->multiSampledTarget->framebuffer);

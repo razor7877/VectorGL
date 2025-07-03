@@ -1,5 +1,6 @@
 #include "materials/pbrMaterial.hpp"
 #include "renderer.hpp"
+#include "logger.hpp"
 
 const std::string PBRMaterial::USED_MAPS = "material.used_maps";
 
@@ -40,13 +41,10 @@ float PBRMaterial::farPlane = 0.0f;
 
 PBRMaterial::PBRMaterial(Shader* shaderProgram) : Material(shaderProgram)
 {
-	this->init();
+	this->PBRMaterial::init();
 }
 
-PBRMaterial::~PBRMaterial()
-{
-
-}
+PBRMaterial::~PBRMaterial() = default;
 
 void PBRMaterial::init()
 {
@@ -124,43 +122,43 @@ void PBRMaterial::sendToShader()
 		this->emissiveTexture->bindTexture();
 	}
 
-	if (this->irradianceMap != nullptr)
+	if (PBRMaterial::irradianceMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE7);
-		this->irradianceMap->bind();
+		PBRMaterial::irradianceMap->bind();
 	}
 
-	if (this->prefilterMap != nullptr)
+	if (PBRMaterial::prefilterMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE8);
-		this->prefilterMap->bind();
+		PBRMaterial::prefilterMap->bind();
 	}
 
-	if (this->brdfLut != nullptr)
+	if (PBRMaterial::brdfLut != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE9);
-		this->brdfLut->bindTexture();
+		PBRMaterial::brdfLut->bindTexture();
 	}
 
-	if (this->shadowMap != nullptr)
+	if (PBRMaterial::shadowMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE10);
-		this->shadowMap->bindTexture();
+		PBRMaterial::shadowMap->bindTexture();
 
 		for (int i = 0; i < 4; i++)
-			this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRICES[i], this->lightSpaceMatrices[i]);
+			this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRICES[i], PBRMaterial::lightSpaceMatrices[i]);
 
 		for (int i = 0; i < 3; i++)
-			this->shaderProgram->setFloat(PBRMaterial::CASCADE_PLANE_DISTANCES[i], this->cascadePlaneDistances[i]);
+			this->shaderProgram->setFloat(PBRMaterial::CASCADE_PLANE_DISTANCES[i], PBRMaterial::cascadePlaneDistances[i]);
 
 		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, Renderer::SHADOW_CASCADE_LEVELS);
-		this->shaderProgram->setFloat(PBRMaterial::FAR_PLANE, this->farPlane);
+		this->shaderProgram->setFloat(PBRMaterial::FAR_PLANE, PBRMaterial::farPlane);
 	}
 
-	if (this->ssaoMap != nullptr)
+	if (PBRMaterial::ssaoMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE11);
-		this->ssaoMap->bindTexture();
+		PBRMaterial::ssaoMap->bindTexture();
 	}
 
 	glActiveTexture(GL_TEXTURE0);
@@ -174,80 +172,84 @@ bool PBRMaterial::getIsTransparent()
 	return this->opacity != 1.0f;
 }
 
-void PBRMaterial::addTextures(std::vector<std::shared_ptr<Texture>> textures)
+void PBRMaterial::addTextures(const std::vector<std::shared_ptr<Texture>>& textures)
 {
-	for (int i = 0; i < textures.size(); i++)
+	for (const auto& texture : textures)
 	{
-		switch (textures[i]->type)
+		switch (texture->type)
 		{
 			case TextureType::TEXTURE_ALBEDO:
-				this->addAlbedoMap(textures[i]);
+				this->addAlbedoMap(texture);
 				break;
 
 			case TextureType::TEXTURE_NORMAL:
-				this->addNormalMap(textures[i]);
+				this->addNormalMap(texture);
 				break;
 
 			case TextureType::TEXTURE_METALLIC:
-				this->addMetallicMap(textures[i]);
+				this->addMetallicMap(texture);
 				break;
 
 			case TextureType::TEXTURE_ROUGHNESS:
-				this->addRoughnessMap(textures[i]);
+				this->addRoughnessMap(texture);
 				break;
 
 			case TextureType::TEXTURE_AO:
-				this->addAoMap(textures[i]);
+				this->addAoMap(texture);
 				break;
 
 			case TextureType::TEXTURE_OPACITY:
-				this->addOpacityMap(textures[i]);
+				this->addOpacityMap(texture);
 				break;
 
 			case TextureType::TEXTURE_EMISSIVE:
-				this->addEmissiveMap(textures[i]);
+				this->addEmissiveMap(texture);
+				break;
+
+			default:
+				Logger::logError("Got incorrect texture type while adding textures to PBRMaterial!", "pbrMaterial.cpp");
 				break;
 		}
 	}
 }
 
-void PBRMaterial::addAlbedoMap(std::shared_ptr<Texture> albedoTexture)
+void PBRMaterial::addAlbedoMap(const std::shared_ptr<Texture> &albedoTexture)
 {
 	this->albedoTexture = albedoTexture;
 	this->useAlbedoMap = ALBEDO_MAP_FLAG;
 }
 
-void PBRMaterial::addNormalMap(std::shared_ptr<Texture> normalTexture)
+void PBRMaterial::addNormalMap(const std::shared_ptr<Texture> &normalTexture)
 {
 	this->normalTexture = normalTexture;
 	this->useNormalMap = NORMAL_MAP_FLAG;
 }
 
-void PBRMaterial::addMetallicMap(std::shared_ptr<Texture> metallicTexture)
+void PBRMaterial::addMetallicMap(const std::shared_ptr<Texture> &metallicTexture)
 {
 	this->metallicTexture = metallicTexture;
 	this->useMetallicMap = METALLIC_MAP_FLAG;
 }
 
-void PBRMaterial::addRoughnessMap(std::shared_ptr<Texture> roughnessTexture)
+void PBRMaterial::addRoughnessMap(const std::shared_ptr<Texture> &roughnessTexture)
 {
 	this->roughnessTexture = roughnessTexture;
 	this->useRoughnessMap = ROUGHNESS_MAP_FLAG;
 }
 
-void PBRMaterial::addAoMap(std::shared_ptr<Texture> aoTexture)
+void PBRMaterial::addAoMap(const std::shared_ptr<Texture> &aoTexture)
 {
 	this->aoTexture = aoTexture;
 	this->useAoMap = AO_MAP_FLAG;
 }
 
-void PBRMaterial::addOpacityMap(std::shared_ptr<Texture> opacityTexture)
+void PBRMaterial::addOpacityMap(const std::shared_ptr<Texture> &opacityTexture)
 {
 	this->opacityTexture = opacityTexture;
 	this->useOpacityMap = OPACITY_MAP_FLAG;
 }
 
-void PBRMaterial::addEmissiveMap(std::shared_ptr<Texture> emissiveTexture)
+void PBRMaterial::addEmissiveMap(const std::shared_ptr<Texture> &emissiveTexture)
 {
 	this->emissiveTexture = emissiveTexture;
 	this->useEmissiveMap = EMISSIVE_MAP_FLAG;

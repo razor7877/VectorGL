@@ -29,12 +29,12 @@ public:
 	/// Unlike the update method, this is a much simpler method that only sends model & normal matrices to the shader before drawing
 	/// Much faster to run, used for passes that only need to draw the geometry of the mesh
 	/// </summary>
-	void drawGeometry(Shader* shaderProgram);
+	void drawGeometry(Shader* shaderProgram) const;
 
 	/// <summary>
 	/// Adds vertices to the mesh
 	/// </summary>
-	MeshComponent& addVertices(std::vector<float> vertices);
+	MeshComponent& addVertices(const std::vector<float> &vertices);
 
 	/// <summary>
 	/// Adds vertices to the mesh
@@ -44,7 +44,7 @@ public:
 	/// <summary>
 	/// Adds texture coordinates to the mesh
 	/// </summary>
-	MeshComponent& addTexCoords(std::vector<float> texCoords);
+	MeshComponent& addTexCoords(const std::vector<float> &texCoords);
 
 	/// <summary>
 	/// Adds texture coordinates to the mesh
@@ -54,7 +54,7 @@ public:
 	/// <summary>
 	/// Adds normals to the mesh for lighting calculations
 	/// </summary>
-	MeshComponent& addNormals(std::vector<float> normals);
+	MeshComponent& addNormals(const std::vector<float> &normals);
 
 	/// <summary>
 	/// Adds normals to the mesh for lighting calculations
@@ -64,7 +64,7 @@ public:
 	/// <summary>
 	/// Adds indices to the mesh
 	/// </summary>
-	MeshComponent& addIndices(std::vector<unsigned int> indices);
+	MeshComponent& addIndices(const std::vector<unsigned int> &indices);
 
 	/// <summary>
 	/// Adds indices to the mesh
@@ -74,17 +74,17 @@ public:
 	/// <summary>
 	/// Adds tangents to the mesh for normal mapping
 	/// </summary>
-	MeshComponent& addTangents(std::vector<float> tangents);
+	MeshComponent& addTangents(const std::vector<float> &tangents);
 
 	/// <summary>
 	/// Adds bitangents to the mesh for normal mapping
 	/// </summary>
-	MeshComponent& addBitangents(std::vector<float> bitangents);
+	MeshComponent& addBitangents(const std::vector<float> &bitangents);
 
 	/// <summary>
 	/// Adds a texture to the mesh
 	/// </summary>
-	MeshComponent& addTexture(std::shared_ptr<Texture> texture);
+	MeshComponent& addTexture(const std::shared_ptr<Texture>& texture);
 
 	/// <summary>
 	/// Adds a list of textures to the mesh
@@ -99,27 +99,27 @@ public:
 	/// <summary>
 	/// Returns how many vertices the mesh contains
 	/// </summary>
-	int getVerticesCount();
+	[[nodiscard]] unsigned long getVerticesCount() const;
 
 	/// <summary>
 	/// Returns how many indices the mesh contains
 	/// </summary>
-	int getIndicesCount();
+	[[nodiscard]] unsigned long getIndicesCount() const;
 
 	/// <summary>
 	/// Returns the bounding box of the object in local space
 	/// </summary>
-	BoundingBox getLocalBoundingBox();
+	[[nodiscard]] BoundingBox getLocalBoundingBox() const;
 
 	/// <summary>
 	/// Returns the bounding box of the object in world space
 	/// </summary>
-	BoundingBox getWorldBoundingBox();
+	[[nodiscard]] BoundingBox getWorldBoundingBox();
 
 	/// <summary>
 	/// Sets the diffuse color used to render the mesh (if no textures are present)
 	/// </summary>
-	void setDiffuseColor(glm::vec3 color);
+	void setDiffuseColor(glm::vec3 color) const;
 
 	/// <summary>
 	/// The material of the mesh
@@ -160,12 +160,12 @@ protected:
 	/// <summary>
 	/// The number of vertices stored in the mesh
 	/// </summary>
-	int verticesCount = 0;
+	unsigned long verticesCount = 0;
 
 	/// <summary>
 	/// The number of indices stored in the mesh
 	/// </summary>
-	int indicesCount = 0;
+	unsigned long indicesCount = 0;
 
 	/// <summary>
 	/// Whether the mesh uses indices for drawing

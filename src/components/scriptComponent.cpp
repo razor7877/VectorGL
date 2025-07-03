@@ -28,8 +28,7 @@ void ScriptComponent::update(float deltaTime)
 	lua_setglobal(L, "deltaTime");
 
 	// Load and run lua script
-	int error = luaL_loadbuffer(this->L, this->scriptCode.c_str(), this->scriptCode.size(), "line") || lua_pcall(this->L, 0, 0, 0);
-	if (error)
+	if (int error = luaL_loadbuffer(this->L, this->scriptCode.c_str(), this->scriptCode.size(), "line") || lua_pcall(this->L, 0, 0, 0))
 	{
 		std::string errorMessage = lua_tostring(this->L, -1);
 		Logger::logError("Lua error: " + errorMessage, "scriptComponent.cpp");

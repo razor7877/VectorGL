@@ -31,8 +31,8 @@ public:
 	static const std::string TEXTURE_EMISSIVE;
 
 	explicit PhongMaterial(Shader* shaderProgram);
-	PhongMaterial(Shader* shaderProgram, std::shared_ptr<Texture> texture);
-	PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, std::shared_ptr<Texture> texture);
+	PhongMaterial(Shader* shaderProgram, const std::shared_ptr<Texture>& texture);
+	PhongMaterial(Shader* shaderProgram, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, const std::shared_ptr<Texture>& texture);
 	~PhongMaterial() override;
 
 	void init() override;
@@ -47,11 +47,11 @@ public:
 
 	void addTextures(const std::vector<std::shared_ptr<Texture>>& textures) override;
 
-	void addDiffuseMap(std::shared_ptr<Texture> diffuseTexture);
-	void addSpecularMap(std::shared_ptr<Texture> specularTexture);
-	void addNormalMap(std::shared_ptr<Texture> normalTexture);
-	void addHeightMap(std::shared_ptr<Texture> heightTexture);
-	void addEmissiveMap(std::shared_ptr<Texture> emissiveTexture);
+	void addDiffuseMap(const std::shared_ptr<Texture> &diffuseTexture);
+	void addSpecularMap(const std::shared_ptr<Texture> &specularTexture);
+	void addNormalMap(const std::shared_ptr<Texture> &normalTexture);
+	void addHeightMap(const std::shared_ptr<Texture> &heightTexture);
+	void addEmissiveMap(const std::shared_ptr<Texture> &emissiveTexture);
 
 	/// <summary>
 	/// The ambient color of the object

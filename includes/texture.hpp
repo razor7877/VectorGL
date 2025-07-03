@@ -69,7 +69,7 @@ public:
 	/// <param name="textureType">The type of texture to create</param>
 	/// <param name="isHDR">Whether this is an HDR texture</param>
 	/// <param name="stbiFlipOnLoad">Whether the image should be flipped on load</param>
-	Texture(std::string filename, TextureType textureType, bool isHDR = false, bool stbiFlipOnLoad = false);
+	Texture(const std::string& filename, TextureType textureType, bool isHDR = false, bool stbiFlipOnLoad = false);
 
 	/// <summary>
 	/// Creates a new texture using a data buffer
@@ -79,7 +79,7 @@ public:
 	/// <param name="height">The height of the texture</param>
 	/// <param name="format">The format of the texture</param>
 	/// <param name="textureData">A pointer to the texture data, which must correspond in size to the width/height/format specified</param>
-    Texture(TextureType textureType, int width, int height, GLenum format, void* textureData);
+    Texture(TextureType textureType, int width, int height, GLenum format, const void* textureData);
 
 	/// <summary>
 	/// Creates a new texture using an existing OpenGL texture handle
@@ -90,11 +90,11 @@ public:
 
 	~Texture();
 
-	void bindTexture();
+	void bindTexture() const;
 
 private:
-	void createTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad = false);
-	void createHDRTexture(std::string filename, TextureType textureType, bool stbiFlipOnLoad = false);
+	void createTexture(const std::string& filename, TextureType textureType, bool stbiFlipOnLoad = false);
+	void createHDRTexture(const std::string& filename, TextureType textureType, bool stbiFlipOnLoad = false);
 };
 
 #endif

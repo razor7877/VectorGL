@@ -48,7 +48,7 @@ namespace Interface
 	{
 		// An array containing the choice names for the different skyboxes
 		const char* comboSkyboxes[3] = { "Grass", "Night", "Sky" };
-		int currentSkyboxId = (int)SkyboxComponent::DEFAULT_SKY;
+		int currentSkyboxId = static_cast<int>(SkyboxComponent::DEFAULT_SKY);
 	} skyboxParams;
 
 	struct PerformanceParams
@@ -57,7 +57,7 @@ namespace Interface
 		static constexpr int GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX = 0x9049;
 
 		// For calculating the FPS, the time taken to render the last 100 frames is used
-		float lastFrames[100];
+		float lastFrames[100]{};
 		int frameIndex{};
 		float timeToFrame = 1;
 
@@ -136,7 +136,7 @@ namespace Interface
 		TextEditor editor;
 
 		ScriptComponent* currentEditedScript = nullptr;
-		std::string currrentEditedScriptName = "";
+		std::string currrentEditedScriptName;
 		bool isEditingScript = false;
 	} scriptEditorParams;
 
@@ -150,7 +150,7 @@ namespace Interface
 	void ImGuiInit(GLFWwindow* window)
 	{
 		// OpenGL context needs to be initalized beforehand to call glGetString()
-		performanceParams.gpuVendor = (char*)glGetString(GL_VENDOR);
+		performanceParams.gpuVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 		performanceParams.gpuVendorStr = std::string(performanceParams.gpuVendor);
 		performanceParams.isNvidiaGpu = performanceParams.gpuVendorStr.find("NVIDIA") != std::string::npos;
 
@@ -184,10 +184,10 @@ namespace Interface
 		
 		if (ImGui::BeginMenu("Windows"))
 		{
-			ImGui::MenuItem("Shader editor", NULL, &toolbarParams.shaderEditorOn);
-			ImGui::MenuItem("Script editor", NULL, &toolbarParams.scriptEditorOn);
-			ImGui::MenuItem("Texture viewer", NULL, &toolbarParams.textureViewerOn);
-			ImGui::MenuItem("Top view", NULL, &toolbarParams.topViewOn);
+			ImGui::MenuItem("Shader editor", nullptr, &toolbarParams.shaderEditorOn);
+			ImGui::MenuItem("Script editor", nullptr, &toolbarParams.scriptEditorOn);
+			ImGui::MenuItem("Texture viewer", nullptr, &toolbarParams.textureViewerOn);
+			ImGui::MenuItem("Top view", nullptr, &toolbarParams.topViewOn);
 
 			ImGui::EndMenu();
 		}
@@ -199,7 +199,7 @@ namespace Interface
 
 		ImGui::SetNextWindowPos(ImVec2(0, mainMenuBarSize.y));
 		ImGui::SetNextWindowSize(ImVec2(windowSize.x, windowSize.y - mainMenuBarSize.y));
-		ImGui::Begin("Main Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+		ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 		ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -235,7 +235,7 @@ namespace Interface
 		glm::vec2 imagePos = ImGui::GetCursorScreenPos();
 
 		ImGui::Image(
-			(ImTextureID)Main::game.renderer.getRenderTexture(),
+			reinterpret_cast<ImTextureID>(Main::game.renderer.getRenderTexture()),
 			viewerSize,
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -247,7 +247,7 @@ namespace Interface
 		if (true || isViewerFocused && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			glm::vec2 mousePos = ImGui::GetMousePos();
-			// Get mouse position inside of the viewer
+			// Get mouse position inside the viewer
 			glm::vec2 relativeMousePos = mousePos - imagePos;
 
 			// Inspired from https://www.mvps.org/directx/articles/rayproj.htm
@@ -257,7 +257,7 @@ namespace Interface
 			// Calculate Y click position on range -1 to 1
 			float ndcY = 1.0f - relativeMousePos.y / viewerSize.y * 2.0f;
 
-			// This is a click inside of the window
+			// This is a click inside the window
 			if (ndcX > -1.0f && ndcX < 1.0f && ndcY > -1.0f && ndcY < 1.0f)
 			{
 				std::string hitMessage = std::to_string(ndcX) + " - " + std::to_string(ndcY);
@@ -302,7 +302,7 @@ namespace Interface
 		ImGui::Begin("Top view");
 
 		ImGui::Image(
-			(ImTextureID)Main::game.renderer.getSkyRenderTexture(),
+			reinterpret_cast<ImTextureID>(Main::game.renderer.getSkyRenderTexture()),
 			viewerSize,
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -320,7 +320,7 @@ namespace Interface
 		std::vector<std::string> sourceFiles = Logger::getSourceFiles();
 
 		// Refresh if there are any new source files
-		for (std::string file : sourceFiles)
+		for (const std::string& file : sourceFiles)
 		{
 			if (consoleParams.sourceFileToggle.count(file) == 0)
 			{
@@ -388,7 +388,7 @@ namespace Interface
 		ImGui::SameLine();
 		if (ImGui::BeginCombo("##logFilesFilterCombo", "Sources"))
 		{
-			for (std::string file : sourceFiles)
+			for (const std::string& file : sourceFiles)
 			{
 				if (consoleParams.sourceFileToggle.count(file) == 0)
 				{
@@ -432,14 +432,13 @@ namespace Interface
 		{
 			performanceParams.frameIndex = 0;
 			float frameTimeSum{};
-			for (int i = 0; i < 100; i++)
-			{
-				frameTimeSum += performanceParams.lastFrames[i];
-			}
+			for (float lastFrame : performanceParams.lastFrames)
+				frameTimeSum += lastFrame;
+
 			performanceParams.timeToFrame = frameTimeSum / 100;
 		}
 
-		ImGui::Text("Framerate: %i", (int)(1 / performanceParams.timeToFrame));
+		ImGui::Text("Framerate: %i", static_cast<int>(1 / performanceParams.timeToFrame));
 
 		ImGui::Separator();
 
@@ -457,8 +456,8 @@ namespace Interface
 		{
 			ImGui::Separator();
 
-			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.totalMemoryKb);
-			glGetIntegerv(Interface::performanceParams.GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.currentAvailableMemoryKb);
+			glGetIntegerv(Interface::PerformanceParams::GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &performanceParams.totalMemoryKb);
+			glGetIntegerv(Interface::PerformanceParams::GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &performanceParams.currentAvailableMemoryKb);
 
 			ImGui::Text("Total VRAM (MB): %i", performanceParams.totalMemoryKb / 1000);
 			ImGui::Text("Available VRAM (MB): %i", performanceParams.currentAvailableMemoryKb / 1000);
@@ -600,7 +599,7 @@ namespace Interface
 
 	void SetupShaderEditor()
 	{
-		TextEditor::LanguageDefinition lang = TextEditor::LanguageDefinition::GLSL();
+		const TextEditor::LanguageDefinition& lang = TextEditor::LanguageDefinition::GLSL();
 		shaderSettingsParams.editor.SetLanguageDefinition(lang);
 		shaderSettingsParams.editor.SetShowWhitespaces(false);
 	}
@@ -686,7 +685,7 @@ namespace Interface
 
 	void SetupScriptEditor()
 	{
-		TextEditor::LanguageDefinition lang = TextEditor::LanguageDefinition::Lua();
+		const TextEditor::LanguageDefinition& lang = TextEditor::LanguageDefinition::Lua();
 		scriptEditorParams.editor.SetLanguageDefinition(lang);
 		scriptEditorParams.editor.SetShowWhitespaces(false);
 	}
@@ -796,14 +795,14 @@ namespace Interface
 		ImGui::End();
 	}
 
-	void SceneGraphRecurse(std::vector<Entity*> children)
+	void SceneGraphRecurse(const std::vector<Entity*>& children)
 	{
 		for (Entity* child : children)
 		{
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
 
 			// Different flags for tree and leaf nodes
-			if (child->getChildren().size() == 0)
+			if (child->getChildren().empty())
 				flags |= ImGuiTreeNodeFlags_Leaf;
 			else
 				flags |= ImGuiTreeNodeFlags_OpenOnArrow;
@@ -896,7 +895,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Transform"))
 			{
-				TransformComponent* transformComponent = dynamic_cast<TransformComponent*>(component);
+				auto* transformComponent = dynamic_cast<TransformComponent*>(component);
 
 				glm::vec3 position = transformComponent->getPosition();
 				if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
@@ -915,7 +914,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Skybox"))
 			{
-				SkyboxComponent* skyboxComponent = dynamic_cast<SkyboxComponent*>(component);
+				auto* skyboxComponent = dynamic_cast<SkyboxComponent*>(component);
 
 				const char* combo_preview_value = skyboxParams.comboSkyboxes[skyboxParams.currentSkyboxId];
 				if (ImGui::BeginCombo("##skySelector", combo_preview_value))
@@ -929,16 +928,20 @@ namespace Interface
 
 							switch (skyboxParams.currentSkyboxId)
 							{
-								case (int)SkyboxType::GRASS:
+								case static_cast<int>(SkyboxType::GRASS):
 									skyboxComponent->changeSkybox(SkyboxType::GRASS);
 									break;
 
-								case (int)SkyboxType::NIGHT:
+								case static_cast<int>(SkyboxType::NIGHT):
 									skyboxComponent->changeSkybox(SkyboxType::NIGHT);
 									break;
 
-								case (int)SkyboxType::SKY:
+								case static_cast<int>(SkyboxType::SKY):
 									skyboxComponent->changeSkybox(SkyboxType::SKY);
+									break;
+
+								default:
+									Logger::logError("Got invalid skybox ID when changing skybox!", "interface.cpp");
 									break;
 							}
 						}
@@ -955,7 +958,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Mesh"))
 			{
-				MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(component);
+				auto* meshComponent = dynamic_cast<MeshComponent*>(component);
 
 				std::string verticesText = "Vertices: " + std::to_string(meshComponent->getVerticesCount());
 				std::string indicesText = "Indices: " + std::to_string(meshComponent->getIndicesCount());
@@ -976,8 +979,8 @@ namespace Interface
 					ImGui::Text(maxCornerText.c_str(), maxCorner.x, maxCorner.y, maxCorner.z);
 				}
 
-				PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
-				PBRMaterial* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
+				auto* phongMaterial = dynamic_cast<PhongMaterial*>(meshComponent->material.get());
+				auto* pbrMaterial = dynamic_cast<PBRMaterial*>(meshComponent->material.get());
 
 				if (phongMaterial != nullptr)
 				{
@@ -1003,7 +1006,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->albedoTexture->height / pbrMaterial->albedoTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->albedoTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->albedoTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View albedo"))
 						{
@@ -1021,7 +1024,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->normalTexture->height / pbrMaterial->normalTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->normalTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->normalTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View normal map"))
 						{
@@ -1037,7 +1040,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->metallicTexture->height / pbrMaterial->metallicTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->metallicTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->metallicTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View metallic map"))
 						{
@@ -1055,7 +1058,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->roughnessTexture->height / pbrMaterial->roughnessTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->roughnessTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->roughnessTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View roughness map"))
 						{
@@ -1073,7 +1076,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->aoTexture->height / pbrMaterial->aoTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->aoTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->aoTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View ambient occlusion map"))
 						{
@@ -1091,7 +1094,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->opacityTexture->height / pbrMaterial->opacityTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->opacityTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->opacityTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View opacity map"))
 						{
@@ -1109,7 +1112,7 @@ namespace Interface
 
 						float width = 128;
 						float height = pbrMaterial->emissiveTexture->height / pbrMaterial->emissiveTexture->width * width;
-						ImGui::Image((ImTextureID)pbrMaterial->emissiveTexture->texID, ImVec2(width, height));
+						ImGui::Image(reinterpret_cast<ImTextureID>(pbrMaterial->emissiveTexture->texID), ImVec2(width, height));
 
 						if (ImGui::Button("View emissive map"))
 						{
@@ -1125,7 +1128,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Camera"))
 			{
-				CameraComponent* cameraComponent = dynamic_cast<CameraComponent*>(component);
+				auto* cameraComponent = dynamic_cast<CameraComponent*>(component);
 
 				float currentZoom = cameraComponent->getZoom();
 				float newZoom = currentZoom;
@@ -1170,7 +1173,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Point light"))
 			{
-				PointLightComponent* pointLightComponent = dynamic_cast<PointLightComponent*>(component);
+				auto* pointLightComponent = dynamic_cast<PointLightComponent*>(component);
 
 				ImGui::ColorEdit3("Ambient", &(pointLightComponent->ambientColor[0]));
 				ImGui::ColorEdit3("Diffuse", &(pointLightComponent->diffuseColor[0]));
@@ -1185,7 +1188,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Spot light"))
 			{
-				SpotLightComponent* spotLightComponent = dynamic_cast<SpotLightComponent*>(component);
+				auto* spotLightComponent = dynamic_cast<SpotLightComponent*>(component);
 
 				ImGui::ColorEdit3("Ambient", &(spotLightComponent->ambientColor[0]));
 				ImGui::ColorEdit3("Diffuse", &(spotLightComponent->diffuseColor[0]));
@@ -1205,7 +1208,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Directional light"))
 			{
-				DirectionalLightComponent* directionalLightComponent = dynamic_cast<DirectionalLightComponent*>(component);
+				auto* directionalLightComponent = dynamic_cast<DirectionalLightComponent*>(component);
 
 				ImGui::ColorEdit3("Ambient", &(directionalLightComponent->ambientColor[0]));
 				ImGui::ColorEdit3("Diffuse", &(directionalLightComponent->diffuseColor[0]));
@@ -1218,7 +1221,7 @@ namespace Interface
 		{
 			if (ImGui::CollapsingHeader("Script"))
 			{
-				ScriptComponent* scriptComponent = dynamic_cast<ScriptComponent*>(component);
+				auto* scriptComponent = dynamic_cast<ScriptComponent*>(component);
 
 				if (ImGui::Button("Edit script"))
 				{
@@ -1252,9 +1255,9 @@ namespace Interface
 			// We want the image to always fit in the space of the window
 			float width = contentRegionSize.x;
 			float height = textureViewerParams.currentTexture->height / textureViewerParams.currentTexture->width * width;
-			ImGui::Image((ImTextureID)textureViewerParams.currentTexture->texID, ImVec2(width, height));
+			ImGui::Image(reinterpret_cast<ImTextureID>(textureViewerParams.currentTexture->texID), ImVec2(width, height));
 
-			std::string dimensions = "Size: " + std::to_string((int)textureViewerParams.currentTexture->width) + "x" + std::to_string((int)textureViewerParams.currentTexture->height) + " px";
+			std::string dimensions = "Size: " + std::to_string(static_cast<int>(textureViewerParams.currentTexture->width)) + "x" + std::to_string(static_cast<int>(textureViewerParams.currentTexture->height)) + " px";
 			ImGui::Text("%s", dimensions.c_str());
 		}
 

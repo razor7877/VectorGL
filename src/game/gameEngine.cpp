@@ -91,7 +91,7 @@ void GameEngine::draw(float deltaTime)
 		this->states.back()->draw(this, deltaTime);
 }
 
-bool GameEngine::getIsRunning()
+bool GameEngine::getIsRunning() const
 {
 	return this->isRunning;
 }

@@ -1,7 +1,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 #include <utilities/glad.h>
 #include <glm/glm.hpp>
@@ -9,7 +8,7 @@
 #include "shader.hpp"
 #include "logger.hpp"
 
-Shader::Shader(std::string vertexPath, std::string fragmentPath)
+Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath)
 {
 	this->vertexPath = vertexPath;
 	this->fragmentPath = fragmentPath;
@@ -17,7 +16,7 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath)
 	this->compileShader();
 }
 
-Shader::Shader(std::string vertexPath, std::string fragmentPath, std::string geometryPath)
+Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath, const std::string &geometryPath)
 {
 	this->vertexPath = vertexPath;
 	this->fragmentPath = fragmentPath;
@@ -75,7 +74,7 @@ bool Shader::compileShader()
 			geometryCode = gShaderStream.str();
 		}
 	}
-	catch (std::ifstream::failure e)
+	catch (std::ifstream::failure& e)
 	{
 		Logger::logError("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ", "shader.cpp");
 		return false;
@@ -93,26 +92,26 @@ bool Shader::compileShader()
 
 	// Create and compile vertex shader
 	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &vShaderCode, NULL);
+	glShaderSource(vertex, 1, &vShaderCode, nullptr);
 	glCompileShader(vertex);
 
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+		glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
 		Logger::logError(std::string("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
 		return false;
 	}
 
 	// Create and compile fragment shader
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &fShaderCode, NULL);
+	glShaderSource(fragment, 1, &fShaderCode, nullptr);
 	glCompileShader(fragment);
 
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
+		glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
 		Logger::logError(std::string("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
 		return false;
 	}
@@ -122,13 +121,13 @@ bool Shader::compileShader()
 	{
 		const char* gShaderCode = geometryCode.c_str();
 		geometry = glCreateShader(GL_GEOMETRY_SHADER);
-		glShaderSource(geometry, 1, &gShaderCode, NULL);
+		glShaderSource(geometry, 1, &gShaderCode, nullptr);
 		glCompileShader(geometry);
 		
 		glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(geometry, 512, NULL, infoLog);
+			glGetShaderInfoLog(geometry, 512, nullptr, infoLog);
 			Logger::logError(std::string("ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n") + infoLog, "shader.cpp");
 			return false;
 		}
@@ -145,7 +144,7 @@ bool Shader::compileShader()
 	glGetProgramiv(newID, GL_LINK_STATUS, &success);
 	if (!success)
 	{
-		glGetProgramInfoLog(newID, 512, NULL, infoLog);
+		glGetProgramInfoLog(newID, 512, nullptr, infoLog);
 		Logger::logError(std::string("ERROR::SHADER::PROGRAM::LINKING_FAILED\n") + infoLog, "shader.cpp");
 		return false;
 	}
@@ -168,7 +167,7 @@ bool Shader::compileShader()
 	return true;
 }
 
-GLuint Shader::getID()
+GLuint Shader::getID() const
 {
 	return this->ID;
 }
