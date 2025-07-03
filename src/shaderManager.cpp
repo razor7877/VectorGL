@@ -7,7 +7,9 @@
 
 ShaderManager::ShaderManager() = default;
 
-ShaderManager::~ShaderManager()
+ShaderManager::~ShaderManager() = default;
+
+void ShaderManager::end()
 {
 	glDeleteBuffers(1, &this->UBO);
 

@@ -76,7 +76,7 @@ public:
 	/// <summary>
 	/// Stops the renderer, this cleans up all the resources it contains (not implemented yet)
 	/// </summary>
-	static void end();
+	void end();
 
 	/// <summary>
 	/// Resizes the existing framebuffer with the size specified

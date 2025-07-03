@@ -106,7 +106,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
 	std::vector<float> quadTexCoords = Geometry::getQuadTexCoords();
 
-	this->ssaoQuad = std::make_unique<Entity>("Quad");
+	this->ssaoQuad = std::make_unique<Entity>("SSAO_Quad");
 	auto* ssaoQuadMesh = ssaoQuad->addComponent<MeshComponent>();
 	ssaoQuadMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::SSAO)))
 		.addVertices(quadVertices)
@@ -114,7 +114,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 
 	ssaoQuadMesh->start();
 
-	this->ssaoBlurQuad = std::make_unique<Entity>("Quad");
+	this->ssaoBlurQuad = std::make_unique<Entity>("SSAO_Blur_Quad");
 	auto* ssaoBlurQuadMesh = ssaoBlurQuad->addComponent<MeshComponent>();
 	ssaoBlurQuadMesh->setMaterial(std::make_unique<PBRMaterial>(this->shaderManager.getShader(ShaderType::SSAOBLUR)))
 		.addVertices(quadVertices)
@@ -239,7 +239,18 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 
 void Renderer::end()
 {
+	this->multiSampledTarget.release();
+	this->finalTarget.release();
+	this->skyTarget.release();
+	this->depthMap.release();
+	this->gBuffer.release();
+	this->ssaoTarget.release();
+	this->ssaoBlurTarget.release();
+	this->ssaoNoiseTexture.release();
+	this->ssaoQuad.release();
+	this->ssaoBlurQuad.release();
 
+	this->shaderManager.end();
 }
 
 void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
@@ -280,7 +291,6 @@ glm::mat4 Renderer::getLightSpaceMatrix(const Scene& scene, const float nearPlan
 	// Average the positions to get the frustum center
 	frustumCenter /= frustumCorners.size();
 
-	printf("Directional light ptr is %x\n", scene.directionalLight);
 	glm::vec3 lightDir = glm::normalize(scene.directionalLight->parent->getTransform()->getPosition());
 	const glm::mat4 lightView = glm::lookAt(
 		frustumCenter + lightDir,

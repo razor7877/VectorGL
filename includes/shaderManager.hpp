@@ -42,6 +42,11 @@ public:
 	~ShaderManager();
 
 	/// <summary>
+	/// Disposes of the ShaderManager held resources
+	/// </summary>
+	void end();
+
+	/// <summary>
 	/// Initializes the uniform buffer
 	/// </summary>
 	void initUniformBuffer();
