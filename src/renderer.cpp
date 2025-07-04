@@ -420,7 +420,7 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	this->ssaoNoiseTexture->bindTexture();
 
 	// Render SSAO to quad
-	this->ssaoQuad->update(0);
+	this->ssaoQuad->getComponent<MeshComponent>()->drawGeometry(ssaoShader);
 
 	this->ssaoTarget->unbind();
 
@@ -435,7 +435,7 @@ void Renderer::ssaoPass(std::vector<MeshComponent*>& meshes)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, this->ssaoTarget->renderTexture);
 
-	this->ssaoBlurQuad->update(0);
+	this->ssaoBlurQuad->getComponent<MeshComponent>()->drawGeometry(ssaoBlurShader);
 
 	this->ssaoBlurTarget->unbind();
 }

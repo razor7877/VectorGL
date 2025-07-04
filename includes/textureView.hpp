@@ -15,7 +15,7 @@ public:
     GLuint texID = 0;
     TextureType type = TextureType::TEXTURE_DIFFUSE;
 
-    TextureView(GLuint id, TextureType type) : texID(texID), type(type) {}
+    TextureView(GLuint id, TextureType type) : texID(id), type(type) {}
 
     void bindTexture() const
     {
