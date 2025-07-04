@@ -14,6 +14,115 @@
 #include "utilities/geometry.hpp"
 #include "physics/frustum.hpp"
 #include "lightManager.hpp"
+#include "logger.hpp"
+
+// Callback function for printing debug statements
+void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+                            GLenum severity, GLsizei length,
+                            const GLchar *msg, const void *data)
+{
+    std::string messageSource;
+    std::string messageType;
+    std::string messageSeverity;
+
+    switch (source) {
+        case GL_DEBUG_SOURCE_API:
+        messageSource = "API";
+        break;
+
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        messageSource = "WINDOW SYSTEM";
+        break;
+
+        case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        messageSource = "SHADER COMPILER";
+        break;
+
+        case GL_DEBUG_SOURCE_THIRD_PARTY:
+        messageSource = "THIRD PARTY";
+        break;
+
+        case GL_DEBUG_SOURCE_APPLICATION:
+        messageSource = "APPLICATION";
+        break;
+
+        case GL_DEBUG_SOURCE_OTHER:
+        messageSource = "UNKNOWN";
+        break;
+
+        default:
+        messageSource = "UNKNOWN";
+        break;
+    }
+
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR:
+        messageType = "ERROR";
+        break;
+
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        messageType = "DEPRECATED BEHAVIOR";
+        break;
+
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        messageType = "UNDEFINED BEHAVIOR";
+        break;
+
+        case GL_DEBUG_TYPE_PORTABILITY:
+        messageType = "PORTABILITY";
+        break;
+
+        case GL_DEBUG_TYPE_PERFORMANCE:
+        messageType = "PERFORMANCE";
+        break;
+
+        case GL_DEBUG_TYPE_OTHER:
+        messageType = "OTHER";
+        break;
+
+        case GL_DEBUG_TYPE_MARKER:
+        messageType = "MARKER";
+        break;
+
+        default:
+        messageType = "UNKNOWN";
+        break;
+    }
+
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH:
+	        messageSeverity = "HIGH";
+	        break;
+
+        case GL_DEBUG_SEVERITY_MEDIUM:
+	        messageSeverity = "MEDIUM";
+	        break;
+
+        case GL_DEBUG_SEVERITY_LOW:
+	        messageSeverity = "LOW";
+	        break;
+
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+	        messageSeverity = "NOTIFICATION";
+	        break;
+
+        default:
+	        messageSeverity = "UNKNOWN";
+	        break;
+    }
+
+	std::string logMessage = std::to_string(id) + " - " + messageType + " of " + messageSeverity + ", raised from " + messageSource + ": " + msg;
+
+	if (severity == GL_DEBUG_SEVERITY_HIGH)
+		Logger::logError(logMessage, "renderer.cpp");
+	else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
+		Logger::logWarning(logMessage, "renderer.cpp");
+	else
+		Logger::logInfo(logMessage, "renderer.cpp");
+
+    printf("%d: %s of %s severity, raised from %s: %s\n",
+            id, messageType.c_str(), messageSeverity.c_str(), messageSource.c_str(), msg);
+}
 
 Renderer::Renderer() = default;
 
@@ -39,7 +148,6 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize) const
 	this->ssaoBlurTarget->unbind();
 }
 
-
 void Renderer::init(glm::vec2 lastWindowSize)
 {
 	// Sets up some parameters for the OpenGL context
@@ -56,6 +164,11 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Interpolation between sides of a cubemap
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	// Enable OpenGL debugging messages with the GL_KHR_debug extension
+	// this allows detailed error/warning explanations instead of just the error codes
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(GLDebugMessageCallback, NULL);
 
 	this->shaderManager.initUniformBuffer();
 
