@@ -64,7 +64,7 @@ void StartMenuState::init()
 		auto* sphereCollider = sphereEntity->addComponent<PhysicsComponent>();
 		this->physicsWorld.addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
 
-		//this->scene.addEntity(std::move(sphereEntity));
+		this->scene.addEntity(std::move(sphereEntity));
 	}
 
 	// Skybox
@@ -72,7 +72,7 @@ void StartMenuState::init()
 	auto* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
 	skyComponent->changeSkybox(SkyboxType::NIGHT);
-	//this->scene.addEntity(std::move(skyEntity));
+	this->scene.addEntity(std::move(skyEntity));
 
 	// Plane
 	std::vector<float> quadVertices = Geometry::getQuadVertices();
@@ -85,7 +85,7 @@ void StartMenuState::init()
 	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
 	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
 
-	//this->scene.addEntity(std::move(planeEntity));
+	this->scene.addEntity(std::move(planeEntity));
 
 	this->physicsWorld.addPlane(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f));
 

@@ -22,7 +22,7 @@ void ShaderManager::initUniformBuffer()
 	glGenBuffers(1, &this->UBO);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, this->UBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Make sure buffer range corresponds to actual buffer size!

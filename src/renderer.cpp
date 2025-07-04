@@ -119,9 +119,6 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
 		Logger::logWarning(logMessage, "renderer.cpp");
 	else
 		Logger::logInfo(logMessage, "renderer.cpp");
-
-    printf("%d: %s of %s severity, raised from %s: %s\n",
-            id, messageType.c_str(), messageSeverity.c_str(), messageSource.c_str(), msg);
 }
 
 Renderer::Renderer() = default;
@@ -145,6 +142,7 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize) const
 	this->gBuffer->resize(newSize);
 	this->ssaoTarget->resize(newSize * Renderer::SSAO_SCALE_FACTOR);
 	this->ssaoBlurTarget->resize(newSize * Renderer::SSAO_SCALE_FACTOR);
+	PBRMaterial::ssaoMap = std::make_unique<TextureView>(this->ssaoBlurTarget->renderTexture, TextureType::TEXTURE_2D);
 	this->ssaoBlurTarget->unbind();
 }
 
