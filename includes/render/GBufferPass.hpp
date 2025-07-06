@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderPass.hpp"
+#include "RenderPass.hpp"
 
 /// <summary>
 /// The G buffer pass for screen space effects

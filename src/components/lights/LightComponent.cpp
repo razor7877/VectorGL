@@ -1,0 +1,23 @@
+#include "components/lights/LightComponent.hpp"
+#include "Entity.hpp"
+#include "LightManager.hpp"
+
+LightComponent::LightComponent(Entity* parent) : Component(parent)
+{
+	this->ambientColor = glm::vec3(1.0f);
+	this->diffuseColor = glm::vec3(1.0f);
+	this->specularColor = glm::vec3(1.0f);
+
+	this->index = 0;
+	this->shaderProgram = LightManager::getInstance().shaderProgram;
+}
+
+void LightComponent::start()
+{
+
+}
+
+void LightComponent::update(float deltaTime)
+{
+	this->sendToShader(this->shaderProgram, this->index);
+}

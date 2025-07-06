@@ -7,9 +7,9 @@
 
 #include "io/input.hpp"
 #include "io/interface.hpp"
-#include "logger.hpp"
-#include "game/gameEngine.hpp"
-#include "game/startMenuState.hpp"
+#include "Logger.hpp"
+#include "game/GameEngine.hpp"
+#include "game/StartMenuState.hpp"
 #include "main.hpp"
 
 using namespace Main;

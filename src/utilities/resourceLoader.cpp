@@ -5,13 +5,13 @@
 #include <utilities/stb_image.h>
 
 #include "utilities/resourceLoader.hpp"
-#include "components/meshComponent.hpp"
-//#include "components/physicsComponent.hpp"
-#include "logger.hpp"
+#include "components/MeshComponent.hpp"
+	//#include "components/physicsComponent.hpp"
+#include "Logger.hpp"
 #include "utilities/geometry.hpp"
-#include "materials/pbrMaterial.hpp"
+#include "materials/PBRMaterial.hpp"
 
-ResourceLoader ResourceLoader::instance;
+	ResourceLoader ResourceLoader::instance;
 
 std::map<aiTextureType, TextureType> ResourceLoader::aiMatToTextureType = {
 	{ aiTextureType_DIFFUSE, TextureType::TEXTURE_DIFFUSE },

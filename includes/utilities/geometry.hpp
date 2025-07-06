@@ -8,7 +8,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#include <physics/boundingBox.hpp>
+#include <physics/BoundingBox.hpp>
 
 struct VertexData
 {

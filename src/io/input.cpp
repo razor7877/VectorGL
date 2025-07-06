@@ -4,10 +4,10 @@
 #include "io/interface.hpp"
 #include "io/input.hpp"
 #include "utilities/resourceLoader.hpp"
-#include "logger.hpp"
-#include "game/gameEngine.hpp"
-#include "game/gameState.hpp"
-#include "lightManager.hpp"
+#include "Logger.hpp"
+#include "game/GameEngine.hpp"
+#include "game/GameState.hpp"
+#include "LightManager.hpp"
 
 namespace Input
 {

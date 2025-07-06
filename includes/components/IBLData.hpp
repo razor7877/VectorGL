@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "cubemap.hpp"
-#include "texture.hpp"
-#include "renderer.hpp"
+#include "Cubemap.hpp"
+#include "Texture.hpp"
+#include "Renderer.hpp"
 
 /// <summary>
 /// Represents a sky and its associated IBL data for PBR rendering

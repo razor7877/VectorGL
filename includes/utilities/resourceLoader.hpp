@@ -4,9 +4,9 @@
 
 #include <assimp/scene.h>
 
-#include "shader.hpp"
-#include "entity.hpp"
-#include "texture.hpp"
+#include "Shader.hpp"
+#include "Entity.hpp"
+#include "Texture.hpp"
 
 class ResourceLoader
 {

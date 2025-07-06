@@ -1,7 +1,7 @@
 #include <random>
 
 #include "render/GBufferPass.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
 
 GBufferPass::GBufferPass() : RenderPass()
 {

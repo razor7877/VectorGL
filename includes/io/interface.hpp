@@ -3,8 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include "entity.hpp"
-#include "components/component.hpp"
+#include "Entity.hpp"
+#include "components/Component.hpp"
 
 // This file is responsible for handling and displaying the various interfaces that are produced with the ImGUI library
 
