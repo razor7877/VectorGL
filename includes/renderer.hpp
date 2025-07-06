@@ -7,6 +7,7 @@
 #include "renderTarget.hpp"
 #include "physics/physicsWorld.hpp"
 #include "scene.hpp"
+#include "render/blitPass.hpp"
 #include "render/debugRenderPass.hpp"
 #include "render/GBufferPass.hpp"
 #include "render/mainRenderPass.hpp"
@@ -103,14 +104,10 @@ private:
 	std::unique_ptr<MainRenderPass> mainRenderPass;
 	std::unique_ptr<DebugRenderPass> debugRenderPass;
 	std::unique_ptr<OutlinePass> outlinePass;
+	std::unique_ptr<BlitPass> blitPass;
 
 	// Creates a framebuffer with the size specified
 	void createRenderTargets(glm::vec2 windowSize);
-
-	/// <summary>
-	/// The final pass, reponsible for resolving the multisampled framebuffer texture to the final texture for display
-	/// </summary>
-	void blitPass() const;
 };
 
 #endif

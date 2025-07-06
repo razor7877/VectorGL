@@ -71,7 +71,7 @@ void StartMenuState::init()
 	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
 	auto* skyComponent = skyEntity->addComponent<SkyboxComponent>();
 	skyComponent->setupSkybox(skyboxShader, this->renderer);
-	skyComponent->changeSkybox(SkyboxType::NIGHT);
+	skyComponent->changeSkybox(SkyboxType::SKY);
 	this->scene.addEntity(std::move(skyEntity));
 
 	// Plane

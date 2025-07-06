@@ -182,6 +182,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	this->mainRenderPass = std::make_unique<MainRenderPass>();
 	this->debugRenderPass = std::make_unique<DebugRenderPass>();
 	this->outlinePass = std::make_unique<OutlinePass>();
+	this->blitPass = std::make_unique<BlitPass>();
 
 	this->createRenderTargets(lastWindowSize);
 }
@@ -256,8 +257,8 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 	});
 
 	measureTime(this->blitPassTime, [&]() {
-		// Resolve the multisampled framebuffer to the normal one for display
-		this->blitPass();
+		// Resolve the multi sampled framebuffer to the normal one for display
+		this->blitPass->execute(*this->mainRenderPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
 	});
 
 	measureTime(this->debugPassTime, [&]() {
@@ -304,14 +305,3 @@ void Renderer::createRenderTargets(glm::vec2 windowSize)
 	this->skyTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, windowSize);
 }
 
-void Renderer::blitPass() const
-{
-	// Bind the second target that will contain the mixed multi sampled textures
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mainRenderPass->renderTarget->framebuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalTarget->framebuffer);
-
-	glm::vec2 framebufferSize = this->mainRenderPass->renderTarget->size;
-	// Resolve the multi sampled texture to the second target
-	glScissor(0, 0, framebufferSize.x, framebufferSize.y);
-	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-}

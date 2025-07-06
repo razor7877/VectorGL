@@ -56,14 +56,15 @@ void SkyboxComponent::setupSkybox(Shader* shaderProgram, Renderer& renderer)
 {
 	this->shaderProgram = shaderProgram;
 
-	std::unique_ptr<IBLData> grass = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/grass/")));
-	std::unique_ptr<IBLData> night = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/night/")));
+	//std::unique_ptr<IBLData> grass = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/grass/")));
+	//std::unique_ptr<IBLData> night = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/night/")));
 	std::unique_ptr<IBLData> sky = std::make_unique<IBLData>(renderer, std::move(std::make_unique<Cubemap>("img/skybox/sky/")));
 
-	this->skyboxes[SkyboxType::GRASS] = std::move(grass);
-	this->skyboxes[SkyboxType::NIGHT] = std::move(night);
+	//this->skyboxes[SkyboxType::GRASS] = std::move(grass);
+	//this->skyboxes[SkyboxType::NIGHT] = std::move(night);
 	this->skyboxes[SkyboxType::SKY] = std::move(sky);
 
+	this->currentSky = SkyboxComponent::skyboxes[SkyboxComponent::DEFAULT_SKY].get();
 	this->changeSkybox(SkyboxComponent::DEFAULT_SKY);
 }
 
