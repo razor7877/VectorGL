@@ -27,6 +27,7 @@ file(GLOB IO_SRC "src/io/*.c" "src/io/*.cpp")
 file(GLOB KHR_SRC "src/KHR/*.c" "src/KHR/*.cpp")
 file(GLOB MATERIALS_SRC "src/materials/*.c" "src/materials/*.cpp")
 file(GLOB PHYSICS_SRC "src/physics/*.c" "src/physics/*.cpp")
+FILE(GLOB RENDER_SRC "src/render/*.c" "src/render/*.cpp")
 file(GLOB UTILITIES_SRC "src/utilities/*.c" "src/utilities/*.cpp")
 
 # Find all header files
@@ -38,6 +39,7 @@ file(GLOB IO_INCLUDES "includes/io/*.h" "includes/io/*.hpp")
 file(GLOB KHR_INCLUDES "includes/KHR/*.h" "includes/KHR/*.hpp")
 file(GLOB MATERIALS_INCLUDES "includes/materials/*.h" "includes/materials/*.hpp")
 file(GLOB PHYSICS_INCLUDES "includes/physics/*.h" "includes/physics/*.hpp")
+FILE(GLOB RENDER_INCLUDES "src/render/*.h" "src/render/*.hpp")
 file(GLOB UTILITIES_INCLUDES "includes/utilities/*.h" "includes/utilities/*.hpp")
 
 # Add sources to target
@@ -50,6 +52,7 @@ add_executable(VectorGL
 	${KHR_SRC}
 	${MATERIALS_SRC}
 	${PHYSICS_SRC}
+	${RENDER_SRC}
 	${UTILITIES_SRC}
 
 	${MAIN_INCLUDES}
@@ -60,6 +63,7 @@ add_executable(VectorGL
 	${KHR_INCLUDES}
 	${MATERIALS_INCLUDES}
 	${PHYSICS_INCLUDES}
+	${RENDER_INCLUDES}
 	${UTILITIES_INCLUDES}
 
 	${LUA_SRC_INCLUDES}
@@ -75,6 +79,8 @@ add_executable(VectorGL
 	libs/ImGui/imgui_tables.cpp
 	libs/ImGui/imgui_widgets.cpp
 	libs/ImGui/misc/cpp/imgui_stdlib.cpp
+		src/render/ssaoPass.cpp
+		src/render/GBufferPass.cpp
 )
 
 source_group("src" FILES ${MAIN_SRC})

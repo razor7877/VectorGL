@@ -160,6 +160,8 @@ bool Shader::compileShader()
 
 	// We can replace the new ID if everything succeeded
 	this->ID = newID;
+	// Our cache is not valid anymore so we need to clear it
+	this->locationCache.clear();
 
 	Logger::logInfo("Successfully compiled shader!", "shader.cpp");
 	this->wasRecompiled = true;

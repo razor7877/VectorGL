@@ -10,6 +10,9 @@
 #include "components/meshComponent.hpp"
 #include "physics/physicsWorld.hpp"
 #include "scene.hpp"
+#include "render/GBufferPass.hpp"
+#include "render/shadowPass.hpp"
+#include "render/ssaoPass.hpp"
 
 // TODO : Render pass system
 /// <summary>
@@ -27,16 +30,16 @@ public:
 
 	ShaderManager shaderManager;
 
-	float frameRenderTime = 0.0f;
-	float meshSortingTime = 0.0f;
-	float physicsUpdateTime = 0.0f;
-	float shadowPassTime = 0.0f;
-	float gBufferPassTime = 0.0f;
-	float ssaoPassTime = 0.0f;
-	float renderPassTime = 0.0f;
-	float outlinePassTime = 0.0f;
-	float blitPassTime = 0.0f;
-	float debugPassTime = 0.0f;
+	double frameRenderTime = 0.0f;
+	double meshSortingTime = 0.0f;
+	double physicsUpdateTime = 0.0f;
+	double shadowPassTime = 0.0f;
+	double gBufferPassTime = 0.0f;
+	double ssaoPassTime = 0.0f;
+	double renderPassTime = 0.0f;
+	double outlinePassTime = 0.0f;
+	double blitPassTime = 0.0f;
+	double debugPassTime = 0.0f;
 
 	bool enableDebugDraw = false;
 
@@ -84,22 +87,9 @@ public:
 	/// <param name="newSize">The new size in pixels</param>
 	void resizeFramebuffers(glm::vec2 newSize) const;
 
+	[[nodiscard]] glm::vec2 getRenderSize() const;
+
 private:
-	/// <summary>
-	/// The width in pixels of the shadow map
-	/// </summary>
-	static constexpr unsigned int SHADOW_MAP_WIDTH = 2048;
-
-	/// <summary>
-	/// The height in pixels of the shadow map
-	/// </summary>
-	static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
-
-	/// <summary>
-	/// The scaling factor to scale the resolution of the SSAO map relative to the window base resolution
-	/// </summary>
-	static constexpr float SSAO_SCALE_FACTOR = 0.75;
-
 	/// <summary>
 	/// The render target in which everything is rendered
 	/// </summary>
@@ -121,46 +111,6 @@ private:
 	std::unique_ptr<RenderTarget> depthMap;
 
 	/// <summary>
-	/// The G-buffer for screen space effects
-	/// </summary>
-	std::unique_ptr<RenderTarget> gBuffer;
-
-	/// <summary>
-	/// The render target for rendering the SSAO
-	/// </summary>
-	std::unique_ptr<RenderTarget> ssaoTarget;
-
-	/// <summary>
-	/// The render target for rendering the blurred SSAO texture
-	/// </summary>
-	std::unique_ptr<RenderTarget> ssaoBlurTarget;
-
-	/// <summary>
-	/// The noise texture for SSAO sampling
-	/// </summary>
-	std::unique_ptr<Texture> ssaoNoiseTexture;
-
-	/// <summary>
-	/// The kernel for SSAO sampling
-	/// </summary>
-	std::vector<glm::vec3> ssaoKernel;
-	
-	/// <summary>
-	/// The noise values for SSAO sampling
-	/// </summary>
-	std::vector<glm::vec3> ssaoNoise;
-
-	/// <summary>
-	/// The quad for the SSAO rendering
-	/// </summary>
-	std::unique_ptr<Entity> ssaoQuad;
-
-	/// <summary>
-	/// The quad for the SSAO blur rendering
-	/// </summary>
-	std::unique_ptr<Entity> ssaoBlurQuad;
-
-	/// <summary>
 	/// Debug lines vertices
 	/// </summary>
 	std::vector<float> lineVerts;
@@ -170,27 +120,12 @@ private:
 	/// </summary>
 	std::vector<float> storedLineVerts;
 
+	std::unique_ptr<ShadowPass> shadowPass;
+	std::unique_ptr<GBufferPass> gBufferPass;
+	std::unique_ptr<SSAOPass> ssaoPass;
+
 	// Creates a framebuffer with the size specified
 	void createFramebuffers(glm::vec2 lastWindowSize);
-
-	/// <summary>
-	/// The pass responsible for generating the shadow map
-	/// </summary>
-	/// <param name="meshes">A vector containing all meshes to be rendered onto the shadow map</param>
-	/// <param name="scene">The scene to use for generating the shadows</param>
-	void shadowPass(const std::vector<MeshComponent*>& meshes, const Scene& scene);
-
-	glm::mat4 getLightSpaceMatrix(const Scene& scene, float nearPlane, float farPlane) const;
-
-	/// <summary>
-	/// The pass responsible for rendering position/normal/albedo information to the G buffer textures
-	/// </summary>
-	void gBufferPass(const std::vector<MeshComponent*>& meshes);
-
-	/// <summary>
-	/// The pass responsible for calculating SSAO
-	/// </summary>
-	void ssaoPass(std::vector<MeshComponent*>& meshes);
 
 	/// <summary>
 	/// The main pass, responsible for rendering all the objects in the scene
