@@ -17,4 +17,5 @@ public:
     RenderPass() = default;
     virtual ~RenderPass() = default;
     virtual void execute(Renderer& renderer, const Scene& scene, float deltaTime) = 0;
+    virtual void execute(RenderTarget& outTarget, Renderer& renderer, const Scene& scene, float deltaTime) {}
 };

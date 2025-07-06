@@ -393,22 +393,21 @@ void main()
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     // Sample the SSAO value
-    const float SSAO_SCALE_FACTOR = 0.75;
-    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize * SSAO_SCALE_FACTOR).r;
+    float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize).r;
     vec3 ambient = (kD * diffuse + specular) * ao;
     // SSAO weighs for 50% of the ambient color to avoid the effect being too strong
     // Don't use SSAO if we are using an AO map
     const float SSAO_FACTOR = 0.5;
     if ((material.used_maps & AO_MAP) == 0)
-        ambient *= mix(1.0, ssao, 0.5);
+        ambient *= mix(ao, ssao, 0.5);
 	
     vec3 color = ambient + Lo;
 
     if ((material.used_maps & EMISSIVE_MAP) != 0)
         color += texture(material.texture_emissive, TexCoord).rgb;
         
-    //color = color / (color + vec3(1.0));
-    //color = pow(color, vec3(1.0 / 2.2));
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, opacity);
 }

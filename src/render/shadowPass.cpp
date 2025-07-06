@@ -23,9 +23,9 @@ void ShadowPass::execute(Renderer& renderer, const Scene& scene, float deltaTime
     float near = CameraComponent::NEAR;
     float far = CameraComponent::FAR;
     float cascadeLevels[3] = {
-        far * Renderer::SHADOW_CASCADE_DISTANCES[0],
-        far * Renderer::SHADOW_CASCADE_DISTANCES[1],
-        far * Renderer::SHADOW_CASCADE_DISTANCES[2]
+        far * SHADOW_CASCADE_DISTANCES[0],
+        far * SHADOW_CASCADE_DISTANCES[1],
+        far * SHADOW_CASCADE_DISTANCES[2]
     };
 
     std::vector<glm::mat4> lightSpaceMatrices = {

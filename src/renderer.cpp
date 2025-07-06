@@ -136,7 +136,6 @@ GLuint Renderer::getSkyRenderTexture() const
 
 void Renderer::resizeFramebuffers(glm::vec2 newSize) const
 {
-	this->multiSampledTarget->resize(newSize);
 	this->finalTarget->resize(newSize);
 
 	this->gBufferPass->renderTarget->resize(newSize);
@@ -144,11 +143,12 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize) const
 	this->ssaoPass->renderTarget->resize(newSize * SSAOPass::SSAO_SCALE_FACTOR);
 	PBRMaterial::ssaoMap = std::make_unique<TextureView>(this->ssaoPass->renderTarget->renderTexture, TextureType::TEXTURE_2D);
 	this->ssaoPass->renderTarget->unbind();
+	this->mainRenderPass->renderTarget->resize(newSize);
 }
 
 glm::vec2 Renderer::getRenderSize() const
 {
-	return this->multiSampledTarget->size;
+	return this->mainRenderPass->renderTarget->size;
 }
 
 
@@ -179,31 +179,14 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	this->shadowPass = std::make_unique<ShadowPass>();
 	this->gBufferPass = std::make_unique<GBufferPass>();
 	this->ssaoPass = std::make_unique<SSAOPass>(*this, *gBufferPass.get());
+	this->mainRenderPass = std::make_unique<MainRenderPass>();
+	this->debugRenderPass = std::make_unique<DebugRenderPass>();
+	this->outlinePass = std::make_unique<OutlinePass>();
 
-	this->createFramebuffers(lastWindowSize);
+	this->createRenderTargets(lastWindowSize);
 }
 
-void Renderer::addLine(glm::vec3 startPos, glm::vec3 endPos, bool store)
-{
-	if (store)
-	{
-		this->storedLineVerts.push_back(startPos.x);
-		this->storedLineVerts.push_back(startPos.y);
-		this->storedLineVerts.push_back(startPos.z);
-		this->storedLineVerts.push_back(endPos.x);
-		this->storedLineVerts.push_back(endPos.y);
-		this->storedLineVerts.push_back(endPos.z);
-	}
-
-	this->lineVerts.push_back(startPos.x);
-	this->lineVerts.push_back(startPos.y);
-	this->lineVerts.push_back(startPos.z);
-	this->lineVerts.push_back(endPos.x);
-	this->lineVerts.push_back(endPos.y);
-	this->lineVerts.push_back(endPos.z);
-}
-
-void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
+void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float deltaTime)
 {
 	// Helper lambda to measure the execution time of the different render sections
 	auto measureTime = [](double& outTime, const std::function<void()>& func) {
@@ -215,6 +198,7 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 	};
 
 	double frameStartTime = glfwGetTime();
+	glm::vec2 lastWindowSize = this->mainRenderPass->renderTarget->size;
 
 	// Render & update the scene
 
@@ -222,7 +206,7 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 		// All the entities at the top level of the scene
 		std::vector<Entity*> entities = scene.getEntities();
 		scene.sortedSceneData.clearCache();
-		Frustum frustum(scene.currentCamera, this->multiSampledTarget->size);
+		Frustum frustum(scene.currentCamera, lastWindowSize);
 		scene.getMeshesRecursively(frustum, entities);
 	});
 
@@ -230,8 +214,6 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 		// Update the physics simulation
 		physicsWorld.update(deltaTime);
 	});
-
-	glm::vec2 lastWindowSize = this->multiSampledTarget->size;
 
 	// Update camera info
 	this->shaderManager.updateUniformBuffer(scene.currentCamera->getViewMatrix(), scene.currentCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
@@ -255,21 +237,23 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 		this->ssaoPass->execute(*this, scene, deltaTime);
 	});
 
-	// We now want to draw to the MSAA framebuffer
-	this->multiSampledTarget->bind();
-	this->multiSampledTarget->clear();
-
 	measureTime(this->renderPassTime, [&]() {
 		// Render the scene
-		this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
+		this->mainRenderPass->execute(*this, scene, deltaTime);
 	});
+
+	if (this->enableDebugDraw)
+	{
+		// Line drawing for debugging raycasts etc.
+		std::vector<float> physicsLines = physicsWorld.getDebugLines();
+		this->debugRenderPass->addLines(physicsLines, false);
+		this->debugRenderPass->execute(*this->mainRenderPass->renderTarget, *this, scene, deltaTime);
+	}
 
 	measureTime(this->outlinePassTime, [&]() {
 		// Render outlines
-		this->outlinePass(scene.sortedSceneData.outlineRenderList);
+		this->outlinePass->execute(*this->mainRenderPass->renderTarget, *this, scene, deltaTime);
 	});
-
-	this->multiSampledTarget->unbind();
 
 	measureTime(this->blitPassTime, [&]() {
 		// Resolve the multisampled framebuffer to the normal one for display
@@ -283,7 +267,7 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 			this->skyTarget->clear();
 
 			this->shaderManager.updateUniformBuffer(scene.skyCamera->getViewMatrix(), scene.skyCamera->getProjectionMatrix(lastWindowSize.x, lastWindowSize.y));
-			this->renderPass(deltaTime, physicsWorld, scene.sortedSceneData);
+			this->mainRenderPass->execute(*this, scene, deltaTime);
 
 			this->skyTarget->unbind();
 		}
@@ -294,7 +278,6 @@ void Renderer::render(Scene& scene, PhysicsWorld& physicsWorld, float deltaTime)
 
 void Renderer::end()
 {
-	this->multiSampledTarget.release();
 	this->finalTarget.release();
 	this->skyTarget.release();
 	this->depthMap.release();
@@ -302,204 +285,33 @@ void Renderer::end()
 	this->shadowPass.release();
 	this->gBufferPass.release();
 	this->ssaoPass.release();
+	this->mainRenderPass.release();
 
 	this->shaderManager.end();
 }
 
-void Renderer::createFramebuffers(glm::vec2 lastWindowSize)
+void Renderer::createRenderTargets(glm::vec2 windowSize)
 {
-	this->multiSampledTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D_MULTISAMPLE, lastWindowSize);
-	this->finalTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, lastWindowSize);
-	this->skyTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, lastWindowSize);
-
 	// Screen space effects
-	this->gBufferPass->renderTarget = std::make_unique<RenderTarget>(TargetType::G_BUFFER, lastWindowSize, GL_RGBA16F);
-	this->ssaoPass->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);
-	this->ssaoPass->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, lastWindowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);
+	this->gBufferPass->renderTarget = std::make_unique<RenderTarget>(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
+	this->ssaoPass->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, windowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);
+	this->ssaoPass->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, windowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);
 	PBRMaterial::ssaoMap = std::make_unique<TextureView>(this->ssaoPass->renderTarget->renderTexture, TextureType::TEXTURE_2D);
-}
 
-void Renderer::renderPass(float deltaTime, PhysicsWorld& physicsWorld, SortedSceneData& sceneData)
-{
-	glStencilMask(0x00);
+	this->mainRenderPass->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
 
-	this->shaderManager.getShader(ShaderType::PBR)
-		->use()
-		->setVec2("windowSize", this->ssaoPass->renderTarget->size);
-
-	// We can simply update all entities that won't be rendered
-	for (Entity* nonRenderable : sceneData.logicEntities)
-		nonRenderable->update(deltaTime);
-
-	for (PhysicsComponent* physics : sceneData.physicsComponents)
-		physics->update(deltaTime);
-
-	glEnable(GL_DEPTH_TEST);
-	glStencilMask(0xFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-	// Entities that can be rendered are grouped by shader and then rendered together
-	for (auto& [shader, meshes] : sceneData.renderList)
-	{
-		shader->use();
-
-		for (Entity* renderable : meshes)
-		{
-			// We only write to the stencil mask if the entity should have an outline
-			if (renderable->drawOutline)
-				glStencilMask(0xFF);
-			else
-				glStencilMask(0x00);
-
-			renderable->update(deltaTime);
-		}
-	}
-
-	for (auto& [shader, meshesByDistance] : sceneData.transparentRenderList)
-	{
-		shader->use();
-
-		for (auto it = meshesByDistance.rbegin(); it != meshesByDistance.rend(); ++it)
-		{
-			// We only write to the stencil mask if the entity should have an outline
-			if (it->second->drawOutline)
-				glStencilMask(0xFF);
-			else
-				glStencilMask(0x00);
-
-			it->second->update(deltaTime);
-		}
-	}
-
-	if (this->enableDebugDraw)
-	{
-		// Line drawing for debugging raycasts etc.
-		std::vector<float> debugLines = physicsWorld.getDebugLines();
-		lineVerts.insert(lineVerts.end(), debugLines.begin(), debugLines.end());
-		lineVerts.insert(lineVerts.end(), storedLineVerts.begin(), storedLineVerts.end());
-
-		// Debug bounding boxes
-		for (MeshComponent* mesh : sceneData.meshes)
-		{
-			std::vector<float> vertices;
-
-			// Querying the bounding boxes like that every frame is super slow, could probably be improved
-			BoundingBox meshBB = mesh->getWorldBoundingBox();
-			glm::vec3 minPos = meshBB.minPosition;
-			glm::vec3 maxPos = meshBB.maxPosition;
-
-			// Create the vertices for the 8 points of the bounding box
-			// Left bottom back
-			vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_min, y_min, z_min)
-			// Left bottom front
-			vertices.push_back(minPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_min, z_max)
-			// Left top back
-			vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_min, y_max, z_min)
-			// Left top front
-			vertices.push_back(minPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_min, y_max, z_max)
-			// Right bottom back
-			vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(minPos[2]); // (x_max, y_min, z_min)
-			// Right bottom front
-			vertices.push_back(maxPos[0]); vertices.push_back(minPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_min, z_max)
-			// Right top back
-			vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(minPos[2]); // (x_max, y_max, z_min)
-			// Right top front
-			vertices.push_back(maxPos[0]); vertices.push_back(maxPos[1]); vertices.push_back(maxPos[2]); // (x_max, y_max, z_max)
-
-			// The indices for creating lines that links all the points of the bounding box using the 8 previous vertices
-
-			// Add the vertices to draw each line of the bounding box
-			for (int i = 0; i < 12; ++i)
-			{
-				int edgeIndices[12][2] = {
-					{0, 1}, {0, 2}, {1, 3}, {2, 3}, // Left side edges
-					{4, 5}, {4, 6}, {5, 7}, {6, 7}, // Right side edges
-					{0, 4}, {2, 6}, {1, 5}, {3, 7}, // Connect the two sides
-				};
-
-				int v1 = edgeIndices[i][0];
-				int v2 = edgeIndices[i][1];
-
-				// Add the coordinates of the two vertices for each edge
-				lineVerts.push_back(vertices[v1 * 3 + 0]); // x of v1
-				lineVerts.push_back(vertices[v1 * 3 + 1]); // y of v1
-				lineVerts.push_back(vertices[v1 * 3 + 2]); // z of v1
-
-				lineVerts.push_back(vertices[v2 * 3 + 0]); // x of v2
-				lineVerts.push_back(vertices[v2 * 3 + 1]); // y of v2
-				lineVerts.push_back(vertices[v2 * 3 + 2]); // z of v2
-			}
-		}
-
-		if (!lineVerts.empty())
-		{
-			GLuint lineVAO;
-			GLuint lineVBO;
-
-			glGenVertexArrays(1, &lineVAO);
-			glGenBuffers(1, &lineVBO);
-			glBindVertexArray(lineVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-			glBufferData(GL_ARRAY_BUFFER, lineVerts.size() * sizeof(float), &lineVerts[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-			glEnableVertexAttribArray(0);
-
-			this->shaderManager.getShader(ShaderType::SOLID)->use();
-			glBindVertexArray(lineVAO);
-			glLineWidth(25.0f);
-			glDrawArrays(GL_LINES, 0, lineVerts.size() / 3);
-			lineVerts.clear();
-
-			glDeleteVertexArrays(1, &lineVAO);
-			glDeleteBuffers(1, &lineVBO);
-		}
-	}
-
-	// Disable stencil writes
-	glStencilMask(0x00);
-}
-
-void Renderer::outlinePass(const std::vector<Entity*>& outlineRenderList)
-{
-	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-	// Disable depth test before drawing outlines
-	glDisable(GL_DEPTH_TEST);
-	// Use outline shader
-	Shader* outlineShader = this->shaderManager.getShader(ShaderType::OUTLINE);
-	outlineShader->use();
-
-	for (Entity* outlinedEntity : outlineRenderList)
-	{
-		auto* mesh = outlinedEntity->getComponent<MeshComponent>();
-		glm::vec3 originalScale = outlinedEntity->getTransform()->getScale();
-		Shader* originalShader = mesh->material->shaderProgram;
-
-		mesh->material->shaderProgram = outlineShader;
-
-		outlinedEntity->getTransform()->setScale(originalScale * 1.1f);
-		// TODO: Fix shadow bug. Whenever an object is outlined, the shadow on the next frame end up bigger even though the object was scaled back down, maybe depth or stencil issue?
-		outlinedEntity->update(0);
-		outlinedEntity->getTransform()->setScale(originalScale);
-
-		mesh->material->shaderProgram = originalShader;
-	}
-
-	// Reenable depth test after drawing outlines
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glEnable(GL_DEPTH_TEST);
-	// Reenable stencil writes or buffer won't be cleared properly on next frame
-	glStencilMask(0xFF);
+	this->finalTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, windowSize);
+	this->skyTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, windowSize);
 }
 
 void Renderer::blitPass() const
 {
-	// Bind the second target that will contain the mixed multisampled textures
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->multiSampledTarget->framebuffer);
+	// Bind the second target that will contain the mixed multi sampled textures
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mainRenderPass->renderTarget->framebuffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->finalTarget->framebuffer);
 
-	glm::vec2 framebufferSize = this->multiSampledTarget->size;
-	// Resolve the multisampled texture to the second target
+	glm::vec2 framebufferSize = this->mainRenderPass->renderTarget->size;
+	// Resolve the multi sampled texture to the second target
 	glScissor(0, 0, framebufferSize.x, framebufferSize.y);
 	glBlitFramebuffer(0, 0, framebufferSize.x, framebufferSize.y, 0, 0, framebufferSize.x, framebufferSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }

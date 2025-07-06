@@ -8,6 +8,12 @@
 class ShadowPass : public RenderPass
 {
 public:
+    static constexpr int SHADOW_CASCADE_LEVELS = 3;
+    static constexpr float SHADOW_CASCADE_DISTANCES[SHADOW_CASCADE_LEVELS] = {
+        0.05f,
+        0.15f,
+        0.35f
+    };
 
     ShadowPass();
     ~ShadowPass() override;

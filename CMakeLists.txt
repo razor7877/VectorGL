@@ -79,8 +79,6 @@ add_executable(VectorGL
 	libs/ImGui/imgui_tables.cpp
 	libs/ImGui/imgui_widgets.cpp
 	libs/ImGui/misc/cpp/imgui_stdlib.cpp
-		src/render/ssaoPass.cpp
-		src/render/GBufferPass.cpp
 )
 
 source_group("src" FILES ${MAIN_SRC})
