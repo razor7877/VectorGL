@@ -30,7 +30,8 @@ public:
 	static const std::string PREFILTER_MAP;
 	static const std::string BRDF_LUT;
 
-	static const std::string SHADOW_MAP;
+	static const std::string STATIC_SHADOW_MAP;
+	static const std::string DYNAMIC_SHADOW_MAP;
 	static const std::string LIGHT_SPACE_MATRICES[4];
 	static const std::string CASCADE_PLANE_DISTANCES[3];
 	static const std::string CASCADE_COUNT;
@@ -67,7 +68,12 @@ public:
 	/// <summary>
 	/// The shadow map for shadow calculations
 	/// </summary>
-	static std::shared_ptr<TextureView> shadowMap;
+	static std::shared_ptr<TextureView> staticShadowMap;
+
+	/// <summary>
+	/// The shadow map for shadow calculations
+	/// </summary>
+	static std::shared_ptr<TextureView> dynamicShadowMap;
 
 	/// <summary>
 	/// The SSAO map for applying screen space ambient occlusion

@@ -89,7 +89,8 @@ uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
 // Shadow mapping
-uniform sampler2DArray shadowMap;
+uniform sampler2DArray staticShadowMap;
+uniform sampler2DArray dynamicShadowMap;
 uniform mat4 lightSpaceMatrices[4];
 uniform float cascadePlaneDistances[3];
 uniform int cascadeCount;
@@ -161,7 +162,6 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 vec3 calcDirLight(DirectionalLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metallic, float roughness)
 {
-	light.direction = vec3(0.0, -1.0, 0.0);
 	vec3 L = -light.direction;
     vec3 H = normalize(V + L);
 
@@ -203,7 +203,6 @@ vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, floa
     vec3 numerator = NDF * G * F;
     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
     vec3 specular = numerator / denominator;
-    specular = min(specular, vec3(0.0));
 
     float NdotL = max(dot(N, L), 0.0);
     return (kD * albedo / PI + specular) * radiance * NdotL;
@@ -280,12 +279,15 @@ float ShadowCalculation(vec3 fragPosWorldSpace, vec3 normalVec)
     
     // PCF
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
+    vec2 texelSize = 1.0 / vec2(textureSize(staticShadowMap, 0));
     for (int x = -1; x <= 1; x++)
     {
         for (int y = -1; y <= 1; y++)
         {
-            float pcfDepth = texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            float pcfDepthStatic = texture(staticShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            float pcfDepthDynamic = texture(dynamicShadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+
+            float pcfDepth = min(pcfDepthStatic, pcfDepthDynamic);
             shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
         }
     }

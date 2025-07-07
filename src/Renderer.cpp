@@ -176,9 +176,11 @@ void Renderer::init(glm::vec2 lastWindowSize)
 
 	this->shaderManager.initUniformBuffer();
 
-	this->staticShadowPass = std::make_unique<StaticShadowPass>();
+	this->staticShadowPass = std::make_unique<ShadowPass>();
+	this->dynamicShadowPass = std::make_unique<ShadowPass>();
+	this->dynamicShadowPass->renderDynamicMeshes = true;
 	this->gBufferPass = std::make_unique<GBufferPass>();
-	this->ssaoPass = std::make_unique<SSAOPass>(*this, *gBufferPass.get());
+	this->ssaoPass = std::make_unique<SSAOPass>(*this, *gBufferPass);
 	this->mainRenderPass = std::make_unique<MainRenderPass>();
 	this->debugRenderPass = std::make_unique<DebugRenderPass>();
 	this->outlinePass = std::make_unique<OutlinePass>();
@@ -224,8 +226,15 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 	LightManager::getInstance().sendToShader();
 
 	measureTime(this->shadowPassTime, [&]() {
-		// Render the shadow map
-		this->staticShadowPass->execute(*this, scene, deltaTime);
+		// Render the static shadow map only if the scene is dirty (otherwise its the same as before)
+		if (scene.sortedSceneData.isDirty)
+		{
+			Logger::logDebug("Updating dirty shadows", "renderer.cpp");
+			this->staticShadowPass->execute(*this, scene, deltaTime);
+		}
+
+		// Render the dynamic shadow map
+		this->dynamicShadowPass->execute(*this, scene, deltaTime);
 	});
 
 	measureTime(this->gBufferPassTime, [&]() {
@@ -284,15 +293,34 @@ void Renderer::end()
 	this->depthMap.release();
 
 	this->staticShadowPass.release();
+	this->dynamicShadowPass.release();
 	this->gBufferPass.release();
 	this->ssaoPass.release();
 	this->mainRenderPass.release();
+	this->debugRenderPass.release();
+	this->outlinePass.release();
+	this->blitPass.release();
 
 	this->shaderManager.end();
 }
 
 void Renderer::createRenderTargets(glm::vec2 windowSize)
 {
+	// Shadow mapping
+	this->staticShadowPass->renderTarget = std::make_unique<RenderTarget>(
+		TargetType::TEXTURE_DEPTH_3D,
+		glm::vec2(ShadowPass::SHADOW_MAP_WIDTH, ShadowPass::SHADOW_MAP_HEIGHT),
+		GL_DEPTH_COMPONENT
+	);
+	PBRMaterial::staticShadowMap = std::make_shared<TextureView>(this->staticShadowPass->renderTarget->renderTexture, TextureType::TEXTURE_3D);
+
+	this->dynamicShadowPass->renderTarget = std::make_unique<RenderTarget>(
+		TargetType::TEXTURE_DEPTH_3D,
+		glm::vec2(ShadowPass::SHADOW_MAP_WIDTH, ShadowPass::SHADOW_MAP_HEIGHT),
+		GL_DEPTH_COMPONENT
+	);
+	PBRMaterial::dynamicShadowMap = std::make_shared<TextureView>(this->dynamicShadowPass->renderTarget->renderTexture, TextureType::TEXTURE_3D);
+
 	// Screen space effects
 	this->gBufferPass->renderTarget = std::make_unique<RenderTarget>(TargetType::G_BUFFER, windowSize, GL_RGBA16F);
 	this->ssaoPass->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, windowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);

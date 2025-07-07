@@ -23,7 +23,8 @@ const std::string PBRMaterial::IRRADIANCE_MAP = "irradianceMap";
 const std::string PBRMaterial::PREFILTER_MAP = "prefilterMap";
 const std::string PBRMaterial::BRDF_LUT = "brdfLUT";
 
-const std::string PBRMaterial::SHADOW_MAP = "shadowMap";
+const std::string PBRMaterial::STATIC_SHADOW_MAP = "staticShadowMap";
+const std::string PBRMaterial::DYNAMIC_SHADOW_MAP = "dynamicShadowMap";
 const std::string PBRMaterial::LIGHT_SPACE_MATRICES[4] = { "lightSpaceMatrices[0]", "lightSpaceMatrices[1]", "lightSpaceMatrices[2]", "lightSpaceMatrices[3]"};
 const std::string PBRMaterial::CASCADE_PLANE_DISTANCES[3] = { "cascadePlaneDistances[0]", "cascadePlaneDistances[1]", "cascadePlaneDistances[2]" };
 const std::string PBRMaterial::CASCADE_COUNT = "cascadeCount";
@@ -34,7 +35,8 @@ const std::string PBRMaterial::SSAO_MAP = "ssaoMap";
 Cubemap* PBRMaterial::irradianceMap = nullptr;
 Cubemap* PBRMaterial::prefilterMap = nullptr;
 Texture* PBRMaterial::brdfLut = nullptr;
-std::shared_ptr<TextureView> PBRMaterial::shadowMap = nullptr;
+std::shared_ptr<TextureView> PBRMaterial::staticShadowMap = nullptr;
+std::shared_ptr<TextureView> PBRMaterial::dynamicShadowMap = nullptr;
 std::unique_ptr<TextureView> PBRMaterial::ssaoMap = nullptr;
 glm::mat4 PBRMaterial::lightSpaceMatrices[4]{};
 float PBRMaterial::cascadePlaneDistances[3]{};
@@ -60,8 +62,9 @@ void PBRMaterial::init()
 	this->shaderProgram->setInt(PBRMaterial::IRRADIANCE_MAP, 7);
 	this->shaderProgram->setInt(PBRMaterial::PREFILTER_MAP, 8);
 	this->shaderProgram->setInt(PBRMaterial::BRDF_LUT, 9);
-	this->shaderProgram->setInt(PBRMaterial::SHADOW_MAP, 10);
-	this->shaderProgram->setInt(PBRMaterial::SSAO_MAP, 11);
+	this->shaderProgram->setInt(PBRMaterial::STATIC_SHADOW_MAP, 10);
+	this->shaderProgram->setInt(PBRMaterial::DYNAMIC_SHADOW_MAP, 11);
+	this->shaderProgram->setInt(PBRMaterial::SSAO_MAP, 12);
 }
 
 void PBRMaterial::sendToShader()
@@ -141,10 +144,13 @@ void PBRMaterial::sendToShader()
 		PBRMaterial::brdfLut->bindTexture();
 	}
 
-	if (PBRMaterial::shadowMap != nullptr)
+	if (PBRMaterial::staticShadowMap != nullptr && PBRMaterial::dynamicShadowMap != nullptr)
 	{
 		glActiveTexture(GL_TEXTURE10);
-		PBRMaterial::shadowMap->bindTexture();
+		PBRMaterial::staticShadowMap->bindTexture();
+
+		glActiveTexture(GL_TEXTURE11);
+		PBRMaterial::dynamicShadowMap->bindTexture();
 
 		for (int i = 0; i < 4; i++)
 			this->shaderProgram->setMat4(PBRMaterial::LIGHT_SPACE_MATRICES[i], PBRMaterial::lightSpaceMatrices[i]);
@@ -152,7 +158,7 @@ void PBRMaterial::sendToShader()
 		for (int i = 0; i < 3; i++)
 			this->shaderProgram->setFloat(PBRMaterial::CASCADE_PLANE_DISTANCES[i], PBRMaterial::cascadePlaneDistances[i]);
 
-		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, StaticShadowPass::SHADOW_CASCADE_LEVELS);
+		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, ShadowPass::SHADOW_CASCADE_LEVELS);
 		this->shaderProgram->setFloat(PBRMaterial::FAR_PLANE, PBRMaterial::farPlane);
 	}
 

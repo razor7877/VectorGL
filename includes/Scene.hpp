@@ -25,8 +25,14 @@ struct SortedSceneData
 	std::vector<MeshComponent*> meshes;
 	// All meshes present in the scene, regardless of whether they are inside the camera frustum
 	std::vector<MeshComponent*> allMeshes;
+	// All static meshes present in the scene, regardless of whether they are inside the camera frustum
+	std::vector<MeshComponent*> staticMeshes;
+	// All dynamic meshes present in the scene, regardless of whether they are inside the camera frustum
+	std::vector<MeshComponent*> dynamicMeshes;
 	// The list of all physics component that are from entities not inside the camera frustum
 	std::vector<PhysicsComponent*> physicsComponents;
+
+	bool isDirty = true;
 
 	void clearCache()
 	{
@@ -36,7 +42,11 @@ struct SortedSceneData
 		logicEntities.clear();
 		meshes.clear();
 		allMeshes.clear();
+		staticMeshes.clear();
+		dynamicMeshes.clear();
 		physicsComponents.clear();
+
+		isDirty = false;
 	}
 };
 

@@ -17,6 +17,13 @@ class Entity
 public:
 	bool drawOutline = false;
 
+	/// <summary>
+	/// This is the hint for the engine to know whether the object will remain mostly static during its lifetime.
+	/// It is used for caching shadow maps. If any static object is moved, it will invalidate the entire static map.
+	/// </summary>
+	bool isStatic = true;
+	bool isDirty = false;
+
 	Entity();
 	explicit Entity(const std::string &label);
 	~Entity();

@@ -154,7 +154,7 @@ void RenderTarget::attachTexture(TargetType targetTextureType, glm::vec2 size)
 		{
 			glGenTextures(1, &this->renderTexture);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, this->renderTexture);
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, this->size.x, this->size.y, StaticShadowPass::SHADOW_CASCADE_LEVELS + 1, 0, this->format, GL_FLOAT, nullptr);
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, this->size.x, this->size.y, ShadowPass::SHADOW_CASCADE_LEVELS + 1, 0, this->format, GL_FLOAT, nullptr);
 
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

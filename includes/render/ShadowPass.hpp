@@ -5,7 +5,7 @@
 /// <summary>
 /// The pass responsible for generating the shadow map
 /// </summary>
-class StaticShadowPass : public RenderPass
+class ShadowPass : public RenderPass
 {
 public:
     static constexpr int SHADOW_CASCADE_LEVELS = 3;
@@ -15,11 +15,6 @@ public:
         0.35f
     };
 
-    StaticShadowPass();
-    ~StaticShadowPass() override;
-    void execute(Renderer& renderer, const Scene& scene, float deltaTime) override;
-
-private:
     /// <summary>
     /// The width in pixels of the shadow map
     /// </summary>
@@ -30,5 +25,15 @@ private:
     /// </summary>
     static constexpr unsigned int SHADOW_MAP_HEIGHT = 2048;
 
+    /// <summary>
+    /// Whether this pass should render the dynamic meshes instead of the static ones
+    /// </summary>
+    bool renderDynamicMeshes;
+
+    ShadowPass();
+    ~ShadowPass() override;
+    void execute(Renderer& renderer, const Scene& scene, float deltaTime) override;
+
+private:
     glm::mat4 getLightSpaceMatrix(Renderer& renderer, const Scene& scene, float nearPlane, float farPlane) const;
 };

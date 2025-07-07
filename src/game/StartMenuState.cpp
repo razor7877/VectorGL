@@ -26,6 +26,7 @@ void StartMenuState::init()
 
 	// Create the camera and set it up
 	std::unique_ptr<Entity> cameraEntity = std::make_unique<Entity>("Camera");
+	cameraEntity->isStatic = false;
 	auto* cameraMesh = cameraEntity->addComponent<MeshComponent>();
 
 	cameraMesh->setMaterial(std::make_unique<PBRMaterial>(Main::game.renderer.shaderManager.getShader(ShaderType::PBR)))
@@ -54,6 +55,7 @@ void StartMenuState::init()
 	for (int i = 0; i < 10; i++)
 	{
 		std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
+		sphereEntity->isStatic = false;
 
 		auto* sphereMesh = sphereEntity->addComponent<MeshComponent>();
 		sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
@@ -65,6 +67,37 @@ void StartMenuState::init()
 		this->physicsWorld.addSphere(sphereCollider, 1.0f, glm::vec3(0.0f, 25.0f, 0.0f));
 
 		this->scene.addEntity(std::move(sphereEntity));
+	}
+
+	// Sphere grid
+	for (int x = 0; x < 5; x++)
+	{
+		for (int y = 0; y < 5; y++)
+		{
+			for (int z = 0; z < 5; z++)
+			{
+				std::unique_ptr<Entity> sphereEntity = std::make_unique<Entity>("Sphere");
+
+				auto* sphereMesh = sphereEntity->addComponent<MeshComponent>();
+				sphereMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+					.addVertices(sphereOptimized.vertices)
+					.addIndices(sphereOptimized.indices)
+					.addNormals(sphereOptimized.normals);
+
+				sphereMesh->setDiffuseColor(glm::vec3(static_cast<float>(x) / 13.0f, static_cast<float>(y) / 13.0f, 1.0f));
+				sphereEntity->getTransform()->setPosition(x * 3, y * 3, z * 3);
+
+				auto* pbrMat = dynamic_cast<PBRMaterial*>(sphereMesh->material.get());
+				if (pbrMat != nullptr)
+				{
+					pbrMat->roughness = static_cast<float>(y) / 13.0f + 0.001f;
+					pbrMat->metallic = static_cast<float>(z) / 13.0f;
+					pbrMat->opacity = 0.5f;
+				}
+
+				this->scene.addEntity(std::move(sphereEntity));
+			}
+		}
 	}
 
 	// Skybox

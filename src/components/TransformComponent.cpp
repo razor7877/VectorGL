@@ -88,6 +88,8 @@ void TransformComponent::updateModelMatrix()
 	// Since children inherit of the parent transform, they need to be updated too
 	for (Entity* child : this->parent->getChildren())
 		child->getTransform()->updateModelMatrix();
+
+	this->parent->isDirty = true;
 }
 
 void TransformComponent::setModelMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)

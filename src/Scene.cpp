@@ -76,7 +76,20 @@ void Scene::getMeshesRecursively(Frustum& cameraFrustum, const std::vector<Entit
 				this->sortedSceneData.logicEntities.push_back(entity);
 			else // Entities that can be rendered are grouped by shader
 			{
+				// This signals to the renderer that we should update shadow maps
+				if (entity->isDirty)
+				{
+					entity->isDirty = false;
+					if (entity->isStatic)
+						this->sortedSceneData.isDirty = true;
+				}
+
 				this->sortedSceneData.allMeshes.push_back(mesh);
+
+				if (entity->isStatic)
+					this->sortedSceneData.staticMeshes.push_back(mesh);
+				else
+					this->sortedSceneData.dynamicMeshes.push_back(mesh);
 
 				// Check if the mesh is within the camera frustum to determine if we should update it
 				if (cameraFrustum.isOnFrustum(mesh->getWorldBoundingBox()))
