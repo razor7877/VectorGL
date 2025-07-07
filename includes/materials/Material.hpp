@@ -26,6 +26,13 @@ struct Material
 	/// Sends the material data to it's corresponding shader
 	/// </summary>
 	virtual void sendToShader() = 0;
+	void sendToShader(Shader* shaderProgram)
+	{
+		Shader* old = this->shaderProgram;
+		this->shaderProgram = shaderProgram;
+		this->sendToShader();
+		this->shaderProgram = old;
+	}
 
 	/// <summary>
 	/// Whether the material will render anything with transparency

@@ -1,5 +1,4 @@
-#ifndef MATERIAL_HPP
-#define MATERIAL_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -101,5 +100,3 @@ public:
 	bool useHeightMap = false;
 	bool useEmissiveMap = false;
 };
-
-#endif
