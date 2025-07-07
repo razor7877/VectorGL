@@ -23,7 +23,8 @@ enum class ShaderType
 	DEPTH_CASCADED, // Depth + geometry shader
 	GBUFFER,
 	SSAO,
-	SSAOBLUR
+	SSAOBLUR,
+	REFLECTION
 };
 
 /// <summary>

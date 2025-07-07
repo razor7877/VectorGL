@@ -175,6 +175,8 @@ void MeshComponent::drawGeometry(Shader* shaderProgram) const
 		->setMat4(MeshComponent::MODEL, this->parent->getTransform()->getModelMatrix())
 		->setMat3(MeshComponent::NORMAL_MATRIX, this->parent->getTransform()->getNormalMatrix());
 
+	this->material->sendToShader(shaderProgram);
+
 	// Indexed drawing
 	if (this->hasIndices)
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->indicesCount), GL_UNSIGNED_INT, nullptr);

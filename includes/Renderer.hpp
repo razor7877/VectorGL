@@ -12,6 +12,7 @@
 #include "render/GBufferPass.hpp"
 #include "render/MainRenderPass.hpp"
 #include "render/OutlinePass.hpp"
+#include "render/ReflectionPass.hpp"
 #include "render/ShadowPass.hpp"
 #include "render/SSAOPass.hpp"
 
@@ -93,6 +94,7 @@ private:
 	std::unique_ptr<ShadowPass> staticShadowPass;
 	std::unique_ptr<GBufferPass> gBufferPass;
 	std::unique_ptr<SSAOPass> ssaoPass;
+	std::unique_ptr<ReflectionPass> reflectionPass;
 	std::unique_ptr<MainRenderPass> mainRenderPass;
 	std::unique_ptr<DebugRenderPass> debugRenderPass;
 	std::unique_ptr<OutlinePass> outlinePass;

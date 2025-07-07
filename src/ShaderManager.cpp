@@ -105,6 +105,10 @@ Shader* ShaderManager::getShader(ShaderType shader)
 			enumToShader[shader] = new Shader("shaders/ssaoBlur.vert", "shaders/ssaoBlur.frag");
 			break;
 
+		case ShaderType::REFLECTION:
+			enumToShader[shader] = new Shader("shaders/reflection.vert", "shaders/reflection.frag");
+			break;
+
 		default:
 			Logger::logError("ShaderManager::getShader called with an unhandled ShaderType!", "shaderManager.cpp");
 			return nullptr;

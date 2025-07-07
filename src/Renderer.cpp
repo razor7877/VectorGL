@@ -143,6 +143,7 @@ void Renderer::resizeFramebuffers(glm::vec2 newSize) const
 	this->ssaoPass->renderTarget->resize(newSize * SSAOPass::SSAO_SCALE_FACTOR);
 	PBRMaterial::ssaoMap = std::make_unique<TextureView>(this->ssaoPass->renderTarget->renderTexture, TextureType::TEXTURE_2D);
 	this->ssaoPass->renderTarget->unbind();
+	 this->reflectionPass->renderTarget->resize(newSize);
 	this->mainRenderPass->renderTarget->resize(newSize);
 }
 
@@ -179,6 +180,7 @@ void Renderer::init(glm::vec2 lastWindowSize)
 	this->staticShadowPass = std::make_unique<ShadowPass>();
 	this->gBufferPass = std::make_unique<GBufferPass>();
 	this->ssaoPass = std::make_unique<SSAOPass>(*this, *gBufferPass);
+	this->reflectionPass = std::make_unique<ReflectionPass>(*this, *gBufferPass);
 	this->mainRenderPass = std::make_unique<MainRenderPass>();
 	this->debugRenderPass = std::make_unique<DebugRenderPass>();
 	this->outlinePass = std::make_unique<OutlinePass>();
@@ -238,6 +240,8 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 		this->ssaoPass->execute(*this, scene, deltaTime);
 	});
 
+	this->reflectionPass->execute(*this, scene, deltaTime);
+
 	measureTime(this->renderPassTime, [&]() {
 		// Render the scene
 		this->mainRenderPass->execute(*this, scene, deltaTime);
@@ -258,7 +262,8 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 
 	measureTime(this->blitPassTime, [&]() {
 		// Resolve the multi sampled framebuffer to the normal one for display
-		this->blitPass->execute(*this->mainRenderPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
+		//this->blitPass->execute(*this->mainRenderPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
+		this->blitPass->execute(*this->reflectionPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
 	});
 
 	measureTime(this->debugPassTime, [&]() {
@@ -286,7 +291,11 @@ void Renderer::end()
 	this->staticShadowPass.release();
 	this->gBufferPass.release();
 	this->ssaoPass.release();
+	this->reflectionPass.release();
 	this->mainRenderPass.release();
+	this->debugRenderPass.release();
+	this->outlinePass.release();
+	this->blitPass.release();
 
 	this->shaderManager.end();
 }
@@ -298,6 +307,7 @@ void Renderer::createRenderTargets(glm::vec2 windowSize)
 	this->ssaoPass->ssaoTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, windowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);
 	this->ssaoPass->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_RED, windowSize * SSAOPass::SSAO_SCALE_FACTOR, GL_RED);
 	PBRMaterial::ssaoMap = std::make_unique<TextureView>(this->ssaoPass->renderTarget->renderTexture, TextureType::TEXTURE_2D);
+	this->reflectionPass->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D, windowSize);
 
 	this->mainRenderPass->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_2D_MULTISAMPLE, windowSize);
 

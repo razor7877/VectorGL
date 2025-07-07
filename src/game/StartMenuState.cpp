@@ -12,12 +12,15 @@
 #include "components/lights/DirectionalLightComponent.hpp"
 #include "Logger.hpp"
 #include "LightManager.hpp"
+#include "io/interface.hpp"
 #include "materials/PBRMaterial.hpp"
+#include "materials/ReflectionMaterial.hpp"
 
 void StartMenuState::init()
 {
 	Shader* pbrShader = this->renderer.shaderManager.getShader(ShaderType::PBR);
 	Shader* skyboxShader = this->renderer.shaderManager.getShader(ShaderType::SKYBOX);
+	Shader* reflectionShader = this->renderer.shaderManager.getShader(ShaderType::REFLECTION);
 
 	LightManager::getInstance().shaderProgram = pbrShader;
 
@@ -84,6 +87,21 @@ void StartMenuState::init()
 	planeEntity->getTransform()->setPosition(0.0f, -5.0f, 0.0f);
 	planeEntity->getTransform()->setRotation(-90.0f, 0.0f, 0.0f);
 	planeEntity->getTransform()->setScale(glm::vec3(20.0f, 20.0f, 1.0f));
+
+	for (int i = 0; i < 5; i++)
+	{
+		// Cube
+		std::unique_ptr<Entity> cubeEntity = std::make_unique<Entity>("Cube");
+
+		auto* cubeMesh = cubeEntity->addComponent<MeshComponent>();
+		std::vector<float> cubeVertices = Geometry::getCubeVertices();
+		cubeMesh->setMaterial(std::make_unique<PBRMaterial>(pbrShader))
+			.addVertices(cubeVertices);
+
+		cubeEntity->getTransform()->setPosition(0.0, -5.0f, 5.0f * static_cast<float>(i));
+
+		this->scene.addEntity(std::move(cubeEntity));
+	}
 
 	this->scene.addEntity(std::move(planeEntity));
 

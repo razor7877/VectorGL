@@ -551,8 +551,24 @@ namespace Interface
 					label = "Depth";
 					break;
 
+				case ShaderType::DEPTH_CASCADED:
+					label = "Depth Cascaded";
+					break;
+
 				case ShaderType::GBUFFER:
-					label = "G Buffer";
+					label = "G-Buffer";
+					break;
+
+				case ShaderType::SSAO:
+					label = "SSAO";
+					break;
+
+				case ShaderType::SSAOBLUR:
+					label = "SSAO Blur";
+					break;
+
+				case ShaderType::REFLECTION:
+					label = "Reflection";
 					break;
 
 				default:
