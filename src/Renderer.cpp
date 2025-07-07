@@ -176,9 +176,9 @@ void Renderer::init(glm::vec2 lastWindowSize)
 
 	this->shaderManager.initUniformBuffer();
 
-	this->staticShadowPass = std::make_unique<StaticShadowPass>();
+	this->staticShadowPass = std::make_unique<ShadowPass>();
 	this->gBufferPass = std::make_unique<GBufferPass>();
-	this->ssaoPass = std::make_unique<SSAOPass>(*this, *gBufferPass.get());
+	this->ssaoPass = std::make_unique<SSAOPass>(*this, *gBufferPass);
 	this->mainRenderPass = std::make_unique<MainRenderPass>();
 	this->debugRenderPass = std::make_unique<DebugRenderPass>();
 	this->outlinePass = std::make_unique<OutlinePass>();

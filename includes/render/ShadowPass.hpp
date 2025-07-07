@@ -5,7 +5,7 @@
 /// <summary>
 /// The pass responsible for generating the shadow map
 /// </summary>
-class StaticShadowPass : public RenderPass
+class ShadowPass : public RenderPass
 {
 public:
     static constexpr int SHADOW_CASCADE_LEVELS = 3;
@@ -15,8 +15,8 @@ public:
         0.35f
     };
 
-    StaticShadowPass();
-    ~StaticShadowPass() override;
+    ShadowPass();
+    ~ShadowPass() override;
     void execute(Renderer& renderer, const Scene& scene, float deltaTime) override;
 
 private:

@@ -161,8 +161,7 @@ vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 vec3 calcDirLight(DirectionalLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, float metallic, float roughness)
 {
-	light.direction = vec3(0.0, -1.0, 0.0);
-	vec3 L = -light.direction;
+	vec3 L = light.direction;
     vec3 H = normalize(V + L);
 
     vec3 radiance = light.diffuseColor;

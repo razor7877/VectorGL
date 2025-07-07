@@ -1,24 +1,24 @@
 #include <glm/glm/ext/matrix_transform.hpp>
 #include <glm/glm/ext/matrix_clip_space.hpp>
 
-#include "render/StaticShadowPass.hpp"
+#include "render/ShadowPass.hpp"
 #include "Renderer.hpp"
 #include "materials/PBRMaterial.hpp"
 
-StaticShadowPass::StaticShadowPass() : RenderPass()
+ShadowPass::ShadowPass() : RenderPass()
 {
     // Shadow mapping
     this->renderTarget = std::make_unique<RenderTarget>(TargetType::TEXTURE_DEPTH_3D, glm::vec2(SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT), GL_DEPTH_COMPONENT);
     PBRMaterial::shadowMap = std::make_shared<TextureView>(this->renderTarget->renderTexture, TextureType::TEXTURE_3D);
 }
 
-StaticShadowPass::~StaticShadowPass()
+ShadowPass::~ShadowPass()
 {
     this->renderTarget.release();
 }
 
 
-void StaticShadowPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)
+void ShadowPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)
 {
     float near = CameraComponent::NEAR;
     float far = CameraComponent::FAR;
@@ -63,7 +63,7 @@ void StaticShadowPass::execute(Renderer& renderer, const Scene& scene, float del
     this->renderTarget->unbind();
 }
 
-glm::mat4 StaticShadowPass::getLightSpaceMatrix(Renderer& renderer, const Scene& scene, const float nearPlane, const float farPlane) const
+glm::mat4 ShadowPass::getLightSpaceMatrix(Renderer& renderer, const Scene& scene, const float nearPlane, const float farPlane) const
 {
     glm::vec2 renderSize = renderer.getRenderSize();
 

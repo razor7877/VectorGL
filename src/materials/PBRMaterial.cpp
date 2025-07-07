@@ -152,7 +152,7 @@ void PBRMaterial::sendToShader()
 		for (int i = 0; i < 3; i++)
 			this->shaderProgram->setFloat(PBRMaterial::CASCADE_PLANE_DISTANCES[i], PBRMaterial::cascadePlaneDistances[i]);
 
-		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, StaticShadowPass::SHADOW_CASCADE_LEVELS);
+		this->shaderProgram->setInt(PBRMaterial::CASCADE_COUNT, ShadowPass::SHADOW_CASCADE_LEVELS);
 		this->shaderProgram->setFloat(PBRMaterial::FAR_PLANE, PBRMaterial::farPlane);
 	}
 

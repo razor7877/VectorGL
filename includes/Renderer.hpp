@@ -12,7 +12,7 @@
 #include "render/GBufferPass.hpp"
 #include "render/MainRenderPass.hpp"
 #include "render/OutlinePass.hpp"
-#include "render/StaticShadowPass.hpp"
+#include "render/ShadowPass.hpp"
 #include "render/SSAOPass.hpp"
 
 /// <summary>
@@ -34,7 +34,7 @@ public:
 	double blitPassTime = 0.0f;
 	double debugPassTime = 0.0f;
 
-	bool enableDebugDraw = true;
+	bool enableDebugDraw = false;
 
 	Renderer();
 	~Renderer();
@@ -90,7 +90,7 @@ private:
 	/// </summary>
 	std::unique_ptr<RenderTarget> depthMap;
 
-	std::unique_ptr<StaticShadowPass> staticShadowPass;
+	std::unique_ptr<ShadowPass> staticShadowPass;
 	std::unique_ptr<GBufferPass> gBufferPass;
 	std::unique_ptr<SSAOPass> ssaoPass;
 	std::unique_ptr<MainRenderPass> mainRenderPass;
