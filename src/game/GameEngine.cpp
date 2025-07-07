@@ -1,6 +1,7 @@
 #include "game/GameEngine.hpp"
 #include "game/GameState.hpp"
 #include "io/input.hpp"
+#include "io/interface.hpp"
 
 const std::unique_ptr<GameState>& GameEngine::getCurrentState()
 {
@@ -72,11 +73,14 @@ void GameEngine::popState()
 
 void GameEngine::handleEvents(float deltaTime)
 {
-	if (!this->states.empty())
-		this->states.back()->handleEvents(this, deltaTime);
-
 	// Processes any mouse or keyboard input for camera movement
 	glfwPollEvents();
+
+	if (!Interface::isViewerFocused)
+		return;
+
+	if (!this->states.empty())
+		this->states.back()->handleEvents(this, deltaTime);
 }
 
 void GameEngine::update(float deltaTime)
