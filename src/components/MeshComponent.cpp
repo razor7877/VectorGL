@@ -123,7 +123,7 @@ void MeshComponent::start()
 
 	this->localBoundingBox = Geometry::getMeshBoundingBox(this->vertices);
 
-	this->verticesCount = this->vertices.size();
+	this->verticesCount = this->vertices.size() / 3;
 	this->indicesCount = this->indices.size();
 
 	// No need to store the entire buffers in memory once they're on the GPU
