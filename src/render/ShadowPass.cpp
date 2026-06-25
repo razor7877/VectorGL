@@ -20,6 +20,9 @@ ShadowPass::~ShadowPass()
 
 void ShadowPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)
 {
+    if (scene.directionalLight == nullptr)
+        return;
+
     float near = CameraComponent::NEAR;
     float far = CameraComponent::FAR;
     float cascadeLevels[3] = {
