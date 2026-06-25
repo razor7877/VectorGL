@@ -94,12 +94,12 @@ void Texture::createTexture(const std::string& filename, TextureType textureType
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		stbi_image_free(data);
+
+		this->width = width;
+		this->height = height;
 	}
 	else
 		Logger::logError(std::string("Failed to load texture: ") + filename, "texture.cpp");
-
-	this->width = width;
-	this->height = height;
 }
 
 void Texture::createHDRTexture(const std::string& filename, TextureType textureType, bool stbiFlipOnLoad)
@@ -123,11 +123,11 @@ void Texture::createHDRTexture(const std::string& filename, TextureType textureT
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		stbi_image_free(data);
+
+		this->format = GL_RGB;
+		this->width = width;
+		this->height = height;
 	}
 	else
 		Logger::logError(std::string("Failed to load HDR texture: ") + filename, "texture.cpp");
-
-	this->format = GL_RGB;
-	this->width = width;
-	this->height = height;
 }
