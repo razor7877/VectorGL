@@ -67,7 +67,7 @@ void PBRMaterial::init()
 void PBRMaterial::sendToShader()
 {
 	// Instead of sending 7 uniforms for telling which maps are toggled on/off, we send a single int where each bit corresponds to a texture
-	uint8_t usedMaps = this->useAlbedoMap | this->useNormalMap | this->useMetallicMap | this->useRoughnessMap | this->useAoMap | this->useEmissiveMap;
+	uint8_t usedMaps = this->useAlbedoMap | this->useNormalMap | this->useMetallicMap | this->useRoughnessMap | this->useAoMap | this->useOpacityMap | this->useEmissiveMap;
 
 	this->shaderProgram->setInt(PBRMaterial::USED_MAPS, usedMaps);
 
