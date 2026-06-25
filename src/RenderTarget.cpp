@@ -37,12 +37,12 @@ void RenderTarget::unbind()
 
 void RenderTarget::clear() const
 {
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 	if (this->targetTextureType == TargetType::TEXTURE_CUBEMAP || this->targetTextureType == TargetType::TEXTURE_DEPTH || this->targetTextureType == TargetType::TEXTURE_DEPTH_3D)
 		glClear(GL_DEPTH_BUFFER_BIT);
 	else
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void RenderTarget::resize(glm::vec2 newSize)
