@@ -41,7 +41,10 @@ void Entity::update(float deltaTime)
 		this->components[physics]->update(deltaTime);
 
 	for (auto& [type, component] : this->components)
-		component->update(deltaTime);
+	{
+		if (type != physics)
+			component->update(deltaTime);
+	}
 }
 
 std::map<std::type_index, Component*> Entity::getComponents()
