@@ -127,6 +127,7 @@ void PhongMaterial::addTextures(const std::vector<std::shared_ptr<Texture>>& tex
 
 			case TextureType::TEXTURE_EMISSIVE:
 				this->addEmissiveMap(texture);
+				break;
 
 			default:
 				Logger::logError("Got incorrect texture type while adding textures to PhongMaterial!", "phongMaterial.cpp");
