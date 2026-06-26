@@ -116,8 +116,8 @@ void MainGameState::init()
 
 	// Skybox
 	std::unique_ptr<Entity> skyEntity = std::make_unique<Entity>("Skybox");
-	auto* skyComponent = skyEntity->addComponent<SkyboxComponent>();
-	skyComponent->setupSkybox(skyboxShader, this->renderer);
+	auto* skyComponent = skyEntity->addComponent<SkyboxComponent>(renderer);
+	skyComponent->setupSkybox(skyboxShader);
 	this->scene.addEntity(std::move(skyEntity));
 
 	// Lights

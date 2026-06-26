@@ -36,7 +36,7 @@ public:
 	/// Adds a component to the entity if it doesn't already exist
 	/// </summary>
 	/// <typeparam name="T">The type of the component to create</typeparam>
-	template <typename T> T* addComponent();
+	template <typename T, typename ...Args> T* addComponent(Args&&... args);
 
 	/// <summary>
 	/// Gets a component from the entity
@@ -148,15 +148,15 @@ private:
 /// </summary>
 /// <typeparam name="T">The type of component to create</typeparam>
 /// <returns>A pointer to the component</returns>
-template <typename T>
-T* Entity::addComponent()
+template <typename T, typename ...Args>
+T* Entity::addComponent(Args&&... args)
 {
 	static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
 	const std::type_info& componentType = typeid(T);
 
 	if (this->components.count(componentType) == 0)
-		this->components[componentType] = new T(this);
+		this->components[componentType] = new T(this, std::forward<Args>(args)...);
 
 	return dynamic_cast<T*>(this->components[componentType]);
 }

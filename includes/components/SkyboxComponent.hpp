@@ -19,7 +19,7 @@ class SkyboxComponent : public MeshComponent
 public:
 	static constexpr SkyboxType DEFAULT_SKY = SkyboxType::SKY;
 	
-	explicit SkyboxComponent(Entity* parent);
+	explicit SkyboxComponent(Entity* parent, Renderer& renderer);
 	~SkyboxComponent() override;
 
 	void start() override;
@@ -29,8 +29,7 @@ public:
 	/// Sets up the component before it can be used
 	/// </summary>
 	/// <param name="shaderProgram">Assigns the shader the component should use to be drawn</param>
-	/// <param name="renderer">A reference to the renderer that will use the skybox</param>
-	void setupSkybox(Shader* shaderProgram, Renderer& renderer);
+	void setupSkybox(Shader* shaderProgram);
 
 	/// <summary>
 	/// Changes the skybox cubemap using a SkyboxType
@@ -45,8 +44,11 @@ public:
 	void setCubemap(Cubemap* cubemap);
 
 private:
+	Renderer& renderer;
 	std::map<SkyboxType, std::unique_ptr<IBLData>> skyboxes;
 	bool useIBL = true;
+
+	void loadSkybox(SkyboxType type);
 
 	Shader* shaderProgram = nullptr;
 	Cubemap* currentCubemap = nullptr;
