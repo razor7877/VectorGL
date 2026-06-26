@@ -20,7 +20,8 @@ ShadowPass::~ShadowPass()
 
 void ShadowPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)
 {
-    if (scene.directionalLight == nullptr)
+    // We cannot run the shadow pass if we are missing either the directional light itself or its associated transform
+    if (scene.directionalLight == nullptr || scene.directionalLight->parent == nullptr)
         return;
 
     float near = CameraComponent::NEAR;
