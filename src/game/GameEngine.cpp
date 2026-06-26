@@ -3,12 +3,12 @@
 #include "io/input.hpp"
 #include "io/interface.hpp"
 
-const std::unique_ptr<GameState>& GameEngine::getCurrentState()
+GameState* GameEngine::getCurrentState() const
 {
 	if (!this->states.empty())
-		return this->states.back();
+		return this->states.back().get();
 
-	return std::unique_ptr<GameState>(nullptr);
+	return nullptr;
 }
 
 void GameEngine::init()
