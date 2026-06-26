@@ -17,6 +17,9 @@ PhysicsWorld::PhysicsWorld()
 
 PhysicsWorld::~PhysicsWorld()
 {
+	for (auto& collider : this->rigidBodies)
+		collider.reset();
+
 	this->debugDrawer.reset();
 	this->world.reset();
 	this->solver.reset();
@@ -24,9 +27,6 @@ PhysicsWorld::~PhysicsWorld()
 	this->ghostPairCallback.reset();
 	this->collisionDispatcher.reset();
 	this->collisionConfiguration.reset();
-
-	for (auto& collider : this->rigidBodies)
-		collider.reset();
 }
 
 void PhysicsWorld::update(float deltaTime) const
