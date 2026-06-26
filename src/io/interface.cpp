@@ -914,7 +914,7 @@ namespace Interface
 				auto* transformComponent = dynamic_cast<TransformComponent*>(component);
 
 				glm::vec3 position = transformComponent->getPosition();
-				if (ImGui::DragFloat3("Position", &position[0]), 0.10f)
+				if (ImGui::DragFloat3("Position", &position[0], 0.10f))
 					transformComponent->setPosition(position);
 
 				glm::vec3 rotation = transformComponent->getRotation();
