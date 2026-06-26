@@ -300,7 +300,8 @@ namespace Input
 
 	bool isKeyPressed(int key)
 	{
-		bool isPressed = inputData.lastKeyEvents[key].action == GLFW_PRESS;
+		auto it = inputData.lastKeyEvents.find(key);
+		bool isPressed = it != inputData.lastKeyEvents.end() && it->second.action == GLFW_PRESS;
 
 		if (key == GLFW_KEY_ENTER && isPressed)
 			Logger::logDebug("Queried key " + std::to_string(key) + " with pressed state " + std::to_string(isPressed), "input.cpp");
@@ -310,11 +311,8 @@ namespace Input
 
 	bool isKeyHeld(int key)
 	{
-		int action = inputData.lastKeyEvents[key].action;
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-			return true;
-
-		return false;
+		auto it = inputData.lastKeyEvents.find(key);
+		return it != inputData.lastKeyEvents.end() && (it->second.action == GLFW_PRESS || it->second.action == GLFW_REPEAT);
 	}
 
 	GLFWwindow* getWindow()
