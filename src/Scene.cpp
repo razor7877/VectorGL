@@ -33,13 +33,16 @@ bool Scene::removeEntity(const std::unique_ptr<Entity> &objectPtr)
 
 bool Scene::removeEntity(const Entity* rawObjectPtr)
 {
-	for (auto&& entity : this->entities)
+	auto it = std::find_if(
+		this->entities.begin(),
+		this->entities.end(),
+		[rawObjectPtr](const auto& entity) { return entity.get() == rawObjectPtr; }
+	);
+
+	if (it != this->entities.end())
 	{
-		if (entity.get() == rawObjectPtr)
-		{
-			this->entities.erase(std::remove(this->entities.begin(), this->entities.end(), entity), this->entities.end());
-			return true;
-		}
+		this->entities.erase(it);
+		return true;
 	}
 
 	return false;
