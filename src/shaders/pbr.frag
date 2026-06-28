@@ -202,7 +202,6 @@ vec3 calcPointLight(PointLight light, vec3 N, vec3 V, vec3 F0, vec3 albedo, floa
     vec3 numerator = NDF * G * F;
     float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
     vec3 specular = numerator / denominator;
-    specular = min(specular, vec3(0.0));
 
     float NdotL = max(dot(N, L), 0.0);
     return (kD * albedo / PI + specular) * radiance * NdotL;
@@ -393,12 +392,14 @@ void main()
 
     // Sample the SSAO value
     float ssao = texture(ssaoMap, gl_FragCoord.xy / windowSize).r;
-    vec3 ambient = (kD * diffuse + specular) * ao;
+    vec3 ambient = (kD * diffuse + specular);
     // SSAO weighs for 50% of the ambient color to avoid the effect being too strong
     // Don't use SSAO if we are using an AO map
     const float SSAO_FACTOR = 0.5;
     if ((material.used_maps & AO_MAP) == 0)
         ambient *= mix(ao, ssao, 0.5);
+    else
+        ambient *= ao;
 	
     vec3 color = ambient + Lo;
 
