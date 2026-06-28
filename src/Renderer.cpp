@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <glm/glm/ext/matrix_transform.hpp>
-#include <glm/glm/ext/matrix_clip_space.hpp>
 #include <utilities/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -9,11 +7,11 @@
 #include "ShaderManager.hpp"
 #include "Entity.hpp"
 #include "materials/PBRMaterial.hpp"
-#include "components/MeshComponent.hpp"
 #include "utilities/geometry.hpp"
 #include "physics/Frustum.hpp"
 #include "LightManager.hpp"
 #include "Logger.hpp"
+#include "utilities/Timing.hpp"
 
 // Callback function for printing debug statements
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
@@ -191,21 +189,12 @@ void Renderer::init(glm::vec2 lastWindowSize)
 
 void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float deltaTime)
 {
-	// Helper lambda to measure the execution time of the different render sections
-	auto measureTime = [](double& outTime, const std::function<void()>& func) {
-		double start = glfwGetTime();
-		func();
-		// This makes sure the GPU finishes running all the calculations for the pass before measuring time
-		glFinish();
-		outTime = glfwGetTime() - start;
-	};
-
 	double frameStartTime = glfwGetTime();
 	glm::vec2 lastWindowSize = this->mainRenderPass->renderTarget->size;
 
 	// Render & update the scene
 
-	measureTime(this->meshSortingTime, [&]() {
+	this->meshSortingTime = Timing::measureTime([&]() {
 		// All the entities at the top level of the scene
 		std::vector<Entity*> entities = scene.getEntities();
 		scene.sortedSceneData.clearCache();
@@ -213,7 +202,7 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 		scene.getMeshesRecursively(frustum, entities);
 	});
 
-	measureTime(this->physicsUpdateTime, [&]() {
+	this->physicsUpdateTime = Timing::measureTime([&]() {
 		// Update the physics simulation
 		physicsWorld.update(deltaTime);
 	});
@@ -225,24 +214,24 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 	// Send light data to shader
 	LightManager::getInstance().sendToShader();
 
-	measureTime(this->shadowPassTime, [&]() {
+	this->shadowPassTime = Timing::measureTime([&]() {
 		// Render the shadow map
 		this->staticShadowPass->execute(*this, scene, deltaTime);
 	});
 
-	measureTime(this->gBufferPassTime, [&]() {
+	this->gBufferPassTime = Timing::measureTime([&]() {
 		// Render to the G buffer
 		this->gBufferPass->execute(*this, scene, deltaTime);
 	});
 
-	measureTime(this->ssaoPassTime, [&]() {
+	this->ssaoPassTime = Timing::measureTime([&]() {
 		// Calculate SSAO
 		this->ssaoPass->execute(*this, scene, deltaTime);
 	});
 
 	this->reflectionPass->execute(*this, scene, deltaTime);
 
-	measureTime(this->renderPassTime, [&]() {
+	this->renderPassTime = Timing::measureTime([&]() {
 		// Render the scene
 		this->mainRenderPass->execute(*this, scene, deltaTime);
 	});
@@ -255,18 +244,18 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 		this->debugRenderPass->execute(*this->mainRenderPass->renderTarget, *this, scene, deltaTime);
 	}
 
-	measureTime(this->outlinePassTime, [&]() {
+	this->outlinePassTime = Timing::measureTime([&]() {
 		// Render outlines
 		this->outlinePass->execute(*this->mainRenderPass->renderTarget, *this, scene, deltaTime);
 	});
 
-	measureTime(this->blitPassTime, [&]() {
+	this->blitPassTime = Timing::measureTime([&]() {
 		// Resolve the multi sampled framebuffer to the normal one for display
-		//this->blitPass->execute(*this->mainRenderPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
-		this->blitPass->execute(*this->reflectionPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
+		this->blitPass->execute(*this->mainRenderPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
+		//this->blitPass->execute(*this->reflectionPass->renderTarget, *this->finalTarget, *this, scene, deltaTime);
 	});
 
-	measureTime(this->debugPassTime, [&]() {
+	this->debugPassTime = Timing::measureTime([&]() {
 		if (this->enableDebugDraw && scene.skyCamera != nullptr)
 		{
 			this->skyTarget->bind();
