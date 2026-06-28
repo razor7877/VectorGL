@@ -47,4 +47,7 @@ struct IBLData
 	IBLData(Renderer& renderer, std::unique_ptr<Cubemap> cubemap);
 
 	~IBLData() = default;
+
+private:
+	void generateIBL(Renderer& renderer);
 };
