@@ -273,18 +273,18 @@ void Renderer::render(Scene& scene, const PhysicsWorld& physicsWorld, float delt
 
 void Renderer::end()
 {
-	this->finalTarget.release();
-	this->skyTarget.release();
-	this->depthMap.release();
+	this->finalTarget.reset();
+	this->skyTarget.reset();
+	this->depthMap.reset();
 
-	this->staticShadowPass.release();
-	this->gBufferPass.release();
-	this->ssaoPass.release();
-	this->reflectionPass.release();
-	this->mainRenderPass.release();
-	this->debugRenderPass.release();
-	this->outlinePass.release();
-	this->blitPass.release();
+	this->staticShadowPass.reset();
+	this->gBufferPass.reset();
+	this->ssaoPass.reset();
+	this->reflectionPass.reset();
+	this->mainRenderPass.reset();
+	this->debugRenderPass.reset();
+	this->outlinePass.reset();
+	this->blitPass.reset();
 
 	this->shaderManager.end();
 }

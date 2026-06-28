@@ -10,7 +10,7 @@ DebugRenderPass::DebugRenderPass() : RenderPass()
 
 DebugRenderPass::~DebugRenderPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 void DebugRenderPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)

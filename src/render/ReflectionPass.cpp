@@ -20,7 +20,7 @@ ReflectionPass::ReflectionPass(Renderer& renderer, const RenderPass& gBufferPass
 
 ReflectionPass::~ReflectionPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 void ReflectionPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)

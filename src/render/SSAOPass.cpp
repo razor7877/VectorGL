@@ -74,7 +74,7 @@ SSAOPass::SSAOPass(Renderer& renderer, const RenderPass& gBufferPass)
 
 SSAOPass::~SSAOPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 

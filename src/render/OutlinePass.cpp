@@ -10,7 +10,7 @@ OutlinePass::OutlinePass() : RenderPass()
 
 OutlinePass::~OutlinePass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 void OutlinePass::execute(Renderer& renderer, const Scene& scene, float deltaTime)

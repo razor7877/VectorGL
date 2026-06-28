@@ -10,7 +10,7 @@ BlitPass::BlitPass() : RenderPass()
 
 BlitPass::~BlitPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 void BlitPass::execute(Renderer& renderer, const Scene& scene, float deltaTime)

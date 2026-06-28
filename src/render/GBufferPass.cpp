@@ -10,7 +10,7 @@ GBufferPass::GBufferPass() : RenderPass()
 
 GBufferPass::~GBufferPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 

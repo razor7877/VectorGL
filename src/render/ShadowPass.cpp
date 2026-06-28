@@ -14,7 +14,7 @@ ShadowPass::ShadowPass() : RenderPass()
 
 ShadowPass::~ShadowPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 

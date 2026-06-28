@@ -8,7 +8,7 @@ MainRenderPass::MainRenderPass() : RenderPass()
 
 MainRenderPass::~MainRenderPass()
 {
-    this->renderTarget.release();
+    this->renderTarget.reset();
 }
 
 
