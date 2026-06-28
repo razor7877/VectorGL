@@ -21,7 +21,7 @@ public:
 	/// Returns the active game state
 	/// </summary>
 	/// <returns>A pointer to the current state, or nullptr if no state is active</returns>
-	const std::unique_ptr<GameState>& getCurrentState();
+	GameState* getCurrentState() const;
 
 	/// <summary>
 	/// Initializes the game
